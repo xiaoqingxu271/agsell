@@ -1,0 +1,57 @@
+server:
+  port: ${server.port}
+  servlet:
+    context-path: ${server.context-path}
+
+spring:
+  application:
+    name: agsell
+  profiles:
+    active: ${ACTIVE_PROFILE:local}
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://${db.host}:${db.port}/agsell?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: ${db.password}
+    username: ${db.username}
+  data:
+    # Redis配置
+    redis:
+      host: ${redis.host}
+      port: ${redis.port}
+      password: ${redis.password}
+      database: ${redis.database}
+      timeout: ${redis.timeout}
+
+# springdoc-openapi项目配置
+springdoc:
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.lichun.agsell.controller
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# mybatis-plus配置
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: deleted # 全局逻辑删除字段名(deleted为实体类属性名称)
+      logic-delete-value: 1 # 逻辑已删除值。可选，默认值为 1
+      logic-not-delete-value: 0 # 逻辑未删除值。可选，默认值为 0
+
+# jwt配置
+jwt:
+  expiration: ${jwt.expiration} # 过期时间，单位毫秒
+  secret: ${jwt.secret} # 64字节的密钥
+  token-header: ${jwt.token-header} # 令牌头名称
+  token-prefix: ${jwt.token-prefix} # 令牌前缀
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    
