@@ -32,6 +32,9 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/admin/login",
             "/api/health",
             "/api/sms/send",
+            // 商品浏览接口（无需登录）
+            "/api/product/category/list",
+            "/api/product/detail",
             // Swagger/Knife4j 文档
             "/api/doc.html",
             "/api/v3/api-docs",
@@ -47,6 +50,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
         // 白名单直接放行
         for (String path : WHITE_LIST) {
             if (uri.equals(path) || uri.startsWith(path + "/")) {
+                log.debug("URI {} matches whitelist path {}", uri, path);
                 return true;
             }
         }

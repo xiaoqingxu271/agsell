@@ -50,6 +50,83 @@ export interface AdminUserListItemVO {
   createTime: string
 }
 
+// ─── 商品分类相关类型 ───────────────────────────────────────────────────────────
+
+export interface CategoryListItemVO {
+  id: number
+  name: string
+  icon: string | null
+  parentId: number
+  sort: number
+  status: number
+  createTime: string
+}
+
+export interface CategoryTreeVO extends Omit<CategoryListItemVO, 'children'> {
+  children: CategoryTreeVO[]
+}
+
+export interface CategoryCreateRequest {
+  id?: number
+  name: string
+  icon?: string
+  parentId?: number
+  sort?: number
+}
+
+// ─── 商品相关类型 ──────────────────────────────────────────────────────────────
+
+export interface ProductSpecDTO {
+  id?: number
+  specName: string
+  price: number
+  stock: number
+  image?: string
+}
+
+export interface ProductListItemVO {
+  id: number
+  name: string
+  subtitle: string | null
+  categoryId: number
+  categoryName: string
+  price: number
+  originalPrice: number | null
+  stock: number
+  sales: number
+  mainImage: string | null
+  status: number
+  createTime: string
+}
+
+export interface ProductQueryRequest {
+  name?: string
+  categoryId?: number
+  status?: number | null
+  pageNum?: number
+  pageSize?: number
+}
+
+export interface ProductCreateRequest {
+  id?: number
+  name: string
+  subtitle?: string
+  categoryId: number
+  price: number
+  originalPrice?: number
+  stock: number
+  mainImage?: string
+  images?: string
+  description?: string
+  origin?: string
+  harvestDate?: string
+  shelfLife?: string
+  storage?: string
+  status?: number
+  sort?: number
+  specs?: ProductSpecDTO[]
+}
+
 // ─── 错误码枚举（与后端 ErrorCode 对齐）─────────────────────────────────────
 
 export enum ErrorCode {

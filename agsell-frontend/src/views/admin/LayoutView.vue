@@ -34,15 +34,22 @@ async function handleLogout() {
         :default-active="$route.path"
         router
         class="sidebar-menu"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409eff"
+        background-color="#1a7bf5"
+        text-color="#ffffffcc"
+        active-text-color="#ffffff"
+        :collapse-transition="false"
       >
         <el-menu-item index="/admin/dashboard">
           <span>数据概览</span>
         </el-menu-item>
         <el-menu-item index="/admin/users">
           <span>用户管理</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/categories">
+          <span>分类管理</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/products">
+          <span>商品管理</span>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -51,7 +58,7 @@ async function handleLogout() {
       <!-- 顶栏 -->
       <el-header class="header">
         <div class="header-left">
-          <span class="page-title">{{ $route.meta.title || '管理后台' }}</span>
+          <span class="breadcrumb">首页 / <span class="breadcrumb-current">{{ $route.meta.title || '管理后台' }}</span></span>
         </div>
         <div class="header-right">
           <span class="admin-name">{{ displayName }}</span>
@@ -75,7 +82,7 @@ async function handleLogout() {
 }
 
 .aside {
-  background: #304156;
+  background: #1a7bf5;
   display: flex;
   flex-direction: column;
 }
@@ -86,7 +93,7 @@ async function handleLogout() {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-bottom: 1px solid #3a4a5e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo-icon {
@@ -104,6 +111,10 @@ async function handleLogout() {
   border: none;
 }
 
+.sidebar-menu:not(.el-menu--collapse) {
+  width: 200px;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -119,10 +130,14 @@ async function handleLogout() {
   gap: 0.5rem;
 }
 
-.page-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #303133;
+.breadcrumb {
+  font-size: 0.875rem;
+  color: #909399;
+}
+
+.breadcrumb-current {
+  color: #1a7bf5;
+  font-weight: 500;
 }
 
 .header-right {
@@ -137,7 +152,7 @@ async function handleLogout() {
 }
 
 .main {
-  background: #f0f2f5;
+  background: #f5f7fa;
   padding: 1.25rem;
 }
 </style>

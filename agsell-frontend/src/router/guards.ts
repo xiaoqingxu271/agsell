@@ -43,6 +43,18 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         component: () => import('@/views/admin/UserListView.vue'),
         meta: { title: '用户管理' },
       },
+      {
+        path: 'categories',
+        name: 'AdminCategories',
+        component: () => import('@/views/admin/CategoryListView.vue'),
+        meta: { title: '分类管理' },
+      },
+      {
+        path: 'products',
+        name: 'AdminProducts',
+        component: () => import('@/views/admin/ProductListView.vue'),
+        meta: { title: '商品管理' },
+      },
     ],
   },
   {

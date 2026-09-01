@@ -27,7 +27,7 @@ export const useAdminStore = defineStore('admin', () => {
     loading.value = true
     try {
       const res = await getAdminInfo()
-      adminInfo.value = res.data
+      adminInfo.value = res
       return true
     } catch {
       // token 失效，清除

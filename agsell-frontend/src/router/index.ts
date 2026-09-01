@@ -13,7 +13,7 @@ router.beforeEach(async (to, _from) => {
   setTitle(to.meta)
 
   try {
-    const result = await handleAuthGuard(to)
+    const result = await handleAuthGuard(router.resolve(to.fullPath))
     if (result !== true) return result
   } catch {
     return '/admin/login'

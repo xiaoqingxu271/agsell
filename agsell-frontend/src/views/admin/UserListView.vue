@@ -19,8 +19,8 @@ async function fetchList() {
       pageSize: pageSize.value,
       keyword: keyword.value || undefined,
     })
-    userList.value = res.data.records
-    total.value = res.data.total
+    userList.value = res.records
+    total.value = res.total
   } catch {
     // interceptor already shows message
   } finally {
@@ -29,6 +29,12 @@ async function fetchList() {
 }
 
 function handleSearch() {
+  page.value = 1
+  fetchList()
+}
+
+function handleReset() {
+  keyword.value = ''
   page.value = 1
   fetchList()
 }
@@ -44,7 +50,6 @@ async function handleStatusChange(row: AdminUserListItemVO, status: number) {
     row.status = status
     ElMessage.success(status === 1 ? '已启用' : '已禁用')
   } catch {
-    // interceptor already shows message，回滚状态
     fetchList()
   }
 }
@@ -72,21 +77,33 @@ onMounted(fetchList)
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="loading" @click="handleSearch">搜索</el-button>
-          <el-button @click="keyword = ''; page = 1">重置</el-button>
+          <el-button type="primary" :loading="loading" @click="handleSearch">
+            
+            搜索
+          </el-button>
+          <el-button @click="handleReset">
+            
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <!-- 表格 -->
     <el-card shadow="never">
-      <el-table :data="userList" v-loading="loading" stripe border style="width: 100%">
-        <el-table-column prop="id" label="ID" width="80" />
+      <template #header>
+        <div class="card-header">
+          <span class="card-title">用户列表</span>
+        </div>
+      </template>
+
+      <el-table :data="userList" v-loading="loading" stripe :border="false" style="width: 100%">
+        <el-table-column prop="id" label="ID" width="80" align="center" />
         <el-table-column prop="nickname" label="昵称" min-width="120" />
         <el-table-column prop="phone" label="手机号" width="130" />
-        <el-table-column label="状态" width="80">
+        <el-table-column label="状态" width="80" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'">
+            <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
               {{ row.status === 1 ? '正常' : '禁用' }}
             </el-tag>
           </template>
@@ -101,7 +118,7 @@ onMounted(fetchList)
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="100" fixed="right">
+        <el-table-column label="操作" width="100" align="center" fixed="right">
           <template #default="{ row }">
             <el-switch
               :model-value="row.status === 1"
@@ -114,27 +131,48 @@ onMounted(fetchList)
       </el-table>
 
       <!-- 分页 -->
-      <el-pagination
-        v-model:current-page="page"
-        :page-size="pageSize"
-        :total="total"
-        layout="total, prev, pager, next"
-        class="pagination"
-        @current-change="handlePageChange"
-      />
+      <div class="pagination-wrap">
+        <span class="total-text">共 {{ total }} 条记录</span>
+        <el-pagination
+          v-model:current-page="page"
+          :page-size="pageSize"
+          :total="total"
+          layout="prev, pager, next"
+          :hide-on-single-page="true"
+          @current-change="handlePageChange"
+        />
+      </div>
     </el-card>
   </div>
 </template>
 
 <style scoped>
-.page {}
+.page { min-height: 100%; }
 
-.search-card {
-  margin-bottom: 1rem;
+.search-card { margin-bottom: 1rem; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.pagination {
-  margin-top: 1rem;
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #303133;
+}
+
+.pagination-wrap {
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.total-text {
+  font-size: 0.875rem;
+  color: #606266;
 }
 </style>

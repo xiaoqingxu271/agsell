@@ -21,8 +21,8 @@ async function handleLogin() {
   loading.value = true
   try {
     const res = await adminLogin(form.value)
-    adminStore.setToken(res.data.token)
-    adminStore.setAdminInfo(res.data)
+    adminStore.setToken(res.token)
+    adminStore.setAdminInfo(res)
 
     const redirect = router.currentRoute.value.query.redirect as string | undefined
     router.push(redirect || '/admin/dashboard')
