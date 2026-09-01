@@ -184,6 +184,26 @@ export interface AdminOrderDetailVO {
   items: OrderItemVO[]
 }
 
+// ─── 评价相关类型 ──────────────────────────────────────────────────────────────
+
+export interface ReplyRequest {
+  replyContent: string
+}
+
+export interface ReviewListItemVO {
+  id: number
+  orderId: number
+  productId: number
+  productName: string
+  userId: number
+  userName: string | null
+  rating: number
+  content: string
+  replied: boolean
+  isAnonymous: number
+  createTime: string
+}
+
 // ─── 错误码枚举（与后端 ErrorCode 对齐）─────────────────────────────────────
 
 export enum ErrorCode {

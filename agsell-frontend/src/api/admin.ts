@@ -15,6 +15,8 @@ import type {
   AdminOrderListItemVO,
   AdminOrderDetailVO,
   OrderShipRequest,
+  ReviewListItemVO,
+  ReplyRequest,
 } from '@/types'
 
 /** 管理员登录 */
@@ -120,4 +122,26 @@ export function getOrderDetail(orderNo: string) {
 /** 发货 */
 export function shipOrder(orderNo: string, data: OrderShipRequest) {
   return request.post<null>(`/admin/order/${orderNo}/ship`, data)
+}
+
+// ─── 评价 ─────────────────────────────────────────────────────────────────────
+
+/** 评价列表 */
+export function listReviews(params: {
+  pageNum?: number
+  pageSize?: number
+  productId?: number
+  replied?: boolean | null
+}) {
+  return request.get<Page<ReviewListItemVO>>('/admin/review/list', { params })
+}
+
+/** 回复评价 */
+export function replyReview(id: number, data: ReplyRequest) {
+  return request.post<null>(`/admin/review/${id}/reply`, data)
+}
+
+/** 删除评价 */
+export function deleteReview(id: number) {
+  return request.delete<null>(`/admin/review/${id}`)
 }

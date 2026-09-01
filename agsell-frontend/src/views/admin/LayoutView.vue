@@ -54,6 +54,9 @@ async function handleLogout() {
         <el-menu-item index="/admin/orders">
           <span>订单管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/reviews">
+          <span>评价管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 

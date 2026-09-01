@@ -35,6 +35,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             // 商品浏览接口（无需登录）
             "/api/product/category/list",
             "/api/product/detail",
+            // 评价浏览接口（无需登录）
+            "/api/review/product",
+            // 轮播图接口（无需登录）
+            "/api/banner/list",
             // Swagger/Knife4j 文档
             "/api/doc.html",
             "/api/v3/api-docs",
