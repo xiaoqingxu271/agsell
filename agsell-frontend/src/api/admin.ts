@@ -12,6 +12,9 @@ import type {
   ProductListItemVO,
   ProductQueryRequest,
   ProductCreateRequest,
+  AdminOrderListItemVO,
+  AdminOrderDetailVO,
+  OrderShipRequest,
 } from '@/types'
 
 /** 管理员登录 */
@@ -94,4 +97,27 @@ export function updateProductStatus(id: number, status: number) {
   return request.put<null>(`/admin/product/${id}/status`, null, {
     params: { status },
   })
+}
+
+// ─── 订单 ─────────────────────────────────────────────────────────────────────
+
+/** 订单列表（分页+筛选） */
+export function listOrders(params: {
+  pageNum?: number
+  pageSize?: number
+  status?: number | null
+  orderNo?: string
+  username?: string
+}) {
+  return request.get<Page<AdminOrderListItemVO>>('/admin/order/list', { params })
+}
+
+/** 订单详情 */
+export function getOrderDetail(orderNo: string) {
+  return request.get<AdminOrderDetailVO>(`/admin/order/${orderNo}`)
+}
+
+/** 发货 */
+export function shipOrder(orderNo: string, data: OrderShipRequest) {
+  return request.post<null>(`/admin/order/${orderNo}/ship`, data)
 }

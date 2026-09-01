@@ -26,7 +26,10 @@ public enum ErrorCode {
     // 验证码相关
     SMS_CODE_INVALID(40001, "验证码错误"),
     SMS_CODE_EXPIRED(40002, "验证码已过期"),
-    SMS_CODE_SEND_TOO_FAST(40003, "发送过于频繁，请稍后再试");
+    SMS_CODE_SEND_TOO_FAST(40003, "发送过于频繁，请稍后再试"),
+    // 购物车/订单相关
+    STOCK_INSUFFICIENT(50002, "库存不足"),
+    ORDER_STATUS_ERROR(50003, "订单状态异常");
 
     /**
      * 状态码

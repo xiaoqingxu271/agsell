@@ -127,6 +127,63 @@ export interface ProductCreateRequest {
   specs?: ProductSpecDTO[]
 }
 
+// ─── 订单相关类型 ──────────────────────────────────────────────────────────────
+
+export interface OrderShipRequest {
+  logType: string
+  logNo: string
+}
+
+export interface AdminOrderListItemVO {
+  id: number
+  orderNo: string
+  userId: number
+  username: string | null
+  totalAmount: number
+  payAmount: number
+  status: number
+  statusText: string
+  receiver: string
+  phone: string
+  itemCount: number
+  createTime: string
+}
+
+export interface OrderItemVO {
+  productId: number
+  productName: string
+  productImage: string | null
+  specName: string
+  price: number
+  quantity: number
+  subtotal: number
+}
+
+export interface AdminOrderDetailVO {
+  orderNo: string
+  userId: number
+  username: string | null
+  nickname: string | null
+  totalAmount: number
+  payAmount: number
+  freight: number
+  discount: number
+  status: number
+  statusText: string
+  receiver: string
+  phone: string
+  address: string
+  remark: string | null
+  createTime: string
+  payTime: string | null
+  deliveryTime: string | null
+  receiveTime: string | null
+  logType: string | null
+  logNo: string | null
+  cancelReason: string | null
+  items: OrderItemVO[]
+}
+
 // ─── 错误码枚举（与后端 ErrorCode 对齐）─────────────────────────────────────
 
 export enum ErrorCode {
