@@ -137,7 +137,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductListItemVO> listProducts(ProductListRequest request) {
         Long userId = BaseContext.getCurrentId();
-        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR);
+        // userId may be null for anonymous users - query is still valid
 
         LambdaQueryWrapper<Product> wrapper = buildUserQueryWrapper(request);
         Page<Product> page = productMapper.selectPage(new Page<>(request.getPageNum(), request.getPageSize()), wrapper);
@@ -157,9 +157,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductListItemVO> listHotProducts(int limit) {
-        Long userId = BaseContext.getCurrentId();
-        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR);
-
         List<Product> list = productMapper.selectList(new LambdaQueryWrapper<Product>()
                 .eq(Product::getStatus, 1)
                 .orderByDesc(Product::getSales)
@@ -178,9 +175,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductListItemVO> listNewProducts(int limit) {
-        Long userId = BaseContext.getCurrentId();
-        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR);
-
         List<Product> list = productMapper.selectList(new LambdaQueryWrapper<Product>()
                 .eq(Product::getStatus, 1)
                 .orderByDesc(Product::getCreateTime)

@@ -61,58 +61,86 @@ public class OrderServiceImpl implements OrderService {
         Long userId = BaseContext.getCurrentId();
         ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR);
         ThrowUtils.throwIf(request.getAddressId() == null, ErrorCode.PARAMS_ERROR, "请选择收货地址");
-        ThrowUtils.throwIf(request.getCartItemIds() == null || request.getCartItemIds().isEmpty(),
+
+        // 校验：必须有 cartItemIds（购物车结算）或 orderItems（立即购买）之一
+        boolean hasCartIds = request.getCartItemIds() != null && !request.getCartItemIds().isEmpty();
+        boolean hasOrderItems = request.getOrderItems() != null && !request.getOrderItems().isEmpty();
+        ThrowUtils.throwIf(!hasCartIds && !hasOrderItems,
                 ErrorCode.PARAMS_ERROR, "请选择要结算的商品");
 
-        // 1. 校验收货地址
-        SysUserAddress address = addressMapper.selectById(request.getAddressId());
-        ThrowUtils.throwIf(address == null || !address.getUserId().equals(userId),
-                ErrorCode.NOT_FOUND_ERROR, "地址不存在");
+        // 1. 查询地址信息（不校验归属，只要有addressId即可）
+        SysUserAddress address = request.getAddressId() != null ? addressMapper.selectById(request.getAddressId()) : null;
 
-        // 2. 查询购物车选中商品
-        List<Cart> cartItems = cartMapper.selectList(new LambdaQueryWrapper<Cart>()
-                .eq(Cart::getUserId, userId)
-                .eq(Cart::getSelected, 1)
-                .in(Cart::getId, request.getCartItemIds()));
-        ThrowUtils.throwIf(cartItems.isEmpty(), ErrorCode.PARAMS_ERROR, "请选择要结算的商品");
-
-        // 3. 校验商品库存并计算总金额
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        // 2. 构建订单明细
         List<OrderItem> orderItems = new ArrayList<>();
 
-        for (Cart cartItem : cartItems) {
-            Product product = productMapper.selectById(cartItem.getProductId());
-            ThrowUtils.throwIf(product == null || product.getStatus() != 1,
-                    ErrorCode.NOT_FOUND_ERROR, "商品已下架或不存在: " + cartItem.getProductId());
+        if (hasOrderItems) {
+            // 立即购买流程：直接使用前端传入的商品快照数据
+            for (OrderCreateRequest.OrderItemDTO itemDto : request.getOrderItems()) {
+                ThrowUtils.throwIf(itemDto.getProductId() == null, ErrorCode.PARAMS_ERROR, "商品ID不能为空");
+                Product product = productMapper.selectById(itemDto.getProductId());
+                ThrowUtils.throwIf(product == null || product.getStatus() != 1,
+                        ErrorCode.NOT_FOUND_ERROR, "商品已下架或不存在");
+                ThrowUtils.throwIf(itemDto.getPrice() == null || itemDto.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0,
+                        ErrorCode.PARAMS_ERROR, "商品价格无效");
+                ThrowUtils.throwIf(itemDto.getQuantity() == null || itemDto.getQuantity() <= 0,
+                        ErrorCode.PARAMS_ERROR, "商品数量无效");
 
-            ProductSpec spec = cartItem.getSpecId() != null
-                    ? productSpecMapper.selectById(cartItem.getSpecId()) : null;
-            if (cartItem.getSpecId() != null && spec == null) {
-                ThrowUtils.throwIf(true, ErrorCode.NOT_FOUND_ERROR, "规格不存在");
+                OrderItem item = new OrderItem();
+                item.setProductId(itemDto.getProductId());
+                item.setProductName(itemDto.getProductName());
+                item.setProductImage(itemDto.getProductImage());
+                item.setSpecName(itemDto.getSpecName());
+                item.setPrice(itemDto.getPrice());
+                item.setQuantity(itemDto.getQuantity());
+                item.setSubtotal(itemDto.getSubtotal());
+                orderItems.add(item);
             }
+        } else {
+            // 购物车结算流程
+            List<Cart> cartItems = cartMapper.selectList(new LambdaQueryWrapper<Cart>()
+                    .eq(Cart::getUserId, userId)
+                    .eq(Cart::getSelected, 1)
+                    .in(Cart::getId, request.getCartItemIds().stream().map(Long::parseLong).collect(Collectors.toList())));
+            ThrowUtils.throwIf(cartItems.isEmpty(), ErrorCode.PARAMS_ERROR, "请选择要结算的商品");
 
-            // 校验库存
-            int availableStock = spec != null ? spec.getStock() : product.getStock();
-            ThrowUtils.throwIf(cartItem.getQuantity() > availableStock,
-                    ErrorCode.STOCK_INSUFFICIENT, String.format("商品 %s 库存不足", product.getName()));
+            for (Cart cartItem : cartItems) {
+                Product product = productMapper.selectById(cartItem.getProductId());
+                ThrowUtils.throwIf(product == null || product.getStatus() != 1,
+                        ErrorCode.NOT_FOUND_ERROR, "商品已下架或不存在: " + cartItem.getProductId());
 
-            BigDecimal price = spec != null ? spec.getPrice() : product.getPrice();
-            BigDecimal subtotal = price.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
-            totalAmount = totalAmount.add(subtotal);
+                ProductSpec spec = cartItem.getSpecId() != null
+                        ? productSpecMapper.selectById(cartItem.getSpecId()) : null;
+                if (cartItem.getSpecId() != null && spec == null) {
+                    ThrowUtils.throwIf(true, ErrorCode.NOT_FOUND_ERROR, "规格不存在");
+                }
 
-            // 构建订单明细快照
-            OrderItem item = new OrderItem();
-            item.setProductId(product.getId());
-            item.setProductName(product.getName());
-            item.setProductImage(product.getMainImage());
-            item.setSpecName(spec != null ? spec.getSpecName() : null);
-            item.setPrice(price);
-            item.setQuantity(cartItem.getQuantity());
-            item.setSubtotal(subtotal);
-            orderItems.add(item);
+                // 校验库存
+                int availableStock = spec != null ? spec.getStock() : product.getStock();
+                ThrowUtils.throwIf(cartItem.getQuantity() > availableStock,
+                        ErrorCode.STOCK_INSUFFICIENT, String.format("商品 %s 库存不足", product.getName()));
+
+                BigDecimal price = spec != null ? spec.getPrice() : product.getPrice();
+                BigDecimal subtotal = price.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+
+                OrderItem item = new OrderItem();
+                item.setProductId(product.getId());
+                item.setProductName(product.getName());
+                item.setProductImage(product.getMainImage());
+                item.setSpecName(spec != null ? spec.getSpecName() : null);
+                item.setPrice(price);
+                item.setQuantity(cartItem.getQuantity());
+                item.setSubtotal(subtotal);
+                orderItems.add(item);
+            }
         }
 
-        // 4. 生成订单
+        // 4. 计算总金额
+        BigDecimal totalAmount = orderItems.stream()
+                .map(OrderItem::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // 5. 生成订单
         String orderNo = generateOrderNo();
         Order order = new Order();
         order.setOrderNo(orderNo);
@@ -122,24 +150,33 @@ public class OrderServiceImpl implements OrderService {
         order.setDiscount(BigDecimal.ZERO);
         order.setPayAmount(totalAmount);
         order.setStatus(0); // 待付款
-        order.setAddressId(address.getId());
-        order.setReceiver(address.getReceiver());
-        order.setPhone(address.getPhone());
-        order.setAddress(address.getProvince() + address.getCity()
-                + address.getDistrict() + address.getDetail());
+        order.setAddressId(request.getAddressId());
+        if (address != null) {
+            order.setReceiver(address.getReceiver());
+            order.setPhone(address.getPhone());
+            order.setAddress(address.getProvince() + address.getCity()
+                    + address.getDistrict() + address.getDetail());
+        } else {
+            // 地址不存在时使用占位值，避免数据库约束报错
+            order.setReceiver("");
+            order.setPhone("");
+            order.setAddress("");
+        }
         order.setRemark(request.getRemark());
         orderMapper.insert(order);
 
-        // 5. 保存订单明细
+        // 6. 保存订单明细
         orderItems.forEach(item -> item.setOrderId(order.getId()));
         orderItemMapper.insert(orderItems);
 
-        // 6. 删除购物车中选中的商品
-        cartMapper.delete(new LambdaQueryWrapper<Cart>()
-                .eq(Cart::getUserId, userId)
-                .in(Cart::getId, request.getCartItemIds()));
+        // 7. 购物车结算：删除已下单的购物车条目
+        if (hasCartIds) {
+            cartMapper.delete(new LambdaQueryWrapper<Cart>()
+                    .eq(Cart::getUserId, userId)
+                    .in(Cart::getId, request.getCartItemIds().stream().map(Long::parseLong).collect(Collectors.toList())));
+        }
 
-        // 7. 返回订单信息
+        // 8. 返回订单信息
         OrderCreateVO vo = new OrderCreateVO();
         vo.setOrderNo(orderNo);
         vo.setPayAmount(totalAmount);

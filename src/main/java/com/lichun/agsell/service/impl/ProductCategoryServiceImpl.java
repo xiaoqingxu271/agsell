@@ -62,7 +62,8 @@ public class ProductCategoryServiceImpl extends ServiceImpl<ProductCategoryMappe
     @Override
     public List<CategoryListItemVO> listCategories() {
         return lambdaQuery()
-                .orderByAsc(ProductCategory::getSort)
+                .eq(ProductCategory::getStatus, 1)
+                .orderByDesc(ProductCategory::getSort)
                 .list()
                 .stream()
                 .map(this::convertToListVO)

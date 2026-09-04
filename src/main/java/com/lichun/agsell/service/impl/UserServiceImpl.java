@@ -1,11 +1,13 @@
 package com.lichun.agsell.service.impl;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lichun.agsell.common.BaseContext;
 import com.lichun.agsell.exception.ErrorCode;
+import com.lichun.agsell.service.WechatService;
 import com.lichun.agsell.utils.ThrowUtils;
 import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.dto.UserLoginRequest;
@@ -34,6 +36,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     private final JwtUtils jwtUtils;
     private final SmsCodeService smsCodeService;
     private final RedisTokenService redisTokenService;
+    private final WechatService wechatService;
 
     @Override
     @Transactional
@@ -42,7 +45,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
                 ErrorCode.PARAMS_ERROR, "登录code不能为空");
 
         // 1. 调用微信接口换取 openid（开发阶段使用 mock）
-        String openid = mockOpenid(request.getCode());
+        String openid = wechatService.code2Session(request.getCode());
 
         // 2. 查询用户
         SysUser user = lambdaQuery()
@@ -55,7 +58,8 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
             user.setOpenid(openid);
             user.setUsername(generateUsername(openid));
             user.setPassword(""); // 微信登录用户无密码
-            user.setNickname("微信用户_" + openid.substring(Math.min(4, openid.length())));
+            user.setNickname("微信用户_" + RandomUtil.randomString(6));
+            user.setAvatar("https://www.codefather.cn/_next/image?url=%2Fimages%2Flogo.png&w=256&q=75");
             user.setStatus(1);
             save(user);
             log.info("新用户自动注册成功，openid: {}, userId: {}", openid, user.getId());
@@ -206,16 +210,6 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
 
     private boolean isMobile(String phone) {
         return phone != null && MOBILE_PATTERN.matcher(phone).matches();
-    }
-
-    /**
-     * 获取 openid（开发阶段 mock，生产环境调用微信接口）
-     */
-    private String mockOpenid(String code) {
-        // TODO: 生产环境替换为真实微信接口调用
-        // GET https://api.weixin.qq.com/sns/jscode2session?appid=...&secret=...&js_code=...&grant_type=authorization_code
-        log.info("微信登录 code: {}, 开发模式使用 mock openid", code);
-        return "mock_openid_" + Math.abs(code != null ? code.hashCode() : 0);
     }
 
     /**

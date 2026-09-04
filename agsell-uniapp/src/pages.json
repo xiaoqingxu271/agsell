@@ -1,0 +1,61 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "type": "home" },
+    { "path": "pages/category/category", "type": "page" },
+    { "path": "pages/product/product", "type": "page" },
+    { "path": "pages/cart/cart", "type": "page" },
+    { "path": "pages/order/list/list", "type": "page" },
+    { "path": "pages/order/detail/detail", "type": "page" },
+    { "path": "pages/order/confirm/confirm", "type": "page" },
+    { "path": "pages/order/pay-success/pay-success", "type": "page" },
+    { "path": "pages/review/write/write", "type": "page" },
+    { "path": "pages/review/list/list", "type": "page" },
+    { "path": "pages/mine/mine", "type": "page" },
+    { "path": "pages/mine/address", "type": "page" }
+  ],
+  "globalStyle": {
+    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "agsell 农产品",
+    "backgroundColor": "#f5f5f5",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tab-home.png",
+        "selectedIconPath": "static/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/category/category",
+        "text": "分类",
+        "iconPath": "static/tab-category.png",
+        "selectedIconPath": "static/tab-category-active.png"
+      },
+      {
+        "pagePath": "pages/cart/cart",
+        "text": "购物车",
+        "iconPath": "static/tab-cart.png",
+        "selectedIconPath": "static/tab-cart-active.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "static/tab-mine.png",
+        "selectedIconPath": "static/tab-mine-active.png"
+      }
+    ]
+  },
+  "uniIdHooks": true,
+  "networkTimeout": {
+    "request": 10000,
+    "connectSocket": 10000,
+    "downloadFile": 10000
+  }
+}

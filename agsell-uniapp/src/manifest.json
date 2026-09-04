@@ -1,0 +1,46 @@
+{
+  "name": "agsell-uniapp",
+  "appid": "wx2de9b1ef8a398923",
+  "description": "农产品/特产电商平台 - 微信小程序端",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "modules": {},
+    "distribute": {
+      "android": {
+        "permissions": [
+          "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>"
+        ]
+      },
+      "ios": {},
+      "sdkConfigs": {}
+    }
+  },
+  "mp-weixin": {
+    "appid": "wx2de9b1ef8a398923",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true,
+    "lazyCodeLoading": "requiredComponents"
+  },
+  "h5": {
+    "router": {
+      "mode": "hash"
+    },
+    "devServer": {
+      "port": 8081
+    }
+  },
+  "vueVersion": "3"
+}

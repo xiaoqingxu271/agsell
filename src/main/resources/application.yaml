@@ -50,6 +50,13 @@ jwt:
   token-header: ${jwt.token-header} # 令牌头名称
   token-prefix: ${jwt.token-prefix} # 令牌前缀
 
+# 微信小程序配置
+wechat:
+  miniapp:
+    appid: ${wechat.miniapp.appid}
+    secret: ${wechat.miniapp.secret}
+    code2session_url: https://api.weixin.qq.com/sns/jscode2session
+
 # 日志配置
 logging:
   level:

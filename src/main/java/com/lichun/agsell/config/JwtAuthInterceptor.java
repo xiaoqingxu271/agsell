@@ -35,6 +35,9 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             // 商品浏览接口（无需登录）
             "/api/product/category/list",
             "/api/product/detail",
+            "/api/product/list",
+            "/api/product/hot",
+            "/api/product/new",
             // 评价浏览接口（无需登录）
             "/api/review/product",
             // 轮播图接口（无需登录）
@@ -49,7 +52,12 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // 去除查询参数，只保留路径部分用于白名单匹配
         String uri = request.getRequestURI();
+        int queryStart = uri.indexOf('?');
+        if (queryStart > 0) {
+            uri = uri.substring(0, queryStart);
+        }
 
         // 白名单直接放行
         for (String path : WHITE_LIST) {

@@ -1,0 +1,23 @@
+{
+  "name": "agsell-uniapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:h5": "vite",
+    "dev:mp-weixin": "vite build --watch --mode mp-weixin",
+    "build:h5": "vite build",
+    "build:mp-weixin": "vite build --mode mp-weixin"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5020520260829001",
+    "@dcloudio/uni-components": "3.0.0-alpha-5020520260829001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5020520260829001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5020520260829001",
+    "vue": "3.4.21"
+  },
+  "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5020520260829001",
+    "sass": "1.64.2",
+    "vite": "5.2.8"
+  }
+}
