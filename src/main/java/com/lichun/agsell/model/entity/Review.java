@@ -20,6 +20,9 @@ public class Review implements Serializable {
     /** 订单ID */
     private Long orderId;
 
+    /** 订单明细ID（按明细评价，同一明细仅可评价一次） */
+    private Long orderItemId;
+
     /** 商品ID */
     private Long productId;
 

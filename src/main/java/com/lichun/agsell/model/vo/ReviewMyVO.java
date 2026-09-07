@@ -28,6 +28,9 @@ public class ReviewMyVO implements Serializable {
     /** 商品图片 */
     private String productImage;
 
+    /** 规格名称 */
+    private String specName;
+
     /** 评分 */
     private Integer rating;
 

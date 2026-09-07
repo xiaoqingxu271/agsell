@@ -11,8 +11,8 @@
           :key="item.id"
           class="cart-item card"
         >
-          <view class="item-checkbox" @click="onToggleSelect(item)">
-            <text class="checkbox-icon">{{ item.selected === 1 ? '✓' : '' }}</text>
+          <view class="item-checkbox" :class="{ disabled: item.valid === 0 }" @click="onToggleSelect(item)">
+            <text class="checkbox-icon">{{ item.valid !== 0 && item.selected === 1 ? '✓' : '' }}</text>
           </view>
           <image
             class="item-image"
@@ -24,12 +24,15 @@
             <text class="item-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="item-spec">{{ item.specName }}</text>
             <view class="item-bottom">
-              <text class="item-price">¥{{ item.price }}</text>
-              <view class="qty-control">
-                <view class="qty-btn" @click="onMinus(item)">-</view>
-                <text class="qty-value">{{ item.quantity }}</text>
-                <view class="qty-btn" @click="onPlus(item)">+</view>
-              </view>
+              <text v-if="item.valid === 0" class="item-invalid">{{ item.invalidReason || '商品已失效' }}</text>
+              <template v-else>
+                <text class="item-price">¥{{ item.price }}</text>
+                <view class="qty-control">
+                  <view class="qty-btn" @click="onMinus(item)">-</view>
+                  <text class="qty-value">{{ item.quantity }}</text>
+                  <view class="qty-btn" @click="onPlus(item)">+</view>
+                </view>
+              </template>
             </view>
           </view>
           <view class="item-delete" @click="onDelete(item)">
@@ -80,19 +83,24 @@ async function loadCart() {
   }
 }
 
-const selectedCount = computed(() => cartItems.value.filter(i => i.selected === 1).length)
+const selectedCount = computed(() => cartItems.value.filter(i => i.selected === 1 && i.valid !== 0).length)
 const totalAmount = computed(() => {
   return cartItems.value
-    .filter(i => i.selected === 1)
+    .filter(i => i.selected === 1 && i.valid !== 0)
     .reduce((sum, i) => sum + (Number(i.subtotal) || 0), 0)
     .toFixed(2)
 })
 
 function updateSelectAll() {
-  allSelected.value = cartItems.value.length > 0 && cartItems.value.every(i => i.selected === 1)
+  const validItems = cartItems.value.filter(i => i.valid !== 0)
+  allSelected.value = validItems.length > 0 && validItems.every(i => i.selected === 1)
 }
 
 function onToggleSelect(item) {
+  if (item.valid === 0) {
+    uni.showToast({ title: item.invalidReason || '商品已失效', icon: 'none' })
+    return
+  }
   toggleCartSelect(item.id).then(() => loadCart())
 }
 
@@ -101,6 +109,10 @@ function onToggleAll() {
 }
 
 function onPlus(item) {
+  if (item.valid === 0) {
+    uni.showToast({ title: item.invalidReason || '商品已失效', icon: 'none' })
+    return
+  }
   const maxStock = item.stock || 999
   if (item.quantity >= maxStock) {
     uni.showToast({ title: `库存不足（最多${maxStock}件）`, icon: 'none' })
@@ -110,6 +122,10 @@ function onPlus(item) {
 }
 
 function onMinus(item) {
+  if (item.valid === 0) {
+    uni.showToast({ title: item.invalidReason || '商品已失效', icon: 'none' })
+    return
+  }
   if (item.quantity <= 1) {
     onDelete(item)
     return
@@ -136,7 +152,7 @@ function onCheckout() {
     uni.showToast({ title: '请选择商品', icon: 'none' })
     return
   }
-  const items = cartItems.value.filter(i => i.selected === 1)
+  const items = cartItems.value.filter(i => i.selected === 1 && i.valid !== 0)
   // 将ID转为字符串避免精度丢失，然后序列化为JSON
   const safeItems = items.map(item => ({
     ...item,
@@ -343,5 +359,19 @@ function goToShop() {
 
 .checkout-btn.disabled {
   background: #ccc;
+}
+
+.item-checkbox.disabled .checkbox-icon {
+  color: #ccc;
+  background: #f2f2f2;
+}
+
+.item-invalid {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.cart-item .item-info {
+  opacity: 1;
 }
 </style>

@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS `review`;
 CREATE TABLE `review` (
     `id`            BIGINT         NOT NULL COMMENT '主键（雪花ID）',
     `order_id`      BIGINT         NOT NULL COMMENT '订单ID',
+    `order_item_id` BIGINT         DEFAULT NULL COMMENT '订单明细ID（按明细评价，同一明细仅可评价一次）',
     `product_id`    BIGINT         NOT NULL COMMENT '商品ID',
     `user_id`       BIGINT         NOT NULL COMMENT '用户ID',
     `rating`        TINYINT        NOT NULL COMMENT '评分 1-5',
@@ -23,7 +24,7 @@ CREATE TABLE `review` (
     `update_time`   DATETIME     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted`       TINYINT      NOT NULL DEFAULT 0 COMMENT '软删除标记',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_order_id` (`order_id`),
+    UNIQUE KEY `uk_order_item` (`order_item_id`),
     KEY `idx_product_id` (`product_id`),
     KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评价表';

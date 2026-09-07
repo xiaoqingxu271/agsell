@@ -269,6 +269,7 @@ public class OrderServiceImpl implements OrderService {
                 new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, order.getId()));
         vo.setItems(items.stream().map(item -> {
             OrderDetailVO.OrderItemVO itemVo = new OrderDetailVO.OrderItemVO();
+            itemVo.setId(item.getId());
             itemVo.setProductId(item.getProductId());
             itemVo.setProductName(item.getProductName());
             itemVo.setProductImage(item.getProductImage());

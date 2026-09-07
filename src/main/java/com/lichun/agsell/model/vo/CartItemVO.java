@@ -38,5 +38,11 @@ public class CartItemVO implements Serializable {
 
     private Integer stock;
 
+    /** 是否有效 1=有效 0=失效（商品已下架/已删除） */
+    private Integer valid;
+
+    /** 失效原因 */
+    private String invalidReason;
+
     private java.time.LocalDateTime createTime;
 }

@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,15 +57,35 @@ public class ReviewServiceImpl implements ReviewService {
         ThrowUtils.throwIf(order.getStatus() != 3,
                 ErrorCode.OPERATION_ERROR, "只有已完成的订单才能评价");
 
-        // 校验是否已评价
-        long existCount = reviewMapper.selectCount(new LambdaQueryWrapper<Review>()
-                .eq(Review::getOrderId, request.getOrderId()));
-        ThrowUtils.throwIf(existCount > 0,
-                ErrorCode.OPERATION_ERROR, "该订单已评价");
+        // 定位订单明细：优先按 orderItemId，兼容旧调用（订单仅一条明细时允许不传）
+        List<OrderItem> orderItems = orderItemMapper.selectList(new LambdaQueryWrapper<OrderItem>()
+                .eq(OrderItem::getOrderId, request.getOrderId()));
+        ThrowUtils.throwIf(orderItems.isEmpty(), ErrorCode.NOT_FOUND_ERROR, "订单明细不存在");
 
-        // 构建评价
+        OrderItem targetItem;
+        if (request.getOrderItemId() != null) {
+            targetItem = orderItems.stream()
+                    .filter(i -> i.getId().equals(request.getOrderItemId()))
+                    .findFirst()
+                    .orElse(null);
+            ThrowUtils.throwIf(targetItem == null, ErrorCode.PARAMS_ERROR, "订单明细不存在，请选择要评价的商品");
+        } else {
+            ThrowUtils.throwIf(orderItems.size() != 1,
+                    ErrorCode.PARAMS_ERROR, "该订单包含多个商品，请选择要评价的商品");
+            targetItem = orderItems.get(0);
+        }
+
+        // 校验该明细是否已评价（按 order_item_id 维度，同一商品不同订单可分别评价）
+        long existCount = reviewMapper.selectCount(new LambdaQueryWrapper<Review>()
+                .eq(Review::getOrderItemId, targetItem.getId()));
+        ThrowUtils.throwIf(existCount > 0,
+                ErrorCode.OPERATION_ERROR, "该商品已评价");
+
+        // 构建评价（商品ID以订单明细为准，不信任前端）
         Review review = new Review();
         review.setOrderId(request.getOrderId());
+        review.setOrderItemId(targetItem.getId());
+        review.setProductId(targetItem.getProductId());
         review.setUserId(userId);
         review.setRating(request.getRating());
         review.setContent(request.getContent());
@@ -72,12 +93,6 @@ public class ReviewServiceImpl implements ReviewService {
         if (request.getImages() != null && !request.getImages().isEmpty()) {
             review.setImages(JSONUtil.toJsonStr(request.getImages()));
         }
-
-        // 从订单明细中获取商品ID（取第一条）
-        List<OrderItem> orderItems = orderItemMapper.selectList(new LambdaQueryWrapper<OrderItem>()
-                .eq(OrderItem::getOrderId, request.getOrderId()));
-        ThrowUtils.throwIf(orderItems.isEmpty(), ErrorCode.NOT_FOUND_ERROR, "订单明细不存在");
-        review.setProductId(orderItems.get(0).getProductId());
 
         reviewMapper.insert(review);
     }
@@ -117,15 +132,19 @@ public class ReviewServiceImpl implements ReviewService {
                         .eq(Review::getUserId, userId)
                         .orderByDesc(Review::getCreateTime));
 
-        // 批量查询商品信息
-        List<Long> productIds = page.getRecords().stream()
-                .map(Review::getProductId)
+        // 批量查询订单明细快照（商品名/图/规格）
+        List<Long> orderItemIds = page.getRecords().stream()
+                .map(Review::getOrderItemId)
+                .filter(java.util.Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
+        Map<Long, OrderItem> itemMap = orderItemIds.isEmpty() ? new HashMap<>()
+                : orderItemMapper.selectBatchIds(orderItemIds).stream()
+                        .collect(Collectors.toMap(OrderItem::getId, i -> i, (a, b) -> a));
 
         Page<ReviewMyVO> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         result.setRecords(page.getRecords().stream()
-                .map(r -> convertToMyVO(r))
+                .map(r -> convertToMyVO(r, itemMap.get(r.getOrderItemId())))
                 .collect(Collectors.toList()));
         return result;
     }
@@ -167,7 +186,7 @@ public class ReviewServiceImpl implements ReviewService {
         return vo;
     }
 
-    private ReviewMyVO convertToMyVO(Review review) {
+    private ReviewMyVO convertToMyVO(Review review, OrderItem orderItem) {
         ReviewMyVO vo = new ReviewMyVO();
         vo.setId(review.getId());
         vo.setOrderId(review.getOrderId());
@@ -177,6 +196,13 @@ public class ReviewServiceImpl implements ReviewService {
         vo.setReplyContent(review.getReplyContent());
         vo.setReplyTime(review.getReplyTime());
         vo.setCreateTime(review.getCreateTime());
+
+        // 商品信息以订单明细快照为准（商品可能已下架/改名，快照保证历史一致）
+        if (orderItem != null) {
+            vo.setProductName(orderItem.getProductName());
+            vo.setProductImage(orderItem.getProductImage());
+            vo.setSpecName(orderItem.getSpecName());
+        }
 
         // 解析图片
         if (review.getImages() != null && !review.getImages().isEmpty()) {
@@ -189,7 +215,6 @@ public class ReviewServiceImpl implements ReviewService {
             vo.setImages(List.of());
         }
 
-        // 简化处理：商品名称和图片从订单明细中获取（实际项目中可关联查询）
         return vo;
     }
 }

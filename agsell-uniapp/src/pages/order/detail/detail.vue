@@ -200,9 +200,9 @@ async function onConfirmReceive() {
 function onReview() {
   const items = orderDetail.value?.items || []
   if (items.length === 0) return
-  const item = items[0]
+  // 写评价页根据订单号加载商品明细，支持一单多商品分别评价
   uni.navigateTo({
-    url: `/pages/review/write/write?orderId=${orderDetail.value.id}&productId=${item.productId}&productName=${encodeURIComponent(item.productName)}&productImage=${encodeURIComponent(item.productImage || '')}&specName=${encodeURIComponent(item.specName || '')}`
+    url: `/pages/review/write/write?orderNo=${orderDetail.value.orderNo}`
   })
 }
 

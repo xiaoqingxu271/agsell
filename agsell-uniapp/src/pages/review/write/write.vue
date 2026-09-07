@@ -3,13 +3,24 @@
     <NavBar title="评价商品" />
 
     <scroll-view scroll-y class="content">
-      <!-- 商品信息 -->
+      <!-- 商品信息（一单多商品可切换） -->
       <view class="product-info card">
-        <image class="product-img" :src="productImage || '/static/default-product.png'" mode="aspectFill" />
-        <view class="product-detail">
-          <text class="product-name">{{ productName }}</text>
-          <text v-if="specName" class="product-spec">{{ specName }}</text>
+        <view
+          v-for="(item, idx) in items"
+          :key="item.id"
+          class="product-item"
+          :class="{ active: idx === currentIndex }"
+          @click="currentIndex = idx"
+        >
+          <image class="product-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" />
+          <view class="product-detail">
+            <text class="product-name">{{ item.productName }}</text>
+            <text v-if="item.specName" class="product-spec">{{ item.specName }}</text>
+            <text class="product-price">¥{{ item.price }} × {{ item.quantity }}</text>
+          </view>
+          <text class="product-check">{{ idx === currentIndex ? '✓' : '' }}</text>
         </view>
+        <text v-if="items.length > 1" class="product-hint">该订单共 {{ items.length }} 件商品，点击切换要评价的商品</text>
       </view>
 
       <!-- 评分 -->
@@ -75,13 +86,12 @@ import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import StarRating from '../../../components/StarRating/StarRating.vue'
 import { createReview } from '../../../api/review'
+import { getOrderDetail } from '../../../api/order'
 import { uploadMiniImage } from '../../../utils/upload'
 
 const orderId = ref('')
-const productId = ref('')
-const productName = ref('')
-const productImage = ref('')
-const specName = ref('')
+const items = ref([])
+const currentIndex = ref(0)
 const rating = ref(0)
 const content = ref('')
 const isAnonymous = ref(0)
@@ -92,12 +102,19 @@ const ratingText = computed(() => {
   return texts[rating.value] || ''
 })
 
-onLoad((options) => {
-  orderId.value = options.orderId || ''
-  productId.value = options.productId || ''
-  productName.value = decodeURIComponent(options.productName || '')
-  productImage.value = decodeURIComponent(options.productImage || '')
-  specName.value = options.specName || ''
+onLoad(async (options) => {
+  const orderNo = options.orderNo || ''
+  if (!orderNo) {
+    uni.showToast({ title: '缺少订单号', icon: 'none' })
+    return
+  }
+  const res = await getOrderDetail(orderNo)
+  if (res.code === 0 && res.data) {
+    orderId.value = res.data.id
+    items.value = res.data.items || []
+  } else {
+    uni.showToast({ title: res.message || '订单加载失败', icon: 'none' })
+  }
 })
 
 function onRatingChange(star) {
@@ -133,6 +150,11 @@ function previewImage(index) {
 }
 
 async function onSubmit() {
+  const current = items.value[currentIndex.value]
+  if (!current || !current.id) {
+    uni.showToast({ title: '商品信息加载失败', icon: 'none' })
+    return
+  }
   if (rating.value === 0) {
     uni.showToast({ title: '请选择评分', icon: 'none' })
     return
@@ -144,7 +166,7 @@ async function onSubmit() {
 
   const res = await createReview({
     orderId: orderId.value,
-    productId: productId.value,
+    orderItemId: current.id,
     rating: rating.value,
     content: content.value.trim(),
     images: imageUrls.value.length > 0 ? imageUrls.value : undefined,
@@ -183,14 +205,34 @@ async function onSubmit() {
 
 .product-info {
   display: flex;
+  flex-direction: column;
+}
+
+.product-item {
+  display: flex;
   align-items: center;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f2f2f2;
+}
+
+.product-item.active {
+  background: #f7fff7;
+  border-radius: 12rpx;
+  padding: 12rpx 16rpx;
+  margin: 0 -16rpx;
+  border-bottom-color: transparent;
+}
+
+.product-item:last-child {
+  border-bottom: none;
 }
 
 .product-img {
-  width: 160rpx;
-  height: 160rpx;
+  width: 120rpx;
+  height: 120rpx;
   border-radius: 12rpx;
   background: #f5f5f5;
+  flex-shrink: 0;
 }
 
 .product-detail {
@@ -200,7 +242,7 @@ async function onSubmit() {
 }
 
 .product-name {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: bold;
   color: #333;
   display: -webkit-box;
@@ -213,6 +255,41 @@ async function onSubmit() {
   font-size: 24rpx;
   color: #999;
   margin-top: 8rpx;
+  display: block;
+}
+
+.product-price {
+  font-size: 24rpx;
+  color: #FF9800;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.product-check {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #ccc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: transparent;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.product-item.active .product-check {
+  border-color: #4CAF50;
+  color: #4CAF50;
+  background: #f0fff0;
+}
+
+.product-hint {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 12rpx;
+  display: block;
 }
 
 .section-title {

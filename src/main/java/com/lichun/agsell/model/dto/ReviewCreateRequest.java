@@ -18,6 +18,9 @@ public class ReviewCreateRequest implements Serializable {
     /** 订单ID */
     private Long orderId;
 
+    /** 订单明细ID（按明细评价，一单多商品时必填；订单仅一条明细时可省略） */
+    private Long orderItemId;
+
     /** 评分 1-5 */
     private Integer rating;
 
