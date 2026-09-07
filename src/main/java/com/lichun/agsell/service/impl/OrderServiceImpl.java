@@ -203,6 +203,7 @@ public class OrderServiceImpl implements OrderService {
         Page<OrderListItemVO> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         result.setRecords(page.getRecords().stream().map(order -> {
             OrderListItemVO vo = new OrderListItemVO();
+            vo.setId(order.getId());
             vo.setOrderNo(order.getOrderNo());
             vo.setTotalAmount(order.getTotalAmount());
             vo.setPayAmount(order.getPayAmount());
@@ -229,6 +230,7 @@ public class OrderServiceImpl implements OrderService {
         ThrowUtils.throwIf(order == null, ErrorCode.NOT_FOUND_ERROR, "订单不存在");
 
         OrderDetailVO vo = new OrderDetailVO();
+        vo.setId(order.getId());
         vo.setOrderNo(order.getOrderNo());
         vo.setTotalAmount(order.getTotalAmount());
         vo.setPayAmount(order.getPayAmount());

@@ -200,8 +200,9 @@ async function onConfirmReceive(order) {
 }
 
 function onReview(order) {
+  // 跳转订单详情页，让详情页负责携带完整的 orderId 和商品参数
   uni.navigateTo({
-    url: `/pages/review/write/write?orderId=${order.id}&productId=`
+    url: `/pages/order/detail/detail?orderNo=${order.orderNo}`
   })
 }
 

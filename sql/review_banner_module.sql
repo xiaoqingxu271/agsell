@@ -9,7 +9,7 @@ USE `agsell`;
 -- ------------------------------------------------------------
 DROP TABLE IF EXISTS `review`;
 CREATE TABLE `review` (
-    `id`            BIGINT         NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `id`            BIGINT         NOT NULL COMMENT '主键（雪花ID）',
     `order_id`      BIGINT         NOT NULL COMMENT '订单ID',
     `product_id`    BIGINT         NOT NULL COMMENT '商品ID',
     `user_id`       BIGINT         NOT NULL COMMENT '用户ID',
@@ -33,7 +33,7 @@ CREATE TABLE `review` (
 -- ------------------------------------------------------------
 DROP TABLE IF EXISTS `banner`;
 CREATE TABLE `banner` (
-    `id`          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `id`          BIGINT       NOT NULL COMMENT '主键（雪花ID）',
     `title`       VARCHAR(100) DEFAULT NULL COMMENT '标题',
     `image`       VARCHAR(255) NOT NULL COMMENT '图片URL',
     `link`        VARCHAR(255) DEFAULT NULL COMMENT '跳转链接',

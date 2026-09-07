@@ -17,6 +17,8 @@ public class OrderDetailVO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    private Long id;
+
     private String orderNo;
 
     private BigDecimal totalAmount;

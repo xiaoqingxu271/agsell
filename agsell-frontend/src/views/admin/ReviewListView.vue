@@ -22,7 +22,7 @@ async function fetchList() {
       replied: repliedFilter.value === null ? undefined : repliedFilter.value === 1,
     })
     reviewList.value = res.records
-    total.value = res.total
+    total.value = Number(res.total)
   } catch {
     // interceptor handles error
   } finally {
@@ -105,7 +105,7 @@ onMounted(fetchList)
 <template>
   <div class="page">
     <!-- 搜索栏 -->
-    <el-card shadow="never" class="search-card">
+    <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" :model="{ productId, repliedFilter }" @submit.prevent="handleSearch">
         <el-form-item label="商品ID">
           <el-input
@@ -132,65 +132,65 @@ onMounted(fetchList)
     <!-- 表格 -->
     <el-card shadow="never">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">评价列表</span>
+        <div class="admin-card-header">
+          <span class="admin-card-title">评价列表</span>
         </div>
       </template>
 
-      <el-table :data="reviewList" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="70" align="center" />
-        <el-table-column label="商品" min-width="150">
+      <el-table class="admin-table" :data="reviewList" v-loading="loading" stripe :border="false" style="width: 100%">
+        <el-table-column prop="id" label="ID" width="120" align="center" show-overflow-tooltip />
+        <el-table-column label="商品" min-width="100" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             <span>{{ row.productName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="评分" width="100" align="center">
+        <el-table-column label="评分" width="120" align="center">
           <template #default="{ row }">
-            <span class="rating">{{ ratingStars(row.rating) }}</span>
+            <span class="admin-rating">{{ ratingStars(row.rating) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="评价内容" min-width="200">
+        <el-table-column label="评价内容" min-width="120" align="center" show-overflow-tooltip>
           <template #default="{ row }">
-            <span class="content">{{ row.content }}</span>
+            <span class="admin-content">{{ row.content }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="userName" label="用户" width="120">
+        <el-table-column prop="userName" label="用户" width="120" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ row.userName ?? (row.isAnonymous === 1 ? '匿名用户' : '-') }}
           </template>
         </el-table-column>
-        <el-table-column label="回复状态" width="90" align="center">
+        <el-table-column label="回复状态" width="200" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.replied ? 'success' : 'warning'" size="small">
+            <el-tag :type="row.replied ? 'success' : 'warning'" class="admin-status-tag" size="small">
               {{ row.replied ? '已回复' : '未回复' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" width="160">
+        <el-table-column label="创建时间" width="180" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" align="center" fixed="right">
+        <el-table-column label="操作" width="150" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="openReply(row)">
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openReply(row)">
               {{ row.replied ? '查看回复' : '回复' }}
             </el-button>
-            <el-divider direction="vertical" />
-            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-divider direction="vertical" class="admin-action-divider" />
+            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <!-- 分页 -->
-      <div class="pagination-wrap">
-        <span class="total-text">共 {{ total }} 条记录</span>
+      <div class="admin-pagination">
+        <span class="admin-total-text">共 {{ total }} 条记录</span>
         <el-pagination
           v-model:current-page="page"
           :page-size="pageSize"
           :total="total"
           layout="prev, pager, next"
-          :hide-on-single-page="true"
+          :hide-on-single-page="false"
           @current-change="handlePageChange"
         />
       </div>
@@ -219,7 +219,7 @@ onMounted(fetchList)
           <el-descriptions-item label="卖家回复" :span="2">
             <template v-if="replyTarget.replied">
               <el-tag type="success" size="small" style="margin-right: 0.5rem">已回复</el-tag>
-              <span>{{ (replyTarget as any).replyContent ?? '-' }}</span>
+              <span>{{ replyTarget.replyContent ?? '-' }}</span>
             </template>
             <span v-else class="text-muted">暂无回复</span>
           </el-descriptions-item>
@@ -255,51 +255,4 @@ onMounted(fetchList)
 
 <style scoped>
 .page { min-height: 100%; }
-
-.search-card { margin-bottom: 1rem; }
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #303133;
-}
-
-.rating {
-  color: #f7ba2a;
-  font-size: 0.875rem;
-  letter-spacing: 2px;
-}
-
-.content {
-  font-size: 0.875rem;
-  color: #303133;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.text-muted {
-  color: #c0c4cc;
-  font-size: 0.875rem;
-}
-
-.pagination-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.total-text {
-  font-size: 0.875rem;
-  color: #606266;
-}
 </style>

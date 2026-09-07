@@ -124,6 +124,28 @@ export function shipOrder(orderNo: string, data: OrderShipRequest) {
   return request.post<null>(`/admin/order/${orderNo}/ship`, data)
 }
 
+// ─── 轮播图 ────────────────────────────────────────────────────────────────────
+
+/** 轮播图列表（管理端） */
+export function listAllBanners() {
+  return request.get<any[]>('/admin/banner/list')
+}
+
+/** 新增轮播图 */
+export function createBanner(data: any) {
+  return request.post<null>('/admin/banner', data)
+}
+
+/** 更新轮播图 */
+export function updateBanner(id: number, data: any) {
+  return request.put<null>(`/admin/banner/${id}`, data)
+}
+
+/** 删除轮播图 */
+export function deleteBanner(id: number) {
+  return request.delete<null>(`/admin/banner/${id}`)
+}
+
 // ─── 评价 ─────────────────────────────────────────────────────────────────────
 
 /** 评价列表 */

@@ -1,7 +1,7 @@
 <template>
   <view class="mine-page">
     <!-- 用户信息区 -->
-    <view v-if="isUserLoggedIn" class="user-header">
+    <view v-if="isUserLoggedIn" class="user-header" @click="onChooseAvatar">
       <image
         class="user-avatar"
         :src="userInfo?.avatar || '/static/default-avatar.png'"
@@ -11,6 +11,7 @@
         <text class="user-name">{{ userInfo?.nickname || '微信用户' }}</text>
         <text class="user-phone">{{ userInfo?.phone || '暂无绑定手机号' }}</text>
       </view>
+      <text class="avatar-tip">点击更换头像</text>
     </view>
     <view v-else class="user-header login-prompt">
       <image class="user-avatar" src="/static/default-avatar.png" mode="aspectFill" />
@@ -65,9 +66,10 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { getUserInfo, logout } from '../../api/user'
+import { getUserInfo, updateUserInfo, logout } from '../../api/user'
 import { getOrderList } from '../../api/order'
 import { wxLogin, isLoggedIn } from '../../utils/request'
+import { uploadMiniImage } from '../../utils/upload'
 
 const userInfo = ref(null)
 const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
@@ -160,6 +162,29 @@ async function onLogout() {
     }
   })
 }
+
+async function onChooseAvatar() {
+  uni.chooseImage({
+    count: 1,
+    sizeType: ['compressed'],
+    sourceType: ['album', 'camera'],
+    success: async (res) => {
+      const filePath = res.tempFilePaths[0]
+      uni.showLoading({ title: '上传中...', mask: true })
+      try {
+        const url = await uploadMiniImage(filePath, 'user/avatar')
+        await updateUserInfo({ avatar: url })
+        userInfo.value = { ...userInfo.value, avatar: url }
+        uni.setStorageSync('userInfo', userInfo.value)
+        uni.showToast({ title: '头像已更新', icon: 'success' })
+      } catch {
+        // error already shown inside uploadMiniImage
+      } finally {
+        uni.hideLoading()
+      }
+    }
+  })
+}
 </script>
 
 <style scoped>
@@ -204,6 +229,24 @@ async function onLogout() {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.3);
   border: 4rpx solid rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.user-header.login-prompt .user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.avatar-tip {
+  margin-left: 24rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
 }
 
 .user-info {

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @TableName("banner")
 public class Banner implements Serializable {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /** 标题 */

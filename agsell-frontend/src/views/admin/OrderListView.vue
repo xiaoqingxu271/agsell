@@ -22,7 +22,7 @@ async function fetchList() {
       orderNo: keyword.value || undefined,
     })
     orderList.value = res.records
-    total.value = res.total
+    total.value = Number(res.total)
   } catch {
     // interceptor handles error
   } finally {
@@ -106,7 +106,7 @@ onMounted(fetchList)
 <template>
   <div class="page">
     <!-- 搜索栏 -->
-    <el-card shadow="never" class="search-card">
+    <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" :model="{ keyword, statusFilter }" @submit.prevent="handleSearch">
         <el-form-item label="订单号">
           <el-input
@@ -137,55 +137,56 @@ onMounted(fetchList)
     <!-- 表格 -->
     <el-card shadow="never">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">订单列表</span>
+        <div class="admin-card-header">
+          <span class="admin-card-title">订单列表</span>
         </div>
       </template>
 
-      <el-table :data="orderList" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="orderNo" label="订单号" width="260" />
-        <el-table-column prop="username" label="用户" width="160">
+      <el-table class="admin-table" :data="orderList" v-loading="loading" stripe :border="false" style="width: 100%">
+        <el-table-column prop="orderNo" label="订单号" width="240" align="center" show-overflow-tooltip />
+        <el-table-column prop="username" label="用户" min-width="180" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ row.username ?? row.phone ?? '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="实付金额" width="100" align="right">
+        <el-table-column label="实付金额" width="100" align="center">
           <template #default="{ row }">
-            <span class="price">¥{{ row.payAmount?.toFixed(2) }}</span>
+            <span class="admin-price">¥{{ Number(row.payAmount ?? 0).toFixed(2) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="收货人" width="100">
+        <el-table-column label="收货人" width="90" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ row.receiver }}
           </template>
         </el-table-column>
-        <el-table-column label="联系方式" width="130">
+        <el-table-column label="联系方式" width="130" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ row.phone }}
           </template>
         </el-table-column>
         <el-table-column prop="itemCount" label="商品数" width="80" align="center" />
-        <el-table-column label="状态" width="90" align="center">
+        <el-table-column label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === 3 ? 'success' : row.status === 1 ? 'warning' : row.status === 0 ? 'info' : 'danger'" size="small">
+            <el-tag :type="row.status === 3 ? 'success' : row.status === 1 ? 'warning' : row.status === 0 ? 'info' : 'danger'" class="admin-status-tag" size="small">
               {{ row.statusText }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" width="160">
+        <el-table-column label="创建时间" min-width="180" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="openDetail(row.orderNo)">详情</el-button>
-            <el-divider direction="vertical" />
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openDetail(row.orderNo)">详情</el-button>
+            <el-divider direction="vertical" class="admin-action-divider" />
             <el-button
               v-if="row.status === 1"
               link
               type="success"
               size="small"
+              class="admin-action-btn"
               @click="openShip(row)"
             >
               发货
@@ -195,14 +196,14 @@ onMounted(fetchList)
       </el-table>
 
       <!-- 分页 -->
-      <div class="pagination-wrap">
-        <span class="total-text">共 {{ total }} 条记录</span>
+      <div class="admin-pagination">
+        <span class="admin-total-text">共 {{ total }} 条记录</span>
         <el-pagination
           v-model:current-page="page"
           :page-size="pageSize"
           :total="total"
           layout="prev, pager, next"
-          :hide-on-single-page="true"
+          :hide-on-single-page="false"
           @current-change="handlePageChange"
         />
       </div>
@@ -227,10 +228,10 @@ onMounted(fetchList)
           <el-descriptions-item label="用户">{{ detail.username ?? detail.nickname ?? '-' }}</el-descriptions-item>
           <el-descriptions-item label="联系电话">{{ detail.phone }}</el-descriptions-item>
           <el-descriptions-item label="收货地址" :span="2">{{ detail.address }}</el-descriptions-item>
-          <el-descriptions-item label="订单金额">¥{{ detail.totalAmount?.toFixed(2) }}</el-descriptions-item>
-          <el-descriptions-item label="实付金额">¥{{ detail.payAmount?.toFixed(2) }}</el-descriptions-item>
-          <el-descriptions-item label="运费">¥{{ detail.freight?.toFixed(2) ?? '0.00' }}</el-descriptions-item>
-          <el-descriptions-item label="优惠金额">¥{{ detail.discount?.toFixed(2) ?? '0.00' }}</el-descriptions-item>
+          <el-descriptions-item label="订单金额">¥{{ Number(detail.totalAmount ?? 0).toFixed(2) }}</el-descriptions-item>
+          <el-descriptions-item label="实付金额">¥{{ Number(detail.payAmount ?? 0).toFixed(2) }}</el-descriptions-item>
+          <el-descriptions-item label="运费">¥{{ Number(detail.freight ?? 0).toFixed(2) }}</el-descriptions-item>
+          <el-descriptions-item label="优惠金额">¥{{ Number(detail.discount ?? 0).toFixed(2) }}</el-descriptions-item>
           <el-descriptions-item label="买家备注" :span="2">{{ detail.remark ?? '-' }}</el-descriptions-item>
           <el-descriptions-item label="创建时间">{{ formatTime(detail.createTime) }}</el-descriptions-item>
           <el-descriptions-item label="支付时间">{{ formatTime(detail.payTime) }}</el-descriptions-item>
@@ -258,11 +259,11 @@ onMounted(fetchList)
           <el-table-column prop="productName" label="商品名称" min-width="140" show-overflow-tooltip />
           <el-table-column prop="specName" label="规格" width="100" />
           <el-table-column label="单价" width="80" align="right">
-            <template #default="{ row }">¥{{ row.price?.toFixed(2) }}</template>
+            <template #default="{ row }">¥{{ Number(row.price ?? 0).toFixed(2) }}</template>
           </el-table-column>
           <el-table-column prop="quantity" label="数量" width="80" align="center" />
           <el-table-column label="小计" width="90" align="right">
-            <template #default="{ row }">¥{{ row.subtotal?.toFixed(2) }}</template>
+            <template #default="{ row }">¥{{ Number(row.subtotal ?? 0).toFixed(2) }}</template>
           </el-table-column>
         </el-table>
 
@@ -288,41 +289,4 @@ onMounted(fetchList)
 
 <style scoped>
 .page { min-height: 100%; }
-
-.search-card { margin-bottom: 1rem; }
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #303133;
-}
-
-.price {
-  color: #f56c6c;
-  font-weight: 600;
-}
-
-.no-img {
-  color: #c0c4cc;
-  font-size: 0.75rem;
-}
-
-.pagination-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.total-text {
-  font-size: 0.875rem;
-  color: #606266;
-}
 </style>

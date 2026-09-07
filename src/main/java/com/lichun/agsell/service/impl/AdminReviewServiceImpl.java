@@ -72,6 +72,7 @@ public class AdminReviewServiceImpl implements AdminReviewService {
         vo.setContent(review.getContent());
         vo.setIsAnonymous(review.getIsAnonymous());
         vo.setReplied(review.getReplyContent() != null);
+        vo.setReplyContent(review.getReplyContent());
         vo.setCreateTime(review.getCreateTime());
 
         if (user != null && review.getIsAnonymous() == 0) {

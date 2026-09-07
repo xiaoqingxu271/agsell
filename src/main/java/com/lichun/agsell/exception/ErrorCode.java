@@ -29,7 +29,13 @@ public enum ErrorCode {
     SMS_CODE_SEND_TOO_FAST(40003, "发送过于频繁，请稍后再试"),
     // 购物车/订单相关
     STOCK_INSUFFICIENT(50002, "库存不足"),
-    ORDER_STATUS_ERROR(50003, "订单状态异常");
+    ORDER_STATUS_ERROR(50003, "订单状态异常"),
+    // 文件上传相关
+    FILE_UPLOAD_FAILED(50100, "文件上传失败"),
+    FILE_TYPE_NOT_ALLOWED(50101, "不支持的文件类型"),
+    FILE_SIZE_EXCEEDED(50102, "文件大小超出限制"),
+    FILE_NAME_INVALID(50103, "文件名不合法"),
+    OSS_CLIENT_ERROR(50104, "OSS 服务异常");
 
     /**
      * 状态码

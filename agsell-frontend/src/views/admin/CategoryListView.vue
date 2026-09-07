@@ -7,6 +7,7 @@ import {
   deleteCategory,
   updateCategoryStatus,
 } from '@/api/admin'
+import { uploadFile } from '@/api/upload'
 import type { CategoryListItemVO, CategoryCreateRequest } from '@/types'
 
 const loading = ref(false)
@@ -55,17 +56,32 @@ const dialogTitle = ref('新增分类')
 const formRef = ref()
 const formLoading = ref(false)
 const form = ref<CategoryCreateRequest>({ name: '', parentId: 0, sort: 0 })
+const pendingIconFile = ref<File | null>(null)
+const pendingIconUrl = ref<string | null>(null)
 
 function openAdd() {
   dialogTitle.value = '新增分类'
   form.value = { name: '', parentId: 0, sort: 0 }
+  pendingIconFile.value = null
+  pendingIconUrl.value = null
   dialogVisible.value = true
 }
 
 function openEdit(row: CategoryListItemVO) {
   dialogTitle.value = '编辑分类'
   form.value = { id: row.id, name: row.name, icon: row.icon ?? '', parentId: row.parentId, sort: row.sort }
+  pendingIconFile.value = null
+  pendingIconUrl.value = null
   dialogVisible.value = true
+}
+
+function handleIconSelect(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  // 释放旧的预览 URL
+  if (pendingIconUrl.value) URL.revokeObjectURL(pendingIconUrl.value)
+  pendingIconFile.value = file
+  pendingIconUrl.value = URL.createObjectURL(file)
 }
 
 async function handleSubmit() {
@@ -75,7 +91,17 @@ async function handleSubmit() {
   }
   formLoading.value = true
   try {
-    await saveOrUpdateCategory(form.value)
+    // 如果有待上传的图片，先上传到 OSS
+    let iconUrl = form.value.icon || ''
+    if (pendingIconFile.value) {
+      iconUrl = await uploadFile(pendingIconFile.value, 'category/icon')
+      pendingIconFile.value = null
+      if (pendingIconUrl.value) {
+        URL.revokeObjectURL(pendingIconUrl.value)
+        pendingIconUrl.value = null
+      }
+    }
+    await saveOrUpdateCategory({ ...form.value, icon: iconUrl })
     ElMessage.success(form.value.id ? '编辑成功' : '新增成功')
     dialogVisible.value = false
     fetchList()
@@ -107,6 +133,8 @@ async function handleDelete(row: CategoryListItemVO) {
   }
 }
 
+// ── 图标上传 helper（已移除，改为在 handleSubmit 中统一上传）──
+
 function formatTime(time: string): string {
   return time.replace('T', ' ').substring(0, 19)
 }
@@ -118,7 +146,7 @@ onMounted(fetchList)
   <div class="page">
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
-      <el-form :inline="true" :model="{ keyword }" @submit.prevent="handleSearch">
+      <el-form :inline="true" :model="{ keyword }" style="height: 30px" @submit.prevent="handleSearch">
         <el-form-item label="分类名称">
           <el-input
             v-model="keyword"
@@ -130,11 +158,11 @@ onMounted(fetchList)
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="handleSearch">
-            
+
             搜索
           </el-button>
           <el-button @click="handleReset">
-            
+
             重置
           </el-button>
         </el-form-item>
@@ -144,19 +172,19 @@ onMounted(fetchList)
     <!-- 表格 -->
     <el-card shadow="never">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">分类列表</span>
+        <div class="admin-card-header">
+        <span class="admin-card-title">分类列表</span>
           <el-button type="primary" @click="openAdd()">
-            
+
             新增分类
           </el-button>
         </div>
       </template>
 
-      <el-table :data="list" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="70" align="center" />
-        <el-table-column prop="name" label="分类名称" min-width="140" />
-        <el-table-column label="分类图标" width="100" align="center">
+      <el-table class="admin-table" :data="list" v-loading="loading" stripe :border="false" style="width: 100%">
+        <el-table-column prop="id" label="ID" width="180" align="center" show-overflow-tooltip />
+        <el-table-column prop="name" label="分类名称" min-width="100" align="center" show-overflow-tooltip />
+        <el-table-column label="分类图标" width="120" align="center">
           <template #default="{ row }">
             <el-image
               v-if="row.icon"
@@ -164,11 +192,11 @@ onMounted(fetchList)
               fit="contain"
               style="width: 32px; height: 32px"
             />
-            <span v-else class="no-icon">—</span>
+            <span v-else class="admin-empty">—</span>
           </template>
         </el-table-column>
-        <el-table-column prop="sort" label="排序" width="80" align="center" />
-        <el-table-column label="状态" width="80" align="center">
+        <el-table-column prop="sort" label="排序" width="140" align="center" />
+        <el-table-column label="状态" width="220" align="center">
           <template #default="{ row }">
             <el-switch
               :model-value="row.status === 1"
@@ -178,29 +206,29 @@ onMounted(fetchList)
             />
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" width="160">
+        <el-table-column label="创建时间" min-width="120" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="openEdit(row)">编辑</el-button>
-            <el-divider direction="vertical" />
-            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row)">编辑</el-button>
+            <el-divider direction="vertical" class="admin-action-divider" />
+            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <!-- 分页 -->
-      <div class="pagination-wrap">
-        <span class="total-text">共 {{ total }} 条记录</span>
+      <div class="admin-pagination">
+        <span class="admin-total-text">共 {{ total }} 条记录</span>
         <el-pagination
           v-model:current-page="page"
           :page-size="pageSize"
           :total="total"
           layout="prev, pager, next"
-          :hide-on-single-page="true"
+          :hide-on-single-page="false"
           @current-change="handlePageChange"
         />
       </div>
@@ -218,7 +246,26 @@ onMounted(fetchList)
           <el-input v-model="form.name" placeholder="请输入分类名称" maxlength="20" show-word-limit />
         </el-form-item>
         <el-form-item label="分类图标">
-          <el-input v-model="form.icon" placeholder="图标URL（可选）" />
+          <div style="display:flex;align-items:center;gap:12px">
+            <input type="file" accept="image/*" style="display:none" id="cat-icon-upload"
+              @change="handleIconSelect" />
+            <label for="cat-icon-upload" class="icon-upload-label">选择图标</label>
+            <el-image
+              v-if="pendingIconUrl"
+              :src="pendingIconUrl"
+              fit="contain"
+              style="width:48px;height:48px;border-radius:8px"
+              :preview-src-list="[pendingIconUrl]"
+            />
+            <el-image
+              v-else-if="form.icon"
+              :src="form.icon"
+              fit="contain"
+              style="width:48px;height:48px;border-radius:8px"
+              :preview-src-list="[form.icon]"
+            />
+            <span v-else class="no-icon">暂无图标</span>
+          </div>
         </el-form-item>
         <el-form-item label="上级分类">
           <el-select v-model="form.parentId" placeholder="选择上级分类" style="width: 100%">
@@ -246,33 +293,22 @@ onMounted(fetchList)
   margin-bottom: 1rem;
 }
 
-.card-header {
-  display: flex;
+.icon-upload-label {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #303133;
-}
-
-.no-icon {
-  color: #c0c4cc;
-  font-size: 0.875rem;
-}
-
-.pagination-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.total-text {
-  font-size: 0.875rem;
+  justify-content: center;
+  width: 88px;
+  height: 36px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
   color: #606266;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.icon-upload-label:hover {
+  border-color: #409eff;
+  color: #409eff;
 }
 </style>

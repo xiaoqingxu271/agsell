@@ -67,6 +67,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         component: () => import('@/views/admin/ReviewListView.vue'),
         meta: { title: '评价管理' },
       },
+      {
+        path: 'banners',
+        name: 'AdminBanners',
+        component: () => import('@/views/admin/BannerListView.vue'),
+        meta: { title: '轮播图管理' },
+      },
     ],
   },
   {

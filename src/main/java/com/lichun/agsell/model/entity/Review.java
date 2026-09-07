@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @TableName("review")
 public class Review implements Serializable {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /** 订单ID */

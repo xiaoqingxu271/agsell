@@ -20,7 +20,7 @@ async function fetchList() {
       keyword: keyword.value || undefined,
     })
     userList.value = res.records
-    total.value = res.total
+    total.value = Number(res.total)
   } catch {
     // interceptor already shows message
   } finally {
@@ -65,7 +65,7 @@ onMounted(fetchList)
 <template>
   <div class="page">
     <!-- 搜索栏 -->
-    <el-card shadow="never" class="search-card">
+    <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" :model="{ keyword }" @submit.prevent="handleSearch">
         <el-form-item label="搜索">
           <el-input
@@ -78,11 +78,11 @@ onMounted(fetchList)
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="handleSearch">
-            
+
             搜索
           </el-button>
           <el-button @click="handleReset">
-            
+
             重置
           </el-button>
         </el-form-item>
@@ -92,33 +92,44 @@ onMounted(fetchList)
     <!-- 表格 -->
     <el-card shadow="never">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">用户列表</span>
+        <div class="admin-card-header">
+          <span class="admin-card-title">用户列表</span>
         </div>
       </template>
 
-      <el-table :data="userList" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="80" align="center" />
-        <el-table-column prop="nickname" label="昵称" min-width="120" />
-        <el-table-column prop="phone" label="手机号" width="130" />
-        <el-table-column label="状态" width="80" align="center">
+      <el-table class="admin-table" :data="userList" v-loading="loading" stripe :border="false" style="width: 100%">
+        <el-table-column prop="id" label="ID" width="190" align="center" show-overflow-tooltip />
+        <el-table-column prop="nickname" label="昵称" min-width="100" align="center" show-overflow-tooltip />
+        <el-table-column label="头像" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
+            <el-avatar :size="32" :src="row.avatar ?? undefined">
+              <span style="font-size: 11px; color: #909399">{{ (row.nickname ?? row.username ?? '?')[0] }}</span>
+            </el-avatar>
+          </template>
+        </el-table-column>
+        <el-table-column label="手机号" width="130" align="center">
+          <template #default="{ row }">
+            {{ row.phone ?? '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="70" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 1 ? 'success' : 'danger'" class="admin-status-tag" size="small">
               {{ row.status === 1 ? '正常' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="loginTime" label="最后登录" width="160">
+        <el-table-column prop="loginTime" label="最后登录" min-width="100" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.loginTime) }}
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="注册时间" width="160">
+        <el-table-column prop="createTime" label="注册时间" min-width="100" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="100" align="center" fixed="right">
+        <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <el-switch
               :model-value="row.status === 1"
@@ -131,14 +142,14 @@ onMounted(fetchList)
       </el-table>
 
       <!-- 分页 -->
-      <div class="pagination-wrap">
-        <span class="total-text">共 {{ total }} 条记录</span>
+      <div class="admin-pagination">
+        <span class="admin-total-text">共 {{ total }} 条记录</span>
         <el-pagination
           v-model:current-page="page"
           :page-size="pageSize"
           :total="total"
           layout="prev, pager, next"
-          :hide-on-single-page="true"
+          :hide-on-single-page="false"
           @current-change="handlePageChange"
         />
       </div>
@@ -148,31 +159,4 @@ onMounted(fetchList)
 
 <style scoped>
 .page { min-height: 100%; }
-
-.search-card { margin-bottom: 1rem; }
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #303133;
-}
-
-.pagination-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.total-text {
-  font-size: 0.875rem;
-  color: #606266;
-}
 </style>

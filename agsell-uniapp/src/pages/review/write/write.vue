@@ -31,6 +31,25 @@
         />
       </view>
 
+      <!-- 评价图片 -->
+      <view class="content-section card">
+        <view class="section-title">评价图片（最多9张，可选）</view>
+        <view class="image-picker">
+          <image
+            v-for="(url, i) in imageUrls"
+            :key="i"
+            :src="url"
+            mode="aspectFill"
+            class="picked-img"
+            @click="previewImage(i)"
+          />
+          <view v-if="imageUrls.length < 9" class="add-img-btn" @click="chooseImages">
+            <text class="add-icon">+</text>
+          </view>
+        </view>
+        <text class="image-hint">可上传最多9张实物图，让其他买家更好地了解商品</text>
+      </view>
+
       <!-- 匿名评价 -->
       <view class="anonymous-section card">
         <view class="anonymous-row" @click="isAnonymous = isAnonymous ? 0 : 1">
@@ -56,6 +75,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import StarRating from '../../../components/StarRating/StarRating.vue'
 import { createReview } from '../../../api/review'
+import { uploadMiniImage } from '../../../utils/upload'
 
 const orderId = ref('')
 const productId = ref('')
@@ -65,6 +85,7 @@ const specName = ref('')
 const rating = ref(0)
 const content = ref('')
 const isAnonymous = ref(0)
+const imageUrls = ref([])
 
 const ratingText = computed(() => {
   const texts = ['', '很差', '较差', '一般', '较好', '很好']
@@ -83,6 +104,34 @@ function onRatingChange(star) {
   rating.value = star
 }
 
+async function chooseImages() {
+  uni.chooseImage({
+    count: 9 - imageUrls.value.length,
+    sizeType: ['compressed'],
+    sourceType: ['album', 'camera'],
+    success: async (res) => {
+      uni.showLoading({ title: '上传中...', mask: true })
+      try {
+        for (const filePath of res.tempFilePaths) {
+          const url = await uploadMiniImage(filePath, 'review/image')
+          imageUrls.value.push(url)
+        }
+      } catch {
+        // error already shown inside uploadMiniImage
+      } finally {
+        uni.hideLoading()
+      }
+    }
+  })
+}
+
+function previewImage(index) {
+  uni.previewImage({
+    current: imageUrls.value[index],
+    urls: imageUrls.value
+  })
+}
+
 async function onSubmit() {
   if (rating.value === 0) {
     uni.showToast({ title: '请选择评分', icon: 'none' })
@@ -93,11 +142,12 @@ async function onSubmit() {
     return
   }
 
-    const res = await createReview({
-    orderId: Number(orderId.value),
-    productId: Number(productId.value),
+  const res = await createReview({
+    orderId: orderId.value,
+    productId: productId.value,
     rating: rating.value,
     content: content.value.trim(),
+    images: imageUrls.value.length > 0 ? imageUrls.value : undefined,
     isAnonymous: isAnonymous.value
   })
 
@@ -190,6 +240,42 @@ async function onSubmit() {
   border-radius: 12rpx;
   padding: 20rpx;
   box-sizing: border-box;
+}
+
+.image-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.picked-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  background: #f5f5f5;
+}
+
+.add-img-btn {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  border: 2rpx dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+
+.add-icon {
+  font-size: 48rpx;
+  color: #ccc;
+}
+
+.image-hint {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 12rpx;
+  display: block;
 }
 
 .anonymous-section .anonymous-row {

@@ -38,6 +38,9 @@ public class ReviewListItemVO implements Serializable {
     /** 是否已回复 */
     private Boolean replied;
 
+    /** 卖家回复内容 */
+    private String replyContent;
+
     private Integer isAnonymous;
 
     private LocalDateTime createTime;

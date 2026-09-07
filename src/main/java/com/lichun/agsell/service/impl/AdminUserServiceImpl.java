@@ -27,15 +27,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public Page<AdminUserListItemVO> listUsers(int pageNum, int pageSize, String keyword) {
-        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
-        if (keyword != null && !keyword.isBlank()) {
-            wrapper.and(w -> w.like(SysUser::getNickname, keyword)
-                    .or().like(SysUser::getPhone, keyword)
-                    .or().like(SysUser::getUsername, keyword));
-        }
-        wrapper.orderByDesc(SysUser::getCreateTime);
-
-        Page<SysUser> page = sysUserMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
+        Page<SysUser> page = sysUserMapper.selectUserListWithPhone(new Page<>(pageNum, pageSize), keyword);
 
         List<AdminUserListItemVO> list = page.getRecords().stream()
                 .map(this::convertToListItemVO)
