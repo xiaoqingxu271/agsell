@@ -42,8 +42,6 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/review/product",
             // 轮播图接口（无需登录）
             "/api/banner/list",
-            // 文件上传接口（无需登录）
-            "/api/file",
             // Swagger/Knife4j 文档
             "/api/doc.html",
             "/api/v3/api-docs",
@@ -82,7 +80,14 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             String jti = claims.get("jti", String.class);
             Long userId = Long.valueOf(claims.getSubject());
 
-            if ("admin".equals(type)) {
+            // 管理端接口必须使用管理员 token，防止普通用户越权访问；
+            // 文件上传接口（/api/file/upload）管理端与用户端共用，两端 token 均可
+            boolean isAdminApi = uri.startsWith("/api/admin/");
+            boolean isFileUploadApi = uri.startsWith("/api/file/upload");
+            if (isAdminApi || (isFileUploadApi && "admin".equals(type))) {
+                if (!"admin".equals(type)) {
+                    throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无管理员权限");
+                }
                 Long adminId = userId;
                 String role = claims.get("role", String.class);
                 // 校验 Redis 中的 token 是否一致
@@ -91,6 +96,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
                 }
                 AdminContext.setCurrentAdmin(adminId, role, jti);
             } else {
+                // 用户端接口必须使用用户 token
+                if ("admin".equals(type)) {
+                    throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "请使用用户账号访问");
+                }
                 // 校验 Redis 中的 token 是否一致
                 if (!redisTokenService.validateUserToken(userId, token, jti)) {
                     throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "登录已失效，请重新登录");

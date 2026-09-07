@@ -35,6 +35,13 @@ public interface RedisTokenService {
     void deleteUserToken(Long userId, String jti);
 
     /**
+     * 删除用户全部 token（禁用用户时调用，立即踢下线）
+     *
+     * @param userId 用户ID
+     */
+    void deleteUserTokens(Long userId);
+
+    /**
      * 保存管理员 token 到 Redis
      *
      * @param adminId     管理员ID

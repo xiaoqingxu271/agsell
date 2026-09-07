@@ -38,4 +38,7 @@ public class AliyunOssProperties {
 
     /** 允许的视频文件扩展名（不含点，逗号分隔） */
     private String allowedVideoTypes = "mp4,avi,mov,wmv";
+
+    /** 允许的其他文件扩展名（不含点，逗号分隔，用于文档/压缩包等） */
+    private String allowedOtherTypes = "pdf,doc,docx,xls,xlsx,ppt,pptx,zip,txt";
 }

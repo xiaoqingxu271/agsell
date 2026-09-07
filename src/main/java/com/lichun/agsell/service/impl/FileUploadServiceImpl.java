@@ -43,6 +43,14 @@ public class FileUploadServiceImpl implements FileUploadService {
             throw new BusinessException(ErrorCode.FILE_NAME_INVALID, "文件名不合法");
         }
 
+        // 2.1 存储目录前缀安全校验（防止路径穿越与越权目录）
+        if (!StringUtils.hasText(prefix)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "存储目录不能为空");
+        }
+        if (prefix.contains("..") || prefix.startsWith("/") || prefix.length() > 50) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "存储目录不合法");
+        }
+
         // 3. 大小校验
         long maxSizeBytes = getFileSizeLimit(fileType);
         if (file.getSize() > maxSizeBytes) {
@@ -57,6 +65,15 @@ public class FileUploadServiceImpl implements FileUploadService {
             throw new BusinessException(ErrorCode.FILE_TYPE_NOT_ALLOWED,
                     String.format("不支持的文件类型：%s，允许的类型：%s",
                             extension, String.join(",", allowedTypes)));
+        }
+
+        // 4.1 图片内容魔数校验（防止改后缀绕过白名单）
+        if (fileType == FileType.IMAGE) {
+            try {
+                validateImageMagic(file);
+            } catch (IOException e) {
+                throw new BusinessException(ErrorCode.FILE_TYPE_NOT_ALLOWED, "图片内容校验失败");
+            }
         }
 
         // 5. 生成唯一对象名：prefix/yyyyMMdd/uuid.extension
@@ -124,8 +141,53 @@ public class FileUploadServiceImpl implements FileUploadService {
         return switch (fileType) {
             case IMAGE -> Arrays.asList(ossProperties.getAllowedImageTypes().split(","));
             case VIDEO -> Arrays.asList(ossProperties.getAllowedVideoTypes().split(","));
-            default -> List.of();
+            default -> Arrays.asList(ossProperties.getAllowedOtherTypes().split(","));
         };
+    }
+
+    /**
+     * 常见图片格式魔数（文件头部字节）
+     */
+    private static final byte[][] IMAGE_MAGIC = {
+            {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF},            // jpg/jpeg
+            {(byte) 0x89, 0x50, 0x4E, 0x47},                    // png
+            {0x47, 0x49, 0x46, 0x38},                           // gif
+            {0x42, 0x4D},                                       // bmp
+            {(byte) 0x52, 0x49, 0x46, 0x46}                     // webp(RIFF)，需再校验 WEBP
+    };
+
+    /**
+     * 校验图片文件头魔数，防止改后缀绕过类型白名单
+     */
+    private void validateImageMagic(MultipartFile file) throws IOException {
+        byte[] header = new byte[12];
+        int read = file.getInputStream().read(header);
+        if (read < 2) {
+            throw new BusinessException(ErrorCode.FILE_TYPE_NOT_ALLOWED, "图片内容为空或损坏");
+        }
+        for (byte[] magic : IMAGE_MAGIC) {
+            if (read >= magic.length && startsWith(header, magic)) {
+                // webp 需要额外校验第 8-12 字节为 "WEBP"
+                if (magic[0] == (byte) 0x52 && magic[1] == 0x49) {
+                    if (read >= 12
+                            && header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P') {
+                        return;
+                    }
+                    continue;
+                }
+                return;
+            }
+        }
+        throw new BusinessException(ErrorCode.FILE_TYPE_NOT_ALLOWED, "图片内容与文件类型不符");
+    }
+
+    private boolean startsWith(byte[] data, byte[] prefix) {
+        for (int i = 0; i < prefix.length; i++) {
+            if (data[i] != prefix[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

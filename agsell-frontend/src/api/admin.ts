@@ -17,6 +17,7 @@ import type {
   OrderShipRequest,
   ReviewListItemVO,
   ReplyRequest,
+  AdminStatisticsVO,
 } from '@/types'
 
 /** 管理员登录 */
@@ -166,4 +167,11 @@ export function replyReview(id: number, data: ReplyRequest) {
 /** 删除评价 */
 export function deleteReview(id: number) {
   return request.delete<null>(`/admin/review/${id}`)
+}
+
+// ─── 数据统计 ─────────────────────────────────────────────────────────────────
+
+/** 数据概览统计 */
+export function getAdminStatistics() {
+  return request.get<AdminStatisticsVO>('/admin/statistics/overview')
 }

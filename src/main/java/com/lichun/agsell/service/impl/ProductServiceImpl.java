@@ -9,9 +9,11 @@ import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.ProductCategoryMapper;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.mapper.ProductSpecMapper;
+import com.lichun.agsell.mapper.OrderItemMapper;
 import com.lichun.agsell.model.dto.ProductCreateRequest;
 import com.lichun.agsell.model.dto.ProductListRequest;
 import com.lichun.agsell.model.dto.ProductQueryRequest;
+import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.ProductCategory;
 import com.lichun.agsell.model.entity.ProductSpec;
@@ -38,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final ProductSpecMapper productSpecMapper;
     private final ProductCategoryMapper categoryMapper;
+    private final OrderItemMapper orderItemMapper;
 
     @Override
     public Page<ProductListItemVO> listProducts(ProductQueryRequest request) {
@@ -83,6 +86,11 @@ public class ProductServiceImpl implements ProductService {
         ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR, "商品ID不能为空");
         Product exist = productMapper.selectById(id);
         ThrowUtils.throwIf(exist == null, ErrorCode.NOT_FOUND_ERROR, "商品不存在");
+
+        // 存在订单关联的商品不允许删除，保护历史订单数据完整性
+        long itemCount = orderItemMapper.selectCount(
+                new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getProductId, id));
+        ThrowUtils.throwIf(itemCount > 0, ErrorCode.OPERATION_ERROR, "该商品存在订单关联，无法删除");
 
         productSpecMapper.delete(new LambdaQueryWrapper<ProductSpec>()
                 .eq(ProductSpec::getProductId, id));
@@ -248,6 +256,8 @@ public class ProductServiceImpl implements ProductService {
                 ErrorCode.PARAMS_ERROR, "商品名称不能超过100个字符");
         ThrowUtils.throwIf(request.getCategoryId() == null,
                 ErrorCode.PARAMS_ERROR, "分类不能为空");
+        ProductCategory category = categoryMapper.selectById(request.getCategoryId());
+        ThrowUtils.throwIf(category == null, ErrorCode.PARAMS_ERROR, "分类不存在");
         ThrowUtils.throwIf(request.getPrice() == null || request.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0,
                 ErrorCode.PARAMS_ERROR, "价格必须大于0");
         ThrowUtils.throwIf(request.getStock() == null || request.getStock() < 0,
@@ -284,6 +294,16 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductSpec> specList = new ArrayList<>();
         for (ProductCreateRequest.ProductSpecDTO specDto : specs) {
+            ThrowUtils.throwIf(StrUtil.isBlank(specDto.getSpecName()),
+                    ErrorCode.PARAMS_ERROR, "规格名称不能为空");
+            ThrowUtils.throwIf(specDto.getSpecName().length() > 50,
+                    ErrorCode.PARAMS_ERROR, "规格名称不能超过50个字符");
+            ThrowUtils.throwIf(specDto.getPrice() == null
+                            || specDto.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0,
+                    ErrorCode.PARAMS_ERROR, "规格价格必须大于0");
+            ThrowUtils.throwIf(specDto.getStock() == null || specDto.getStock() < 0,
+                    ErrorCode.PARAMS_ERROR, "规格库存不能为负数");
+
             ProductSpec spec = new ProductSpec();
             spec.setProductId(productId);
             spec.setSpecName(specDto.getSpecName());

@@ -204,6 +204,21 @@ export interface ReviewListItemVO {
   createTime: string
 }
 
+// ─── 数据统计 ─────────────────────────────────────────────────────────────────
+
+export interface AdminStatisticsVO {
+  userTotal: number
+  todayNewUsers: number
+  activeTodayUsers: number
+  disabledUsers: number
+  productTotal: number
+  onSaleProducts: number
+  orderTotal: number
+  paidOrders: number
+  pendingShipOrders: number
+  totalSales: number
+}
+
 // ─── 错误码枚举（与后端 ErrorCode 对齐）─────────────────────────────────────
 
 export enum ErrorCode {

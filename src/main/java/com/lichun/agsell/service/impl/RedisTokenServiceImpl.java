@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -44,6 +45,18 @@ public class RedisTokenServiceImpl implements RedisTokenService {
         String key = USER_TOKEN_PREFIX + userId + ":" + jti;
         Boolean deleted = redisTemplate.delete(key);
         log.info("[RedisToken] 删除用户token, userId={}, jti={}, deleted={}", userId, jti, deleted);
+    }
+
+    @Override
+    public void deleteUserTokens(Long userId) {
+        String pattern = USER_TOKEN_PREFIX + userId + ":*";
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+            log.info("[RedisToken] 删除用户全部token, userId={}, count={}", userId, keys.size());
+        } else {
+            log.info("[RedisToken] 删除用户全部token, userId={}, 无有效token", userId);
+        }
     }
 
     @Override

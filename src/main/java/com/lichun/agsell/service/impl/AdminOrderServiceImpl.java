@@ -75,8 +75,28 @@ public class AdminOrderServiceImpl implements AdminOrderService {
 
         Page<Order> page = orderMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
 
+        List<Order> records = page.getRecords();
+
+        // 批量查询用户信息，避免 N+1
+        List<Long> userIds = records.stream()
+                .map(Order::getUserId)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, SysUser> userMap = userIds.isEmpty() ? Map.of()
+                : userMapper.selectBatchIds(userIds).stream()
+                        .collect(Collectors.toMap(SysUser::getId, u -> u, (a, b) -> a));
+
+        // 批量统计每单商品数量，避免 N+1
+        List<Long> orderIds = records.stream().map(Order::getId).collect(Collectors.toList());
+        Map<Long, Long> itemCountMap = orderIds.isEmpty() ? Map.of()
+                : orderItemMapper.selectList(
+                                new LambdaQueryWrapper<OrderItem>().in(OrderItem::getOrderId, orderIds))
+                        .stream()
+                        .collect(Collectors.groupingBy(OrderItem::getOrderId, Collectors.counting()));
+
         Page<AdminOrderListItemVO> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
-        result.setRecords(page.getRecords().stream().map(order -> {
+        result.setRecords(records.stream().map(order -> {
             AdminOrderListItemVO vo = new AdminOrderListItemVO();
             vo.setId(order.getId());
             vo.setOrderNo(order.getOrderNo());
@@ -89,16 +109,13 @@ public class AdminOrderServiceImpl implements AdminOrderService {
             vo.setPhone(order.getPhone());
             vo.setCreateTime(order.getCreateTime());
 
-            // 查询用户信息
-            SysUser user = userMapper.selectById(order.getUserId());
+            SysUser user = userMap.get(order.getUserId());
             if (user != null) {
                 vo.setUsername(user.getUsername());
             }
 
-            // 查询商品数量
-            long itemCount = orderItemMapper.selectCount(
-                    new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, order.getId()));
-            vo.setItemCount((int) itemCount);
+            Long itemCount = itemCountMap.getOrDefault(order.getId(), 0L);
+            vo.setItemCount(itemCount.intValue());
             return vo;
         }).collect(Collectors.toList()));
         return result;
@@ -164,6 +181,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     public void shipOrder(String orderNo, OrderShipRequest request) {
         Long adminId = AdminContext.getCurrentAdminId();
         ThrowUtils.throwIf(adminId == null, ErrorCode.ADMIN_NOT_LOGIN_ERROR);
+        ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR, "请求体不能为空");
         ThrowUtils.throwIf(request.getLogType() == null || request.getLogType().isBlank(),
                 ErrorCode.PARAMS_ERROR, "物流公司不能为空");
         ThrowUtils.throwIf(request.getLogNo() == null || request.getLogNo().isBlank(),
