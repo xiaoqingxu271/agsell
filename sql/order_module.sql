@@ -66,6 +66,7 @@ CREATE TABLE `order_item` (
     `id`             BIGINT         NOT NULL AUTO_INCREMENT COMMENT '主键',
     `order_id`       BIGINT         NOT NULL COMMENT '订单ID',
     `product_id`     BIGINT         NOT NULL COMMENT '商品ID',
+    `spec_id`        BIGINT         DEFAULT NULL COMMENT '规格ID（下单时关联，支付时据此扣减规格库存；无规格商品为NULL）',
     `product_name`   VARCHAR(100)   NOT NULL COMMENT '商品名称（快照）',
     `product_image`  VARCHAR(255)   DEFAULT NULL COMMENT '商品图片（快照）',
     `spec_name`      VARCHAR(50)    DEFAULT NULL COMMENT '规格名称（快照）',

@@ -57,6 +57,8 @@ const detailVisible = ref(false)
 const detail = ref<AdminOrderDetailVO | null>(null)
 
 async function openDetail(orderNo: string) {
+  // 同步发货订单号：详情弹窗内的发货操作依赖它
+  shipOrderNo.value = orderNo
   try {
     const res = await getOrderDetail(orderNo)
     detail.value = res
@@ -79,6 +81,12 @@ function openShip(row: AdminOrderListItemVO) {
 }
 
 async function handleShipSubmit() {
+  // 兜底取值：优先列表弹窗的订单号，其次详情弹窗的订单号
+  const targetOrderNo = shipOrderNo.value || detail.value?.orderNo
+  if (!targetOrderNo) {
+    ElMessage.warning('订单号缺失，请从列表重新操作')
+    return
+  }
   if (!shipForm.value.logType?.trim()) {
     ElMessage.warning('请输入物流公司')
     return
@@ -89,7 +97,7 @@ async function handleShipSubmit() {
   }
   shipLoading.value = true
   try {
-    await shipOrder(shipOrderNo.value, shipForm.value)
+    await shipOrder(targetOrderNo, shipForm.value)
     ElMessage.success('发货成功')
     shipVisible.value = false
     fetchList()
@@ -282,6 +290,25 @@ onMounted(fetchList)
             </el-form-item>
           </el-form>
         </template>
+      </template>
+    </el-dialog>
+
+    <!-- 发货弹窗 -->
+    <el-dialog v-model="shipVisible" title="订单发货" width="480px" destroy-on-close>
+      <el-form label-width="80px" @submit.prevent>
+        <el-form-item label="订单号">
+          <span>{{ shipOrderNo }}</span>
+        </el-form-item>
+        <el-form-item label="物流公司">
+          <el-input v-model="shipForm.logType" placeholder="如：顺丰速运" clearable />
+        </el-form-item>
+        <el-form-item label="物流单号">
+          <el-input v-model="shipForm.logNo" placeholder="如：SF1234567890" clearable />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="shipVisible = false">取消</el-button>
+        <el-button type="primary" :loading="shipLoading" @click="handleShipSubmit">确认发货</el-button>
       </template>
     </el-dialog>
   </div>

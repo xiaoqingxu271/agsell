@@ -148,6 +148,7 @@ async function loadBuyNowProduct() {
       : p.price
     orderItems.value = [{
       productId: p.id,
+      specId: buyNowSpecId.value,
       productName: p.name,
       productImage: p.mainImage || '',
       specName: buyNowSpecId.value ? (p.specs || []).find(s => s.id === buyNowSpecId.value)?.specName || '' : '',

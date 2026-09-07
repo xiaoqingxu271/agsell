@@ -24,6 +24,9 @@ public class OrderItem implements Serializable {
     /** 商品ID */
     private Long productId;
 
+    /** 规格ID（下单时关联，支付时据此扣减规格库存；无规格商品为 null） */
+    private Long specId;
+
     /** 商品名称（快照） */
     private String productName;
 

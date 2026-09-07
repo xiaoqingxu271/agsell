@@ -32,4 +32,9 @@ public interface OrderService {
      * 确认收货
      */
     void confirmReceive(String orderNo);
+
+    /**
+     * 自动取消超过指定分钟数仍未支付的待付款订单（定时任务调用，返回取消数量）
+     */
+    int cancelExpiredOrders(int expireMinutes);
 }

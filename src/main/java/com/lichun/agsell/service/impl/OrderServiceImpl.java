@@ -1,6 +1,8 @@
 package com.lichun.agsell.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.common.BaseContext;
 import com.lichun.agsell.exception.ErrorCode;
@@ -25,11 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,7 +38,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private static final DateTimeFormatter ORDER_NO_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final Map<String, String> STATUS_TEXT_MAP = Map.of(
             "0", "待付款",
             "1", "待发货",
@@ -68,40 +68,60 @@ public class OrderServiceImpl implements OrderService {
         ThrowUtils.throwIf(!hasCartIds && !hasOrderItems,
                 ErrorCode.PARAMS_ERROR, "请选择要结算的商品");
 
-        // 1. 查询地址信息（不校验归属，只要有addressId即可）
-        SysUserAddress address = request.getAddressId() != null ? addressMapper.selectById(request.getAddressId()) : null;
+        // 1. 查询地址并校验归属（防止使用他人地址ID下单）
+        SysUserAddress address = addressMapper.selectById(request.getAddressId());
+        ThrowUtils.throwIf(address == null, ErrorCode.PARAMS_ERROR, "收货地址不存在");
+        ThrowUtils.throwIf(!Objects.equals(address.getUserId(), userId),
+                ErrorCode.NO_AUTH_ERROR, "无权使用该收货地址");
 
-        // 2. 构建订单明细
+        // 2. 构建订单明细（所有金额/名称/图片均以服务端数据库为准，不信任前端）
         List<OrderItem> orderItems = new ArrayList<>();
 
         if (hasOrderItems) {
-            // 立即购买流程：直接使用前端传入的商品快照数据
+            // 立即购买流程：仅信任 productId / specId / quantity，服务端重新计价
             for (OrderCreateRequest.OrderItemDTO itemDto : request.getOrderItems()) {
                 ThrowUtils.throwIf(itemDto.getProductId() == null, ErrorCode.PARAMS_ERROR, "商品ID不能为空");
-                Product product = productMapper.selectById(itemDto.getProductId());
-                ThrowUtils.throwIf(product == null || product.getStatus() != 1,
-                        ErrorCode.NOT_FOUND_ERROR, "商品已下架或不存在");
-                ThrowUtils.throwIf(itemDto.getPrice() == null || itemDto.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0,
-                        ErrorCode.PARAMS_ERROR, "商品价格无效");
                 ThrowUtils.throwIf(itemDto.getQuantity() == null || itemDto.getQuantity() <= 0,
                         ErrorCode.PARAMS_ERROR, "商品数量无效");
 
+                Product product = productMapper.selectById(itemDto.getProductId());
+                ThrowUtils.throwIf(product == null || product.getStatus() != 1,
+                        ErrorCode.NOT_FOUND_ERROR, "商品已下架或不存在");
+
+                // 规格校验：若传了规格ID，必须是该商品下的有效规格
+                ProductSpec spec = null;
+                if (itemDto.getSpecId() != null) {
+                    spec = productSpecMapper.selectById(itemDto.getSpecId());
+                    ThrowUtils.throwIf(spec == null || !Objects.equals(spec.getProductId(), product.getId()),
+                            ErrorCode.PARAMS_ERROR, "商品规格不存在");
+                }
+
+                // 库存校验（下单时快速失败，真正扣减在支付成功时）
+                int availableStock = spec != null ? spec.getStock() : product.getStock();
+                ThrowUtils.throwIf(itemDto.getQuantity() > availableStock,
+                        ErrorCode.STOCK_INSUFFICIENT, String.format("商品 %s 库存不足", product.getName()));
+
+                // 服务端重新取值，忽略前端传入的价格/名称/图片快照
+                BigDecimal price = spec != null ? spec.getPrice() : product.getPrice();
+                BigDecimal subtotal = price.multiply(BigDecimal.valueOf(itemDto.getQuantity()));
+
                 OrderItem item = new OrderItem();
-                item.setProductId(itemDto.getProductId());
-                item.setProductName(itemDto.getProductName());
-                item.setProductImage(itemDto.getProductImage());
-                item.setSpecName(itemDto.getSpecName());
-                item.setPrice(itemDto.getPrice());
+                item.setProductId(product.getId());
+                item.setSpecId(spec != null ? spec.getId() : null);
+                item.setProductName(product.getName());
+                item.setProductImage(product.getMainImage());
+                item.setSpecName(spec != null ? spec.getSpecName() : null);
+                item.setPrice(price);
                 item.setQuantity(itemDto.getQuantity());
-                item.setSubtotal(itemDto.getSubtotal());
+                item.setSubtotal(subtotal);
                 orderItems.add(item);
             }
         } else {
-            // 购物车结算流程
+            // 购物车结算流程（同样以数据库价格为准）
             List<Cart> cartItems = cartMapper.selectList(new LambdaQueryWrapper<Cart>()
                     .eq(Cart::getUserId, userId)
                     .eq(Cart::getSelected, 1)
-                    .in(Cart::getId, request.getCartItemIds().stream().map(Long::parseLong).collect(Collectors.toList())));
+                    .in(Cart::getId, request.getCartItemIds()));
             ThrowUtils.throwIf(cartItems.isEmpty(), ErrorCode.PARAMS_ERROR, "请选择要结算的商品");
 
             for (Cart cartItem : cartItems) {
@@ -125,6 +145,7 @@ public class OrderServiceImpl implements OrderService {
 
                 OrderItem item = new OrderItem();
                 item.setProductId(product.getId());
+                item.setSpecId(spec != null ? spec.getId() : null);
                 item.setProductName(product.getName());
                 item.setProductImage(product.getMainImage());
                 item.setSpecName(spec != null ? spec.getSpecName() : null);
@@ -135,12 +156,12 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        // 4. 计算总金额
+        // 3. 计算总金额
         BigDecimal totalAmount = orderItems.stream()
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 5. 生成订单
+        // 4. 生成订单
         String orderNo = generateOrderNo();
         Order order = new Order();
         order.setOrderNo(orderNo);
@@ -151,32 +172,25 @@ public class OrderServiceImpl implements OrderService {
         order.setPayAmount(totalAmount);
         order.setStatus(0); // 待付款
         order.setAddressId(request.getAddressId());
-        if (address != null) {
-            order.setReceiver(address.getReceiver());
-            order.setPhone(address.getPhone());
-            order.setAddress(address.getProvince() + address.getCity()
-                    + address.getDistrict() + address.getDetail());
-        } else {
-            // 地址不存在时使用占位值，避免数据库约束报错
-            order.setReceiver("");
-            order.setPhone("");
-            order.setAddress("");
-        }
+        order.setReceiver(address.getReceiver());
+        order.setPhone(address.getPhone());
+        order.setAddress(address.getProvince() + address.getCity()
+                + address.getDistrict() + address.getDetail());
         order.setRemark(request.getRemark());
         orderMapper.insert(order);
 
-        // 6. 保存订单明细
+        // 5. 保存订单明细
         orderItems.forEach(item -> item.setOrderId(order.getId()));
         orderItemMapper.insert(orderItems);
 
-        // 7. 购物车结算：删除已下单的购物车条目
+        // 6. 购物车结算：删除已下单的购物车条目
         if (hasCartIds) {
             cartMapper.delete(new LambdaQueryWrapper<Cart>()
                     .eq(Cart::getUserId, userId)
-                    .in(Cart::getId, request.getCartItemIds().stream().map(Long::parseLong).collect(Collectors.toList())));
+                    .in(Cart::getId, request.getCartItemIds()));
         }
 
-        // 8. 返回订单信息
+        // 7. 返回订单信息
         OrderCreateVO vo = new OrderCreateVO();
         vo.setOrderNo(orderNo);
         vo.setPayAmount(totalAmount);
@@ -281,19 +295,7 @@ public class OrderServiceImpl implements OrderService {
         ThrowUtils.throwIf(order.getStatus() != 0,
                 ErrorCode.ORDER_STATUS_ERROR, "只有待付款订单可以取消");
 
-        // 恢复库存
-        List<OrderItem> items = orderItemMapper.selectList(
-                new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, order.getId()));
-        for (OrderItem item : items) {
-            Product product = productMapper.selectById(item.getProductId());
-            if (product != null) {
-                Product prodUpdate = new Product();
-                prodUpdate.setId(product.getId());
-                prodUpdate.setStock(product.getStock() + item.getQuantity());
-                productMapper.updateById(prodUpdate);
-            }
-        }
-
+        // 库存说明：库存仅在支付成功时扣减，待付款订单未占用库存，取消时无需恢复库存。
         Order update = new Order();
         update.setId(order.getId());
         update.setStatus(4); // 已取消
@@ -321,26 +323,44 @@ public class OrderServiceImpl implements OrderService {
         update.setReceiveTime(LocalDateTime.now());
         orderMapper.updateById(update);
 
-        // 扣减库存并增加销量
+        // 增加销量（库存已在支付成功时扣减，这里不再重复扣减）
         List<OrderItem> items = orderItemMapper.selectList(
                 new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, order.getId()));
         for (OrderItem item : items) {
-            Product product = productMapper.selectById(item.getProductId());
-            if (product != null) {
-                Product prodUpdate = new Product();
-                prodUpdate.setId(product.getId());
-                prodUpdate.setStock(product.getStock() - item.getQuantity());
-                prodUpdate.setSales(product.getSales() + item.getQuantity());
-                productMapper.updateById(prodUpdate);
-            }
+            productMapper.update(null, new LambdaUpdateWrapper<Product>()
+                    .setSql("sales = sales + " + item.getQuantity())
+                    .eq(Product::getId, item.getProductId()));
         }
+    }
+
+    @Override
+    @Transactional
+    public int cancelExpiredOrders(int expireMinutes) {
+        ThrowUtils.throwIf(expireMinutes <= 0, ErrorCode.PARAMS_ERROR, "超时时长必须大于0");
+        LocalDateTime deadline = LocalDateTime.now().minusMinutes(expireMinutes);
+
+        List<Order> expired = orderMapper.selectList(new LambdaQueryWrapper<Order>()
+                .eq(Order::getStatus, 0) // 仅待付款
+                .lt(Order::getCreateTime, deadline));
+        if (expired.isEmpty()) {
+            return 0;
+        }
+        for (Order order : expired) {
+            Order update = new Order();
+            update.setId(order.getId());
+            update.setStatus(4); // 已取消
+            update.setCancelReason("订单超时未支付，系统自动取消");
+            orderMapper.updateById(update);
+        }
+        return expired.size();
     }
 
     // ==================== 私有方法 ====================
 
+    /**
+     * 生成订单号：AGS + 雪花ID（全局唯一、并发安全），长度 22 位，满足 order_no VARCHAR(32)
+     */
     private String generateOrderNo() {
-        String timestamp = LocalDateTime.now().format(ORDER_NO_FORMATTER);
-        int random = new Random().nextInt(1000000);
-        return String.format("AGS%s%06d", timestamp, random);
+        return "AGS" + IdUtil.getSnowflakeNextIdStr();
     }
 }

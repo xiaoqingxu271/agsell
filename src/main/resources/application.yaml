@@ -62,3 +62,8 @@ logging:
   level:
     root: INFO
     
+
+# 订单配置
+order:
+  timeout-minutes: 30 # 待付款订单超时分钟数，超过自动取消
+
