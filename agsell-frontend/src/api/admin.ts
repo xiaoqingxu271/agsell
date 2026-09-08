@@ -18,6 +18,7 @@ import type {
   ReviewListItemVO,
   ReplyRequest,
   AdminStatisticsVO,
+  StatisticsTrendVO,
 } from '@/types'
 
 /** 管理员登录 */
@@ -174,4 +175,11 @@ export function deleteReview(id: number) {
 /** 数据概览统计 */
 export function getAdminStatistics() {
   return request.get<AdminStatisticsVO>('/admin/statistics/overview')
+}
+
+/** 数据趋势统计（近 N 天新增用户/订单数/销售额） */
+export function getStatisticsTrend(days = 7) {
+  return request.get<StatisticsTrendVO>('/admin/statistics/trend', {
+    params: { days },
+  })
 }

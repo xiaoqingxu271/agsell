@@ -199,6 +199,7 @@ export interface ReviewListItemVO {
   userName: string | null
   rating: number
   content: string
+  replyContent: string | null
   replied: boolean
   isAnonymous: number
   createTime: string
@@ -217,6 +218,18 @@ export interface AdminStatisticsVO {
   paidOrders: number
   pendingShipOrders: number
   totalSales: number
+}
+
+/** 数据趋势统计（近 N 天） */
+export interface StatisticsTrendVO {
+  /** 日期列表（yyyy-MM-dd，升序） */
+  dates: string[]
+  /** 每日新增用户数 */
+  newUsers: number[]
+  /** 每日订单数 */
+  orderCounts: number[]
+  /** 每日销售额 */
+  sales: number[]
 }
 
 // ─── 错误码枚举（与后端 ErrorCode 对齐）─────────────────────────────────────

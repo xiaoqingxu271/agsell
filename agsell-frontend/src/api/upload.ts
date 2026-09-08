@@ -11,7 +11,7 @@ export async function uploadFile(file: File, prefix: string): Promise<string> {
   formData.append('file', file)
   formData.append('prefix', prefix)
   formData.append('fileType', 'IMAGE')
-  const res = await service.post('/file/upload', formData, {
+  const res = await service.post<string>('/file/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
   return res

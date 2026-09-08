@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
+import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import type { BaseResponse } from '@/types'
 
@@ -25,7 +25,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
     const { code, message } = response.data
-    if (code === 0) return response.data.data
+    if (code === 0) return response.data.data as unknown as AxiosResponse
     if (message) ElMessage.error(message)
     if (code === 40100 || code === 40200) {
       localStorage.removeItem('user_token')
@@ -49,4 +49,16 @@ service.interceptors.response.use(
   },
 )
 
-export default service
+// ─── 类型修正 ────────────────────────────────────────────────────────────────
+// 响应拦截器已在运行时解包 response.data.data，但 axios 实例类型仍视为返回
+// AxiosResponse，导致调用方 request.get<T>() 类型与运行时不一致。这里重新声明
+// 泛型方法签名，使 request.get<T>() 直接返回 Promise<T>（运行时行为不变）。
+interface RequestInstance {
+  get<T>(url: string, config?: AxiosRequestConfig): Promise<T>
+  post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+  put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>
+  delete<T>(url: string, config?: AxiosRequestConfig): Promise<T>
+}
+
+const request = service as unknown as RequestInstance
+export default request
