@@ -1,8 +1,10 @@
 <template>
   <view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
     <view class="nav-content" :style="{ height: navBarHeight + 'px' }">
-      <view v-if="showBack" class="nav-back" @click="$emit('back')">
-        <image class="back-icon" src="/static/icon-back.png" mode="aspectFit" />
+      <view v-if="showBack" class="nav-back" aria-label="返回" @click="$emit('back')">
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
       </view>
       <text class="nav-title">{{ title }}</text>
       <view class="nav-right"><slot name="right" /></view>
@@ -11,8 +13,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const props = defineProps({
   title: { type: String, default: '' },
@@ -33,7 +34,7 @@ onMounted(() => {
 <style scoped>
 .nav-bar {
   width: 100%;
-  background: #4CAF50;
+  background: #15803D;
 }
 .nav-content {
   display: flex;
@@ -41,26 +42,29 @@ onMounted(() => {
   padding: 0 24rpx;
 }
 .nav-back {
-  width: 64rpx;
-  height: 64rpx;
+  width: 88rpx;
+  height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: -12rpx;
 }
 .back-icon {
   width: 40rpx;
   height: 40rpx;
-  filter: brightness(0) invert(1);
+  color: #FFFFFF;
 }
 .nav-title {
   flex: 1;
   text-align: center;
   font-size: 32rpx;
-  color: #fff;
-  font-weight: 500;
-  margin-left: -64rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+  margin-left: -88rpx;
 }
 .nav-right {
-  width: 64rpx;
+  width: 88rpx;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

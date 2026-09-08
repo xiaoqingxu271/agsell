@@ -39,19 +39,20 @@ export const ORDER_STATUS_TEXT = {
   2: '待收货',
   3: '已完成',
   4: '已取消',
-  5: '售后中'
+  5: '售后处理中'
 }
 
 /**
- * 订单状态颜色
+ * 订单状态颜色（浅底深字方案，对应 MASTER §2.2）
  */
 export const ORDER_STATUS_COLOR = {
-  0: '#FF9800',
-  1: '#2196F3',
-  2: '#9C27B0',
-  3: '#4CAF50',
-  4: '#999999',
-  5: '#F44336'
+  0: '#92400E',
+  1: '#14532D',
+  2: '#166534',
+  3: '#4B5563',
+  4: '#4B5563',
+  5: '#991B1B',
+  6: '#15803D'
 }
 
 export function getOrderStatusText(status) {

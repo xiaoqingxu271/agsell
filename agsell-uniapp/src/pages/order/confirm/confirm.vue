@@ -9,8 +9,8 @@
           <view class="address-main">
             <text class="receiver">{{ selectedAddress.receiver }}</text>
             <text class="phone">{{ selectedAddress.phone }}</text>
-            <text v-if="selectedAddress.tag" class="tag">{{ selectedAddress.tag }}</text>
-            <text v-if="selectedAddress.isDefault === 1" class="default-tag">默认</text>
+            <text v-if="selectedAddress.tag" class="tag tag-accent">{{ selectedAddress.tag }}</text>
+            <text v-if="selectedAddress.isDefault === 1" class="tag tag-success">默认</text>
           </view>
           <view class="address-detail">
             {{ selectedAddress.province }} {{ selectedAddress.city }} {{ selectedAddress.district }} {{ selectedAddress.detail }}
@@ -18,16 +18,18 @@
         </view>
         <view v-else class="address-empty" @click.stop="showAddressPicker = true">
           <text>请选择收货地址</text>
-          <text class="add-btn">+ 新增地址</text>
+          <text class="add-btn-text">+ 新增地址</text>
         </view>
-        <text class="arrow">›</text>
+        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
       </view>
 
       <!-- 商品清单 -->
       <view class="product-section card">
         <view class="section-title">商品清单</view>
         <view v-for="item in orderItems" :key="item.id" class="order-item">
-          <image class="item-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" />
+          <image class="item-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" :alt="item.productName" />
           <view class="item-info">
             <text class="item-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="item-spec">{{ item.specName }}</text>
@@ -59,11 +61,12 @@
 
       <!-- 备注 -->
       <view class="remark-section card">
-        <view class="section-title">备注</view>
+        <text class="section-title">备注</text>
         <input
           class="remark-input"
           type="text"
           placeholder="选填，如有备注请在此输入"
+          placeholder-style="color:#9CA3AF"
           v-model="remark"
           maxlength="200"
         />
@@ -76,7 +79,7 @@
         <text class="pay-label">合计：</text>
         <text class="pay-price">¥{{ totalAmount }}</text>
       </view>
-      <view class="submit-btn" @click="onSubmit">提交订单</view>
+      <view class="submit-btn" @click="onSubmit" role="button">提交订单</view>
     </view>
 
     <!-- 地址选择弹窗 -->
@@ -92,7 +95,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import AddressPicker from '../../../components/AddressPicker/AddressPicker.vue'
@@ -113,18 +116,14 @@ const buyNowQuantity = ref(1)
 
 onLoad(async (options) => {
   if (options.cartData) {
-    // 购物车结算：直接使用前端传来的商品数据
-    // ID在URL传递时已是字符串，无需转换
     cartData.value = JSON.parse(decodeURIComponent(options.cartData))
     orderItems.value = cartData.value
     totalAmount.value = cartData.value.reduce((sum, i) => sum + (Number(i.subtotal) || 0), 0).toFixed(2)
   }
   if (options.productId) {
-    // Buy now flow - set up single item order
     buyNowProductId.value = Number(options.productId)
     buyNowSpecId.value = Number(options.specId) || null
     buyNowQuantity.value = Number(options.quantity) || 1
-    // Load product detail to get price info
     await loadBuyNowProduct()
   }
   await loadAddresses()
@@ -164,9 +163,7 @@ function onAddAddress() {
   showAddressPicker.value = false
   uni.navigateTo({
     url: '/pages/mine/address?editId=',
-    success: () => {
-      // 地址添加成功后刷新
-    }
+    success: () => {}
   })
 }
 
@@ -183,14 +180,12 @@ async function onSubmit() {
 
   let res
   if (buyNowProductId.value) {
-    // Buy-now flow
     res = await createOrder({
       addressId: selectedAddress.value.id,
       remark: remark.value,
       orderItems: orderItems.value
     })
   } else if (cartData.value.length > 0) {
-    // 购物车结算：ID已经是字符串，直接传递
     const cartItemIds = cartData.value.map(item => item.id)
     res = await createOrder({
       addressId: selectedAddress.value.id,
@@ -215,8 +210,8 @@ async function onSubmit() {
 <style scoped>
 .confirm-page {
   min-height: 100vh;
-  background: #f5f5f5;
-  padding-bottom: 120rpx;
+  background: #F0FDF4;
+  padding-bottom: 140rpx;
 }
 
 .content {
@@ -225,10 +220,12 @@ async function onSubmit() {
 }
 
 .card {
-  background: #fff;
-  margin: 20rpx;
+  background: #FFFFFF;
+  margin: 16rpx 24rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .address-section {
@@ -245,63 +242,72 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   gap: 16rpx;
+  flex-wrap: wrap;
 }
 
 .receiver {
   font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1F2937;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
 }
 
-.tag, .default-tag {
-  font-size: 20rpx;
-  color: #fff;
-  background: #4CAF50;
+.tag {
+  font-size: 22rpx;
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
+  line-height: 1.4;
 }
 
-.default-tag { background: #FF9800; }
+.tag-accent { background: #FFF7ED; color: #9A3412; }
+.tag-success { background: #DCFCE7; color: #166534; }
 
 .address-detail {
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
   margin-top: 8rpx;
+  line-height: 1.5;
 }
 
 .address-empty {
   flex: 1;
-  color: #999;
+  color: #9CA3AF;
   font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
 }
 
-.add-btn {
-  color: #4CAF50;
+.add-btn-text {
+  color: #15803D;
+  font-weight: 500;
+}
+
+.arrow-icon {
+  width: 36rpx;
+  height: 36rpx;
+  color: #9CA3AF;
+  flex-shrink: 0;
   margin-left: 16rpx;
-}
-
-.arrow {
-  font-size: 36rpx;
-  color: #ccc;
 }
 
 .section-title {
   font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #14532D;
   margin-bottom: 20rpx;
+  display: block;
 }
 
 .order-item {
   display: flex;
   align-items: center;
   padding: 16rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1px solid #E5E7EB;
 }
 
 .order-item:last-child { border-bottom: none; }
@@ -309,8 +315,9 @@ async function onSubmit() {
 .item-img {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 8rpx;
-  background: #f5f5f5;
+  border-radius: 12rpx;
+  background: #F0FDF4;
+  flex-shrink: 0;
 }
 
 .item-info {
@@ -321,7 +328,7 @@ async function onSubmit() {
 
 .item-name {
   font-size: 26rpx;
-  color: #333;
+  color: #1F2937;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -330,7 +337,7 @@ async function onSubmit() {
 
 .item-spec {
   font-size: 22rpx;
-  color: #999;
+  color: #6B7280;
   margin-top: 4rpx;
 }
 
@@ -342,23 +349,25 @@ async function onSubmit() {
 
 .item-price {
   font-size: 26rpx;
-  color: #FF9800;
-  font-weight: bold;
+  color: #A16207;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .item-price::before { content: '¥'; font-size: 20rpx; }
 
 .item-qty {
   font-size: 24rpx;
-  color: #999;
+  color: #6B7280;
   margin-left: 8rpx;
 }
 
 .item-subtotal {
   font-size: 28rpx;
-  color: #333;
-  font-weight: bold;
+  color: #1F2937;
+  font-weight: 600;
   margin-left: 16rpx;
+  font-variant-numeric: tabular-nums;
 }
 
 .price-row {
@@ -368,30 +377,32 @@ async function onSubmit() {
   font-size: 28rpx;
 }
 
-.price-label { color: #666; }
-.price-value { color: #333; }
+.price-label { color: #6B7280; }
+.price-value { color: #1F2937; font-variant-numeric: tabular-nums; }
 
 .price-row.total {
   font-size: 32rpx;
-  font-weight: bold;
+  font-weight: 600;
 }
 
-.price-value.pay { color: #FF9800; }
+.price-value.pay { color: #A16207; }
 
 .divider {
-  height: 1rpx;
-  background: #eee;
+  height: 1px;
+  background: #E5E7EB;
   margin: 8rpx 0;
 }
 
 .remark-input {
   width: 100%;
+  height: 88rpx;
   font-size: 28rpx;
-  color: #333;
-  background: #f5f5f5;
+  color: #1F2937;
+  background: #F0FDF4;
   border-radius: 12rpx;
-  padding: 20rpx;
+  padding: 0 24rpx;
   box-sizing: border-box;
+  border: 1px solid #D1D5DB;
 }
 
 .bottom-bar {
@@ -402,11 +413,11 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 100rpx;
-  padding: 0 24rpx;
+  min-height: 100rpx;
+  padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1rpx solid #eee;
+  background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
   z-index: 100;
 }
 
@@ -414,21 +425,27 @@ async function onSubmit() {
   flex: 1;
 }
 
-.pay-label { font-size: 26rpx; color: #666; }
+.pay-label { font-size: 26rpx; color: #6B7280; }
 
 .pay-price {
-  font-size: 36rpx;
-  color: #FF9800;
-  font-weight: bold;
+  font-size: 40rpx;
+  color: #A16207;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .pay-price::before { content: '¥'; font-size: 24rpx; }
 
 .submit-btn {
-  background: #4CAF50;
-  color: #fff;
-  padding: 20rpx 60rpx;
+  background: #15803D;
+  color: #FFFFFF;
+  padding: 0 60rpx;
+  height: 88rpx;
+  line-height: 88rpx;
   border-radius: 44rpx;
   font-size: 30rpx;
+  font-weight: 600;
+  min-width: 88rpx;
+  text-align: center;
 }
 </style>

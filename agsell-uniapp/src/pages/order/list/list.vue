@@ -7,6 +7,8 @@
         class="tab-item"
         :class="{ active: currentTab === index }"
         @click="onTabChange(index)"
+        role="tab"
+        :aria-selected="currentTab === index"
       >
         {{ tab.label }}
         <text v-if="tab.count > 0" class="tab-count">{{ tab.count }}</text>
@@ -33,13 +35,13 @@
       >
         <view class="order-header">
           <text class="order-no">订单号：{{ order.orderNo }}</text>
-          <text class="order-status" :style="{ color: getStatusColor(order.status) }">
+          <text class="order-status" :class="getStatusClass(order.status)">
             {{ order.statusText }}
           </text>
         </view>
 
         <view v-for="item in order.items" :key="item.productId" class="order-product">
-          <image class="product-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" />
+          <image class="product-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" :alt="item.productName" />
           <view class="product-info">
             <text class="product-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="product-spec">{{ item.specName }}</text>
@@ -49,31 +51,31 @@
 
         <view class="order-footer">
           <text class="order-time">{{ order.createTime }}</text>
-          <text class="order-amount">共{{ order.itemCount }}件　合计：¥{{ order.payAmount }}</text>
+          <text class="order-amount">共{{ order.itemCount }}件　合计：<text class="amount-highlight">¥{{ order.payAmount }}</text></text>
           <view class="order-actions">
             <view
               v-if="order.status === 0"
-              class="action-btn cancel"
+              class="action-btn btn-ghost btn-danger"
               @click.stop="onCancelOrder(order)"
             >取消订单</view>
             <view
               v-if="order.status === 0"
-              class="action-btn pay"
+              class="action-btn btn-primary"
               @click.stop="onPayOrder(order)"
             >去支付</view>
             <view
               v-if="order.status === 2"
-              class="action-btn confirm"
+              class="action-btn btn-primary"
               @click.stop="onConfirmReceive(order)"
             >确认收货</view>
             <view
               v-if="order.status === 3"
-              class="action-btn review"
+              class="action-btn btn-primary"
               @click.stop="onReview(order)"
             >评价</view>
             <view
               v-if="order.status === 3"
-              class="action-btn repurchase"
+              class="action-btn btn-ghost"
               @click.stop="onRepurchase(order)"
             >再次购买</view>
           </view>
@@ -89,7 +91,6 @@
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { onMounted } from 'vue'
 import { getOrderList, cancelOrder, confirmReceive } from '../../../api/order'
 import { createPayment } from '../../../api/payment'
 
@@ -108,11 +109,27 @@ const loading = ref(false)
 const hasMore = ref(true)
 const refreshing = ref(false)
 
-const statusText = { 0: '待付款', 1: '待发货', 2: '待收货', 3: '已完成', 4: '已取消', 5: '售后中' }
-const statusColor = { 0: '#FF9800', 1: '#2196F3', 2: '#9C27B0', 3: '#4CAF50', 4: '#999', 5: '#F44336' }
+const statusClassMap = {
+  0: 'tag-warning',
+  1: 'tag-primary',
+  2: 'tag-success',
+  3: 'tag-info',
+  4: 'tag-info',
+  5: 'tag-danger',
+  6: 'tag-success'
+}
 
-onShow(async () => {
-  if (orders.value.length === 0) await loadOrders()
+function getStatusClass(status) {
+  return statusClassMap[status] || 'tag-info'
+}
+
+onShow(() => {
+  // 每次回到列表页都刷新第一页，保证售后等状态变更后列表与详情一致
+  if (loading.value) return
+  pageNum.value = 1
+  orders.value = []
+  hasMore.value = true
+  loadOrders()
 })
 
 async function loadOrders() {
@@ -157,10 +174,6 @@ function onPullDownRefresh() {
   loadOrders()
 }
 
-function getStatusColor(status) {
-  return statusColor[status] || '#999'
-}
-
 function onOrderTap(order) {
   uni.navigateTo({ url: `/pages/order/detail/detail?orderNo=${order.orderNo}` })
 }
@@ -200,7 +213,6 @@ async function onConfirmReceive(order) {
 }
 
 function onReview(order) {
-  // 跳转订单详情页，让详情页负责携带完整的 orderId 和商品参数
   uni.navigateTo({
     url: `/pages/order/detail/detail?orderNo=${order.orderNo}`
   })
@@ -214,13 +226,13 @@ function onRepurchase(order) {
 <style scoped>
 .order-list-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F0FDF4;
 }
 
 .tabs {
   display: flex;
-  background: #fff;
-  border-bottom: 1rpx solid #eee;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -231,13 +243,15 @@ function onRepurchase(order) {
   text-align: center;
   padding: 28rpx 0;
   font-size: 28rpx;
-  color: #666;
+  color: #6B7280;
   position: relative;
+  min-height: 88rpx;
+  box-sizing: border-box;
 }
 
 .tab-item.active {
-  color: #4CAF50;
-  font-weight: bold;
+  color: #15803D;
+  font-weight: 600;
 }
 
 .tab-item.active::after {
@@ -248,17 +262,20 @@ function onRepurchase(order) {
   transform: translateX(-50%);
   width: 48rpx;
   height: 6rpx;
-  background: #4CAF50;
+  background: #15803D;
   border-radius: 3rpx;
 }
 
 .tab-count {
   font-size: 20rpx;
-  background: #FF9800;
-  color: #fff;
-  border-radius: 50%;
+  background: #DC2626;
+  color: #FFFFFF;
+  border-radius: 16rpx;
   padding: 2rpx 10rpx;
   margin-left: 8rpx;
+  min-width: 28rpx;
+  display: inline-block;
+  line-height: 1.4;
 }
 
 .order-scroll {
@@ -266,8 +283,15 @@ function onRepurchase(order) {
 }
 
 .order-card {
-  margin: 20rpx;
+  margin: 16rpx 24rpx;
   padding: 24rpx;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .order-header {
@@ -275,18 +299,27 @@ function onRepurchase(order) {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16rpx;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1px solid #E5E7EB;
 }
 
 .order-no {
   font-size: 24rpx;
-  color: #999;
+  color: #6B7280;
 }
 
 .order-status {
-  font-size: 28rpx;
-  font-weight: bold;
+  font-size: 24rpx;
+  font-weight: 500;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  line-height: 1.4;
 }
+
+.tag-warning { background: #FEF3C7; color: #92400E; }
+.tag-primary { background: #BBF7D0; color: #14532D; }
+.tag-success { background: #DCFCE7; color: #166534; }
+.tag-info { background: #F3F4F6; color: #4B5563; }
+.tag-danger { background: #FEE2E2; color: #991B1B; }
 
 .order-product {
   display: flex;
@@ -297,8 +330,9 @@ function onRepurchase(order) {
 .product-img {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 8rpx;
-  background: #f5f5f5;
+  border-radius: 12rpx;
+  background: #F0FDF4;
+  flex-shrink: 0;
 }
 
 .product-info {
@@ -309,7 +343,7 @@ function onRepurchase(order) {
 
 .product-name {
   font-size: 26rpx;
-  color: #333;
+  color: #1F2937;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -318,13 +352,14 @@ function onRepurchase(order) {
 
 .product-spec {
   font-size: 22rpx;
-  color: #999;
+  color: #6B7280;
   margin-top: 4rpx;
 }
 
 .product-qty {
   font-size: 24rpx;
-  color: #666;
+  color: #6B7280;
+  flex-shrink: 0;
 }
 
 .order-footer {
@@ -333,41 +368,65 @@ function onRepurchase(order) {
   align-items: flex-end;
   gap: 12rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #f5f5f5;
+  border-top: 1px solid #E5E7EB;
 }
 
 .order-time {
   font-size: 22rpx;
-  color: #999;
+  color: #9CA3AF;
 }
 
 .order-amount {
   font-size: 26rpx;
-  color: #333;
+  color: #1F2937;
+}
+
+.amount-highlight {
+  color: #A16207;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .order-actions {
   display: flex;
   gap: 16rpx;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .action-btn {
   padding: 12rpx 28rpx;
-  border-radius: 32rpx;
+  border-radius: 44rpx;
   font-size: 24rpx;
-  border: 1rpx solid;
+  min-height: 60rpx;
+  line-height: 60rpx;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
+  text-align: center;
 }
 
-.action-btn.cancel { color: #F44336; border-color: #F44336; background: #fff; }
-.action-btn.pay { color: #fff; border-color: #FF9800; background: #FF9800; }
-.action-btn.confirm { color: #fff; border-color: #4CAF50; background: #4CAF50; }
-.action-btn.review { color: #fff; border-color: #2196F3; background: #2196F3; }
-.action-btn.repurchase { color: #666; border-color: #ccc; background: #fff; }
+.btn-primary {
+  background: #15803D;
+  color: #FFFFFF;
+  border: 1px solid #15803D;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #15803D;
+  border: 1px solid #15803D;
+}
+
+.btn-danger {
+  color: #DC2626;
+  border-color: #DC2626;
+}
 
 .loading, .no-more, .empty-orders {
   text-align: center;
   padding: 60rpx;
-  color: #999;
+  color: #9CA3AF;
   font-size: 26rpx;
 }
 </style>

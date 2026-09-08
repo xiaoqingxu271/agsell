@@ -73,6 +73,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         component: () => import('@/views/admin/BannerListView.vue'),
         meta: { title: '轮播图管理' },
       },
+      {
+        path: 'after-sales',
+        name: 'AdminAfterSales',
+        component: () => import('@/views/admin/AfterSalesListView.vue'),
+        meta: { title: '售后管理' },
+      },
     ],
   },
   {

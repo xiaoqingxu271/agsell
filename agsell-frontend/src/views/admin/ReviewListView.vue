@@ -161,7 +161,7 @@ onMounted(fetchList)
         </el-table-column>
         <el-table-column label="回复状态" width="200" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.replied ? 'success' : 'warning'" class="admin-status-tag" size="small">
+            <el-tag :type="row.replied ? 'success' : 'info'" class="admin-status-tag" size="small">
               {{ row.replied ? '已回复' : '未回复' }}
             </el-tag>
           </template>
@@ -255,4 +255,15 @@ onMounted(fetchList)
 
 <style scoped>
 .page { min-height: 100%; }
+
+/* 弹窗内评分星：丰收金 #A16207 */
+.rating {
+  color: #A16207;
+  letter-spacing: 2px;
+}
+
+.text-muted {
+  color: #9CA3AF;
+  font-size: 13px;
+}
 </style>

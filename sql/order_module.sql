@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- 购物车 + 订单模块建表脚本
 -- ============================================================
 
@@ -35,7 +35,7 @@ CREATE TABLE `order` (
     `freight`       DECIMAL(10,2)  NOT NULL DEFAULT 0.00 COMMENT '运费',
     `discount`      DECIMAL(10,2)  NOT NULL DEFAULT 0.00 COMMENT '优惠金额',
     `pay_amount`    DECIMAL(10,2)  NOT NULL DEFAULT 0.00 COMMENT '实付金额',
-    `status`        TINYINT        NOT NULL DEFAULT 0 COMMENT '状态 0=待付款 1=待发货 2=待收货 3=已完成 4=已取消 5=售后中',
+    `status`        TINYINT        NOT NULL DEFAULT 0 COMMENT '状态 0=待付款 1=待发货 2=待收货 3=已完成 4=已取消 5=售后处理中',
     `address_id`    BIGINT         NOT NULL COMMENT '收货地址ID',
     `receiver`      VARCHAR(50)    NOT NULL COMMENT '收件人',
     `phone`         VARCHAR(20)    NOT NULL COMMENT '收件电话',

@@ -9,6 +9,8 @@
           class="sidebar-item"
           :class="{ active: currentFirstId === cat.id }"
           @click="onFirstCategoryTap(cat)"
+          role="button"
+          :aria-label="cat.name"
         >
           {{ cat.name }}
         </view>
@@ -52,39 +54,41 @@
         </view>
 
         <!-- 商品列表 -->
-        <view class="product-grid">
-          <view
-            v-for="product in products"
-            :key="product.id"
-            class="product-item"
-            @click="onProductTap(product)"
-          >
-            <image
-              class="product-img"
-              :src="product.mainImage || '/static/default-product.png'"
-              mode="aspectFill"
-            />
-            <text class="product-name">{{ product.name }}</text>
-            <view class="product-price-row">
-              <text class="product-price">¥{{ product.price }}</text>
-              <text v-if="product.originalPrice" class="product-original">¥{{ product.originalPrice }}</text>
+        <scroll-view scroll-y class="product-list-scroll" @scrolltolower="onReachBottom">
+          <view class="product-grid">
+            <view
+              v-for="product in products"
+              :key="product.id"
+              class="product-item"
+              @click="onProductTap(product)"
+            >
+              <image
+                class="product-img"
+                :src="product.mainImage || '/static/default-product.png'"
+                mode="aspectFill"
+                :alt="product.name"
+              />
+              <text class="product-name">{{ product.name }}</text>
+              <view class="product-price-row">
+                <text class="product-price">¥{{ product.price }}</text>
+                <text v-if="product.originalPrice" class="product-original">¥{{ product.originalPrice }}</text>
+              </view>
+              <text class="product-sales">已售{{ product.sales || 0 }}</text>
             </view>
-            <text class="product-sales">已售{{ product.sales }}</text>
           </view>
-        </view>
 
-        <!-- 加载中 -->
-        <view v-if="loading" class="loading">加载中...</view>
-        <view v-if="!hasMore && products.length > 0" class="no-more">没有更多了</view>
-        <view v-if="!loading && products.length === 0 && !requesting" class="empty">暂无商品</view>
+          <!-- 加载中 -->
+          <view v-if="loading" class="loading">加载中...</view>
+          <view v-if="!hasMore && products.length > 0" class="no-more">没有更多了</view>
+          <view v-if="!loading && products.length === 0 && !requesting" class="empty">暂无商品</view>
+        </scroll-view>
       </view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getCategoryList, getProductList } from '../../api/product'
 
 const firstCategories = ref([])
@@ -114,7 +118,6 @@ onMounted(async () => {
 async function loadCategories() {
   const res = await getCategoryList()
   if (res.code === 0) {
-    // Jackson 序列化后 parentId 为字符串，需转为数字比较
     firstCategories.value = res.data.filter(c => Number(c.parentId) === 0)
     if (firstCategories.value.length > 0 && !currentFirstId.value) {
       currentFirstId.value = Number(firstCategories.value[0].id)
@@ -200,13 +203,6 @@ function onReachBottom() {
     loadProducts()
   }
 }
-
-function onPullDownRefresh() {
-  products.value = []
-  pageNum.value = 1
-  hasMore.value = true
-  loadProducts().then(() => uni.stopPullDownRefresh())
-}
 </script>
 
 <style scoped>
@@ -214,7 +210,7 @@ function onPullDownRefresh() {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
+  background: #F0FDF4;
 }
 
 .category-layout {
@@ -225,37 +221,46 @@ function onPullDownRefresh() {
 
 .category-sidebar {
   width: 180rpx;
-  background: #f0f0f0;
+  background: #FFFFFF;
   overflow-y: auto;
   flex-shrink: 0;
+  border-right: 1px solid #E5E7EB;
 }
 
 .sidebar-item {
-  padding: 32rpx 20rpx;
+  padding: 32rpx 16rpx;
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
   text-align: center;
   border-left: 6rpx solid transparent;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .sidebar-item.active {
-  background: #fff;
-  color: #4CAF50;
-  border-left-color: #4CAF50;
-  font-weight: bold;
+  background: #F0FDF4;
+  color: #15803D;
+  border-left-color: #15803D;
+  font-weight: 600;
 }
 
 .category-content {
   flex: 1;
-  overflow-y: auto;
-  background: #fff;
+  display: flex;
+  flex-direction: column;
+  background: #F0FDF4;
+  overflow: hidden;
 }
 
 .second-row {
   white-space: nowrap;
   padding: 16rpx 20rpx;
-  border-bottom: 1rpx solid #eee;
-  background: #fafafa;
+  border-bottom: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  flex-shrink: 0;
 }
 
 .second-item {
@@ -263,67 +268,84 @@ function onPullDownRefresh() {
   padding: 12rpx 28rpx;
   margin-right: 16rpx;
   font-size: 26rpx;
-  color: #666;
-  background: #fff;
-  border-radius: 28rpx;
-  border: 1rpx solid #eee;
+  color: #6B7280;
+  background: #FFFFFF;
+  border-radius: 44rpx;
+  border: 1px solid #BBF7D0;
+  min-height: 60rpx;
+  line-height: 60rpx;
+  box-sizing: border-box;
 }
 
 .second-item.active {
-  background: #4CAF50;
-  color: #fff;
-  border-color: #4CAF50;
+  background: #15803D;
+  color: #FFFFFF;
+  border-color: #15803D;
 }
 
 .sort-bar {
   display: flex;
   padding: 16rpx 20rpx;
-  border-bottom: 1rpx solid #eee;
-  background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  flex-shrink: 0;
 }
 
 .sort-item {
   flex: 1;
   text-align: center;
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
+  min-height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sort-item.active {
-  color: #4CAF50;
-  font-weight: bold;
+  color: #15803D;
+  font-weight: 600;
 }
 
 .sort-arrow {
   font-size: 20rpx;
+  margin-left: 4rpx;
+}
+
+.product-list-scroll {
+  flex: 1;
+  height: 0;
 }
 
 .product-grid {
   display: flex;
   flex-wrap: wrap;
   padding: 16rpx;
+  gap: 16rpx;
 }
 
 .product-item {
-  width: calc(50% - 16rpx);
-  margin: 8rpx;
-  background: #fff;
-  border-radius: 12rpx;
+  width: calc(50% - 8rpx);
+  background: #FFFFFF;
+  border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  min-height: 88rpx;
 }
 
 .product-img {
   width: 100%;
   height: 300rpx;
-  background: #f5f5f5;
+  background: #F0FDF4;
+  border-radius: 12rpx 12rpx 0 0;
 }
 
 .product-name {
   display: block;
   padding: 12rpx 16rpx;
   font-size: 26rpx;
-  color: #333;
+  color: #1F2937;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -338,15 +360,16 @@ function onPullDownRefresh() {
 }
 
 .product-price {
-  color: #FF9800;
-  font-size: 30rpx;
-  font-weight: bold;
+  color: #A16207;
+  font-size: 32rpx;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .product-price::before { content: '¥'; font-size: 22rpx; }
 
 .product-original {
-  color: #ccc;
+  color: #9CA3AF;
   font-size: 22rpx;
   text-decoration: line-through;
   margin-left: 8rpx;
@@ -354,15 +377,15 @@ function onPullDownRefresh() {
 
 .product-sales {
   display: block;
-  padding: 8rpx 16rpx;
-  font-size: 20rpx;
-  color: #999;
+  padding: 8rpx 16rpx 16rpx;
+  font-size: 22rpx;
+  color: #6B7280;
 }
 
 .loading, .no-more, .empty {
   text-align: center;
   padding: 40rpx;
-  color: #999;
+  color: #9CA3AF;
   font-size: 26rpx;
 }
 </style>

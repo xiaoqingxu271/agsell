@@ -36,7 +36,7 @@ public class Order implements Serializable {
     /** 实付金额 */
     private BigDecimal payAmount;
 
-    /** 状态 0=待付款 1=待发货 2=待收货 3=已完成 4=已取消 5=售后中 */
+    /** 状态 0=待付款 1=待发货 2=待收货 3=已完成 4=已取消 5=售后处理中 6=已退款 */
     private Integer status;
 
     /** 收货地址ID */

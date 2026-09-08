@@ -30,6 +30,8 @@ public enum ErrorCode {
     // 购物车/订单相关
     STOCK_INSUFFICIENT(50002, "库存不足"),
     ORDER_STATUS_ERROR(50003, "订单状态异常"),
+    // 售后相关
+    AFTER_SALES_STATUS_ERROR(50004, "售后单状态异常"),
     // 文件上传相关
     FILE_UPLOAD_FAILED(50100, "文件上传失败"),
     FILE_TYPE_NOT_ALLOWED(50101, "不支持的文件类型"),

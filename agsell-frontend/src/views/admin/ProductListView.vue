@@ -318,6 +318,7 @@ onMounted(() => {
               :src="row.mainImage"
               :preview-src-list="[row.mainImage]"
               fit="cover"
+              alt="商品图片"
               style="width: 40px; height: 40px; border-radius: 4px"
             />
             <span v-else class="admin-empty">—</span>
@@ -339,6 +340,7 @@ onMounted(() => {
               :model-value="row.status === 1"
               active-text="上架"
               inactive-text="下架"
+              active-color="#15803D"
               @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
             />
           </template>
@@ -435,6 +437,7 @@ onMounted(() => {
               v-if="pendingMainUrl"
               :src="pendingMainUrl"
               fit="cover"
+              alt="商品主图预览"
               style="width:80px;height:80px;border-radius:8px"
               :preview-src-list="[pendingMainUrl]"
             />
@@ -442,6 +445,7 @@ onMounted(() => {
               v-else-if="form.mainImage"
               :src="form.mainImage"
               fit="cover"
+              alt="商品主图"
               style="width:80px;height:80px;border-radius:8px"
               :preview-src-list="[form.mainImage]"
             />
@@ -490,6 +494,7 @@ onMounted(() => {
                     v-if="pendingSpecUrls[$index]"
                     :src="pendingSpecUrls[$index]!"
                     fit="cover"
+                    alt="规格图片预览"
                     style="width:44px;height:44px;border-radius:4px"
                     :preview-src-list="[pendingSpecUrls[$index]!]"
                   />
@@ -497,6 +502,7 @@ onMounted(() => {
                     v-else-if="specs[$index]!.image"
                     :src="specs[$index]!.image"
                     fit="cover"
+                    alt="规格图片"
                     style="width:44px;height:44px;border-radius:4px"
                     :preview-src-list="[specs[$index]!.image!]"
                   />
@@ -528,4 +534,50 @@ onMounted(() => {
 
 <style scoped>
 .page { min-height: 100%; }
+
+.upload-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 36px;
+  border: 1px dashed #D1D5DB;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #6B7280;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.upload-label:hover {
+  border-color: #15803D;
+  color: #15803D;
+}
+
+.no-img {
+  font-size: 13px;
+  color: #9CA3AF;
+}
+
+.spec-img-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px dashed #D1D5DB;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #9CA3AF;
+  transition: all 0.2s;
+}
+.spec-img-upload:hover {
+  border-color: #15803D;
+  color: #15803D;
+}
+
+.spec-img-placeholder {
+  font-size: 20px;
+  line-height: 1;
+}
 </style>

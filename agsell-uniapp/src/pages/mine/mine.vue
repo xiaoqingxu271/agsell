@@ -6,6 +6,7 @@
         class="user-avatar"
         :src="userInfo?.avatar || '/static/default-avatar.png'"
         mode="aspectFill"
+        alt="用户头像"
       />
       <view class="user-info">
         <text class="user-name">{{ userInfo?.nickname || '微信用户' }}</text>
@@ -14,7 +15,7 @@
       <text class="avatar-tip">点击更换头像</text>
     </view>
     <view v-else class="user-header login-prompt">
-      <image class="user-avatar" src="/static/default-avatar.png" mode="aspectFill" />
+      <image class="user-avatar" src="/static/default-avatar.png" mode="aspectFill" alt="默认头像" />
       <view class="user-info">
         <text class="user-name">登录后享受更多权益</text>
         <text class="user-phone">订单管理 · 收货地址 · 商品评价</text>
@@ -31,9 +32,15 @@
           :key="index"
           class="order-tab"
           @click="onOrderTabTap(item.status)"
+          role="button"
+          :aria-label="item.label"
         >
-          <text class="tab-icon">{{ item.icon }}</text>
-          <text class="tab-count">{{ item.count }}</text>
+          <view class="tab-icon-wrap">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path :d="item.iconPath" />
+            </svg>
+          </view>
+          <text v-if="item.count > 0" class="tab-count">{{ item.count }}</text>
           <text class="tab-label">{{ item.label }}</text>
         </view>
       </view>
@@ -41,25 +48,50 @@
 
     <!-- 功能菜单 -->
     <view class="menu-section card">
-      <view class="menu-item" @click="goToAddress">
-        <text class="menu-icon">📍</text>
+      <view class="menu-item" @click="goToAddress" role="button">
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
         <text class="menu-text">收货地址</text>
-        <text class="menu-arrow">›</text>
+        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
       </view>
-      <view class="menu-item" @click="goToMyReviews">
-        <text class="menu-icon">⭐</text>
+      <view class="menu-item" @click="goToMyReviews" role="button">
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
         <text class="menu-text">我的评价</text>
-        <text class="menu-arrow">›</text>
+        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
       </view>
-      <view class="menu-item" @click="goToAbout">
-        <text class="menu-icon">ℹ️</text>
+      <view class="menu-item" @click="goToAfterSales" role="button">
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+          <path d="M3 3v5h5"></path>
+        </svg>
+        <text class="menu-text">我的售后</text>
+        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </view>
+      <view class="menu-item" @click="goToAbout" role="button">
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
         <text class="menu-text">关于我们</text>
-        <text class="menu-arrow">›</text>
+        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
       </view>
     </view>
 
     <!-- 退出登录 -->
-    <view v-if="isUserLoggedIn" class="logout-btn" @click="onLogout">退出登录</view>
+    <view v-if="isUserLoggedIn" class="logout-btn" @click="onLogout" role="button">退出登录</view>
   </view>
 </template>
 
@@ -73,18 +105,16 @@ import { uploadMiniImage } from '../../utils/upload'
 
 const userInfo = ref(null)
 const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
-// 用 ref 替代 computed，支持手动赋值
 const isUserLoggedIn = ref(isLoggedIn())
 
 const orderTabs = [
-  { label: '待付款', status: 0, icon: '💳' },
-  { label: '待发货', status: 1, icon: '📦' },
-  { label: '待收货', status: 2, icon: '🚚' },
-  { label: '已完成', status: 3, icon: '✅' }
+  { label: '待付款', status: 0, iconPath: 'M2 5h20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM2 10h20', count: 0 },
+  { label: '待发货', status: 1, iconPath: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12', count: 0 },
+  { label: '待收货', status: 2, iconPath: 'M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z', count: 0 },
+  { label: '已完成', status: 3, iconPath: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3', count: 0 }
 ]
 
 onShow(async () => {
-  // 每次从 storage 同步登录状态
   isUserLoggedIn.value = isLoggedIn()
   if (isUserLoggedIn.value) {
     await loadUserInfo()
@@ -97,7 +127,6 @@ async function loadUserInfo() {
   if (res.code === 0) {
     userInfo.value = res.data
     uni.setStorageSync('userInfo', res.data)
-    console.log('[mine] loadUserInfo:', res.data?.nickname, res.data?.avatar)
   }
 }
 
@@ -106,6 +135,7 @@ async function loadOrderCounts() {
     const res = await getOrderList({ pageNum: 1, pageSize: 1, status })
     if (res.code === 0) {
       orderCounts.value[status] = res.data?.total || 0
+      orderTabs[status].count = res.data?.total || 0
     }
   }
 }
@@ -116,7 +146,6 @@ async function onLogin() {
   uni.hideLoading()
   if (success) {
     isUserLoggedIn.value = true
-    // 从 storage 读取最新数据
     userInfo.value = uni.getStorageSync('userInfo')
     uni.showToast({ title: '登录成功', icon: 'success' })
     await loadUserInfo()
@@ -140,6 +169,10 @@ function goToAddress() {
 
 function goToMyReviews() {
   uni.navigateTo({ url: '/pages/review/list/list' })
+}
+
+function goToAfterSales() {
+  uni.navigateTo({ url: '/pages/after-sales/list/list' })
 }
 
 function goToAbout() {
@@ -178,7 +211,6 @@ async function onChooseAvatar() {
         uni.setStorageSync('userInfo', userInfo.value)
         uni.showToast({ title: '头像已更新', icon: 'success' })
       } catch {
-        // error already shown inside uploadMiniImage
       } finally {
         uni.hideLoading()
       }
@@ -190,7 +222,7 @@ async function onChooseAvatar() {
 <style scoped>
 .mine-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F0FDF4;
   padding-bottom: 40rpx;
 }
 
@@ -198,7 +230,7 @@ async function onChooseAvatar() {
   display: flex;
   align-items: center;
   padding: 60rpx 40rpx;
-  background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
+  background: linear-gradient(135deg, #15803D 0%, #22C55E 100%);
 }
 
 .login-btn {
@@ -206,12 +238,12 @@ async function onChooseAvatar() {
   width: 240rpx;
   height: 72rpx;
   line-height: 72rpx;
-  background: #fff;
-  color: #4CAF50;
+  background: #FFFFFF;
+  color: #15803D;
   font-size: 28rpx;
-  font-weight: bold;
+  font-weight: 600;
   border-radius: 36rpx;
-  border: 2rpx solid #fff;
+  border: 2rpx solid #FFFFFF;
   padding: 0;
   display: flex;
   align-items: center;
@@ -251,12 +283,14 @@ async function onChooseAvatar() {
 
 .user-info {
   margin-left: 24rpx;
+  flex: 1;
+  overflow: hidden;
 }
 
 .user-name {
   font-size: 36rpx;
-  font-weight: bold;
-  color: #fff;
+  font-weight: 600;
+  color: #FFFFFF;
   display: block;
 }
 
@@ -268,16 +302,18 @@ async function onChooseAvatar() {
 }
 
 .card {
-  background: #fff;
-  margin: 20rpx;
+  background: #FFFFFF;
+  margin: 24rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .section-title {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #14532D;
   margin-bottom: 20rpx;
 }
 
@@ -290,62 +326,97 @@ async function onChooseAvatar() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16rpx 24rpx;
+  padding: 16rpx 16rpx;
+  min-width: 88rpx;
+  min-height: 88rpx;
+  position: relative;
 }
 
-.tab-icon {
-  font-size: 48rpx;
+.tab-icon-wrap {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 8rpx;
 }
 
+.tab-icon {
+  width: 48rpx;
+  height: 48rpx;
+  color: #6B7280;
+}
+
 .tab-count {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 4rpx;
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #DC2626;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  border-radius: 16rpx;
+  padding: 0 8rpx;
+  text-align: center;
 }
 
 .tab-label {
   font-size: 24rpx;
-  color: #999;
+  color: #6B7280;
 }
 
 .menu-section {
-  margin: 20rpx;
+  margin: 24rpx;
+  padding: 0 24rpx;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   padding: 32rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1px solid #E5E7EB;
+  min-height: 88rpx;
+  box-sizing: border-box;
 }
 
 .menu-item:last-child { border-bottom: none; }
 
 .menu-icon {
-  font-size: 40rpx;
+  width: 40rpx;
+  height: 40rpx;
   margin-right: 20rpx;
+  color: #15803D;
+  flex-shrink: 0;
 }
 
 .menu-text {
   flex: 1;
   font-size: 30rpx;
-  color: #333;
+  color: #1F2937;
 }
 
 .menu-arrow {
-  font-size: 32rpx;
-  color: #ccc;
+  width: 32rpx;
+  height: 32rpx;
+  color: #9CA3AF;
+  flex-shrink: 0;
 }
 
 .logout-btn {
-  margin: 40rpx 20rpx;
+  margin: 40rpx 24rpx;
   text-align: center;
   padding: 24rpx;
-  border: 1rpx solid #F44336;
+  border: 1px solid #DC2626;
   border-radius: 44rpx;
-  color: #F44336;
+  color: #DC2626;
   font-size: 30rpx;
+  font-weight: 500;
+  min-height: 88rpx;
+  line-height: 88rpx;
+  box-sizing: border-box;
+  padding: 0;
 }
 </style>

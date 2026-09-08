@@ -1,6 +1,11 @@
 <template>
   <view class="cart-page">
     <view v-if="cartItems.length === 0" class="empty-cart">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
       <text class="empty-text">购物车是空的</text>
       <button class="go-shop-btn" @click="goToShop">去逛逛</button>
     </view>
@@ -11,7 +16,7 @@
           :key="item.id"
           class="cart-item card"
         >
-          <view class="item-checkbox" :class="{ disabled: item.valid === 0 }" @click="onToggleSelect(item)">
+          <view class="item-checkbox" :class="{ checked: item.valid !== 0 && item.selected === 1, disabled: item.valid === 0 }" @click="onToggleSelect(item)" role="checkbox" :aria-checked="item.selected === 1">
             <text class="checkbox-icon">{{ item.valid !== 0 && item.selected === 1 ? '✓' : '' }}</text>
           </view>
           <image
@@ -19,6 +24,7 @@
             :src="item.productImage || '/static/default-product.png'"
             mode="aspectFill"
             @click="onProductTap(item.productId)"
+            :alt="item.productName"
           />
           <view class="item-info">
             <text class="item-name">{{ item.productName }}</text>
@@ -28,23 +34,28 @@
               <template v-else>
                 <text class="item-price">¥{{ item.price }}</text>
                 <view class="qty-control">
-                  <view class="qty-btn" @click="onMinus(item)">-</view>
+                  <view class="qty-btn" @click="onMinus(item)" role="button" aria-label="减少数量">-</view>
                   <text class="qty-value">{{ item.quantity }}</text>
-                  <view class="qty-btn" @click="onPlus(item)">+</view>
+                  <view class="qty-btn" @click="onPlus(item)" role="button" aria-label="增加数量">+</view>
                 </view>
               </template>
             </view>
           </view>
-          <view class="item-delete" @click="onDelete(item)">
-            <text class="delete-icon">×</text>
+          <view class="item-delete" @click="onDelete(item)" role="button" aria-label="删除商品">
+            <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
           </view>
         </view>
       </view>
 
       <!-- 底部结算栏 -->
       <view class="bottom-bar">
-        <view class="select-all" @click="onToggleAll">
-          <text class="checkbox-icon">{{ allSelected ? '✓' : '' }}</text>
+        <view class="select-all" @click="onToggleAll" role="checkbox" :aria-checked="allSelected">
+          <view class="checkbox-circle" :class="{ checked: allSelected }">
+            <text v-if="allSelected" class="check-mark">✓</text>
+          </view>
           <text class="select-text">全选</text>
         </view>
         <view class="total-info">
@@ -55,6 +66,8 @@
           class="checkout-btn"
           :class="{ disabled: selectedCount === 0 }"
           @click="onCheckout"
+          role="button"
+          aria-label="去结算"
         >
           去结算({{ selectedCount }})
         </view>
@@ -153,7 +166,6 @@ function onCheckout() {
     return
   }
   const items = cartItems.value.filter(i => i.selected === 1 && i.valid !== 0)
-  // 将ID转为字符串避免精度丢失，然后序列化为JSON
   const safeItems = items.map(item => ({
     ...item,
     id: String(item.id),
@@ -173,8 +185,8 @@ function goToShop() {
 <style scoped>
 .cart-page {
   min-height: 100vh;
-  background: #f5f5f5;
-  padding-bottom: 120rpx;
+  background: #F0FDF4;
+  padding-bottom: 140rpx;
 }
 
 .empty-cart {
@@ -184,51 +196,88 @@ function goToShop() {
   padding-top: 200rpx;
 }
 
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  color: #9CA3AF;
+  margin-bottom: 24rpx;
+}
+
 .empty-text {
   font-size: 32rpx;
-  color: #999;
+  color: #9CA3AF;
   margin-bottom: 40rpx;
 }
 
 .go-shop-btn {
-  background: #4CAF50;
-  color: #fff;
+  background: #15803D;
+  color: #FFFFFF;
   border: none;
   border-radius: 44rpx;
-  padding: 20rpx 60rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  padding: 0 60rpx;
   font-size: 28rpx;
+  font-weight: 600;
+}
+
+.go-shop-btn::after {
+  border: none;
 }
 
 .cart-item {
   display: flex;
   align-items: center;
   padding: 24rpx;
-  margin: 20rpx;
-  background: #fff;
-  border-radius: 16rpx;
+  margin: 16rpx 24rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .item-checkbox {
   width: 48rpx;
+  height: 48rpx;
   margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 48rpx;
 }
 
 .checkbox-icon {
   font-size: 32rpx;
-  color: #ccc;
+  color: #D1D5DB;
+  width: 40rpx;
+  height: 40rpx;
+  border: 2px solid #D1D5DB;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
-.item-checkbox.checked .checkbox-icon,
-.cart-item.selected .checkbox-icon {
-  color: #4CAF50;
-  font-weight: bold;
+.item-checkbox.checked .checkbox-icon {
+  color: #FFFFFF;
+  background: #15803D;
+  border-color: #15803D;
+  font-weight: 600;
+}
+
+.item-checkbox.disabled .checkbox-icon {
+  color: #E5E7EB;
+  background: #F3F4F6;
+  border-color: #E5E7EB;
 }
 
 .item-image {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #f5f5f5;
+  background: #F0FDF4;
   flex-shrink: 0;
 }
 
@@ -240,7 +289,7 @@ function goToShop() {
 
 .item-name {
   font-size: 28rpx;
-  color: #333;
+  color: #1F2937;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -250,7 +299,7 @@ function goToShop() {
 
 .item-spec {
   font-size: 22rpx;
-  color: #999;
+  color: #6B7280;
   margin-top: 8rpx;
 }
 
@@ -263,8 +312,9 @@ function goToShop() {
 
 .item-price {
   font-size: 32rpx;
-  color: #FF9800;
-  font-weight: bold;
+  color: #A16207;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .item-price::before { content: '¥'; font-size: 22rpx; }
@@ -276,32 +326,41 @@ function goToShop() {
 }
 
 .qty-btn {
-  width: 48rpx;
-  height: 48rpx;
-  border: 1rpx solid #ccc;
+  width: 56rpx;
+  height: 56rpx;
+  border: 1px solid #D1D5DB;
   border-radius: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28rpx;
-  color: #666;
+  color: #1F2937;
+  background: #FFFFFF;
+  min-width: 56rpx;
 }
 
 .qty-value {
   font-size: 28rpx;
   min-width: 48rpx;
   text-align: center;
+  color: #1F2937;
+  font-variant-numeric: tabular-nums;
 }
 
 .item-delete {
-  width: 48rpx;
-  text-align: center;
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-left: 16rpx;
+  flex-shrink: 0;
 }
 
 .delete-icon {
-  font-size: 40rpx;
-  color: #ccc;
+  width: 36rpx;
+  height: 36rpx;
+  color: #9CA3AF;
 }
 
 .bottom-bar {
@@ -311,11 +370,11 @@ function goToShop() {
   right: 0;
   display: flex;
   align-items: center;
-  height: 100rpx;
-  padding: 0 24rpx;
+  min-height: 100rpx;
+  padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1rpx solid #eee;
+  background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
   z-index: 100;
 }
 
@@ -324,11 +383,34 @@ function goToShop() {
   align-items: center;
   gap: 12rpx;
   margin-right: 24rpx;
+  min-height: 88rpx;
+}
+
+.checkbox-circle {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2px solid #D1D5DB;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox-circle.checked {
+  background: #15803D;
+  border-color: #15803D;
+}
+
+.check-mark {
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .select-text {
   font-size: 28rpx;
-  color: #333;
+  color: #1F2937;
 }
 
 .total-info {
@@ -338,40 +420,38 @@ function goToShop() {
 
 .total-label {
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
 }
 
 .total-price {
-  font-size: 36rpx;
-  color: #FF9800;
-  font-weight: bold;
+  font-size: 40rpx;
+  color: #A16207;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .total-price::before { content: '¥'; font-size: 24rpx; }
 
 .checkout-btn {
-  background: #4CAF50;
-  color: #fff;
-  padding: 16rpx 48rpx;
+  background: #15803D;
+  color: #FFFFFF;
+  padding: 0 48rpx;
+  height: 88rpx;
+  line-height: 88rpx;
   border-radius: 44rpx;
   font-size: 28rpx;
+  font-weight: 600;
+  min-width: 88rpx;
+  text-align: center;
 }
 
 .checkout-btn.disabled {
-  background: #ccc;
-}
-
-.item-checkbox.disabled .checkbox-icon {
-  color: #ccc;
-  background: #f2f2f2;
+  background: #E5E7EB;
+  color: #9CA3AF;
 }
 
 .item-invalid {
   font-size: 24rpx;
-  color: #999;
-}
-
-.cart-item .item-info {
-  opacity: 1;
+  color: #9CA3AF;
 }
 </style>

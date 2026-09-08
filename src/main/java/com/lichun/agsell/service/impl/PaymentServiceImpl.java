@@ -35,7 +35,8 @@ public class PaymentServiceImpl implements PaymentService {
             2, "待收货",
             3, "已完成",
             4, "已取消",
-            5, "售后中"
+            5, "售后处理中",
+            6, "已退款"
     );
 
     private final OrderMapper orderMapper;

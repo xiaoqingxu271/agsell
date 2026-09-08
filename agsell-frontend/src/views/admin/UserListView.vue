@@ -103,7 +103,7 @@ onMounted(fetchList)
         <el-table-column label="头像" width="100" align="center">
           <template #default="{ row }">
             <el-avatar :size="32" :src="row.avatar ?? undefined">
-              <span style="font-size: 11px; color: #909399">{{ (row.nickname ?? row.username ?? '?')[0] }}</span>
+              <span style="font-size: 11px; color: #9CA3AF">{{ (row.nickname ?? row.username ?? '?')[0] }}</span>
             </el-avatar>
           </template>
         </el-table-column>
@@ -114,7 +114,7 @@ onMounted(fetchList)
         </el-table-column>
         <el-table-column label="状态" width="70" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'" class="admin-status-tag" size="small">
+            <el-tag :type="row.status === 1 ? 'success' : 'info'" class="admin-status-tag" size="small">
               {{ row.status === 1 ? '正常' : '禁用' }}
             </el-tag>
           </template>
@@ -135,6 +135,7 @@ onMounted(fetchList)
               :model-value="row.status === 1"
               active-text="启用"
               inactive-text="禁用"
+              active-color="#15803D"
               @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
             />
           </template>

@@ -1,14 +1,19 @@
 <template>
   <view class="pay-success-page">
     <view class="success-content">
-      <view class="success-icon">✓</view>
+      <view class="success-icon-wrap">
+        <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </view>
       <text class="success-title">支付成功</text>
       <text class="success-amount">¥{{ payAmount }}</text>
       <text class="success-hint">订单已提交，请耐心等待发货</text>
 
       <view class="action-buttons">
-        <view class="btn-order" @click="goToOrder">查看订单</view>
-        <view class="btn-home" @click="goHome">返回首页</view>
+        <view class="btn-order" @click="goToOrder" role="button">查看订单</view>
+        <view class="btn-home" @click="goHome" role="button">返回首页</view>
       </view>
     </view>
   </view>
@@ -49,7 +54,7 @@ function goHome() {
 <style scoped>
 .pay-success-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F0FDF4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,38 +65,45 @@ function goHome() {
   padding: 80rpx 40rpx;
 }
 
-.success-icon {
+.success-icon-wrap {
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
-  background: #4CAF50;
-  color: #fff;
-  font-size: 80rpx;
-  line-height: 160rpx;
+  background: #DCFCE7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto 40rpx;
+}
+
+.success-icon {
+  width: 88rpx;
+  height: 88rpx;
+  color: #16A34A;
 }
 
 .success-title {
   font-size: 40rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #14532D;
   display: block;
   margin-bottom: 20rpx;
 }
 
 .success-amount {
   font-size: 56rpx;
-  color: #FF9800;
-  font-weight: bold;
+  color: #A16207;
+  font-weight: 600;
   display: block;
   margin-bottom: 16rpx;
+  font-variant-numeric: tabular-nums;
 }
 
 .success-amount::before { content: '¥'; font-size: 32rpx; }
 
 .success-hint {
   font-size: 28rpx;
-  color: #999;
+  color: #6B7280;
   display: block;
   margin-bottom: 60rpx;
 }
@@ -103,19 +115,26 @@ function goHome() {
 }
 
 .btn-order, .btn-home {
-  padding: 24rpx 60rpx;
+  padding: 0 60rpx;
+  height: 88rpx;
+  line-height: 88rpx;
   border-radius: 44rpx;
   font-size: 28rpx;
+  font-weight: 500;
+  min-width: 88rpx;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .btn-order {
-  background: #4CAF50;
-  color: #fff;
+  background: #15803D;
+  color: #FFFFFF;
+  border: 1px solid #15803D;
 }
 
 .btn-home {
-  background: #fff;
-  color: #666;
-  border: 1rpx solid #ddd;
+  background: #FFFFFF;
+  color: #15803D;
+  border: 1px solid #15803D;
 }
 </style>

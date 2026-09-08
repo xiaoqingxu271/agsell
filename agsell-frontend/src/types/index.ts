@@ -232,6 +232,46 @@ export interface StatisticsTrendVO {
   sales: number[]
 }
 
+// ─── 售后相关类型 ─────────────────────────────────────────────────────────────
+
+export interface AdminAfterSalesListItemVO {
+  id: number
+  afterSalesNo: string
+  orderNo: string
+  userId: number
+  username: string | null
+  type: number
+  typeText: string
+  reasonType: string
+  reasonTypeText: string
+  reason: string | null
+  refundAmount: number
+  status: number
+  statusText: string
+  createTime: string
+  handleTime: string | null
+}
+
+export interface AdminAfterSalesDetailVO extends AdminAfterSalesListItemVO {
+  nickname: string | null
+  orderPayAmount: number
+  receiver: string
+  phone: string
+  address: string
+  originalStatus: number
+  originalStatusText: string
+  images: string[]
+  handleRemark: string | null
+  handleBy: number | null
+  items: OrderItemVO[]
+}
+
+export interface AfterSalesHandleRequest {
+  /** true=同意退款 false=拒绝 */
+  agree: boolean
+  remark?: string
+}
+
 // ─── 错误码枚举（与后端 ErrorCode 对齐）─────────────────────────────────────
 
 export enum ErrorCode {

@@ -190,6 +190,7 @@ onMounted(fetchList)
               v-if="row.icon"
               :src="row.icon"
               fit="contain"
+              alt="分类图标"
               style="width: 32px; height: 32px"
             />
             <span v-else class="admin-empty">—</span>
@@ -202,6 +203,7 @@ onMounted(fetchList)
               :model-value="row.status === 1"
               active-text="启用"
               inactive-text="禁用"
+              active-color="#15803D"
               @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
             />
           </template>
@@ -254,6 +256,7 @@ onMounted(fetchList)
               v-if="pendingIconUrl"
               :src="pendingIconUrl"
               fit="contain"
+              alt="分类图标预览"
               style="width:48px;height:48px;border-radius:8px"
               :preview-src-list="[pendingIconUrl]"
             />
@@ -261,6 +264,7 @@ onMounted(fetchList)
               v-else-if="form.icon"
               :src="form.icon"
               fit="contain"
+              alt="分类图标"
               style="width:48px;height:48px;border-radius:8px"
               :preview-src-list="[form.icon]"
             />
@@ -299,16 +303,21 @@ onMounted(fetchList)
   justify-content: center;
   width: 88px;
   height: 36px;
-  border: 1px dashed #d9d9d9;
+  border: 1px dashed #D1D5DB;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
-  color: #606266;
+  color: #6B7280;
   transition: all 0.2s;
   flex-shrink: 0;
 }
 .icon-upload-label:hover {
-  border-color: #409eff;
-  color: #409eff;
+  border-color: #15803D;
+  color: #15803D;
+}
+
+.no-icon {
+  font-size: 13px;
+  color: #9CA3AF;
 }
 </style>

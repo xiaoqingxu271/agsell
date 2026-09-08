@@ -2,28 +2,31 @@
   "pages": [
     { "path": "pages/index/index", "type": "home" },
     { "path": "pages/category/category", "type": "page" },
-    { "path": "pages/product/product", "type": "page" },
+    { "path": "pages/product/product", "type": "page", "navigationStyle": "custom" },
     { "path": "pages/cart/cart", "type": "page" },
     { "path": "pages/order/list/list", "type": "page" },
-    { "path": "pages/order/detail/detail", "type": "page" },
-    { "path": "pages/order/confirm/confirm", "type": "page" },
+    { "path": "pages/order/detail/detail", "type": "page", "navigationStyle": "custom" },
+    { "path": "pages/order/confirm/confirm", "type": "page", "navigationStyle": "custom" },
     { "path": "pages/order/pay-success/pay-success", "type": "page" },
-    { "path": "pages/review/write/write", "type": "page" },
-    { "path": "pages/review/list/list", "type": "page" },
+    { "path": "pages/review/write/write", "type": "page", "navigationStyle": "custom" },
+    { "path": "pages/review/list/list", "type": "page", "navigationStyle": "custom" },
+    { "path": "pages/after-sales/apply/apply", "type": "page", "navigationStyle": "custom" },
+    { "path": "pages/after-sales/detail/detail", "type": "page", "navigationStyle": "custom" },
+    { "path": "pages/after-sales/list/list", "type": "page", "navigationStyle": "custom" },
     { "path": "pages/mine/mine", "type": "page" },
-    { "path": "pages/mine/address", "type": "page" }
+    { "path": "pages/mine/address", "type": "page", "navigationStyle": "custom" }
   ],
   "globalStyle": {
-    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarBackgroundColor": "#15803D",
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "agsell 农产品",
-    "backgroundColor": "#f5f5f5",
+    "backgroundColor": "#F0FDF4",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#4CAF50",
-    "backgroundColor": "#ffffff",
+    "color": "#9CA3AF",
+    "selectedColor": "#15803D",
+    "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       {

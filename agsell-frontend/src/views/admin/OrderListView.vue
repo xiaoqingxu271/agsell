@@ -52,6 +52,20 @@ function formatTime(time: string | null): string {
   return time.replace('T', ' ').substring(0, 19)
 }
 
+/** 订单状态 → el-tag type（MASTER §2.2 浅底深字映射） */
+function orderStatusType(status: number): string {
+  switch (status) {
+    case 0: return 'warning'  // 待付款
+    case 1: return 'primary'  // 待发货
+    case 2: return 'success'  // 待收货
+    case 3: return 'info'     // 已完成
+    case 4: return 'info'     // 已取消
+    case 5: return 'danger'   // 售后处理中
+    case 6: return 'success'  // 已退款
+    default: return 'info'
+  }
+}
+
 // ── 订单详情弹窗 ──
 const detailVisible = ref(false)
 const detail = ref<AdminOrderDetailVO | null>(null)
@@ -132,7 +146,8 @@ onMounted(fetchList)
             <el-option label="待收货" :value="2" />
             <el-option label="已完成" :value="3" />
             <el-option label="已取消" :value="4" />
-            <el-option label="售后中" :value="5" />
+            <el-option label="售后处理中" :value="5" />
+            <el-option label="已退款" :value="6" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -175,7 +190,7 @@ onMounted(fetchList)
         <el-table-column prop="itemCount" label="商品数" width="80" align="center" />
         <el-table-column label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === 3 ? 'success' : row.status === 1 ? 'warning' : row.status === 0 ? 'info' : 'danger'" class="admin-status-tag" size="small">
+            <el-tag :type="orderStatusType(row.status)" class="admin-status-tag" size="small">
               {{ row.statusText }}
             </el-tag>
           </template>
@@ -229,7 +244,7 @@ onMounted(fetchList)
         <el-descriptions :column="2" border>
           <el-descriptions-item label="订单号">{{ detail.orderNo }}</el-descriptions-item>
           <el-descriptions-item label="状态">
-            <el-tag :type="detail.status === 3 ? 'success' : detail.status === 1 ? 'warning' : detail.status === 0 ? 'info' : 'danger'" size="small">
+            <el-tag :type="orderStatusType(detail.status)" size="small">
               {{ detail.statusText }}
             </el-tag>
           </el-descriptions-item>
@@ -259,6 +274,7 @@ onMounted(fetchList)
                 v-if="row.productImage"
                 :src="row.productImage"
                 fit="contain"
+                alt="商品图片"
                 style="width: 40px; height: 40px"
               />
               <span v-else class="no-img">—</span>

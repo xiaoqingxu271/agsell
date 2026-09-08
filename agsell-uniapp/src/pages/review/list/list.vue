@@ -2,12 +2,12 @@
   <view class="review-list-page">
     <NavBar :title="productName || '商品评价'" />
 
-    <scroll-view scroll-y class="content">
+    <scroll-view scroll-y class="content" @scrolltolower="onReachBottom">
       <!-- 评价概览 -->
       <view class="overview card">
         <view class="overview-left">
           <text class="avg-score">{{ avgScore }}</text>
-          <StarRating :rating="Math.round(avgScore)" />
+          <StarRating :rating="Math.round(avgScore)" :readonly="true" size="32rpx" />
           <text class="total-reviews">共 {{ totalReviews }} 条评价</text>
         </view>
         <view class="overview-right">
@@ -32,10 +32,11 @@
             class="user-avatar"
             :src="review.userAvatar || '/static/default-avatar.png'"
             mode="aspectFill"
+            :alt="review.userName || '用户头像'"
           />
           <view class="user-info">
             <text class="user-name">{{ review.userName }}</text>
-            <StarRating :rating="review.rating" />
+            <StarRating :rating="review.rating" :readonly="true" size="28rpx" />
           </view>
           <text class="review-time">{{ review.createTime }}</text>
         </view>
@@ -47,6 +48,7 @@
             :src="img"
             mode="aspectFill"
             class="review-img"
+            :alt="`评价图片${i + 1}`"
           />
         </view>
         <view v-if="review.replyContent" class="review-reply">
@@ -71,6 +73,7 @@ import StarRating from '../../../components/StarRating/StarRating.vue'
 import { getProductReviews } from '../../../api/review'
 
 const productId = ref('')
+const productName = ref('')
 const reviews = ref([])
 const totalReviews = ref(0)
 const pageNum = ref(1)
@@ -127,19 +130,22 @@ function onReachBottom() {
 <style scoped>
 .review-list-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F0FDF4;
 }
 
 .content {
   height: 100vh;
   overflow-y: auto;
+  padding-bottom: 40rpx;
 }
 
 .card {
-  background: #fff;
-  margin: 20rpx;
+  background: #FFFFFF;
+  margin: 16rpx 24rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .overview {
@@ -154,14 +160,15 @@ function onReachBottom() {
 
 .avg-score {
   font-size: 72rpx;
-  font-weight: bold;
-  color: #FF9800;
+  font-weight: 600;
+  color: #A16207;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .total-reviews {
   font-size: 24rpx;
-  color: #999;
+  color: #6B7280;
   margin-top: 12rpx;
 }
 
@@ -175,27 +182,28 @@ function onReachBottom() {
   gap: 12rpx;
   margin-bottom: 12rpx;
   font-size: 24rpx;
-  color: #666;
+  color: #6B7280;
 }
 
 .ratio-bar-bg {
   flex: 1;
   height: 12rpx;
-  background: #f0f0f0;
+  background: #F3F4F6;
   border-radius: 6rpx;
   overflow: hidden;
 }
 
 .ratio-bar {
   height: 100%;
-  background: #FF9800;
+  background: #A16207;
   border-radius: 6rpx;
 }
 
 .ratio-pct {
   font-size: 22rpx;
-  color: #999;
+  color: #6B7280;
   min-width: 48rpx;
+  font-variant-numeric: tabular-nums;
 }
 
 .review-card {
@@ -212,7 +220,8 @@ function onReachBottom() {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #e0e0e0;
+  background: #F3F4F6;
+  flex-shrink: 0;
 }
 
 .user-info {
@@ -222,18 +231,21 @@ function onReachBottom() {
 
 .user-name {
   font-size: 26rpx;
-  color: #333;
+  color: #1F2937;
   font-weight: 500;
+  display: block;
+  margin-bottom: 4rpx;
 }
 
 .review-time {
-  font-size: 22rpx;
-  color: #999;
+  font-size: 24rpx;
+  color: #6B7280;
+  flex-shrink: 0;
 }
 
 .review-content {
   font-size: 28rpx;
-  color: #333;
+  color: #1F2937;
   line-height: 1.6;
   display: block;
   margin-bottom: 16rpx;
@@ -249,36 +261,38 @@ function onReachBottom() {
 .review-img {
   width: 160rpx;
   height: 160rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
+  background: #F0FDF4;
 }
 
 .review-reply {
-  background: #f9f9f9;
-  border-radius: 12rpx;
+  background: #F0FDF4;
+  border-radius: 8rpx;
   padding: 16rpx;
 }
 
 .reply-label {
   font-size: 24rpx;
-  color: #4CAF50;
-  font-weight: bold;
+  color: #15803D;
+  font-weight: 600;
 }
 
 .reply-content {
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
+  line-height: 1.5;
 }
 
 .reply-time {
   font-size: 22rpx;
-  color: #999;
+  color: #9CA3AF;
   float: right;
 }
 
 .empty, .loading, .no-more {
   text-align: center;
   padding: 60rpx;
-  color: #999;
+  color: #9CA3AF;
   font-size: 26rpx;
 }
 </style>

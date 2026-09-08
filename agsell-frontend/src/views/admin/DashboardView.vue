@@ -213,8 +213,8 @@ const salesTrendOption = computed(() =>
 }
 
 .stat-card {
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
 }
 
 /* 统计数值：20px 600 tabular-nums */

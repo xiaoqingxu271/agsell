@@ -33,7 +33,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AdminStatisticsServiceImpl implements AdminStatisticsService {
 
-    /** 已支付订单状态：待发货/待收货/已完成/售后中（排除待付款0、已取消4） */
+    /** 有效已支付订单状态：待发货/待收货/已完成/售后中（排除待付款0、已取消4、已退款6——交易未完成或已退款） */
     private static final List<Integer> PAID_STATUSES = List.of(1, 2, 3, 5);
 
     private final SysUserMapper userMapper;

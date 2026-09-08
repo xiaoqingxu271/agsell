@@ -2,8 +2,11 @@
   <view class="index-page">
     <!-- 搜索栏 -->
     <view class="search-bar">
-      <view class="search-input" @click="onSearchTap">
-        <text class="search-icon">🔍</text>
+      <view class="search-input" @click="onSearchTap" role="button" aria-label="搜索商品">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
         <text class="search-placeholder">搜索商品</text>
       </view>
     </view>
@@ -17,11 +20,12 @@
           mode="aspectFill"
           @click="onBannerTap(banner)"
           :show-menu-by-longpress="false"
+          :alt="banner.title || '轮播图'"
         />
       </swiper-item>
     </swiper>
     <view v-else class="banner-placeholder">
-      <text class="placeholder-text">🍊 新鲜水果 · 🥬有机蔬菜 · 🌾当季特产</text>
+      <text class="placeholder-text">新鲜水果 · 有机蔬菜 · 当季特产</text>
     </view>
 
     <!-- 分类快捷入口 -->
@@ -31,16 +35,25 @@
         :key="cat.id"
         class="category-item"
         @click="onCategoryTap(cat)"
+        role="button"
+        :aria-label="cat.name"
       >
-        <image v-if="cat.icon" class="category-icon" :src="cat.icon" mode="aspectFill" />
-        <text v-else class="category-icon-default">{{ cat.name[0] }}</text>
+        <view class="category-icon-wrap">
+          <image v-if="cat.icon" class="category-icon" :src="cat.icon" mode="aspectFill" :alt="cat.name" />
+          <text v-else class="category-icon-default">{{ cat.name[0] }}</text>
+        </view>
         <text class="category-name">{{ cat.name }}</text>
       </view>
     </view>
 
     <!-- 热销推荐 -->
     <view class="section">
-      <view class="section-title">🔥 热销推荐</view>
+      <view class="section-title">
+        <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"></path>
+        </svg>
+        <text>热销推荐</text>
+      </view>
       <scroll-view scroll-x class="product-scroll">
         <view class="product-scroll-inner">
           <ProductCard
@@ -55,7 +68,12 @@
 
     <!-- 新品推荐 -->
     <view class="section">
-      <view class="section-title">🆕 新品推荐</view>
+      <view class="section-title">
+        <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+        </svg>
+        <text>新品推荐</text>
+      </view>
       <scroll-view scroll-x class="product-scroll">
         <view class="product-scroll-inner">
           <ProductCard
@@ -71,8 +89,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import ProductCard from '../../components/ProductCard/ProductCard.vue'
 import { getBannerList } from '../../api/banner'
 import { getCategoryList, getHotProducts, getNewProducts } from '../../api/product'
@@ -87,7 +104,6 @@ onMounted(async () => {
   await loadCategories()
   await loadHotProducts()
   await loadNewProducts()
-  // 仅在已有 token 时才尝试刷新，不强制登录
 })
 
 async function loadBanners() {
@@ -98,7 +114,6 @@ async function loadBanners() {
 async function loadCategories() {
   const res = await getCategoryList()
   if (res.code === 0) {
-    // 只显示一级分类（parentId=0）
     categories.value = res.data.filter(c => !c.parentId || Number(c.parentId) === 0)
   }
 }
@@ -140,66 +155,81 @@ function onSearchTap() {
 
 <style scoped>
 .index-page {
-  background: #f5f5f5;
+  background: #F0FDF4;
   min-height: 100vh;
+  padding-bottom: 24rpx;
 }
 
 .search-bar {
-  background: #4CAF50;
+  background: #15803D;
   padding: 20rpx 24rpx;
 }
 
 .search-input {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 36rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 44rpx;
   height: 72rpx;
   padding: 0 24rpx;
+  min-width: 88rpx;
 }
 
 .search-icon {
-  font-size: 32rpx;
-  margin-right: 16rpx;
+  width: 32rpx;
+  height: 32rpx;
+  color: #9CA3AF;
+  margin-right: 12rpx;
+  flex-shrink: 0;
 }
 
 .search-placeholder {
   font-size: 26rpx;
-  color: #999;
+  color: #9CA3AF;
 }
 
 .banner-swiper {
   height: 360rpx;
-  width: 100%;
+  width: calc(100% - 48rpx);
+  margin: 24rpx 24rpx 0;
+  border-radius: 24rpx;
+  overflow: hidden;
 }
 
 .banner-image {
   width: 100%;
   height: 360rpx;
-  background: #e8f5e9;
+  background: #F0FDF4;
+  border-radius: 24rpx;
 }
 
 .banner-placeholder {
   height: 360rpx;
-  width: 100%;
-  background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
+  width: calc(100% - 48rpx);
+  margin: 24rpx 24rpx 0;
+  background: linear-gradient(135deg, #15803D 0%, #22C55E 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 24rpx;
 }
 
 .placeholder-text {
   font-size: 32rpx;
-  color: #fff;
-  font-weight: bold;
+  color: #FFFFFF;
+  font-weight: 600;
   letter-spacing: 4rpx;
 }
 
 .category-grid {
   display: flex;
   flex-wrap: wrap;
-  background: #fff;
-  padding: 20rpx 0;
+  background: #FFFFFF;
+  margin: 24rpx;
+  padding: 24rpx 0;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .category-item {
@@ -207,46 +237,67 @@ function onSearchTap() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rpx 0;
+  padding: 16rpx 0;
+  min-height: 88rpx;
+}
+
+.category-icon-wrap {
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .category-icon {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #e8f5e9;
+  background: #F0FDF4;
 }
 
 .category-icon-default {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #4CAF50;
-  color: #fff;
+  background: #F0FDF4;
+  color: #15803D;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28rpx;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .category-name {
   font-size: 24rpx;
-  color: #333;
+  color: #1F2937;
   margin-top: 8rpx;
 }
 
 .section {
-  background: #fff;
-  margin-top: 20rpx;
+  background: #FFFFFF;
+  margin: 24rpx;
   padding: 24rpx;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #14532D;
   margin-bottom: 20rpx;
+}
+
+.section-icon {
+  width: 32rpx;
+  height: 32rpx;
+  color: #A16207;
 }
 
 .product-scroll {
@@ -255,6 +306,11 @@ function onSearchTap() {
 
 .product-scroll-inner {
   display: inline-flex;
-  gap: 20rpx;
+  gap: 16rpx;
+}
+
+.product-scroll-inner :deep(.product-card) {
+  width: 240rpx;
+  flex-shrink: 0;
 }
 </style>

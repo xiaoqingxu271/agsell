@@ -2,15 +2,17 @@ import type { EChartsOption } from 'echarts'
 import type { AdminStatisticsVO, StatisticsTrendVO } from '@/types'
 
 // ─── 公共配置 ────────────────────────────────────────────────────────────────
+// MASTER.md v2.0 §9 图表规范：系列色板固定顺序 #15803D, #22C55E, #A16207, #2563EB, #6B7280, #DC2626
 
-const PIE_COLORS = ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399', '#C0C4CC']
+const PIE_COLORS = ['#15803D', '#22C55E', '#A16207', '#2563EB', '#6B7280', '#DC2626']
 const AXIS_LABEL_COLOR = '#6B7280'
 const AXIS_LINE_COLOR = '#E5E7EB'
 const SPLIT_LINE_COLOR = '#F3F4F6'
 const EMPTY_COLOR = '#E5E7EB'
-const PRIMARY = '#409EFF'
-const SUCCESS = '#67C23A'
-const WARNING = '#E6A23C'
+const PRIMARY = '#15803D'
+const SUCCESS = '#22C55E'
+const WARNING = '#A16207'
+const BLUE = '#2563EB'
 
 /** 过滤掉 value<=0 的项；若全为 0 则回退为灰色"暂无数据"，避免空白图 */
 function buildPieData(items: Array<{ name: string; value: number }>) {
@@ -42,7 +44,14 @@ const pieSeriesBase = {
   radius: ['46%', '70%'],
   center: ['50%', '42%'],
   itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
-  label: { show: false },
+  // 标签显示名称+百分比文字（MASTER v2.0 §9.5：不以颜色为唯一区分）
+  label: {
+    show: true,
+    fontSize: 11,
+    color: AXIS_LABEL_COLOR,
+    formatter: '{b}: {d}%',
+  },
+  labelLine: { length: 8, length2: 8 },
   emphasis: {
     label: { show: true, fontSize: 13, fontWeight: 600, formatter: '{b}\n{c} ({d}%)' },
   },

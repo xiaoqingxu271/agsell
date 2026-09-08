@@ -11,32 +11,38 @@
           class="product-item"
           :class="{ active: idx === currentIndex }"
           @click="currentIndex = idx"
+          role="button"
         >
-          <image class="product-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" />
+          <image class="product-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" :alt="item.productName" />
           <view class="product-detail">
             <text class="product-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="product-spec">{{ item.specName }}</text>
             <text class="product-price">¥{{ item.price }} × {{ item.quantity }}</text>
           </view>
-          <text class="product-check">{{ idx === currentIndex ? '✓' : '' }}</text>
+          <view class="product-check" :class="{ checked: idx === currentIndex }">
+            <text v-if="idx === currentIndex" class="check-mark">✓</text>
+          </view>
         </view>
         <text v-if="items.length > 1" class="product-hint">该订单共 {{ items.length }} 件商品，点击切换要评价的商品</text>
       </view>
 
       <!-- 评分 -->
       <view class="rating-section card">
-        <view class="section-title">商品满意度</view>
-        <StarRating :rating="rating" @change="onRatingChange" />
-        <text class="rating-text">{{ ratingText }}</text>
+        <text class="section-title">商品满意度</text>
+        <view class="rating-center">
+          <StarRating :rating="rating" @change="onRatingChange" size="56rpx" />
+          <text class="rating-text">{{ ratingText }}</text>
+        </view>
       </view>
 
       <!-- 评价内容 -->
       <view class="content-section card">
-        <view class="section-title">评价内容（最多500字）</view>
+        <text class="section-title">评价内容（最多500字）</text>
         <textarea
           class="review-textarea"
           v-model="content"
           placeholder="说说你的购物体验吧~"
+          placeholder-style="color:#9CA3AF"
           maxlength="500"
           show-count
         />
@@ -44,7 +50,7 @@
 
       <!-- 评价图片 -->
       <view class="content-section card">
-        <view class="section-title">评价图片（最多9张，可选）</view>
+        <text class="section-title">评价图片（最多9张，可选）</text>
         <view class="image-picker">
           <image
             v-for="(url, i) in imageUrls"
@@ -53,9 +59,13 @@
             mode="aspectFill"
             class="picked-img"
             @click="previewImage(i)"
+            :alt="`评价图片${i + 1}`"
           />
-          <view v-if="imageUrls.length < 9" class="add-img-btn" @click="chooseImages">
-            <text class="add-icon">+</text>
+          <view v-if="imageUrls.length < 9" class="add-img-btn" @click="chooseImages" role="button" aria-label="添加图片">
+            <svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
           </view>
         </view>
         <text class="image-hint">可上传最多9张实物图，让其他买家更好地了解商品</text>
@@ -63,10 +73,10 @@
 
       <!-- 匿名评价 -->
       <view class="anonymous-section card">
-        <view class="anonymous-row" @click="isAnonymous = isAnonymous ? 0 : 1">
-          <text class="checkbox" :class="{ checked: isAnonymous === 1 }">
-            {{ isAnonymous === 1 ? '✓' : '' }}
-          </text>
+        <view class="anonymous-row" @click="isAnonymous = isAnonymous ? 0 : 1" role="switch" :aria-checked="isAnonymous === 1">
+          <view class="checkbox" :class="{ checked: isAnonymous === 1 }">
+            <text v-if="isAnonymous === 1" class="check-mark">✓</text>
+          </view>
           <text class="anonymous-label">匿名评价</text>
           <text class="anonymous-hint">评价后其他用户将看不到你的昵称</text>
         </view>
@@ -75,7 +85,7 @@
 
     <!-- 提交按钮 -->
     <view class="bottom-bar">
-      <view class="submit-btn" @click="onSubmit">提交评价</view>
+      <view class="submit-btn" @click="onSubmit" role="button">提交评价</view>
     </view>
   </view>
 </template>
@@ -134,7 +144,6 @@ async function chooseImages() {
           imageUrls.value.push(url)
         }
       } catch {
-        // error already shown inside uploadMiniImage
       } finally {
         uni.hideLoading()
       }
@@ -187,8 +196,8 @@ async function onSubmit() {
 <style scoped>
 .review-write-page {
   min-height: 100vh;
-  background: #f5f5f5;
-  padding-bottom: 120rpx;
+  background: #F0FDF4;
+  padding-bottom: 140rpx;
 }
 
 .content {
@@ -197,10 +206,12 @@ async function onSubmit() {
 }
 
 .card {
-  background: #fff;
-  margin: 20rpx;
+  background: #FFFFFF;
+  margin: 16rpx 24rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .product-info {
@@ -212,11 +223,13 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   padding: 12rpx 0;
-  border-bottom: 1rpx solid #f2f2f2;
+  border-bottom: 1px solid #E5E7EB;
+  min-height: 88rpx;
+  box-sizing: border-box;
 }
 
 .product-item.active {
-  background: #f7fff7;
+  background: #F0FDF4;
   border-radius: 12rpx;
   padding: 12rpx 16rpx;
   margin: 0 -16rpx;
@@ -231,7 +244,7 @@ async function onSubmit() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #f5f5f5;
+  background: #F0FDF4;
   flex-shrink: 0;
 }
 
@@ -243,8 +256,8 @@ async function onSubmit() {
 
 .product-name {
   font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1F2937;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -253,70 +266,84 @@ async function onSubmit() {
 
 .product-spec {
   font-size: 24rpx;
-  color: #999;
+  color: #6B7280;
   margin-top: 8rpx;
   display: block;
 }
 
 .product-price {
   font-size: 24rpx;
-  color: #FF9800;
+  color: #A16207;
   margin-top: 8rpx;
   display: block;
+  font-variant-numeric: tabular-nums;
 }
 
 .product-check {
   width: 40rpx;
   height: 40rpx;
-  border: 2rpx solid #ccc;
+  border: 2px solid #D1D5DB;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
-  color: transparent;
   margin-left: 16rpx;
   flex-shrink: 0;
 }
 
-.product-item.active .product-check {
-  border-color: #4CAF50;
-  color: #4CAF50;
-  background: #f0fff0;
+.product-check.checked {
+  border-color: #15803D;
+  background: #15803D;
+}
+
+.check-mark {
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .product-hint {
   font-size: 22rpx;
-  color: #999;
+  color: #6B7280;
   margin-top: 12rpx;
   display: block;
 }
 
 .section-title {
   font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #14532D;
   margin-bottom: 20rpx;
+  display: block;
+}
+
+.rating-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
 }
 
 .rating-text {
   display: block;
   text-align: center;
-  margin-top: 16rpx;
   font-size: 28rpx;
-  color: #FF9800;
-  font-weight: bold;
+  color: #A16207;
+  font-weight: 600;
 }
 
 .review-textarea {
   width: 100%;
-  height: 240rpx;
+  min-height: 240rpx;
   font-size: 28rpx;
-  color: #333;
-  background: #f5f5f5;
+  color: #1F2937;
+  background: #FFFFFF;
   border-radius: 12rpx;
   padding: 20rpx;
   box-sizing: border-box;
+  border: 1px solid #D1D5DB;
+  line-height: 1.6;
 }
 
 .image-picker {
@@ -329,28 +356,29 @@ async function onSubmit() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #f5f5f5;
+  background: #F0FDF4;
 }
 
 .add-img-btn {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  border: 2rpx dashed #ccc;
+  border: 2px dashed #D1D5DB;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
+  background: #FAFAFA;
 }
 
 .add-icon {
-  font-size: 48rpx;
-  color: #ccc;
+  width: 48rpx;
+  height: 48rpx;
+  color: #9CA3AF;
 }
 
 .image-hint {
   font-size: 22rpx;
-  color: #999;
+  color: #6B7280;
   margin-top: 12rpx;
   display: block;
 }
@@ -359,34 +387,33 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   gap: 16rpx;
+  min-height: 88rpx;
 }
 
 .checkbox {
   width: 40rpx;
   height: 40rpx;
-  border: 2rpx solid #ccc;
+  border: 2px solid #D1D5DB;
   border-radius: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
-  color: transparent;
+  flex-shrink: 0;
 }
 
 .checkbox.checked {
-  border-color: #4CAF50;
-  color: #4CAF50;
-  background: #f0fff0;
+  border-color: #15803D;
+  background: #15803D;
 }
 
 .anonymous-label {
   font-size: 28rpx;
-  color: #333;
+  color: #1F2937;
 }
 
 .anonymous-hint {
   font-size: 22rpx;
-  color: #999;
+  color: #6B7280;
   margin-left: auto;
 }
 
@@ -395,20 +422,21 @@ async function onSubmit() {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20rpx 24rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1rpx solid #eee;
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
   z-index: 100;
 }
 
 .submit-btn {
-  background: #4CAF50;
-  color: #fff;
+  background: #15803D;
+  color: #FFFFFF;
   text-align: center;
   height: 88rpx;
   line-height: 88rpx;
   border-radius: 44rpx;
   font-size: 32rpx;
+  font-weight: 600;
 }
 </style>

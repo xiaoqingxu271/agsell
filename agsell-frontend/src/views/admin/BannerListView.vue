@@ -162,6 +162,7 @@ onMounted(fetchList)
               v-if="row.image"
               :src="row.image"
               fit="cover"
+              alt="轮播图预览"
               style="width: 85px;height:48px;border-radius:6px"
               :preview-src-list="[row.image]"
             />
@@ -173,9 +174,13 @@ onMounted(fetchList)
         <el-table-column prop="sort" label="排序" width="100" align="center" />
         <el-table-column label="状态" width="200" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'" class="admin-status-tag" size="small">
-              {{ row.status === 1 ? '启用' : '禁用' }}
-            </el-tag>
+            <el-switch
+              :model-value="row.status === 1"
+              active-text="启用"
+              inactive-text="禁用"
+              active-color="#15803D"
+              @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
+            />
           </template>
         </el-table-column>
         <el-table-column label="创建时间" width="160" align="center" show-overflow-tooltip>
@@ -225,6 +230,7 @@ onMounted(fetchList)
               v-if="pendingBannerUrl"
               :src="pendingBannerUrl"
               fit="cover"
+              alt="轮播图预览"
               style="width:80px;height:44px;border-radius:6px"
               :preview-src-list="[pendingBannerUrl]"
             />
@@ -232,6 +238,7 @@ onMounted(fetchList)
               v-else-if="form.image"
               :src="form.image"
               fit="cover"
+              alt="轮播图"
               style="width:80px;height:44px;border-radius:6px"
               :preview-src-list="[form.image]"
             />
@@ -276,22 +283,33 @@ onMounted(fetchList)
   justify-content: space-between;
 }
 
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #14532D;
+}
+
 .upload-label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 88px;
   height: 36px;
-  border: 1px dashed #d9d9d9;
+  border: 1px dashed #D1D5DB;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
-  color: #606266;
+  color: #6B7280;
   transition: all 0.2s;
   flex-shrink: 0;
 }
 .upload-label:hover {
-  border-color: #409eff;
-  color: #409eff;
+  border-color: #15803D;
+  color: #15803D;
+}
+
+.no-img {
+  font-size: 13px;
+  color: #9CA3AF;
 }
 </style>

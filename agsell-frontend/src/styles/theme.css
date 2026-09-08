@@ -1,0 +1,247 @@
+/**
+ * agsell 管理端主题覆盖 - 基于 MASTER.md v2.0 §10.1
+ * 品牌绿 #15803D，生态浅绿底 #F0FDF4，muted 层 #E8F0F1，卡片描边 #BBF7D0，圆角 12px
+ * 加载顺序：element-plus css → admin-table.css → theme.css（本文件最后生效）
+ */
+
+:root {
+  /* ── 品牌主色（绿阶）── */
+  --el-color-primary: #15803D;
+  --el-color-primary-light-3: #4D9E6D;
+  --el-color-primary-light-5: #8ABFA1;
+  --el-color-primary-light-7: #C7DFD0;
+  --el-color-primary-light-8: #DCEFE3;
+  --el-color-primary-light-9: #F0FDF4;
+  --el-color-primary-dark-2: #14532D;
+
+  /* ── 语义色 ── */
+  --el-color-success: #16A34A;
+  --el-color-success-light-9: #DCFCE7;
+  --el-color-warning: #D97706;
+  --el-color-warning-light-9: #FEF3C7;
+  --el-color-danger: #DC2626;
+  --el-color-danger-light-9: #FEE2E2;
+  --el-color-error: #DC2626;
+  --el-color-error-light-9: #FEE2E2;
+  --el-color-info: #6B7280;
+  --el-color-info-light-9: #F3F4F6;
+
+  /* ── 圆角与字号 ── */
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 4px;
+  --el-font-size-base: 14px;
+
+  /* ── 文字色 ── */
+  --el-text-color-primary: #1F2937;
+  --el-text-color-regular: #6B7280;
+  --el-text-color-secondary: #6B7280;
+  --el-text-color-placeholder: #9CA3AF;
+  --el-text-color-disabled: #9CA3AF;
+
+  /* ── 边框色 ── */
+  --el-border-color: #E5E7EB;
+  --el-border-color-light: #E5E7EB;
+  --el-border-color-lighter: #EDEFF2;
+  --el-border-color-extra-light: #F3F4F6;
+  --el-border-color-dark: #D1D5DB;
+  --el-border-color-darker: #9CA3AF;
+
+  /* ── 填充与背景 ── */
+  --el-fill-color-blank: #FFFFFF;
+  --el-fill-color: #E8F0F1;
+  --el-fill-color-light: #E8F0F1;
+  --el-fill-color-lighter: #F0FDF4;
+  --el-fill-color-extra-light: #F7FBF8;
+  --el-fill-color-dark: #E5E7EB;
+  --el-fill-color-darker: #D1D5DB;
+  --el-bg-color: #FFFFFF;
+  --el-bg-color-page: #F0FDF4;
+  --el-bg-color-overlay: #FFFFFF;
+
+  /* ── 阴影 ── */
+  --el-box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
+  --el-box-shadow-light: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --el-box-shadow-lighter: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --el-box-shadow-dark: 0 8px 24px rgba(16, 24, 40, 0.10);
+
+  /* ── 遮罩 ── */
+  --el-overlay-color: rgba(15, 23, 42, 0.5);
+  --el-overlay-color-light: rgba(15, 23, 42, 0.3);
+  --el-overlay-color-lighter: rgba(15, 23, 42, 0.2);
+
+  /* ── 禁用态 ── */
+  --el-disabled-bg-color: #F3F4F6;
+  --el-disabled-text-color: #9CA3AF;
+  --el-disabled-border-color: #E5E7EB;
+
+  /* ── 表格 ── */
+  --el-table-bg-color: #FFFFFF;
+  --el-table-tr-bg-color: #FFFFFF;
+  --el-table-header-bg-color: #E8F0F1;
+  --el-table-header-text-color: #475569;
+  --el-table-text-color: #1F2937;
+  --el-table-border-color: #E5E7EB;
+  --el-table-row-hover-bg-color: #F0FDF4;
+  --el-table-current-row-bg-color: #DCFCE7;
+  --el-table-expanded-cell-bg-color: #E8F0F1;
+
+  /* ── 菜单（侧栏深绿）── */
+  --el-menu-bg-color: #14532D;
+  --el-menu-hover-bg-color: rgba(255, 255, 255, 0.08);
+  --el-menu-text-color: rgba(255, 255, 255, 0.78);
+  --el-menu-active-color: #FFFFFF;
+  --el-menu-item-height: 48px;
+
+  /* ── 开关 ── */
+  --el-switch-on-color: #15803D;
+  --el-switch-off-color: #D1D5DB;
+
+  /* ── 标签（浅底深字）── */
+  --el-tag-padding-horizontal: 8px;
+  --el-tag-height: 22px;
+  --el-tag-font-size: 12px;
+  --el-tag-border-radius: 4px;
+}
+
+/* ── el-tag 浅底深字强制覆盖 ── */
+.el-tag {
+  border: none !important;
+  font-weight: 500;
+}
+.el-tag--success {
+  background-color: #DCFCE7 !important;
+  color: #166534 !important;
+}
+.el-tag--warning {
+  background-color: #FEF3C7 !important;
+  color: #92400E !important;
+}
+.el-tag--danger {
+  background-color: #FEE2E2 !important;
+  color: #991B1B !important;
+}
+.el-tag--info {
+  background-color: #F3F4F6 !important;
+  color: #4B5563 !important;
+}
+.el-tag--primary {
+  background-color: #BBF7D0 !important;
+  color: #14532D !important;
+}
+
+/* ── el-card 统一：shadow=never + 1px #BBF7D0 品牌描边 + 圆角 12px ── */
+.el-card {
+  border: 1px solid #BBF7D0 !important;
+  border-radius: 12px !important;
+}
+.el-card.is-always-shadow,
+.el-card.is-hover-shadow:focus,
+.el-card.is-hover-shadow:hover {
+  box-shadow: none !important;
+}
+
+/* ── 主按钮 focus ring ── */
+.el-button--primary:focus-visible {
+  outline: 2px solid #22C55E;
+  outline-offset: 2px;
+}
+
+/* ── 输入框 focus ── */
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+}
+
+/* ── 数字金额 tabular-nums 工具类 ── */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 品牌 Token（MASTER.md §2.1 设计系统 Token）── */
+:root {
+  --color-primary: #15803D;
+  --color-on-primary: #FFFFFF;
+  --color-secondary: #22C55E;
+  --color-accent: #A16207;
+  --color-background: #F0FDF4;
+  --color-foreground: #14532D;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #14532D;
+  --color-muted: #E8F0F1;
+  --color-muted-foreground: #475569;
+  --color-border: #BBF7D0;
+  --color-destructive: #DC2626;
+  --color-ring: #15803D;
+
+  /* ── 字体层级（MASTER.md §3.2）── */
+  --fs-caption: 12px;
+  --fs-table: 13px;
+  --fs-body: 14px;
+  --fs-card-title: 15px;
+  --fs-page-title: 16px;
+  --fs-stat: 20px;
+  --fs-display: 24px;
+
+  /* ── 间距（MASTER.md §4）── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ── 圆角与阴影（MASTER.md §5）── */
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-base: 0 2px 8px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 8px 24px rgba(16, 24, 40, 0.1);
+}
+
+/* ── 价格色 ── */
+.price-accent {
+  color: #A16207;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 评分星色 ── */
+.rating-accent {
+  color: #A16207;
+  letter-spacing: 2px;
+}
+
+/* ── 页面标题 ── */
+.page-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #14532D;
+  margin-bottom: 16px;
+}
+
+/* ── 统计卡数值 ── */
+.stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1F2937;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 响应式：<768px 侧栏折叠 ── */
+@media (max-width: 767px) {
+  .admin-sidebar-collapse {
+    width: 64px !important;
+  }
+}
+
+/* ── prefers-reduced-motion：动效降级（MASTER.md §7.6）── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

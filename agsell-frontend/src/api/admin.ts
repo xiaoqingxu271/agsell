@@ -19,6 +19,9 @@ import type {
   ReplyRequest,
   AdminStatisticsVO,
   StatisticsTrendVO,
+  AdminAfterSalesListItemVO,
+  AdminAfterSalesDetailVO,
+  AfterSalesHandleRequest,
 } from '@/types'
 
 /** 管理员登录 */
@@ -168,6 +171,29 @@ export function replyReview(id: number, data: ReplyRequest) {
 /** 删除评价 */
 export function deleteReview(id: number) {
   return request.delete<null>(`/admin/review/${id}`)
+}
+
+// ─── 售后 ─────────────────────────────────────────────────────────────────────
+
+/** 售后单列表 */
+export function listAfterSales(params: {
+  pageNum?: number
+  pageSize?: number
+  status?: number | null
+  afterSalesNo?: string
+  username?: string
+}) {
+  return request.get<Page<AdminAfterSalesListItemVO>>('/admin/after-sales/list', { params })
+}
+
+/** 售后单详情 */
+export function getAfterSalesDetail(afterSalesNo: string) {
+  return request.get<AdminAfterSalesDetailVO>(`/admin/after-sales/${afterSalesNo}`)
+}
+
+/** 处理售后（同意退款/拒绝） */
+export function handleAfterSales(afterSalesNo: string, data: AfterSalesHandleRequest) {
+  return request.post<null>(`/admin/after-sales/${afterSalesNo}/handle`, data)
 }
 
 // ─── 数据统计 ─────────────────────────────────────────────────────────────────

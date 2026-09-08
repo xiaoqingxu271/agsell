@@ -11,14 +11,14 @@
           v-for="(item, index) in addresses"
           :key="item.id"
           class="address-item"
-          :class="{ selected: selectedId === item.id, default: item.isDefault === 1 }"
+          :class="{ selected: selectedId === item.id }"
           @click="$emit('select', item)"
         >
           <view class="address-main">
             <text class="receiver">{{ item.receiver }}</text>
             <text class="phone">{{ item.phone }}</text>
-            <text v-if="item.tag" class="tag">{{ item.tag }}</text>
-            <text v-if="item.isDefault === 1" class="default-tag">默认</text>
+            <text v-if="item.tag" class="tag tag-accent">{{ item.tag }}</text>
+            <text v-if="item.isDefault === 1" class="tag tag-success">默认</text>
           </view>
           <view class="address-detail">{{ item.province }} {{ item.city }} {{ item.district }} {{ item.detail }}</view>
         </view>
@@ -34,10 +34,10 @@ defineProps({
   addresses: { type: Array, default: () => [] },
   selectedId: { type: Number, default: null }
 })
-defineEmits(['close', 'add', 'select', 'maskClick'])
+const emit = defineEmits(['close', 'add', 'select', 'maskClick'])
 
 function handleMaskClick() {
-  $emit('maskClick')
+  emit('maskClick')
 }
 </script>
 
@@ -48,14 +48,14 @@ function handleMaskClick() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.5);
   z-index: 999;
   display: flex;
   align-items: flex-end;
 }
 .address-picker-content {
   width: 100%;
-  background: #fff;
+  background: #FFFFFF;
   border-radius: 32rpx 32rpx 0 0;
   max-height: 70vh;
   display: flex;
@@ -66,68 +66,79 @@ function handleMaskClick() {
   justify-content: space-between;
   align-items: center;
   padding: 32rpx;
-  border-bottom: 1rpx solid #eee;
+  border-bottom: 1px solid #E5E7EB;
 }
 .title {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1F2937;
 }
 .cancel-btn {
   font-size: 28rpx;
-  color: #999;
+  color: #6B7280;
+  min-width: 88rpx;
 }
 .add-btn {
   font-size: 28rpx;
-  color: #4CAF50;
+  color: #15803D;
+  font-weight: 500;
+  min-width: 88rpx;
+  text-align: right;
 }
 .address-list {
   max-height: 500rpx;
 }
 .address-item {
-  padding: 32rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 24rpx 32rpx;
+  border-bottom: 1px solid #E5E7EB;
+  min-height: 88rpx;
+  border: 1px solid transparent;
+  margin: 8rpx 16rpx;
+  border-radius: 16rpx;
 }
 .address-item.selected {
-  background: #f0fff0;
+  background: #F0FDF4;
+  border-color: #15803D;
 }
 .address-main {
   display: flex;
   align-items: center;
   gap: 16rpx;
+  flex-wrap: wrap;
 }
 .receiver {
   font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1F2937;
 }
 .phone {
   font-size: 28rpx;
-  color: #666;
+  color: #6B7280;
 }
 .tag {
-  font-size: 20rpx;
-  color: #fff;
-  background: #4CAF50;
+  font-size: 22rpx;
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
+  line-height: 1.4;
 }
-.default-tag {
-  font-size: 20rpx;
-  color: #fff;
-  background: #FF9800;
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
+.tag-accent {
+  background: #FFF7ED;
+  color: #9A3412;
+}
+.tag-success {
+  background: #DCFCE7;
+  color: #166534;
 }
 .address-detail {
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
   margin-top: 12rpx;
+  line-height: 1.5;
 }
 .empty-address {
   text-align: center;
   padding: 60rpx;
-  color: #999;
+  color: #9CA3AF;
   font-size: 28rpx;
 }
 </style>

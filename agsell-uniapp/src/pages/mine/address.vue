@@ -5,14 +5,19 @@
     <view class="content">
       <!-- 未登录时显示登录引导 -->
       <view v-if="!isLoggedInUser" class="empty-state" @click="onLogin">
-        <text class="empty-icon">📍</text>
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
         <text class="empty-text">登录后管理您的收货地址</text>
         <view class="login-hint-btn">微信一键登录</view>
       </view>
 
       <!-- 已登录但无地址 -->
       <view v-else-if="addresses.length === 0" class="empty-state">
-        <text class="empty-icon">📭</text>
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
         <text class="empty-text">暂无收货地址</text>
       </view>
 
@@ -21,24 +26,24 @@
         v-for="(addr, index) in addresses"
         :key="addr.id"
         class="address-card card"
-        :class="{ default: addr.isDefault === 1 }"
+        :class="{ 'is-default': addr.isDefault === 1 }"
       >
         <view class="addr-main" @click="onEdit(addr)">
           <view class="addr-info">
             <view class="addr-person">
               <text class="receiver">{{ addr.receiver }}</text>
               <text class="phone">{{ addr.phone }}</text>
-              <text v-if="addr.tag" class="tag">{{ addr.tag }}</text>
-              <text v-if="addr.isDefault === 1" class="default-tag">默认</text>
+              <text v-if="addr.tag" class="tag tag-accent">{{ addr.tag }}</text>
+              <text v-if="addr.isDefault === 1" class="tag tag-success">默认</text>
             </view>
             <text class="addr-detail">{{ addr.province }} {{ addr.city }} {{ addr.district }} {{ addr.detail }}</text>
           </view>
           <view class="addr-actions">
-            <text class="edit-btn" @click.stop="onEdit(addr)">编辑</text>
-            <text class="del-btn" @click.stop="onDelete(addr)">删除</text>
+            <text class="action-btn action-edit" @click.stop="onEdit(addr)">编辑</text>
+            <text class="action-btn action-delete" @click.stop="onDelete(addr)">删除</text>
             <text
               v-if="addr.isDefault !== 1"
-              class="default-btn"
+              class="action-btn action-default"
               @click.stop="onSetDefault(addr)"
             >设为默认</text>
           </view>
@@ -46,8 +51,11 @@
       </view>
 
       <!-- 新增地址按钮 -->
-      <view v-if="isLoggedInUser" class="add-btn" @click="onEdit(null)">
-        <text class="add-icon">+</text>
+      <view v-if="isLoggedInUser" class="add-btn" @click="onEdit(null)" role="button">
+        <svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
         <text class="add-text">新增收货地址</text>
       </view>
     </view>
@@ -57,15 +65,20 @@
       <view class="edit-content" @click.stop>
         <view class="edit-header">
           <text class="edit-title">{{ editingId ? '编辑地址' : '新增地址' }}</text>
-          <text class="edit-close" @click="closeEdit">×</text>
+          <view class="edit-close" @click="closeEdit" role="button" aria-label="关闭">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </view>
         </view>
         <view class="form-item">
           <text class="form-label">收件人</text>
-          <input class="form-input" v-model="form.receiver" placeholder="请输入收件人姓名" />
+          <input class="form-input" v-model="form.receiver" placeholder="请输入收件人姓名" placeholder-style="color:#9CA3AF" />
         </view>
         <view class="form-item">
           <text class="form-label">手机号</text>
-          <input class="form-input" type="number" v-model="form.phone" placeholder="请输入手机号" />
+          <input class="form-input" type="number" v-model="form.phone" placeholder="请输入手机号" placeholder-style="color:#9CA3AF" />
         </view>
         <view class="form-item">
           <text class="form-label">所在地区</text>
@@ -79,7 +92,7 @@
         </view>
         <view class="form-item">
           <text class="form-label">详细地址</text>
-          <input class="form-input" v-model="form.detail" placeholder="街道/门牌号等" />
+          <input class="form-input" v-model="form.detail" placeholder="街道/门牌号等" placeholder-style="color:#9CA3AF" />
         </view>
         <view class="form-item">
           <text class="form-label">标签</text>
@@ -90,20 +103,21 @@
               class="tag-option"
               :class="{ active: form.tag === tag }"
               @click="form.tag = form.tag === tag ? '' : tag"
+              role="button"
             >
               {{ tag }}
             </view>
           </view>
         </view>
         <view class="form-item default-row">
-          <view class="default-toggle" @click="form.isDefault = form.isDefault ? 0 : 1">
+          <view class="default-toggle" @click="form.isDefault = form.isDefault ? 0 : 1" role="switch" :aria-checked="form.isDefault === 1">
             <text class="toggle-text">设为默认地址</text>
             <view class="toggle-switch" :class="{ on: form.isDefault === 1 }">
               <view class="toggle-circle" />
             </view>
           </view>
         </view>
-        <view class="save-btn" @click="onSave">保存</view>
+        <view class="save-btn" @click="onSave" role="button">保存</view>
       </view>
     </view>
   </view>
@@ -264,11 +278,12 @@ async function onSetDefault(addr) {
 <style scoped>
 .address-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #F0FDF4;
 }
 
 .content {
-  padding: 20rpx;
+  padding: 24rpx;
+  padding-bottom: 160rpx;
 }
 
 /* 空状态 */
@@ -282,22 +297,30 @@ async function onSetDefault(addr) {
 }
 
 .empty-icon {
-  font-size: 96rpx;
+  width: 96rpx;
+  height: 96rpx;
+  color: #9CA3AF;
   margin-bottom: 24rpx;
 }
 
 .empty-text {
   font-size: 28rpx;
-  color: #999;
+  color: #9CA3AF;
   margin-bottom: 32rpx;
 }
 
 .login-hint-btn {
-  background: #4CAF50;
-  color: #fff;
+  background: #15803D;
+  color: #FFFFFF;
   padding: 20rpx 48rpx;
   border-radius: 44rpx;
   font-size: 28rpx;
+  font-weight: 600;
+  min-height: 88rpx;
+  line-height: 88rpx;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* 新增地址按钮 */
@@ -306,37 +329,42 @@ async function onSetDefault(addr) {
   bottom: 40rpx;
   left: 50%;
   transform: translateX(-50%);
-  background: #4CAF50;
-  color: #fff;
+  background: #15803D;
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   gap: 8rpx;
-  padding: 24rpx 56rpx;
-  border-radius: 48rpx;
-  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.4);
+  padding: 0 56rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
+  box-shadow: 0 4rpx 16rpx rgba(21, 128, 61, 0.3);
   min-width: 320rpx;
   justify-content: center;
+  padding-bottom: calc(0px + env(safe-area-inset-bottom));
 }
 
 .add-icon {
-  font-size: 36rpx;
-  font-weight: bold;
+  width: 36rpx;
+  height: 36rpx;
+  color: #FFFFFF;
 }
 
 .add-text {
   font-size: 30rpx;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .card {
-  background: #fff;
-  border-radius: 16rpx;
-  margin-bottom: 20rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin-bottom: 16rpx;
   overflow: hidden;
+  border: 1px solid #BBF7D0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
-.address-card.default {
-  border: 2rpx solid #4CAF50;
+.address-card.is-default {
+  border-color: #15803D;
 }
 
 .addr-main {
@@ -348,58 +376,77 @@ async function onSetDefault(addr) {
   align-items: center;
   gap: 16rpx;
   margin-bottom: 12rpx;
+  flex-wrap: wrap;
 }
 
 .receiver {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1F2937;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
 }
 
 .tag {
-  font-size: 20rpx;
-  color: #fff;
-  background: #4CAF50;
+  font-size: 22rpx;
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
+  line-height: 1.4;
 }
 
-.default-tag {
-  font-size: 20rpx;
-  color: #fff;
-  background: #FF9800;
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
+.tag-accent {
+  background: #FFF7ED;
+  color: #9A3412;
+}
+
+.tag-success {
+  background: #DCFCE7;
+  color: #166534;
 }
 
 .addr-detail {
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
   line-height: 1.6;
 }
 
 .addr-actions {
   display: flex;
-  gap: 24rpx;
+  gap: 16rpx;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #f5f5f5;
+  border-top: 1px solid #E5E7EB;
+  flex-wrap: wrap;
 }
 
-.edit-btn, .del-btn, .default-btn {
+.action-btn {
   font-size: 24rpx;
   padding: 8rpx 20rpx;
-  border-radius: 20rpx;
+  border-radius: 8rpx;
+  min-height: 60rpx;
+  line-height: 60rpx;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
-.edit-btn { color: #4CAF50; border: 1rpx solid #4CAF50; }
-.del-btn { color: #F44336; border: 1rpx solid #F44336; }
-.default-btn { color: #FF9800; border: 1rpx solid #FF9800; }
+.action-edit {
+  color: #15803D;
+  border: 1px solid #15803D;
+}
+
+.action-delete {
+  color: #DC2626;
+  border: 1px solid #DC2626;
+}
+
+.action-default {
+  color: #A16207;
+  border: 1px solid #A16207;
+}
 
 /* 编辑弹窗 */
 .edit-mask {
@@ -408,7 +455,7 @@ async function onSetDefault(addr) {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.5);
   z-index: 999;
   display: flex;
   align-items: flex-end;
@@ -416,7 +463,7 @@ async function onSetDefault(addr) {
 
 .edit-content {
   width: 100%;
-  background: #fff;
+  background: #FFFFFF;
   border-radius: 32rpx 32rpx 0 0;
   padding: 32rpx;
   padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
@@ -431,14 +478,22 @@ async function onSetDefault(addr) {
 
 .edit-title {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1F2937;
 }
 
 .edit-close {
-  font-size: 48rpx;
-  color: #999;
-  line-height: 1;
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9CA3AF;
+}
+
+.edit-close svg {
+  width: 36rpx;
+  height: 36rpx;
 }
 
 .form-item {
@@ -447,31 +502,37 @@ async function onSetDefault(addr) {
 
 .form-label {
   font-size: 28rpx;
-  color: #333;
+  color: #6B7280;
   margin-bottom: 12rpx;
   display: block;
+  font-weight: 500;
 }
 
 .form-input {
   width: 100%;
-  height: 80rpx;
-  border: 1rpx solid #eee;
+  height: 88rpx;
+  border: 1px solid #D1D5DB;
   border-radius: 12rpx;
-  padding: 0 20rpx;
+  padding: 0 24rpx;
   font-size: 28rpx;
+  color: #1F2937;
   box-sizing: border-box;
+  background: #FFFFFF;
 }
 
 .region-row {
-  padding: 20rpx;
-  background: #f5f5f5;
+  padding: 0 24rpx;
+  background: #FFFFFF;
   border-radius: 12rpx;
-  border: 1rpx solid #eee;
+  border: 1px solid #D1D5DB;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
 }
 
 .region-picker {
   font-size: 28rpx;
-  color: #333;
+  color: #1F2937;
 }
 
 .tag-options {
@@ -481,16 +542,21 @@ async function onSetDefault(addr) {
 
 .tag-option {
   padding: 12rpx 32rpx;
-  border: 1rpx solid #eee;
-  border-radius: 28rpx;
+  border: 1px solid #BBF7D0;
+  border-radius: 44rpx;
   font-size: 26rpx;
-  color: #666;
+  color: #6B7280;
+  min-height: 60rpx;
+  line-height: 60rpx;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .tag-option.active {
-  background: #4CAF50;
-  color: #fff;
-  border-color: #4CAF50;
+  background: #15803D;
+  color: #FFFFFF;
+  border-color: #15803D;
 }
 
 .default-row {
@@ -501,49 +567,52 @@ async function onSetDefault(addr) {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 88rpx;
 }
 
 .toggle-text {
   font-size: 28rpx;
-  color: #333;
+  color: #1F2937;
 }
 
 .toggle-switch {
-  width: 80rpx;
-  height: 44rpx;
-  background: #ccc;
-  border-radius: 22rpx;
+  width: 88rpx;
+  height: 48rpx;
+  background: #D1D5DB;
+  border-radius: 16rpx;
   position: relative;
-  transition: background 0.3s;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .toggle-switch.on {
-  background: #4CAF50;
+  background: #15803D;
 }
 
 .toggle-circle {
   position: absolute;
   top: 4rpx;
   left: 4rpx;
-  width: 36rpx;
-  height: 36rpx;
-  background: #fff;
+  width: 40rpx;
+  height: 40rpx;
+  background: #FFFFFF;
   border-radius: 50%;
-  transition: left 0.3s;
+  transition: left 0.2s ease;
 }
 
 .toggle-switch.on .toggle-circle {
-  left: 40rpx;
+  left: 44rpx;
 }
 
 .save-btn {
-  background: #4CAF50;
-  color: #fff;
+  background: #15803D;
+  color: #FFFFFF;
   text-align: center;
   height: 88rpx;
   line-height: 88rpx;
   border-radius: 44rpx;
   font-size: 32rpx;
+  font-weight: 600;
   margin-top: 40rpx;
 }
 </style>
