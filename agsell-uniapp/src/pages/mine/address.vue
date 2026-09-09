@@ -1,6 +1,6 @@
 <template>
   <view class="address-page">
-    <NavBar title="收货地址" />
+    <NavBar title="收货地址" @back="uni.navigateBack()" />
 
     <view class="content">
       <!-- 未登录时显示登录引导 -->
@@ -52,11 +52,8 @@
 
       <!-- 新增地址按钮 -->
       <view v-if="isLoggedInUser" class="add-btn" @click="onEdit(null)" role="button">
-        <svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        <text class="add-text">新增收货地址</text>
+        <text class="add-plus">+</text>
+        <text class="add-text">新增地址</text>
       </view>
     </view>
 
@@ -326,32 +323,30 @@ async function onSetDefault(addr) {
 /* 新增地址按钮 */
 .add-btn {
   position: fixed;
-  bottom: 40rpx;
+  bottom: calc(20rpx + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   background: #15803D;
   color: #FFFFFF;
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  padding: 0 56rpx;
-  height: 88rpx;
-  border-radius: 44rpx;
-  box-shadow: 0 4rpx 16rpx rgba(21, 128, 61, 0.3);
-  min-width: 320rpx;
   justify-content: center;
-  padding-bottom: calc(0px + env(safe-area-inset-bottom));
+  gap: 4rpx;
+  padding: 0 28rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  box-shadow: 0 2rpx 8rpx rgba(21, 128, 61, 0.25);
 }
 
-.add-icon {
-  width: 36rpx;
-  height: 36rpx;
-  color: #FFFFFF;
+.add-plus {
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .add-text {
-  font-size: 30rpx;
-  font-weight: 600;
+  font-size: 26rpx;
+  font-weight: 500;
 }
 
 .card {

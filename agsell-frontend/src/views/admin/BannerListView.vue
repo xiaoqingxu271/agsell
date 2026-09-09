@@ -155,8 +155,8 @@ onMounted(fetchList)
     <!-- 列表 -->
     <el-card shadow="never">
       <el-table class="admin-table" :data="formatPagedData()" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="180" align="center" show-overflow-tooltip />
-        <el-table-column label="预览图" width="120" align="center">
+        <el-table-column prop="id" label="ID" width="220" align="center" show-overflow-tooltip />
+        <el-table-column label="预览图" width="200" align="center">
           <template #default="{ row }">
             <el-image
               v-if="row.image"
@@ -170,7 +170,7 @@ onMounted(fetchList)
           </template>
         </el-table-column>
         <el-table-column prop="title" label="标题" min-width="180" align="center" show-overflow-tooltip />
-        <el-table-column prop="link" label="跳转链接" min-width="160" align="center" show-overflow-tooltip />
+        <el-table-column prop="link" label="跳转链接" min-width="180" align="center" show-overflow-tooltip />
         <el-table-column prop="sort" label="排序" width="100" align="center" />
         <el-table-column label="状态" width="200" align="center">
           <template #default="{ row }">
@@ -183,7 +183,7 @@ onMounted(fetchList)
             />
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" width="160" align="center" show-overflow-tooltip>
+        <el-table-column label="创建时间" width="220" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.createTime) }}
           </template>

@@ -2,9 +2,7 @@
   <view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
     <view class="nav-content" :style="{ height: navBarHeight + 'px' }">
       <view v-if="showBack" class="nav-back" aria-label="返回" @click="$emit('back')">
-        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
+        <image class="back-icon" src="/static/icon-back.png" mode="aspectFit" alt="返回" />
       </view>
       <text class="nav-title">{{ title }}</text>
       <view class="nav-right"><slot name="right" /></view>
@@ -37,6 +35,7 @@ onMounted(() => {
   background: #15803D;
 }
 .nav-content {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 0 24rpx;
@@ -48,23 +47,27 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   margin-left: -12rpx;
+  flex-shrink: 0;
 }
 .back-icon {
   width: 40rpx;
   height: 40rpx;
-  color: #FFFFFF;
 }
 .nav-title {
-  flex: 1;
+  position: absolute;
+  left: 0;
+  right: 0;
   text-align: center;
   font-size: 32rpx;
   color: #FFFFFF;
   font-weight: 600;
-  margin-left: -88rpx;
+  pointer-events: none;
 }
 .nav-right {
   width: 88rpx;
   display: flex;
   justify-content: flex-end;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 </style>

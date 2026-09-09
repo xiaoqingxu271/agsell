@@ -1,6 +1,6 @@
 <template>
   <view class="as-list-page">
-    <NavBar title="我的售后" />
+    <NavBar title="我的售后" @back="uni.navigateBack()" />
 
     <!-- 状态筛选 -->
     <view class="filter-bar">

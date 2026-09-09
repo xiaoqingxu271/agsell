@@ -6,10 +6,10 @@
       <!-- 商品图片轮播 -->
       <swiper class="product-swiper" indicator-dots autoplay circular interval="3000">
         <swiper-item v-for="(img, i) in images" :key="i">
-          <image :src="img" mode="aspectFill" class="swiper-image" :alt="product.name || '商品图片'" />
+          <image :src="img" mode="aspectFill" class="swiper-image" :alt="product.name || '商品图片'" @click="onPreviewImage(img)" />
         </swiper-item>
         <swiper-item v-if="images.length === 0">
-          <image :src="product.mainImage || '/static/default-product.png'" mode="aspectFill" class="swiper-image" :alt="product.name || '商品图片'" />
+          <image :src="product.mainImage || '/static/default-product.png'" mode="aspectFill" class="swiper-image" :alt="product.name || '商品图片'" @click="onPreviewImage(product.mainImage)" />
         </swiper-item>
       </swiper>
 
@@ -47,7 +47,6 @@
             :class="{ active: selectedSpec && selectedSpec.id === spec.id }"
             @click="onSpecTap(spec)"
             role="button"
-            :aria-label="`规格 ${spec.specName}`"
           >
             <text class="spec-name">{{ spec.specName }}</text>
             <text class="spec-price">¥{{ spec.price }}</text>
@@ -74,34 +73,36 @@
       </view>
 
       <!-- 评价摘要 -->
-      <view class="review-preview card" @click="onViewReviews">
-        <view class="section-title">用户评价</view>
-        <view v-if="reviews.length > 0" class="review-items">
-          <view v-for="r in reviews.slice(0, 2)" :key="r.id" class="review-item">
-            <view class="review-header">
-              <StarRating :rating="r.rating || 5" :readonly="true" size="28rpx" />
+      <view class="review-preview card">
+        <view class="review-title-row">
+          <view class="section-title">用户评价</view>
+          <text class="review-more" @click="onViewReviews">查看全部评价</text>
+        </view>
+        <view v-if="reviews.length > 0" class="review-list">
+          <view v-for="r in reviews.slice(0, 2)" :key="r.id" class="review-card-item">
+            <view class="review-user-row">
+              <image class="review-avatar" :src="r.userAvatar || '/static/default-avatar.png'" mode="aspectFill" />
+              <view class="review-user-col">
+                <text class="review-username">{{ r.userName || '匿名用户' }}</text>
+                <StarRating :rating="r.rating || 5" :readonly="true" size="24rpx" />
+              </view>
             </view>
-            <text class="review-text">{{ r.content }}</text>
-            <text class="review-time">{{ r.createTime }}</text>
+            <text class="review-content-text">{{ r.content }}</text>
+            <view class="review-card-footer">
+              <text class="review-date-text">{{ formatDate(r.createTime) }}</text>
+              <view class="review-like-btn">
+                <text class="like-thumb">👍</text>
+                <text class="like-num">{{ r.likeCount || 0 }}</text>
+              </view>
+            </view>
           </view>
         </view>
         <text v-else class="review-empty">暂无评价</text>
-        <text class="review-more">查看全部评价</text>
       </view>
     </scroll-view>
 
     <!-- 底部操作栏 -->
     <view class="bottom-bar">
-      <view class="bottom-left">
-        <view class="bottom-action" @click="onAddToCart" role="button" aria-label="购物车">
-          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-          <text class="action-text">购物车</text>
-        </view>
-      </view>
       <view class="bottom-right">
         <view class="btn-cart" @click="onAddToCart">加入购物车</view>
         <view class="btn-buy" @click="onBuyNow">立即购买</view>
@@ -128,28 +129,56 @@ const quantity = ref(1)
 const reviews = ref([])
 const relatedProducts = ref([])
 
+const allImages = computed(() => {
+  if (images.value && images.value.length > 0) {
+    return images.value
+  }
+  if (product.value.mainImage) {
+    return [product.value.mainImage]
+  }
+  return []
+})
+
+function onPreviewImage(current) {
+  const urls = allImages.value
+  if (urls.length === 0) return
+  uni.previewImage({
+    urls,
+    current: current || urls[0]
+  })
+}
+
 onLoad((options) => {
-  const { id } = options
-  if (id) {
+  const id = String(options?.id || '')
+  if (id && id !== 'undefined' && id !== 'null') {
     loadProductDetail(id)
     loadReviews(id)
     loadRelatedProducts(id)
+  } else {
+    uni.showToast({ title: '商品ID无效', icon: 'none' })
   }
 })
 
 async function loadProductDetail(id) {
   if (!id) return
-  const res = await getProductDetail(id)
-  if (res.code === 0) {
-    product.value = res.data
-    if (res.data.images) {
-      images.value = Array.isArray(res.data.images) ? res.data.images : []
+  try {
+    const res = await getProductDetail(id)
+    if (res.code === 0 && res.data) {
+      product.value = res.data
+      if (res.data.images) {
+        images.value = Array.isArray(res.data.images) ? res.data.images : []
+      }
+      if (res.data.specs && res.data.specs.length > 0) {
+        specs.value = res.data.specs
+        selectedSpec.value = res.data.specs[0]
+      }
+      quantity.value = 1
+    } else {
+      uni.showToast({ title: res.message || '商品加载失败', icon: 'none' })
     }
-    if (res.data.specs && res.data.specs.length > 0) {
-      specs.value = res.data.specs
-      selectedSpec.value = res.data.specs[0]
-    }
-    quantity.value = 1
+  } catch (e) {
+    console.error('商品详情加载失败', e)
+    uni.showToast({ title: '网络异常，请重试', icon: 'none' })
   }
 }
 
@@ -206,6 +235,17 @@ function onViewReviews() {
   })
 }
 
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  // 取日期部分，处理 "2026-09-09T08:07:08" 或 "2026-09-09 08:07:08" 格式
+  const datePart = String(dateStr).split('T')[0].split(' ')[0]
+  const parts = datePart.split('-')
+  if (parts.length === 3) {
+    return `${parseInt(parts[0])}年${parseInt(parts[1])}月${parseInt(parts[2])}日`
+  }
+  return dateStr
+}
+
 const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ?? 0)
 </script>
 
@@ -220,13 +260,19 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .product-scroll {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 160rpx;
+  padding-bottom: 200rpx;
+}
+
+.product-swiper {
+  width: 100%;
+  height: 750rpx;
 }
 
 .swiper-image {
   width: 100%;
   height: 750rpx;
   border-radius: 12rpx;
+  background: #FFFFFF;
 }
 
 .card {
@@ -403,29 +449,92 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   line-height: 1.8;
 }
 
-.review-preview .review-items {
+.review-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16rpx;
 }
 
-.review-item {
-  padding: 16rpx 0;
-  border-bottom: 1px solid #E5E7EB;
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
-.review-header {
-  margin-bottom: 8rpx;
+.review-card-item {
+  padding-bottom: 24rpx;
+  border-bottom: 1px solid #F3F4F6;
 }
 
-.review-text {
+.review-card-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.review-user-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.review-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #F3F4F6;
+  flex-shrink: 0;
+}
+
+.review-user-col {
+  margin-left: 16rpx;
+  flex: 1;
+}
+
+.review-username {
+  display: block;
   font-size: 26rpx;
   color: #1F2937;
-  line-height: 1.5;
+  font-weight: 500;
+  margin-bottom: 6rpx;
 }
 
-.review-time {
+.review-content-text {
+  display: block;
+  font-size: 26rpx;
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+}
+
+.review-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.review-date-text {
+  font-size: 22rpx;
+  color: #9CA3AF;
+}
+
+.review-like-btn {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  background: #F9FAFB;
+}
+
+.like-thumb {
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.like-num {
   font-size: 22rpx;
   color: #6B7280;
-  margin-left: 16rpx;
 }
 
 .review-empty {
@@ -436,7 +545,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .review-more {
   font-size: 26rpx;
   color: #15803D;
-  float: right;
+  flex-shrink: 0;
 }
 
 .bottom-bar {
@@ -453,35 +562,10 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   z-index: 100;
 }
 
-.bottom-left {
-  display: flex;
-  gap: 24rpx;
-}
-
-.bottom-action {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 20rpx;
-  color: #6B7280;
-  padding: 8rpx 16rpx;
-  min-width: 88rpx;
-  min-height: 88rpx;
-}
-
-.action-icon {
-  width: 40rpx;
-  height: 40rpx;
-  color: #6B7280;
-  margin-bottom: 4rpx;
-}
-
 .bottom-right {
   flex: 1;
   display: flex;
   gap: 16rpx;
-  justify-content: flex-end;
 }
 
 .btn-cart, .btn-buy {

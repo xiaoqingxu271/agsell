@@ -1,6 +1,6 @@
 <template>
   <view class="apply-page">
-    <NavBar title="申请售后" />
+    <NavBar title="申请售后" @back="uni.navigateBack()" />
 
     <scroll-view scroll-y class="content">
       <!-- 订单信息 -->
@@ -74,7 +74,7 @@
         <view class="section-title">凭证图片（选填）</view>
         <view class="image-grid">
           <view v-for="(img, idx) in images" :key="img" class="image-item">
-            <image class="image-preview" :src="img" mode="aspectFill" :alt="`凭证${idx + 1}`" />
+            <image class="image-preview" :src="img" mode="aspectFill" :alt="'凭证' + (idx + 1)" />
             <view class="image-remove" @click="removeImage(idx)" role="button" aria-label="删除图片">×</view>
           </view>
           <view v-if="images.length < 3" class="image-add" @click="chooseImage" role="button">

@@ -1,6 +1,6 @@
 <template>
   <view class="review-list-page">
-    <NavBar :title="productName || '商品评价'" />
+    <NavBar :title="productName || '商品评价'" @back="uni.navigateBack()" />
 
     <scroll-view scroll-y class="content" @scrolltolower="onReachBottom">
       <!-- 评价概览 -->
@@ -28,16 +28,33 @@
       <!-- 评价列表 -->
       <view v-for="review in reviews" :key="review.id" class="review-card card">
         <view class="review-header">
-          <image
-            class="user-avatar"
-            :src="review.userAvatar || '/static/default-avatar.png'"
-            mode="aspectFill"
-            :alt="review.userName || '用户头像'"
-          />
-          <view class="user-info">
-            <text class="user-name">{{ review.userName }}</text>
-            <StarRating :rating="review.rating" :readonly="true" size="28rpx" />
-          </view>
+          <!-- 我的评价：显示商品信息 -->
+          <template v-if="isMyReviews">
+            <image
+              class="product-thumb"
+              :src="review.productImage || '/static/default-product.png'"
+              mode="aspectFill"
+              :alt="review.productName || '商品图片'"
+            />
+            <view class="product-info">
+              <text class="product-name">{{ review.productName }}</text>
+              <text v-if="review.specName" class="spec-name">{{ review.specName }}</text>
+              <StarRating :rating="review.rating" :readonly="true" size="28rpx" />
+            </view>
+          </template>
+          <!-- 商品评价：显示用户信息 -->
+          <template v-else>
+            <image
+              class="user-avatar"
+              :src="review.userAvatar || '/static/default-avatar.png'"
+              mode="aspectFill"
+              :alt="review.userName || '用户头像'"
+            />
+            <view class="user-info">
+              <text class="user-name">{{ review.userName }}</text>
+              <StarRating :rating="review.rating" :readonly="true" size="28rpx" />
+            </view>
+          </template>
           <text class="review-time">{{ review.createTime }}</text>
         </view>
         <text class="review-content">{{ review.content }}</text>
@@ -48,7 +65,7 @@
             :src="img"
             mode="aspectFill"
             class="review-img"
-            :alt="`评价图片${i + 1}`"
+            :alt="'评价图片' + (i + 1)"
           />
         </view>
         <view v-if="review.replyContent" class="review-reply">
@@ -70,7 +87,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import StarRating from '../../../components/StarRating/StarRating.vue'
-import { getProductReviews } from '../../../api/review'
+import { getProductReviews, getMyReviews } from '../../../api/review'
 
 const productId = ref('')
 const productName = ref('')
@@ -80,6 +97,8 @@ const pageNum = ref(1)
 const pageSize = ref(10)
 const loading = ref(false)
 const hasMore = ref(true)
+
+const isMyReviews = computed(() => !productId.value)
 
 const avgScore = computed(() => {
   if (reviews.value.length === 0) return '0.0'
@@ -102,19 +121,27 @@ const ratingRatios = computed(() => {
 
 onLoad((options) => {
   productId.value = options.productId || ''
-  productName.value = decodeURIComponent(options.productName || '商品评价')
+  productName.value = productId.value
+    ? decodeURIComponent(options.productName || '商品评价')
+    : '我的评价'
   loadReviews()
 })
 
 async function loadReviews() {
   if (loading.value || !hasMore.value) return
   loading.value = true
-  const res = await getProductReviews(productId.value, pageNum.value, pageSize.value)
-  if (res.code === 0) {
-    const { records, current, pages } = res.data || {}
-    reviews.value = pageNum.value === 1 ? (records || []) : [...reviews.value, ...(records || [])]
-    totalReviews.value = res.data?.total || reviews.value.length
-    hasMore.value = current < (pages || 1)
+  try {
+    const res = isMyReviews.value
+      ? await getMyReviews(pageNum.value, pageSize.value)
+      : await getProductReviews(productId.value, pageNum.value, pageSize.value)
+    if (res.code === 0) {
+      const { records, current, pages } = res.data || {}
+      reviews.value = pageNum.value === 1 ? (records || []) : [...reviews.value, ...(records || [])]
+      totalReviews.value = res.data?.total || reviews.value.length
+      hasMore.value = current < (pages || 1)
+    }
+  } catch (e) {
+    console.error('加载评价失败', e)
   }
   loading.value = false
 }
@@ -222,6 +249,37 @@ function onReachBottom() {
   border-radius: 50%;
   background: #F3F4F6;
   flex-shrink: 0;
+}
+
+.product-thumb {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 12rpx;
+  background: #F3F4F6;
+  flex-shrink: 0;
+}
+
+.product-info {
+  flex: 1;
+  margin-left: 16rpx;
+}
+
+.product-name {
+  font-size: 28rpx;
+  color: #1F2937;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spec-name {
+  font-size: 22rpx;
+  color: #9CA3AF;
+  display: block;
+  margin-bottom: 4rpx;
 }
 
 .user-info {

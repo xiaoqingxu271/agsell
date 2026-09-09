@@ -1,12 +1,14 @@
 <template>
   <view class="product-card" @click="$emit('tap', product)">
-    <image
-      class="product-image"
-      :src="product.mainImage || '/static/default-product.png'"
-      mode="aspectFill"
-      lazy-load
-      :alt="product.name || '商品图片'"
-    />
+    <view class="product-image-wrap">
+      <image
+        class="product-image"
+        :src="product.mainImage || '/static/default-product.png'"
+        mode="aspectFill"
+        lazy-load
+        :alt="product.name || '商品图片'"
+      />
+    </view>
     <view class="product-info">
       <text class="product-name">{{ product.name }}</text>
       <text v-if="product.subtitle" class="product-subtitle">{{ product.subtitle }}</text>
@@ -44,11 +46,20 @@ defineEmits(['tap'])
   min-height: 88rpx;
 }
 
-.product-image {
+.product-image-wrap {
   width: 100%;
-  height: 300rpx;
+  padding-top: 100%;
+  position: relative;
+  overflow: hidden;
   background: #F0FDF4;
-  border-radius: 12rpx 12rpx 0 0;
+}
+
+.product-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .product-info {

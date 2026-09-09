@@ -1,6 +1,6 @@
 <template>
   <view class="review-write-page">
-    <NavBar title="评价商品" />
+    <NavBar title="评价商品" @back="uni.navigateBack()" />
 
     <scroll-view scroll-y class="content">
       <!-- 商品信息（一单多商品可切换） -->
@@ -59,13 +59,10 @@
             mode="aspectFill"
             class="picked-img"
             @click="previewImage(i)"
-            :alt="`评价图片${i + 1}`"
+            :alt="'评价图片' + (i + 1)"
           />
           <view v-if="imageUrls.length < 9" class="add-img-btn" @click="chooseImages" role="button" aria-label="添加图片">
-            <svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            <text class="add-icon">+</text>
           </view>
         </view>
         <text class="image-hint">可上传最多9张实物图，让其他买家更好地了解商品</text>
@@ -371,9 +368,10 @@ async function onSubmit() {
 }
 
 .add-icon {
-  width: 48rpx;
-  height: 48rpx;
+  font-size: 56rpx;
   color: #9CA3AF;
+  line-height: 1;
+  font-weight: 300;
 }
 
 .image-hint {

@@ -1,6 +1,6 @@
 <template>
   <view class="confirm-page">
-    <NavBar title="订单确认" />
+    <NavBar title="订单确认" @back="uni.navigateBack()" />
 
     <scroll-view scroll-y class="content">
       <!-- 收货地址 -->
@@ -121,8 +121,8 @@ onLoad(async (options) => {
     totalAmount.value = cartData.value.reduce((sum, i) => sum + (Number(i.subtotal) || 0), 0).toFixed(2)
   }
   if (options.productId) {
-    buyNowProductId.value = Number(options.productId)
-    buyNowSpecId.value = Number(options.specId) || null
+    buyNowProductId.value = options.productId
+    buyNowSpecId.value = (options.specId && options.specId !== 'null' && options.specId !== 'undefined') ? options.specId : null
     buyNowQuantity.value = Number(options.quantity) || 1
     await loadBuyNowProduct()
   }

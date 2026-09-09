@@ -1,6 +1,6 @@
 <template>
   <view class="as-detail-page">
-    <NavBar title="售后详情" />
+    <NavBar title="售后详情" @back="uni.navigateBack()" />
 
     <scroll-view scroll-y class="content">
       <!-- 状态区 -->
@@ -60,7 +60,7 @@
             class="image-item"
             :src="img"
             mode="aspectFill"
-            :alt="`凭证${idx + 1}`"
+            :alt="'凭证' + (idx + 1)"
             @click="previewImage(img)"
           />
         </view>

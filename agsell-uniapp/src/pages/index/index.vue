@@ -3,10 +3,7 @@
     <!-- 搜索栏 -->
     <view class="search-bar">
       <view class="search-input" @click="onSearchTap" role="button" aria-label="搜索商品">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+        <image class="search-icon" src="/static/icon-search.png" mode="aspectFit" alt="搜索" />
         <text class="search-placeholder">搜索商品</text>
       </view>
     </view>
@@ -49,9 +46,7 @@
     <!-- 热销推荐 -->
     <view class="section">
       <view class="section-title">
-        <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"></path>
-        </svg>
+        <image class="section-icon" src="/static/icon-hot.png" mode="aspectFit" alt="热销" />
         <text>热销推荐</text>
       </view>
       <scroll-view scroll-x class="product-scroll">
@@ -69,9 +64,7 @@
     <!-- 新品推荐 -->
     <view class="section">
       <view class="section-title">
-        <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
-        </svg>
+        <image class="section-icon" src="/static/icon-new.png" mode="aspectFit" alt="新品" />
         <text>新品推荐</text>
       </view>
       <scroll-view scroll-x class="product-scroll">
@@ -114,7 +107,7 @@ async function loadBanners() {
 async function loadCategories() {
   const res = await getCategoryList()
   if (res.code === 0) {
-    categories.value = res.data.filter(c => !c.parentId || Number(c.parentId) === 0)
+    categories.value = res.data.filter(c => !c.parentId || String(c.parentId) === '0')
   }
 }
 
@@ -129,11 +122,16 @@ async function loadNewProducts() {
 }
 
 function onCategoryTap(cat) {
-  uni.navigateTo({ url: `/pages/category/category?categoryId=${cat.id}` })
+  uni.switchTab({ url: '/pages/category/category' })
 }
 
 function onProductTap(product) {
-  uni.navigateTo({ url: `/pages/product/product?id=${product.id}` })
+  const id = String(product?.id || '')
+  if (!id || id === 'undefined' || id === 'null') {
+    uni.showToast({ title: '商品ID无效', icon: 'none' })
+    return
+  }
+  uni.navigateTo({ url: `/pages/product/product?id=${id}` })
 }
 
 function onBannerTap(banner) {
@@ -142,8 +140,7 @@ function onBannerTap(banner) {
       const id = banner.link.replace('/product/', '')
       uni.navigateTo({ url: `/pages/product/product?id=${id}` })
     } else if (banner.link.startsWith('/product/list')) {
-      const match = banner.link.match(/categoryId=(\d+)/)
-      if (match) uni.navigateTo({ url: `/pages/category/category?categoryId=${match[1]}` })
+      uni.switchTab({ url: '/pages/category/category' })
     }
   }
 }
@@ -178,7 +175,6 @@ function onSearchTap() {
 .search-icon {
   width: 32rpx;
   height: 32rpx;
-  color: #9CA3AF;
   margin-right: 12rpx;
   flex-shrink: 0;
 }
@@ -297,7 +293,6 @@ function onSearchTap() {
 .section-icon {
   width: 32rpx;
   height: 32rpx;
-  color: #A16207;
 }
 
 .product-scroll {

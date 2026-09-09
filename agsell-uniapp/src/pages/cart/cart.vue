@@ -128,7 +128,7 @@ function onPlus(item) {
   }
   const maxStock = item.stock || 999
   if (item.quantity >= maxStock) {
-    uni.showToast({ title: `库存不足（最多${maxStock}件）`, icon: 'none' })
+    uni.showToast({ title: '库存不足（最多' + maxStock + '件）', icon: 'none' })
     return
   }
   updateCartQuantity(item.id, item.quantity + 1).then(() => loadCart())

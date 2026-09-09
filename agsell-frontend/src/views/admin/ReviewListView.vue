@@ -138,8 +138,8 @@ onMounted(fetchList)
       </template>
 
       <el-table class="admin-table" :data="reviewList" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="120" align="center" show-overflow-tooltip />
-        <el-table-column label="商品" min-width="100" align="center" show-overflow-tooltip>
+        <el-table-column prop="id" label="ID" width="200" align="center" show-overflow-tooltip />
+        <el-table-column label="商品" min-width="200" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             <span>{{ row.productName }}</span>
           </template>
@@ -149,7 +149,7 @@ onMounted(fetchList)
             <span class="admin-rating">{{ ratingStars(row.rating) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="评价内容" min-width="120" align="center" show-overflow-tooltip>
+        <el-table-column label="评价内容" min-width="200" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             <span class="admin-content">{{ row.content }}</span>
           </template>

@@ -90,7 +90,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getOrderList, cancelOrder, confirmReceive } from '../../../api/order'
 import { createPayment } from '../../../api/payment'
 
@@ -123,6 +123,17 @@ function getStatusClass(status) {
   return statusClassMap[status] || 'tag-info'
 }
 
+onLoad((options) => {
+  const statusStr = options?.status
+  if (statusStr !== undefined && statusStr !== null && statusStr !== '') {
+    const statusNum = Number(statusStr)
+    const tabIndex = tabs.findIndex(t => t.value === statusNum)
+    if (tabIndex > 0) {
+      currentTab.value = tabIndex
+    }
+  }
+})
+
 onShow(() => {
   // 每次回到列表页都刷新第一页，保证售后等状态变更后列表与详情一致
   if (loading.value) return
@@ -142,9 +153,13 @@ async function loadOrders() {
     status: currentTabValue
   })
   if (res.code === 0) {
-    const { records, current, pages } = res.data
+    const { records, current, pages, total } = res.data
     orders.value = pageNum.value === 1 ? records : [...orders.value, ...records]
     hasMore.value = current < pages
+    // 记录当前状态的订单总数，用于"我的"页面未读红点计算
+    if (currentTabValue !== null && currentTabValue !== undefined) {
+      uni.setStorageSync('order_last_total_' + currentTabValue, total || 0)
+    }
   }
   loading.value = false
   refreshing.value = false
@@ -395,15 +410,16 @@ function onRepurchase(order) {
 }
 
 .action-btn {
-  padding: 12rpx 28rpx;
-  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32rpx;
+  border-radius: 40rpx;
   font-size: 24rpx;
-  min-height: 60rpx;
-  line-height: 60rpx;
+  min-height: 56rpx;
   box-sizing: border-box;
-  padding-top: 0;
-  padding-bottom: 0;
   text-align: center;
+  line-height: 1.2;
 }
 
 .btn-primary {

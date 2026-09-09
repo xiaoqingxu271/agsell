@@ -153,19 +153,19 @@ onMounted(fetchList)
       </template>
 
       <el-table class="admin-table" :data="afterSalesList" v-loading="loading" stripe style="width: 100%">
-        <el-table-column label="售后单号" min-width="160" align="center" show-overflow-tooltip>
+        <el-table-column label="售后单号" min-width="220" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.afterSalesNo }}</template>
         </el-table-column>
-        <el-table-column label="订单号" min-width="160" align="center" show-overflow-tooltip>
+        <el-table-column label="订单号" min-width="220" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.orderNo }}</template>
         </el-table-column>
-        <el-table-column prop="username" label="用户" min-width="110" align="center" show-overflow-tooltip>
+        <el-table-column prop="username" label="用户" min-width="200" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.username ?? '-' }}</template>
         </el-table-column>
         <el-table-column label="售后类型" width="110" align="center">
           <template #default="{ row }">{{ row.typeText }}</template>
         </el-table-column>
-        <el-table-column label="原因" min-width="160" align="center" show-overflow-tooltip>
+        <el-table-column label="原因" min-width="220" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.reasonTypeText }}{{ row.reason ? '：' + row.reason : '' }}</template>
         </el-table-column>
         <el-table-column label="退款金额" width="110" align="center">

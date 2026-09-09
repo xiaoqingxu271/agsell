@@ -36,9 +36,7 @@
           :aria-label="item.label"
         >
           <view class="tab-icon-wrap">
-            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path :d="item.iconPath" />
-            </svg>
+            <image class="tab-icon" :src="item.icon" mode="aspectFit" alt="待付款" />
           </view>
           <text v-if="item.count > 0" class="tab-count">{{ item.count }}</text>
           <text class="tab-label">{{ item.label }}</text>
@@ -49,44 +47,24 @@
     <!-- 功能菜单 -->
     <view class="menu-section card">
       <view class="menu-item" @click="goToAddress" role="button">
-        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-          <circle cx="12" cy="10" r="3"></circle>
-        </svg>
+        <image class="menu-icon" src="/static/icon-menu-address.png" mode="aspectFit" alt="收货地址" />
         <text class="menu-text">收货地址</text>
-        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
       </view>
       <view class="menu-item" @click="goToMyReviews" role="button">
-        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-        </svg>
+        <image class="menu-icon" src="/static/icon-menu-review.png" mode="aspectFit" alt="我的评价" />
         <text class="menu-text">我的评价</text>
-        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
       </view>
       <view class="menu-item" @click="goToAfterSales" role="button">
-        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-          <path d="M3 3v5h5"></path>
-        </svg>
+        <image class="menu-icon" src="/static/icon-menu-aftersale.png" mode="aspectFit" alt="我的售后" />
         <text class="menu-text">我的售后</text>
-        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
       </view>
       <view class="menu-item" @click="goToAbout" role="button">
-        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>
+        <image class="menu-icon" src="/static/icon-menu-about.png" mode="aspectFit" alt="关于我们" />
         <text class="menu-text">关于我们</text>
-        <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
       </view>
     </view>
 
@@ -108,10 +86,10 @@ const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
 const isUserLoggedIn = ref(isLoggedIn())
 
 const orderTabs = [
-  { label: '待付款', status: 0, iconPath: 'M2 5h20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM2 10h20', count: 0 },
-  { label: '待发货', status: 1, iconPath: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12', count: 0 },
-  { label: '待收货', status: 2, iconPath: 'M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z', count: 0 },
-  { label: '已完成', status: 3, iconPath: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3', count: 0 }
+  { label: '待付款', status: 0, icon: '/static/icon-order-pay.png', count: 0 },
+  { label: '待发货', status: 1, icon: '/static/icon-order-package.png', count: 0 },
+  { label: '待收货', status: 2, icon: '/static/icon-order-truck.png', count: 0 },
+  { label: '已完成', status: 3, icon: '/static/icon-order-done.png', count: 0 }
 ]
 
 onShow(async () => {
@@ -134,8 +112,11 @@ async function loadOrderCounts() {
   for (const status of [0, 1, 2, 3]) {
     const res = await getOrderList({ pageNum: 1, pageSize: 1, status })
     if (res.code === 0) {
-      orderCounts.value[status] = res.data?.total || 0
-      orderTabs[status].count = res.data?.total || 0
+      const total = res.data?.total || 0
+      const lastTotal = uni.getStorageSync('order_last_total_' + status) || 0
+      const unread = Math.max(0, total - lastTotal)
+      orderCounts.value[status] = unread
+      orderTabs[status].count = unread
     }
   }
 }
@@ -344,7 +325,6 @@ async function onChooseAvatar() {
 .tab-icon {
   width: 48rpx;
   height: 48rpx;
-  color: #6B7280;
 }
 
 .tab-count {
@@ -388,7 +368,6 @@ async function onChooseAvatar() {
   width: 40rpx;
   height: 40rpx;
   margin-right: 20rpx;
-  color: #15803D;
   flex-shrink: 0;
 }
 
@@ -401,7 +380,6 @@ async function onChooseAvatar() {
 .menu-arrow {
   width: 32rpx;
   height: 32rpx;
-  color: #9CA3AF;
   flex-shrink: 0;
 }
 

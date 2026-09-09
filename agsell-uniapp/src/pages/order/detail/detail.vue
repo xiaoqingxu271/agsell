@@ -1,6 +1,6 @@
 <template>
   <view class="order-detail-page">
-    <NavBar title="订单详情" />
+    <NavBar title="订单详情" @back="uni.navigateBack()" />
 
     <scroll-view scroll-y class="content">
       <!-- 状态卡片 -->

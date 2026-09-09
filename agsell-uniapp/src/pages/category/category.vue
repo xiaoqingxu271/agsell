@@ -62,12 +62,14 @@
               class="product-item"
               @click="onProductTap(product)"
             >
-              <image
-                class="product-img"
-                :src="product.mainImage || '/static/default-product.png'"
-                mode="aspectFill"
-                :alt="product.name"
-              />
+              <view class="product-img-wrap">
+                <image
+                  class="product-img"
+                  :src="product.mainImage || '/static/default-product.png'"
+                  mode="aspectFill"
+                  :alt="product.name"
+                />
+              </view>
               <text class="product-name">{{ product.name }}</text>
               <view class="product-price-row">
                 <text class="product-price">¥{{ product.price }}</text>
@@ -118,10 +120,10 @@ onMounted(async () => {
 async function loadCategories() {
   const res = await getCategoryList()
   if (res.code === 0) {
-    firstCategories.value = res.data.filter(c => Number(c.parentId) === 0)
+    firstCategories.value = res.data.filter(c => String(c.parentId) === '0')
     if (firstCategories.value.length > 0 && !currentFirstId.value) {
-      currentFirstId.value = Number(firstCategories.value[0].id)
-      await loadSecondCategories(Number(firstCategories.value[0].id))
+      currentFirstId.value = String(firstCategories.value[0].id)
+      await loadSecondCategories(String(firstCategories.value[0].id))
     }
   }
 }
@@ -129,9 +131,9 @@ async function loadCategories() {
 async function loadSecondCategories(firstId) {
   const res = await getCategoryList()
   if (res.code === 0) {
-    secondCategories.value = res.data.filter(c => Number(c.parentId) === firstId)
+    secondCategories.value = res.data.filter(c => String(c.parentId) === String(firstId))
     if (secondCategories.value.length > 0 && !currentSecondId.value) {
-      currentSecondId.value = Number(secondCategories.value[0].id)
+      currentSecondId.value = String(secondCategories.value[0].id)
     }
     pageNum.value = 1
     products.value = []
@@ -167,7 +169,7 @@ async function loadProducts() {
 }
 
 function onFirstCategoryTap(cat) {
-  const id = Number(cat.id)
+  const id = String(cat.id)
   if (id === currentFirstId.value) return
   currentFirstId.value = id
   currentSecondId.value = null
@@ -178,7 +180,7 @@ function onFirstCategoryTap(cat) {
 }
 
 function onSecondCategoryTap(cat) {
-  currentSecondId.value = cat ? Number(cat.id) : null
+  currentSecondId.value = cat ? String(cat.id) : null
   products.value = []
   hasMore.value = true
   pageNum.value = 1
@@ -194,7 +196,12 @@ function onSortTap(value) {
 }
 
 function onProductTap(product) {
-  uni.navigateTo({ url: `/pages/product/product?id=${product.id}` })
+  const id = String(product?.id || '')
+  if (!id || id === 'undefined' || id === 'null') {
+    uni.showToast({ title: '商品ID无效', icon: 'none' })
+    return
+  }
+  uni.navigateTo({ url: `/pages/product/product?id=${id}` })
 }
 
 function onReachBottom() {
@@ -334,11 +341,21 @@ function onReachBottom() {
   min-height: 88rpx;
 }
 
-.product-img {
+.product-img-wrap {
   width: 100%;
-  height: 300rpx;
+  padding-top: 100%;
+  position: relative;
+  overflow: hidden;
   background: #F0FDF4;
   border-radius: 12rpx 12rpx 0 0;
+}
+
+.product-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .product-name {
