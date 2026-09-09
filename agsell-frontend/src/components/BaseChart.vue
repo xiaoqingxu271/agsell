@@ -6,6 +6,7 @@ import { BarChart, LineChart, PieChart } from 'echarts/charts'
 import {
   GridComponent,
   LegendComponent,
+  TitleComponent,
   TooltipComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -17,6 +18,7 @@ echarts.use([
   PieChart,
   GridComponent,
   LegendComponent,
+  TitleComponent,
   TooltipComponent,
   CanvasRenderer,
 ])

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { listUsers, updateUserStatus } from '@/api/admin'
 import type { AdminUserListItemVO } from '@/types'
+import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
 const userList = ref<AdminUserListItemVO[]>([])
@@ -64,6 +65,8 @@ onMounted(fetchList)
 
 <template>
   <div class="page">
+    <PageHeader title="用户管理" description="查看与管理平台注册用户" />
+
     <!-- 搜索栏 -->
     <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" :model="{ keyword }" @submit.prevent="handleSearch">
@@ -99,32 +102,32 @@ onMounted(fetchList)
 
       <el-table class="admin-table" :data="userList" v-loading="loading" stripe :border="false" style="width: 100%">
         <el-table-column prop="id" label="ID" width="190" align="center" show-overflow-tooltip />
-        <el-table-column prop="nickname" label="昵称" min-width="100" align="center" show-overflow-tooltip />
+        <el-table-column prop="nickname" label="昵称" min-width="200" align="center" show-overflow-tooltip />
         <el-table-column label="头像" width="100" align="center">
           <template #default="{ row }">
-            <el-avatar :size="32" :src="row.avatar ?? undefined">
-              <span style="font-size: 11px; color: #9CA3AF">{{ (row.nickname ?? row.username ?? '?')[0] }}</span>
+            <el-avatar class="admin-avatar-cell" :size="32" :src="row.avatar ?? undefined">
+              <span style="font-size: 11px; font-weight: 600">{{ (row.nickname ?? row.username ?? '?')[0] }}</span>
             </el-avatar>
           </template>
         </el-table-column>
-        <el-table-column label="手机号" width="130" align="center">
+        <el-table-column label="手机号" width="160" align="center">
           <template #default="{ row }">
             {{ row.phone ?? '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="70" align="center">
+        <el-table-column label="状态" width="120" align="center">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'" class="admin-status-tag" size="small">
               {{ row.status === 1 ? '正常' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="loginTime" label="最后登录" min-width="100" align="center" show-overflow-tooltip>
+        <el-table-column prop="loginTime" label="最后登录" min-width="180" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.loginTime) }}
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="注册时间" min-width="100" align="center" show-overflow-tooltip>
+        <el-table-column prop="createTime" label="注册时间" min-width="180" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.createTime) }}
           </template>
@@ -136,7 +139,7 @@ onMounted(fetchList)
               active-text="启用"
               inactive-text="禁用"
               active-color="#15803D"
-              @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
+              @change="(val) => handleStatusChange(row as AdminUserListItemVO, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
@@ -160,4 +163,11 @@ onMounted(fetchList)
 
 <style scoped>
 .page { min-height: 100%; }
+
+/* 表格内头像：品牌浅绿底 + 深绿字 */
+.admin-avatar-cell {
+  background: #F0FDF4 !important;
+  color: #15803D !important;
+  font-weight: 600;
+}
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
 import { adminLogout } from '@/api/admin'
@@ -14,12 +14,31 @@ import {
   Picture,
   RefreshLeft,
   SwitchButton,
+  Fold,
+  Expand,
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const adminStore = useAdminStore()
 
 const displayName = computed(() => adminStore.adminInfo?.realName ?? '管理员')
+const initial = computed(() => displayName.value.trim().charAt(0) || '管')
+
+// ── 侧栏折叠（企业级 v3 §7：<768px 自动折叠 + 顶栏手动切换）──
+const isCollapse = ref(false)
+const mq = window.matchMedia('(max-width: 767px)')
+
+function syncCollapse(e: MediaQueryList | MediaQueryListEvent) {
+  isCollapse.value = e.matches
+}
+
+onMounted(() => {
+  syncCollapse(mq)
+  mq.addEventListener('change', syncCollapse)
+})
+onBeforeUnmount(() => {
+  mq.removeEventListener('change', syncCollapse)
+})
 
 async function handleLogout() {
   await ElMessageBox.confirm('确认退出登录？', '提示', { type: 'warning' })
@@ -35,8 +54,8 @@ async function handleLogout() {
 
 <template>
   <el-container class="layout">
-    <!-- 侧边栏 -->
-    <el-aside width="200px" class="aside">
+    <!-- 侧边栏（深翡翠渐变） -->
+    <el-aside :width="isCollapse ? '64px' : '240px'" class="aside">
       <div class="logo">
         <svg
           class="logo-icon"
@@ -48,7 +67,7 @@ async function handleLogout() {
           stroke-linejoin="round"
           aria-hidden="true"
         >
-          <!-- 稻穗 Logo：主茎 + 两侧谷粒 + 顶部穗（MASTER v2.0 §8 图标规范） -->
+          <!-- 稻穗 Logo：主茎 + 两侧谷粒 + 顶部穗（品牌白） -->
           <path d="M12 22v-8" />
           <path d="M12 13.5c-2.1 0-3.6-1.3-4-3.6" />
           <path d="M12 16c-2.5 0-4.2-1.4-4.6-4" />
@@ -59,15 +78,13 @@ async function handleLogout() {
           <path d="M12 12.8c-.9-1.2-1.4-2.6-1.4-4.3 0-.8.2-1.6.6-2.3" />
           <path d="M12 12.8c.9-1.2 1.4-2.6 1.4-4.3 0-.8-.2-1.6-.6-2.3" />
         </svg>
-        <span class="logo-text">农产品销售管理</span>
+        <span v-if="!isCollapse" class="logo-text">农产品销售管理</span>
       </div>
       <el-menu
         :default-active="$route.path"
         router
         class="sidebar-menu"
-        background-color="#14532D"
-        text-color="rgba(255,255,255,0.78)"
-        active-text-color="#FFFFFF"
+        :collapse="isCollapse"
         :collapse-transition="false"
       >
         <el-menu-item index="/admin/dashboard">
@@ -103,17 +120,27 @@ async function handleLogout() {
           <span>轮播图管理</span>
         </el-menu-item>
       </el-menu>
+
+      <div class="aside-footer">
+        <span v-if="!isCollapse">AgSell v3.0</span>
+      </div>
     </el-aside>
 
     <el-container>
       <!-- 顶栏 -->
       <el-header class="header">
         <div class="header-left">
+          <button class="collapse-btn" type="button" aria-label="切换侧栏" @click="isCollapse = !isCollapse">
+            <el-icon :size="18" aria-hidden="true"><Expand v-if="isCollapse" /><Fold v-else /></el-icon>
+          </button>
           <span class="breadcrumb">首页 / <span class="breadcrumb-current">{{ $route.meta.title || '管理后台' }}</span></span>
         </div>
         <div class="header-right">
-          <span class="admin-name">{{ displayName }}</span>
-          <el-button type="danger" text size="small" @click="handleLogout">
+          <div class="admin-chip" :title="displayName">
+            <span class="admin-avatar" aria-hidden="true">{{ initial }}</span>
+            <span class="admin-name">{{ displayName }}</span>
+          </div>
+          <el-button type="danger" text size="small" class="logout-btn" @click="handleLogout">
             <el-icon class="mr-1"><SwitchButton /></el-icon>
             退出
           </el-button>
@@ -131,127 +158,235 @@ async function handleLogout() {
 <style scoped>
 .layout {
   height: 100vh;
+  background: #F4F6F5;
 }
 
+/* ── 侧栏：深翡翠渐变 ── */
 .aside {
-  background: #14532D;
+  background: linear-gradient(180deg, #0E3B25 0%, #0A2A1B 100%);
   display: flex;
   flex-direction: column;
+  transition: width 0.25s ease-out;
+  overflow: hidden;
 }
 
 .logo {
-  height: 60px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .logo-icon {
   color: #FFFFFF;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
+  /* 稻穗图形在 24 视框内略偏下，上移 1.5px 与文字视觉同线 */
+  transform: translateY(-1.5px);
+  filter: drop-shadow(0 2px 6px rgba(34, 197, 94, 0.35));
 }
 
 .logo-text {
   color: #FFFFFF;
   font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
 .sidebar-menu {
   flex: 1;
   border: none;
+  background: transparent;
+  padding: 8px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-menu:not(.el-menu--collapse) {
-  width: 200px;
+  width: 100%;
 }
 
-/* 激活项：底 #15803D + 纯白字 + 左侧 3px #22C55E 指示条 */
+/* 菜单项：圆角内凹块 */
+.sidebar-menu .el-menu-item {
+  margin: 4px 10px;
+  height: 46px;
+  line-height: 46px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+.sidebar-menu .el-menu-item .el-icon {
+  font-size: 18px;
+}
+
+/* 激活项：浅白底 + 白字 + 左侧品牌指示条 */
 .sidebar-menu .el-menu-item.is-active {
-  background-color: #15803D !important;
+  background: rgba(255, 255, 255, 0.12) !important;
   color: #FFFFFF !important;
+  font-weight: 500;
   position: relative;
 }
 .sidebar-menu .el-menu-item.is-active::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 3px;
+  height: 18px;
+  border-radius: 2px;
   background-color: #22C55E;
 }
 
 .sidebar-menu .el-menu-item:hover {
   background-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9);
 }
 
+/* 折叠态：图标居中，隐藏文案 */
+.sidebar-menu.el-menu--collapse .el-menu-item {
+  margin: 4px 8px;
+  padding: 0 !important;
+  justify-content: center;
+}
+
+.aside-footer {
+  flex-shrink: 0;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.28);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
+
+/* ── 顶栏 ── */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid #E5E8E6;
   background: #FFFFFF;
-  padding: 0 20px;
-  height: 60px;
+  padding: 0 24px;
+  height: 64px;
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 14px;
+  min-width: 0;
+}
+
+.collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6B7280;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  flex-shrink: 0;
+}
+.collapse-btn:hover {
+  background: #F3F5F4;
+  color: #15803D;
+}
+.collapse-btn:focus-visible {
+  outline: 2px solid #22C55E;
+  outline-offset: 2px;
 }
 
 .breadcrumb {
   font-size: 14px;
   color: #6B7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .breadcrumb-current {
-  color: #15803D;
-  font-weight: 500;
+  color: #0E3B25;
+  font-weight: 600;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.admin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid #E5E8E6;
+  border-radius: 999px;
+  background: #FAFBFA;
+}
+
+.admin-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #15803D, #22C55E);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .admin-name {
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   color: #1F2937;
+  white-space: nowrap;
 }
 
+.logout-btn {
+  font-weight: 500;
+}
+
+/* ── 内容区 ── */
 .main {
-  background: #F0FDF4;
-  padding: 20px;
+  background: #F4F6F5;
+  padding: 24px;
+  overflow-y: auto;
 }
 
 .mr-1 {
   margin-right: 4px;
 }
 
-/* <768px 侧栏折叠为 64px 图标模式 */
+/* ── 响应式 ── */
 @media (max-width: 767px) {
-  .aside {
-    width: 64px !important;
-    min-width: 64px !important;
+  .header {
+    padding: 0 16px;
   }
-  .logo-text {
+  .main {
+    padding: 16px;
+  }
+  .admin-name {
     display: none;
   }
-  .sidebar-menu {
-    width: 64px !important;
-  }
-  .sidebar-menu .el-menu-item span {
-    display: none;
+  .admin-chip {
+    padding: 4px;
   }
 }
 </style>

@@ -10,6 +10,7 @@ import {
 } from '@/api/admin'
 import { uploadFile } from '@/api/upload'
 import type { ProductListItemVO, ProductQueryRequest, CategoryTreeVO, ProductSpecDTO, ProductCreateRequest } from '@/types'
+import PageHeader from '@/components/admin/PageHeader.vue'
 
 // ── 列表状态 ──
 const loading = ref(false)
@@ -262,6 +263,8 @@ onMounted(() => {
 
 <template>
   <div class="page">
+    <PageHeader title="商品管理" description="维护商品信息、规格与上下架状态" />
+
     <!-- 搜索栏 -->
     <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" :model="{ keyword, categoryId, statusFilter }" @submit.prevent="handleSearch">
@@ -341,7 +344,7 @@ onMounted(() => {
               active-text="上架"
               inactive-text="下架"
               active-color="#15803D"
-              @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
+              @change="(val) => handleStatusChange(row as ProductListItemVO, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
@@ -350,11 +353,11 @@ onMounted(() => {
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" align="center" fixed="right">
+        <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row)">编辑</el-button>
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row as ProductListItemVO)">编辑</el-button>
             <el-divider direction="vertical" class="admin-action-divider" />
-            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row as ProductListItemVO)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

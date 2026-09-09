@@ -9,6 +9,7 @@ import {
 } from '@/api/admin'
 import { uploadFile } from '@/api/upload'
 import type { CategoryListItemVO, CategoryCreateRequest } from '@/types'
+import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
 const list = ref<CategoryListItemVO[]>([])
@@ -144,6 +145,8 @@ onMounted(fetchList)
 
 <template>
   <div class="page">
+    <PageHeader title="分类管理" description="维护商品分类、图标与排序" />
+
     <!-- 搜索栏 -->
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="{ keyword }" style="height: 30px" @submit.prevent="handleSearch">
@@ -182,7 +185,7 @@ onMounted(fetchList)
       </template>
 
       <el-table class="admin-table" :data="list" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="180" align="center" show-overflow-tooltip />
+        <el-table-column prop="id" label="ID" width="200" align="center" show-overflow-tooltip />
         <el-table-column prop="name" label="分类名称" min-width="100" align="center" show-overflow-tooltip />
         <el-table-column label="分类图标" width="120" align="center">
           <template #default="{ row }">
@@ -204,7 +207,7 @@ onMounted(fetchList)
               active-text="启用"
               inactive-text="禁用"
               active-color="#15803D"
-              @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
+              @change="(val) => handleStatusChange(row as CategoryListItemVO, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
@@ -213,11 +216,11 @@ onMounted(fetchList)
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" align="center" fixed="right">
+        <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row)">编辑</el-button>
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row as CategoryListItemVO)">编辑</el-button>
             <el-divider direction="vertical" class="admin-action-divider" />
-            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row as CategoryListItemVO)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

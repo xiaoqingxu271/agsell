@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listReviews, replyReview, deleteReview } from '@/api/admin'
 import type { ReviewListItemVO, ReplyRequest } from '@/types'
+import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
 const reviewList = ref<ReviewListItemVO[]>([])
@@ -104,6 +105,8 @@ onMounted(fetchList)
 
 <template>
   <div class="page">
+    <PageHeader title="评价管理" description="查看并回复用户对商品的评价" />
+
     <!-- 搜索栏 -->
     <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" :model="{ productId, repliedFilter }" @submit.prevent="handleSearch">
@@ -144,12 +147,12 @@ onMounted(fetchList)
             <span>{{ row.productName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="评分" width="120" align="center">
+        <el-table-column label="评分" width="160" align="center">
           <template #default="{ row }">
             <span class="admin-rating">{{ ratingStars(row.rating) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="评价内容" min-width="200" align="center" show-overflow-tooltip>
+        <el-table-column label="评价内容" min-width="160" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             <span class="admin-content">{{ row.content }}</span>
           </template>
@@ -171,13 +174,13 @@ onMounted(fetchList)
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" align="center" fixed="right">
+        <el-table-column label="操作" width="200" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" class="admin-action-btn" @click="openReply(row)">
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openReply(row as ReviewListItemVO)">
               {{ row.replied ? '查看回复' : '回复' }}
             </el-button>
             <el-divider direction="vertical" class="admin-action-divider" />
-            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row as ReviewListItemVO)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listOrders, getOrderDetail, shipOrder } from '@/api/admin'
 import type { AdminOrderListItemVO, AdminOrderDetailVO, OrderShipRequest } from '@/types'
+import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
 const orderList = ref<AdminOrderListItemVO[]>([])
@@ -53,7 +54,7 @@ function formatTime(time: string | null): string {
 }
 
 /** 订单状态 → el-tag type（MASTER §2.2 浅底深字映射） */
-function orderStatusType(status: number): string {
+function orderStatusType(status: number): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
   switch (status) {
     case 0: return 'warning'  // 待付款
     case 1: return 'primary'  // 待发货
@@ -127,6 +128,8 @@ onMounted(fetchList)
 
 <template>
   <div class="page">
+    <PageHeader title="订单管理" description="查询订单、处理发货与订单流转" />
+
     <!-- 搜索栏 -->
     <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" :model="{ keyword, statusFilter }" @submit.prevent="handleSearch">
@@ -200,17 +203,17 @@ onMounted(fetchList)
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" align="center" fixed="right">
+        <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" size="small" class="admin-action-btn" @click="openDetail(row.orderNo)">详情</el-button>
-            <el-divider direction="vertical" class="admin-action-divider" />
+            <el-divider v-if="row.status === 1" direction="vertical" class="admin-action-divider" />
             <el-button
               v-if="row.status === 1"
               link
               type="success"
               size="small"
               class="admin-action-btn"
-              @click="openShip(row)"
+              @click="openShip(row as AdminOrderListItemVO)"
             >
               发货
             </el-button>

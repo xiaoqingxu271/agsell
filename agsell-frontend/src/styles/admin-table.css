@@ -1,14 +1,7 @@
 /**
- * 管理后台全局样式 - 表格列间距标准
- * 基于 MASTER.md v2.0 §7.4 表格规范 / §2 色彩系统
- *
- * 统一规范：
- * - 表头字体: 13px, weight 500, color #475569, 底 #E8F0F1（muted）
- * - 单元格内边距: 12px 8px (上下 左右)
- * - 行高: 50px
- * - 斑马纹颜色: #FAFAFA
- * - 行 hover: #F0FDF4, 选中行: #DCFCE7
- * - 边框颜色: #E5E7EB
+ * 管理后台全局样式 - 表格/分页/卡片/状态标签（v3.0 企业级）
+ * 依据 doc/design-system-v3.md §6
+ * 表头 #F3F5F4 / 13px 600 / #475569 · 行高 48px · 斑马 #FAFBFA · hover #F4F9F5
  */
 
 /* ── 表格统一样式 ── */
@@ -16,40 +9,42 @@
   --el-table-font-size: 14px;
   --el-table-header-font-size: 13px;
   --el-table-header-text-color: #475569;
-  --el-table-header-bg-color: #E8F0F1;
+  --el-table-header-bg-color: #F3F5F4;
   --el-table-tr-bg-color: #fff;
-  --el-table-expanded-cell-bg-color: #E8F0F1;
-  --el-table-row-hover-bg-color: #F0FDF4;
+  --el-table-expanded-cell-bg-color: #F3F5F4;
+  --el-table-row-hover-bg-color: #F4F9F5;
   --el-table-current-row-bg-color: #DCFCE7;
-  --el-table-border-color: #E5E7EB;
+  --el-table-border-color: #EBEEEC;
 }
 
 /* 表头样式 */
 .admin-table .el-table__header-wrapper th.el-table__cell {
-  background-color: #E8F0F1 !important;
-  font-weight: 500;
+  background-color: #F3F5F4 !important;
+  font-weight: 600;
   font-size: 13px;
   color: #475569;
-  padding: 12px 8px;
-  border-bottom: 1px solid #E5E7EB;
+  padding: 12px 16px;
+  border-bottom: 1px solid #E3E7E5;
+  letter-spacing: 0.02em;
 }
 
 /* 单元格样式 */
 .admin-table .el-table__body-wrapper td.el-table__cell {
-  padding: 12px 8px;
+  padding: 12px 16px;
   font-size: 14px;
   color: #1F2937;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid #EBEEEC;
+  line-height: 1.5;
 }
 
 /* 斑马纹 */
 .admin-table .el-table__body-wrapper tr:nth-child(even) td.el-table__cell {
-  background-color: #FAFAFA !important;
+  background-color: #FAFBFA !important;
 }
 
 /* 悬停效果 */
 .admin-table .el-table__body-wrapper tr:hover > td.el-table__cell {
-  background-color: #F0FDF4 !important;
+  background-color: #F4F9F5 !important;
 }
 
 /* 表格容器横向滚动 */
@@ -65,7 +60,7 @@
   gap: 1rem;
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1px solid #EBEEEC;
 }
 
 .admin-total-text {
@@ -79,12 +74,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .admin-card-title {
   font-size: 15px;
   font-weight: 600;
-  color: #14532D;
+  color: #0E3B25;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 标题前的品牌小圆点装饰 */
+.admin-card-title::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #22C55E, #15803D);
+  flex-shrink: 0;
 }
 
 /* ── 搜索卡片样式 ── */
@@ -94,6 +104,11 @@
 
 .admin-search-card .el-form-item {
   margin-bottom: 0;
+}
+
+/* 搜索卡表单项间距（换行时保持节奏） */
+.admin-search-card .el-form--inline .el-form-item {
+  margin-right: 20px;
 }
 
 /* ── 操作列按钮间距 ── */
@@ -112,7 +127,7 @@
   height: 22px;
   line-height: 20px;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: 6px;
   border: none;
 }
 
@@ -152,4 +167,11 @@
 .admin-empty {
   color: #9CA3AF;
   font-size: 13px;
+}
+
+/* ── 表格内头像/图片圆形化 ── */
+.admin-avatar-cell .el-avatar {
+  background-color: #F0FDF4;
+  color: #15803D;
+  font-weight: 600;
 }

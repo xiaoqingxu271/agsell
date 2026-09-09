@@ -2,64 +2,120 @@ import type { EChartsOption } from 'echarts'
 import type { AdminStatisticsVO, StatisticsTrendVO } from '@/types'
 
 // ─── 公共配置 ────────────────────────────────────────────────────────────────
-// MASTER.md v2.0 §9 图表规范：系列色板固定顺序 #15803D, #22C55E, #A16207, #2563EB, #6B7280, #DC2626
+// 设计系统 v3.0 §8 图表规范：系列色板 #15803D, #10B981, #D97706, #2563EB, #64748B, #DC2626
 
-const PIE_COLORS = ['#15803D', '#22C55E', '#A16207', '#2563EB', '#6B7280', '#DC2626']
 const AXIS_LABEL_COLOR = '#6B7280'
-const AXIS_LINE_COLOR = '#E5E7EB'
-const SPLIT_LINE_COLOR = '#F3F4F6'
+const AXIS_LINE_COLOR = '#E3E7E5'
+const SPLIT_LINE_COLOR = '#EEF1EF'
 const EMPTY_COLOR = '#E5E7EB'
 const PRIMARY = '#15803D'
-const SUCCESS = '#22C55E'
-const WARNING = '#A16207'
-const BLUE = '#2563EB'
+const SUCCESS = '#10B981'
 
-/** 过滤掉 value<=0 的项；若全为 0 则回退为灰色"暂无数据"，避免空白图 */
-function buildPieData(items: Array<{ name: string; value: number }>) {
-  const data = items
-    .filter((it) => it.value > 0)
-    .map((it, i) => ({
-      name: it.name,
-      value: it.value,
-      itemStyle: { color: PIE_COLORS[i % PIE_COLORS.length] ?? PIE_COLORS[0] },
-    }))
-  if (data.length > 0) return data
-  return [{ name: '暂无数据', value: 1, itemStyle: { color: EMPTY_COLOR } }]
+/** 品牌绿柱状渐变（v3：深翡翠纵向渐变 + 圆角） */
+const brandBarStyle = {
+  color: {
+    type: 'linear' as const,
+    x: 0,
+    y: 0,
+    x2: 0,
+    y2: 1,
+    colorStops: [
+      { offset: 0, color: '#22C55E' },
+      { offset: 1, color: '#15803D' },
+    ],
+  },
+  borderRadius: [6, 6, 0, 0] as [number, number, number, number],
 }
 
-const pieCommon = {
-  tooltip: { trigger: 'item' as const, formatter: '{b}: {c} ({d}%)' },
-  legend: {
-    bottom: 0,
-    icon: 'circle',
-    itemWidth: 8,
-    itemHeight: 8,
-    itemGap: 16,
-    textStyle: { color: AXIS_LABEL_COLOR, fontSize: 12 },
+/** 丰收金柱状渐变（销售额） */
+const goldBarStyle = {
+  color: {
+    type: 'linear' as const,
+    x: 0,
+    y: 0,
+    x2: 0,
+    y2: 1,
+    colorStops: [
+      { offset: 0, color: '#D97706' },
+      { offset: 1, color: '#A16207' },
+    ],
   },
+  borderRadius: [6, 6, 0, 0] as [number, number, number, number],
 }
 
-const pieSeriesBase = {
-  type: 'pie' as const,
-  radius: ['46%', '70%'],
-  center: ['50%', '42%'],
-  itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
-  // 标签显示名称+百分比文字（MASTER v2.0 §9.5：不以颜色为唯一区分）
-  label: {
-    show: true,
-    fontSize: 11,
-    color: AXIS_LABEL_COLOR,
-    formatter: '{b}: {d}%',
-  },
-  labelLine: { length: 8, length2: 8 },
-  emphasis: {
-    label: { show: true, fontSize: 13, fontWeight: 600, formatter: '{b}\n{c} ({d}%)' },
-  },
+/** 统一 tooltip 深色质感 */
+const tooltipStyle = {
+  backgroundColor: 'rgba(10, 42, 27, 0.92)',
+  borderColor: 'transparent',
+  textStyle: { color: '#FFFFFF', fontSize: 12 },
+  padding: [8, 12] as [number, number],
+  extraCssText: 'border-radius: 8px; box-shadow: 0 8px 24px rgba(16,24,40,.18);',
 }
 
 const emptyAxis = {
   type: 'category' as const,
   data: [] as string[],
+}
+
+/**
+ * 环形图通用构建（v3 清爽排版）：
+ * - 不显示图上标签（避免文字拥挤），改为「中心汇总数字 + 底部图例带百分比」
+ * - 颜色显式传入；全 0 时回退灰色"暂无数据"
+ */
+function buildDonutOption(opts: {
+  centerText: string
+  centerSub: string
+  items: Array<{ name: string; value: number; color: string }>
+}): EChartsOption {
+  const data = opts.items
+    .filter((it) => it.value > 0)
+    .map((it) => ({ name: it.name, value: it.value, itemStyle: { color: it.color } }))
+  const total = data.reduce((s, it) => s + it.value, 0)
+  const finalData =
+    data.length > 0 ? data : [{ name: '暂无数据', value: 1, itemStyle: { color: EMPTY_COLOR } }]
+
+  const legendFormatter = (name: string) => {
+    const it = finalData.find((d) => d.name === name)
+    if (!it) return name
+    const pct = ((it.value / (total || 1)) * 100).toFixed(1)
+    return `${name}  ${pct}%`
+  }
+
+  return {
+    title: {
+      text: opts.centerText,
+      subtext: opts.centerSub,
+      left: 'center',
+      top: '35%',
+      textStyle: { fontSize: 22, fontWeight: 700, color: '#1F2937' },
+      subtextStyle: { fontSize: 12, color: '#9CA3AF', lineHeight: 18 },
+      itemGap: 4,
+    },
+    tooltip: { ...tooltipStyle, trigger: 'item' as const, formatter: '{b}: {c} ({d}%)' },
+    legend: {
+      bottom: 0,
+      icon: 'circle',
+      itemWidth: 8,
+      itemHeight: 8,
+      itemGap: 18,
+      textStyle: { color: AXIS_LABEL_COLOR, fontSize: 12 },
+      formatter: legendFormatter,
+    },
+    series: [
+      {
+        type: 'pie' as const,
+        radius: ['46%', '70%'],
+        center: ['50%', '42%'],
+        itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
+        label: { show: false },
+        emphasis: {
+          scale: true,
+          label: { show: true, fontSize: 13, fontWeight: 600, formatter: '{b}\n{c} ({d}%)' },
+        },
+        data: finalData,
+      },
+    ],
+  }
 }
 
 // ─── 构成类图表 ───────────────────────────────────────────────────────────────
@@ -68,36 +124,29 @@ const emptyAxis = {
 export function buildUserPieOption(stats: AdminStatisticsVO | null): EChartsOption {
   const total = stats?.userTotal ?? 0
   const disabled = stats?.disabledUsers ?? 0
-  return {
-    ...pieCommon,
-    series: [
-      {
-        ...pieSeriesBase,
-        data: buildPieData([
-          { name: '正常用户', value: Math.max(total - disabled, 0) },
-          { name: '禁用用户', value: disabled },
-        ]),
-      },
+  return buildDonutOption({
+    centerText: String(total),
+    centerSub: '用户总数',
+    items: [
+      { name: '正常用户', value: Math.max(total - disabled, 0), color: PRIMARY },
+      { name: '禁用用户', value: disabled, color: '#CBD5E1' },
     ],
-  }
+  })
 }
 
 /** 今日活跃占比（活跃 / 未活跃） */
 export function buildActivePieOption(stats: AdminStatisticsVO | null): EChartsOption {
   const total = stats?.userTotal ?? 0
   const active = stats?.activeTodayUsers ?? 0
-  return {
-    ...pieCommon,
-    series: [
-      {
-        ...pieSeriesBase,
-        data: buildPieData([
-          { name: '今日活跃', value: active },
-          { name: '今日未活跃', value: Math.max(total - active, 0) },
-        ]),
-      },
+  const pct = total > 0 ? `${((active / total) * 100).toFixed(1)}%` : '0%'
+  return buildDonutOption({
+    centerText: pct,
+    centerSub: '今日活跃率',
+    items: [
+      { name: '今日活跃', value: active, color: SUCCESS },
+      { name: '今日未活跃', value: Math.max(total - active, 0), color: '#E5E7EB' },
     ],
-  }
+  })
 }
 
 /**
@@ -109,29 +158,25 @@ export function buildOrderPieOption(stats: AdminStatisticsVO | null): EChartsOpt
   const total = stats?.orderTotal ?? 0
   const paid = stats?.paidOrders ?? 0
   const pending = stats?.pendingShipOrders ?? 0
-  return {
-    ...pieCommon,
-    series: [
-      {
-        ...pieSeriesBase,
-        data: buildPieData([
-          { name: '待发货', value: pending },
-          { name: '其他已支付', value: Math.max(paid - pending, 0) },
-          { name: '待付款/已取消', value: Math.max(total - paid, 0) },
-        ]),
-      },
+  return buildDonutOption({
+    centerText: String(total),
+    centerSub: '订单总数',
+    items: [
+      { name: '待发货', value: pending, color: PRIMARY },
+      { name: '其他已支付', value: Math.max(paid - pending, 0), color: SUCCESS },
+      { name: '待付款/已取消', value: Math.max(total - paid, 0), color: '#CBD5E1' },
     ],
-  }
+  })
 }
 
-/** 商品在售情况（在售 / 下架） */
+/** 商品在售情况（在售 / 下架），柱状 + 顶部数值标签 */
 export function buildProductBarOption(stats: AdminStatisticsVO | null): EChartsOption {
   const total = stats?.productTotal ?? 0
   const onSale = stats?.onSaleProducts ?? 0
   const offSale = Math.max(total - onSale, 0)
   return {
-    tooltip: { trigger: 'axis' as const, axisPointer: { type: 'shadow' as const } },
-    grid: { left: 8, right: 8, top: 24, bottom: 24, containLabel: true },
+    tooltip: { ...tooltipStyle, trigger: 'axis' as const, axisPointer: { type: 'shadow' as const } },
+    grid: { left: 8, right: 8, top: 32, bottom: 24, containLabel: true },
     xAxis: {
       type: 'category',
       data: ['在售商品', '已下架'],
@@ -148,10 +193,18 @@ export function buildProductBarOption(stats: AdminStatisticsVO | null): EChartsO
     series: [
       {
         type: 'bar',
-        barWidth: 48,
+        barWidth: 56,
+        label: {
+          show: true,
+          position: 'top',
+          color: AXIS_LABEL_COLOR,
+          fontSize: 12,
+          fontWeight: 600,
+          formatter: '{c}',
+        },
         data: [
-          { value: onSale, itemStyle: { color: PRIMARY, borderRadius: [4, 4, 0, 0] } },
-          { value: offSale, itemStyle: { color: EMPTY_COLOR, borderRadius: [4, 4, 0, 0] } },
+          { value: onSale, itemStyle: brandBarStyle },
+          { value: offSale, itemStyle: { color: EMPTY_COLOR, borderRadius: [6, 6, 0, 0] as [number, number, number, number] } },
         ],
       },
     ],
@@ -164,7 +217,7 @@ export function buildProductBarOption(stats: AdminStatisticsVO | null): EChartsO
 export function buildUserTrendOption(trend: StatisticsTrendVO | null): EChartsOption {
   const dates = trend?.dates ?? []
   return {
-    tooltip: { trigger: 'axis' as const, axisPointer: { type: 'shadow' as const } },
+    tooltip: { ...tooltipStyle, trigger: 'axis' as const, axisPointer: { type: 'shadow' as const } },
     grid: { left: 8, right: 8, top: 24, bottom: 24, containLabel: true },
     xAxis: {
       type: 'category',
@@ -183,7 +236,7 @@ export function buildUserTrendOption(trend: StatisticsTrendVO | null): EChartsOp
       {
         type: 'bar',
         barMaxWidth: 32,
-        itemStyle: { color: PRIMARY, borderRadius: [4, 4, 0, 0] },
+        itemStyle: brandBarStyle,
         data: trend?.newUsers ?? [],
       },
     ],
@@ -197,6 +250,7 @@ export function buildSalesTrendOption(trend: StatisticsTrendVO | null): EChartsO
     v >= 10000 ? `${(v / 10000).toFixed(1)}万` : String(v)
   return {
     tooltip: {
+      ...tooltipStyle,
       trigger: 'axis' as const,
       axisPointer: { type: 'shadow' as const },
       formatter: (params: unknown) => {
@@ -233,7 +287,7 @@ export function buildSalesTrendOption(trend: StatisticsTrendVO | null): EChartsO
         name: '销售额',
         type: 'bar',
         barMaxWidth: 32,
-        itemStyle: { color: WARNING, borderRadius: [4, 4, 0, 0] },
+        itemStyle: goldBarStyle,
         data: trend?.sales ?? [],
       },
       {
@@ -245,6 +299,19 @@ export function buildSalesTrendOption(trend: StatisticsTrendVO | null): EChartsO
         symbolSize: 6,
         lineStyle: { color: PRIMARY, width: 2 },
         itemStyle: { color: PRIMARY },
+        areaStyle: {
+          color: {
+            type: 'linear' as const,
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(34, 197, 94, 0.18)' },
+              { offset: 1, color: 'rgba(34, 197, 94, 0.02)' },
+            ],
+          },
+        },
         data: trend?.orderCounts ?? [],
       },
     ],

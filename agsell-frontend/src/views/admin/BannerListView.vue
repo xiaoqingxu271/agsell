@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listAllBanners, createBanner, updateBanner, deleteBanner } from '@/api/admin'
 import { uploadFile } from '@/api/upload'
+import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
 const list = ref<any[]>([])
@@ -144,13 +145,10 @@ onMounted(fetchList)
 
 <template>
   <div class="page">
-    <!-- 工具栏 -->
-    <el-card shadow="never" class="toolbar-card admin-search-card">
-      <div class="toolbar">
-        <span class="card-title">轮播图管理</span>
-        <el-button type="primary" @click="openAdd">新增轮播图</el-button>
-      </div>
-    </el-card>
+    <!-- 页头 + 操作 -->
+    <PageHeader title="轮播图管理" description="维护首页轮播图与跳转链接">
+      <el-button type="primary" @click="openAdd">新增轮播图</el-button>
+    </PageHeader>
 
     <!-- 列表 -->
     <el-card shadow="never">
@@ -179,7 +177,7 @@ onMounted(fetchList)
               active-text="启用"
               inactive-text="禁用"
               active-color="#15803D"
-              @change="(val: boolean) => handleStatusChange(row, val ? 1 : 0)"
+              @change="(val) => handleStatusChange(row, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
@@ -188,7 +186,7 @@ onMounted(fetchList)
             {{ formatTime(row.createTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" align="center" fixed="right">
+        <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row)">编辑</el-button>
             <el-divider direction="vertical" class="admin-action-divider" />
@@ -274,20 +272,6 @@ onMounted(fetchList)
 
 <style scoped>
 .page { min-height: 100%; }
-
-.toolbar-card { margin-bottom: 1rem; }
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #14532D;
-}
 
 .upload-label {
   display: inline-flex;

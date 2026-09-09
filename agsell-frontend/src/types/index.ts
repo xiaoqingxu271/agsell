@@ -271,24 +271,3 @@ export interface AfterSalesHandleRequest {
   agree: boolean
   remark?: string
 }
-
-// ─── 错误码枚举（与后端 ErrorCode 对齐）─────────────────────────────────────
-
-export enum ErrorCode {
-  SUCCESS = 0,
-  PARAMS_ERROR = 40000,
-  NOT_LOGIN_ERROR = 40100,
-  NO_AUTH_ERROR = 40101,
-  NOT_FOUND_ERROR = 40400,
-  FORBIDDEN_ERROR = 40300,
-  SYSTEM_ERROR = 50000,
-  OPERATION_ERROR = 50001,
-  ADMIN_NOT_LOGIN_ERROR = 40200,
-  ADMIN_NO_AUTH_ERROR = 40201,
-  PASSWORD_ERROR = 40301,
-  USER_ALREADY_EXISTS = 40401,
-  PHONE_ALREADY_EXISTS = 40402,
-  SMS_CODE_INVALID = 40001,
-  SMS_CODE_EXPIRED = 40002,
-  SMS_CODE_SEND_TOO_FAST = 40003,
-}

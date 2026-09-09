@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listAfterSales, getAfterSalesDetail, handleAfterSales } from '@/api/admin'
 import type { AdminAfterSalesListItemVO, AdminAfterSalesDetailVO, AfterSalesHandleRequest } from '@/types'
+import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
 const afterSalesList = ref<AdminAfterSalesListItemVO[]>([])
@@ -20,8 +21,8 @@ const STATUS_OPTIONS = [
   { label: '已撤销', value: 3, tag: 'info' },
 ]
 
-function statusTag(status: number): string {
-  return STATUS_OPTIONS.find((o) => o.value === status)?.tag ?? 'info'
+function statusTag(status: number): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
+  return (STATUS_OPTIONS.find((o) => o.value === status)?.tag ?? 'info') as 'primary' | 'success' | 'warning' | 'info' | 'danger'
 }
 
 function statusLabel(status: number): string {
@@ -123,6 +124,8 @@ onMounted(fetchList)
 
 <template>
   <div class="page">
+    <PageHeader title="售后管理" description="处理售后申请与退款流转" />
+
     <!-- 搜索栏 -->
     <el-card shadow="never" class="admin-search-card">
       <el-form :inline="true" @submit.prevent="handleSearch">
@@ -132,10 +135,10 @@ onMounted(fetchList)
           </el-select>
         </el-form-item>
         <el-form-item label="售后单号">
-          <el-input v-model="afterSalesNoFilter" placeholder="模糊搜索" clearable style="width: 180px" />
+          <el-input v-model="afterSalesNoFilter" placeholder="请输入单号" clearable style="width: 180px" />
         </el-form-item>
         <el-form-item label="用户名">
-          <el-input v-model="usernameFilter" placeholder="模糊搜索" clearable style="width: 140px" />
+          <el-input v-model="usernameFilter" placeholder="请输入用户名" clearable style="width: 140px" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="handleSearch">搜索</el-button>
@@ -183,9 +186,9 @@ onMounted(fetchList)
         <el-table-column label="申请时间" width="180" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ formatTime(row.createTime) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="130" align="center" fixed="right">
+        <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" class="admin-action-btn" @click="openDetail(row)">
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openDetail(row as AdminAfterSalesListItemVO)">
               详情
             </el-button>
             <el-divider v-if="row.status === 0" direction="vertical" class="admin-action-divider" />
@@ -195,7 +198,7 @@ onMounted(fetchList)
               type="success"
               size="small"
               class="admin-action-btn"
-              @click="openDetail(row)"
+              @click="openDetail(row as AdminAfterSalesListItemVO)"
             >
               处理
             </el-button>

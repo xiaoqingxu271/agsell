@@ -1,4 +1,4 @@
-import ElementPlus from 'element-plus'
+// 顺序重要：Element Plus 基础样式在前，项目主题覆盖在后
 import 'element-plus/dist/index.css'
 import './styles/admin-table.css'
 import './styles/theme.css'
@@ -13,6 +13,5 @@ const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
-app.use(ElementPlus)
 
 app.mount('#app')

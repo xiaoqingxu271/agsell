@@ -1,11 +1,40 @@
 /**
- * agsell 管理端主题覆盖 - 基于 MASTER.md v2.0 §10.1
- * 品牌绿 #15803D，生态浅绿底 #F0FDF4，muted 层 #E8F0F1，卡片描边 #BBF7D0，圆角 12px
+ * agsell 管理端主题覆盖 - 企业级高级感 v3.0
+ * 依据 doc/design-system-v3.md（唯一样式权威来源）
+ * 品牌深翡翠 #15803D 系 + 中性高级底 #F4F6F5 + 卡片分层阴影（去绿描边）
  * 加载顺序：element-plus css → admin-table.css → theme.css（本文件最后生效）
  */
 
 :root {
-  /* ── 品牌主色（绿阶）── */
+  /* ── 品牌绿阶（v3）── */
+  --brand-900: #0A2A1B;
+  --brand-800: #0E3B25;
+  --brand-700: #14532D;
+  --brand-600: #15803D;
+  --brand-500: #166534;
+  --brand-400: #16A34A;
+  --brand-300: #22C55E;
+  --brand-200: #BBF7D0;
+  --brand-100: #DCFCE7;
+  --brand-50: #F0FDF4;
+
+  /* ── 中性层（v3）── */
+  --neutral-bg: #F4F6F5;
+  --neutral-card: #FFFFFF;
+  --neutral-muted: #F3F5F4;
+  --neutral-border: #E3E7E5;
+  --neutral-border-strong: #D1D5DB;
+  --neutral-zebra: #FAFBFA;
+
+  /* ── 文字 ── */
+  --text-heading: #0A2A1B;
+  --text-card-title: #0E3B25;
+  --text-regular: #1F2937;
+  --text-secondary: #6B7280;
+  --text-placeholder: #9CA3AF;
+  --text-inverse: #FFFFFF;
+
+  /* ── Element Plus 品牌主色映射 ── */
   --el-color-primary: #15803D;
   --el-color-primary-light-3: #4D9E6D;
   --el-color-primary-light-5: #8ABFA1;
@@ -28,41 +57,44 @@
 
   /* ── 圆角与字号 ── */
   --el-border-radius-base: 8px;
-  --el-border-radius-small: 4px;
+  --el-border-radius-small: 6px;
   --el-font-size-base: 14px;
 
-  /* ── 文字色 ── */
+  /* ── 文字色（EP 映射）── */
   --el-text-color-primary: #1F2937;
-  --el-text-color-regular: #6B7280;
+  --el-text-color-regular: #475569;
   --el-text-color-secondary: #6B7280;
   --el-text-color-placeholder: #9CA3AF;
   --el-text-color-disabled: #9CA3AF;
 
-  /* ── 边框色 ── */
-  --el-border-color: #E5E7EB;
-  --el-border-color-light: #E5E7EB;
-  --el-border-color-lighter: #EDEFF2;
-  --el-border-color-extra-light: #F3F4F6;
+  /* ── 边框色（中性化）── */
+  --el-border-color: #E3E7E5;
+  --el-border-color-light: #E5E8E6;
+  --el-border-color-lighter: #EDF0EE;
+  --el-border-color-extra-light: #F1F3F2;
   --el-border-color-dark: #D1D5DB;
   --el-border-color-darker: #9CA3AF;
 
   /* ── 填充与背景 ── */
   --el-fill-color-blank: #FFFFFF;
-  --el-fill-color: #E8F0F1;
-  --el-fill-color-light: #E8F0F1;
-  --el-fill-color-lighter: #F0FDF4;
-  --el-fill-color-extra-light: #F7FBF8;
-  --el-fill-color-dark: #E5E7EB;
+  --el-fill-color: #F3F5F4;
+  --el-fill-color-light: #F3F5F4;
+  --el-fill-color-lighter: #F7F8F7;
+  --el-fill-color-extra-light: #FAFBFA;
+  --el-fill-color-dark: #E3E7E5;
   --el-fill-color-darker: #D1D5DB;
   --el-bg-color: #FFFFFF;
-  --el-bg-color-page: #F0FDF4;
+  --el-bg-color-page: #F4F6F5;
   --el-bg-color-overlay: #FFFFFF;
 
-  /* ── 阴影 ── */
-  --el-box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
-  --el-box-shadow-light: 0 1px 2px rgba(16, 24, 40, 0.06);
+  /* ── 阴影（分层质感）── */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-base: 0 1px 3px rgba(16, 24, 40, 0.06), 0 4px 12px rgba(16, 24, 40, 0.05);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.12);
+  --el-box-shadow: var(--shadow-base);
+  --el-box-shadow-light: var(--shadow-sm);
   --el-box-shadow-lighter: 0 1px 2px rgba(16, 24, 40, 0.04);
-  --el-box-shadow-dark: 0 8px 24px rgba(16, 24, 40, 0.10);
+  --el-box-shadow-dark: var(--shadow-lg);
 
   /* ── 遮罩 ── */
   --el-overlay-color: rgba(15, 23, 42, 0.5);
@@ -70,25 +102,25 @@
   --el-overlay-color-lighter: rgba(15, 23, 42, 0.2);
 
   /* ── 禁用态 ── */
-  --el-disabled-bg-color: #F3F4F6;
+  --el-disabled-bg-color: #F3F5F4;
   --el-disabled-text-color: #9CA3AF;
-  --el-disabled-border-color: #E5E7EB;
+  --el-disabled-border-color: #E5E8E6;
 
   /* ── 表格 ── */
   --el-table-bg-color: #FFFFFF;
   --el-table-tr-bg-color: #FFFFFF;
-  --el-table-header-bg-color: #E8F0F1;
+  --el-table-header-bg-color: #F3F5F4;
   --el-table-header-text-color: #475569;
   --el-table-text-color: #1F2937;
-  --el-table-border-color: #E5E7EB;
-  --el-table-row-hover-bg-color: #F0FDF4;
+  --el-table-border-color: #EBEEEC;
+  --el-table-row-hover-bg-color: #F4F9F5;
   --el-table-current-row-bg-color: #DCFCE7;
-  --el-table-expanded-cell-bg-color: #E8F0F1;
+  --el-table-expanded-cell-bg-color: #F3F5F4;
 
-  /* ── 菜单（侧栏深绿）── */
-  --el-menu-bg-color: #14532D;
+  /* ── 菜单（深翡翠渐变在 LayoutView 落地，此处只给 EP 变量）── */
+  --el-menu-bg-color: transparent;
   --el-menu-hover-bg-color: rgba(255, 255, 255, 0.08);
-  --el-menu-text-color: rgba(255, 255, 255, 0.78);
+  --el-menu-text-color: rgba(255, 255, 255, 0.72);
   --el-menu-active-color: #FFFFFF;
   --el-menu-item-height: 48px;
 
@@ -96,17 +128,72 @@
   --el-switch-on-color: #15803D;
   --el-switch-off-color: #D1D5DB;
 
-  /* ── 标签（浅底深字）── */
+  /* ── 标签 ── */
   --el-tag-padding-horizontal: 8px;
   --el-tag-height: 22px;
   --el-tag-font-size: 12px;
-  --el-tag-border-radius: 4px;
+  --el-tag-border-radius: 6px;
+
+  /* ── 弹窗 ── */
+  --el-dialog-border-radius: 12px;
+
+  /* ── 字号层级（v3）── */
+  --fs-display: 24px;
+  --fs-page: 20px;
+  --fs-card-title: 15px;
+  --fs-body: 14px;
+  --fs-table: 13px;
+  --fs-caption: 12px;
+
+  /* ── 间距 ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ── 圆角 ── */
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
-/* ── el-tag 浅底深字强制覆盖 ── */
+/* ──────────────────────────────────────────────
+   组件级精修（v3 企业质感）
+   ────────────────────────────────────────────── */
+
+/* ── el-card：白底 + 中性描边 + 分层阴影，hover 提升 ── */
+.el-card {
+  border: 1px solid var(--neutral-border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: box-shadow 0.2s ease-out, border-color 0.2s ease-out, transform 0.2s ease-out;
+}
+.el-card.is-always-shadow,
+.el-card.is-hover-shadow:focus,
+.el-card.is-hover-shadow:hover {
+  box-shadow: var(--shadow-base) !important;
+}
+.el-card:hover {
+  box-shadow: var(--shadow-base) !important;
+  border-color: #D8DEDB !important;
+}
+.el-card__header {
+  padding: 18px 20px 0;
+  border-bottom: none;
+}
+.el-card__body {
+  padding: 18px 20px 20px;
+}
+
+/* ── el-tag：浅底深字 + 圆角 6px ── */
 .el-tag {
   border: none !important;
   font-weight: 500;
+  border-radius: 6px;
 }
 .el-tag--success {
   background-color: #DCFCE7 !important;
@@ -121,7 +208,7 @@
   color: #991B1B !important;
 }
 .el-tag--info {
-  background-color: #F3F4F6 !important;
+  background-color: #F1F2F4 !important;
   color: #4B5563 !important;
 }
 .el-tag--primary {
@@ -129,15 +216,106 @@
   color: #14532D !important;
 }
 
-/* ── el-card 统一：shadow=never + 1px #BBF7D0 品牌描边 + 圆角 12px ── */
-.el-card {
-  border: 1px solid #BBF7D0 !important;
-  border-radius: 12px !important;
+/* ── 按钮：统一圆角与 hover 层级 ── */
+.el-button {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out, box-shadow 0.15s ease-out;
 }
-.el-card.is-always-shadow,
-.el-card.is-hover-shadow:focus,
-.el-card.is-hover-shadow:hover {
-  box-shadow: none !important;
+.el-button--primary {
+  background-color: #15803D;
+  border-color: #15803D;
+}
+.el-button--primary:not(.is-link):hover,
+.el-button--primary:not(.is-link):focus {
+  background-color: #166534 !important;
+  border-color: #166534 !important;
+}
+.el-button--primary:not(.is-link):active {
+  background-color: #14532D !important;
+  border-color: #14532D !important;
+}
+/* 链接型主色按钮：仅改文字色，保留透明底（弹窗关闭后焦点停留时不会出现实心背景） */
+.el-button--primary.is-link:hover,
+.el-button--primary.is-link:focus {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+.el-button--primary:focus-visible,
+.el-button--default:focus-visible,
+.el-button--danger:focus-visible,
+.el-button--success:focus-visible {
+  outline: 2px solid #22C55E;
+  outline-offset: 2px;
+}
+
+/* ── 输入框 / 选择器 focus ── */
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused,
+.el-textarea__inner:focus,
+.el-cascader:focus .el-input__wrapper,
+.el-input-number .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+}
+.el-input__wrapper,
+.el-textarea__inner {
+  border-radius: 8px;
+}
+
+/* ── 弹窗：圆角 + 内边距节奏 ── */
+.el-dialog {
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+.el-dialog__header {
+  padding: 20px 24px 4px;
+  margin-right: 0;
+}
+.el-dialog__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+.el-dialog__body {
+  padding: 20px 24px;
+}
+.el-dialog__footer {
+  padding: 8px 24px 20px;
+}
+
+/* ── 分页：简洁方形按钮 ── */
+.el-pagination {
+  --el-pagination-button-bg-color: transparent;
+  --el-pagination-hover-color: #15803D;
+}
+.el-pagination.is-background .el-pager li {
+  border-radius: 6px;
+  min-width: 28px;
+  height: 28px;
+  line-height: 28px;
+  background: transparent;
+  color: #475569;
+}
+.el-pagination.is-background .el-pager li.is-active {
+  background-color: #15803D !important;
+  color: #FFFFFF !important;
+  font-weight: 600;
+}
+.el-pagination.is-background .btn-prev,
+.el-pagination.is-background .btn-next {
+  border-radius: 6px;
+  background: transparent;
+}
+.el-pagination.is-background .btn-prev:not(:disabled):hover,
+.el-pagination.is-background .btn-next:not(:disabled):hover {
+  background-color: #F0FDF4;
+  color: #15803D;
+}
+
+/* ── 开关 ── */
+.el-switch.is-checked .el-switch__core {
+  background-color: #15803D !important;
+  border-color: #15803D !important;
 }
 
 /* ── 主按钮 focus ring ── */
@@ -146,86 +324,41 @@
   outline-offset: 2px;
 }
 
-/* ── 输入框 focus ── */
-.el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+/* ── 表格操作列右侧渐变遮罩（fixed 列可读性）── */
+.el-table .el-table-fixed-column--right {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.92), #FFFFFF 12%) !important;
 }
 
-/* ── 数字金额 tabular-nums 工具类 ── */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
+/* ── 滚动条（细、圆角、企业质感）── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D5DBD7;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B9C2BC;
 }
 
-/* ── 品牌 Token（MASTER.md §2.1 设计系统 Token）── */
-:root {
-  --color-primary: #15803D;
-  --color-on-primary: #FFFFFF;
-  --color-secondary: #22C55E;
-  --color-accent: #A16207;
-  --color-background: #F0FDF4;
-  --color-foreground: #14532D;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #14532D;
-  --color-muted: #E8F0F1;
-  --color-muted-foreground: #475569;
-  --color-border: #BBF7D0;
-  --color-destructive: #DC2626;
-  --color-ring: #15803D;
-
-  /* ── 字体层级（MASTER.md §3.2）── */
-  --fs-caption: 12px;
-  --fs-table: 13px;
-  --fs-body: 14px;
-  --fs-card-title: 15px;
-  --fs-page-title: 16px;
-  --fs-stat: 20px;
-  --fs-display: 24px;
-
-  /* ── 间距（MASTER.md §4）── */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-
-  /* ── 圆角与阴影（MASTER.md §5）── */
-  --radius-sm: 6px;
-  --radius-base: 8px;
-  --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-base: 0 2px 8px rgba(16, 24, 40, 0.06);
-  --shadow-lg: 0 8px 24px rgba(16, 24, 40, 0.1);
+/* ── 加载遮罩提示 ── */
+.el-loading-mask {
+  background-color: rgba(244, 246, 245, 0.7) !important;
+  backdrop-filter: blur(1px);
 }
 
-/* ── 价格色 ── */
-.price-accent {
-  color: #A16207;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
+/* ──────────────────────────────────────────────
+   工具类（v3）
+   ────────────────────────────────────────────── */
 
-/* ── 评分星色 ── */
+/* 评分星色 */
 .rating-accent {
   color: #A16207;
   letter-spacing: 2px;
-}
-
-/* ── 页面标题 ── */
-.page-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #14532D;
-  margin-bottom: 16px;
-}
-
-/* ── 统计卡数值 ── */
-.stat-value {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1F2937;
-  font-variant-numeric: tabular-nums;
 }
 
 /* ── 响应式：<768px 侧栏折叠 ── */
@@ -235,7 +368,7 @@
   }
 }
 
-/* ── prefers-reduced-motion：动效降级（MASTER.md §7.6）── */
+/* ── prefers-reduced-motion：动效降级 ── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

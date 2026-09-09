@@ -1,48 +1,42 @@
 # agsell-frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+农产品销售管理系统 · 管理端前端（Vue 3 + TypeScript + Vite + Element Plus + ECharts）
 
-## Recommended IDE Setup
+## 技术栈
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **Vue 3** `<script setup>` + **Pinia** + **Vue Router**（路由懒加载）
+- **Element Plus**：`unplugin-vue-components` 按需引入（模板 `el-*` 组件自动注册），样式走完整主题 CSS
+- **ECharts**：`echarts/core` 按需注册（Bar / Line / Pie + Grid / Legend / Title / Tooltip / Canvas）
+- **Axios**：统一请求/响应拦截，`/api` 由 Vite 代理到后端
 
-## Recommended Browser Setup
+## 目录结构
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```
+src/
+├── api/          # 接口封装（admin / upload）
+├── components/   # BaseChart（图表封装）、admin/（PageHeader、KpiPanel 等复用组件）
+├── router/       # 路由与登录守卫
+├── stores/       # Pinia（管理员状态）
+├── styles/       # theme.css（设计系统 v3 token 与 EP 覆盖）、admin-table.css（表格/分页）
+├── types/        # 全局类型
+├── utils/        # axios 实例
+└── views/admin/  # 登录、布局与 8 个管理页面
 ```
 
-### Compile and Hot-Reload for Development
+设计规范见仓库根 `doc/design-system-v3.md`。
 
-```sh
-npm run dev
+## 常用命令
+
+```bash
+npm install      # 安装依赖
+npm run dev      # 启动开发服务器（端口 5173，/api 代理到 http://localhost:8080）
+npm run build    # 类型检查 + 生产构建
+npm run lint     # oxlint + eslint 检查并修复
+npm run format   # prettier 格式化
 ```
 
-### Type-Check, Compile and Minify for Production
+## 说明
 
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+- 管理端 token 存于 `localStorage.admin_token`，请求头 `Authorization: Bearer <token>`。
+- 接口约定：成功 `code: 0`；列表字段 `records` + `total`。
+- `src/components.d.ts` 由 unplugin-vue-components 自动生成，勿手动修改（已 gitignore）。

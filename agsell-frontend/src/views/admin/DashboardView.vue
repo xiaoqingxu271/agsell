@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { Refresh } from '@element-plus/icons-vue'
+import {
+  Refresh,
+} from '@element-plus/icons-vue'
 import { getAdminStatistics, getStatisticsTrend } from '@/api/admin'
 import type { AdminStatisticsVO, StatisticsTrendVO } from '@/types'
 import BaseChart from '@/components/BaseChart.vue'
+import PageHeader from '@/components/admin/PageHeader.vue'
+import KpiPanel from '@/components/admin/KpiPanel.vue'
 import {
   buildUserPieOption,
   buildActivePieOption,
@@ -61,88 +65,63 @@ const salesTrendOption = computed(() =>
 
 <template>
   <div class="page" v-loading="loading">
-    <div class="page-header">
-      <h2 class="page-title">数据概览</h2>
-      <div class="page-actions">
-        <el-radio-group v-model="trendDays" size="small" @change="loadTrend">
-          <el-radio-button :value="7">近 7 天</el-radio-button>
-          <el-radio-button :value="30">近 30 天</el-radio-button>
-        </el-radio-group>
-        <el-button size="small" :icon="Refresh" @click="loadAll">刷新</el-button>
-      </div>
-    </div>
+    <PageHeader title="数据概览" description="平台核心运营指标与业务趋势">
+      <el-radio-group v-model="trendDays" @change="loadTrend">
+        <el-radio-button :value="7">近 7 天</el-radio-button>
+        <el-radio-button :value="30">近 30 天</el-radio-button>
+      </el-radio-group>
+      <el-button :icon="Refresh" @click="loadAll">刷新</el-button>
+    </PageHeader>
 
-    <!-- 第一行：用户相关 4 卡（lg 4列 / md 2列 / sm 1列） -->
-    <el-row :gutter="16" class="stat-row">
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="用户总数" :value="stats?.userTotal ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="今日新增" :value="stats?.todayNewUsers ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="今日活跃" :value="stats?.activeTodayUsers ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="禁用用户" :value="stats?.disabledUsers ?? 0" />
-        </el-card>
-      </el-col>
-    </el-row>
+    <!-- 第一行：用户相关指标（一个大面板包裹，内部指标块竖分隔） -->
+    <KpiPanel
+      title="用户数据"
+      caption="平台注册用户运营指标"
+      :items="[
+        { label: '用户总数', value: stats?.userTotal ?? 0 },
+        { label: '今日新增', value: stats?.todayNewUsers ?? 0 },
+        { label: '今日活跃', value: stats?.activeTodayUsers ?? 0 },
+        { label: '禁用用户', value: stats?.disabledUsers ?? 0 },
+      ]"
+    />
 
-    <!-- 第二行：商品/订单/销售 6 卡（lg 3列 / md 2列 / sm 1列） -->
-    <el-row :gutter="16" class="stat-row">
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="商品总数" :value="stats?.productTotal ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="在售商品" :value="stats?.onSaleProducts ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="订单总数" :value="stats?.orderTotal ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="待发货订单" :value="stats?.pendingShipOrders ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="已支付订单" :value="stats?.paidOrders ?? 0" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="never" class="stat-card">
-          <el-statistic title="销售总额" :value="fmtSales(stats?.totalSales)" class="stat-sales" />
-        </el-card>
-      </el-col>
-    </el-row>
+    <!-- 第二行：商品/订单/销售指标（一个大面板包裹） -->
+    <KpiPanel
+      title="商品与订单"
+      caption="商品库存、订单流转与销售金额"
+      :items="[
+        { label: '商品总数', value: stats?.productTotal ?? 0 },
+        { label: '在售商品', value: stats?.onSaleProducts ?? 0 },
+        { label: '订单总数', value: stats?.orderTotal ?? 0 },
+        { label: '待发货订单', value: stats?.pendingShipOrders ?? 0 },
+        { label: '已支付订单', value: stats?.paidOrders ?? 0 },
+        { label: '销售总额', value: fmtSales(stats?.totalSales), accent: true },
+      ]"
+    />
 
-    <!-- 第三块：趋势图区 2 图（lg 2列 / sm 1列） -->
-    <el-row :gutter="16" class="stat-row">
+    <!-- 第三块：趋势图区 2 图（lg 2列 / xs 1列） -->
+    <el-row :gutter="16" class="chart-row">
       <el-col :xs="24" :lg="12">
-        <el-card shadow="never" class="stat-card chart-card">
-          <div class="chart-title">新增用户趋势</div>
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">新增用户趋势</div>
+              <div class="chart-sub">近 {{ trendDays }} 天每日新增用户</div>
+            </div>
+          </div>
           <div class="chart-box">
             <BaseChart :option="userTrendOption" />
           </div>
         </el-card>
       </el-col>
       <el-col :xs="24" :lg="12">
-        <el-card shadow="never" class="stat-card chart-card">
-          <div class="chart-title">销售与订单趋势</div>
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">销售与订单趋势</div>
+              <div class="chart-sub">近 {{ trendDays }} 天销售额与订单量</div>
+            </div>
+          </div>
           <div class="chart-box">
             <BaseChart :option="salesTrendOption" />
           </div>
@@ -150,35 +129,58 @@ const salesTrendOption = computed(() =>
       </el-col>
     </el-row>
 
-    <!-- 第四块：构成图区 2x2 -->
-    <el-row :gutter="16" class="stat-row">
+    <!-- 第四块：构成图区 2x2（两行独立排列，行间留白） -->
+    <el-row :gutter="16" class="chart-row">
       <el-col :xs="24" :md="12">
-        <el-card shadow="never" class="stat-card chart-card">
-          <div class="chart-title">用户构成</div>
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">用户构成</div>
+              <div class="chart-sub">正常 / 禁用用户占比</div>
+            </div>
+          </div>
           <div class="chart-box">
             <BaseChart :option="userPieOption" />
           </div>
         </el-card>
       </el-col>
       <el-col :xs="24" :md="12">
-        <el-card shadow="never" class="stat-card chart-card">
-          <div class="chart-title">今日活跃占比</div>
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">今日活跃占比</div>
+              <div class="chart-sub">今日活跃 / 未活跃用户</div>
+            </div>
+          </div>
           <div class="chart-box">
             <BaseChart :option="activePieOption" />
           </div>
         </el-card>
       </el-col>
+    </el-row>
+
+    <el-row :gutter="16" class="chart-row">
       <el-col :xs="24" :md="12">
-        <el-card shadow="never" class="stat-card chart-card">
-          <div class="chart-title">订单状态构成</div>
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">订单状态构成</div>
+              <div class="chart-sub">各状态订单占比</div>
+            </div>
+          </div>
           <div class="chart-box">
             <BaseChart :option="orderPieOption" />
           </div>
         </el-card>
       </el-col>
       <el-col :xs="24" :md="12">
-        <el-card shadow="never" class="stat-card chart-card">
-          <div class="chart-title">商品在售情况</div>
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">商品在售情况</div>
+              <div class="chart-sub">在售 / 下架商品数量</div>
+            </div>
+          </div>
           <div class="chart-box">
             <BaseChart :option="productBarOption" />
           </div>
@@ -193,57 +195,37 @@ const salesTrendOption = computed(() =>
   min-height: 100%;
 }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.page-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.stat-row {
-  margin-bottom: 16px;
-}
-
-.stat-card {
-  border: 1px solid #BBF7D0;
-  border-radius: 12px;
-}
-
-/* 统计数值：20px 600 tabular-nums */
-.stat-card :deep(.el-statistic__content) {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1F2937;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-card :deep(.el-statistic__head) {
-  font-size: 13px;
-  color: #6B7280;
-  margin-bottom: 8px;
-}
-
-/* 销售总额用丰收金 */
-.stat-sales :deep(.el-statistic__content) {
-  color: #A16207;
+/* 图表区块间距（行与行之间留白） */
+.chart-row {
+  margin-bottom: 24px;
 }
 
 /* 图表卡片 */
-.chart-card .chart-title {
-  font-size: 13px;
-  color: #6B7280;
+.chart-card {
+  height: 100%;
+}
+
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
+.chart-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0E3B25;
+  line-height: 1.4;
+}
+
+.chart-sub {
+  font-size: 12px;
+  color: #9CA3AF;
+  margin-top: 2px;
+}
+
 .chart-box {
-  height: 240px;
+  height: 280px;
 }
 </style>
