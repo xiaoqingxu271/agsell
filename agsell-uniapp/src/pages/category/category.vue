@@ -217,7 +217,7 @@ function onReachBottom() {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .category-layout {
@@ -231,7 +231,7 @@ function onReachBottom() {
   background: #FFFFFF;
   overflow-y: auto;
   flex-shrink: 0;
-  border-right: 1px solid #E5E7EB;
+  border-right: 1rpx solid #E3E7E5;
 }
 
 .sidebar-item {
@@ -245,6 +245,7 @@ function onReachBottom() {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  transition: background 150ms ease-out, color 150ms ease-out;
 }
 
 .sidebar-item.active {
@@ -258,14 +259,14 @@ function onReachBottom() {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #F0FDF4;
+  background: #F4F6F5;
   overflow: hidden;
 }
 
 .second-row {
   white-space: nowrap;
   padding: 16rpx 20rpx;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E7E5;
   background: #FFFFFF;
   flex-shrink: 0;
 }
@@ -278,22 +279,24 @@ function onReachBottom() {
   color: #6B7280;
   background: #FFFFFF;
   border-radius: 44rpx;
-  border: 1px solid #BBF7D0;
+  border: 1rpx solid #E3E7E5;
   min-height: 60rpx;
   line-height: 60rpx;
   box-sizing: border-box;
+  transition: background 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
 }
 
 .second-item.active {
   background: #15803D;
   color: #FFFFFF;
   border-color: #15803D;
+  font-weight: 600;
 }
 
 .sort-bar {
   display: flex;
   padding: 16rpx 20rpx;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E7E5;
   background: #FFFFFF;
   flex-shrink: 0;
 }
@@ -336,9 +339,15 @@ function onReachBottom() {
   background: #FFFFFF;
   border-radius: 24rpx;
   overflow: hidden;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
   min-height: 88rpx;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+}
+
+.product-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(16, 24, 40, 0.06);
 }
 
 .product-img-wrap {
@@ -346,7 +355,7 @@ function onReachBottom() {
   padding-top: 100%;
   position: relative;
   overflow: hidden;
-  background: #F0FDF4;
+  background: #F4F6F5;
   border-radius: 12rpx 12rpx 0 0;
 }
 
@@ -402,7 +411,7 @@ function onReachBottom() {
 .loading, .no-more, .empty {
   text-align: center;
   padding: 40rpx;
-  color: #9CA3AF;
+  color: #4B5563;
   font-size: 26rpx;
 }
 </style>

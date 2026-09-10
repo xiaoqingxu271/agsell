@@ -49,7 +49,7 @@ defineEmits(['submit', 'secondary'])
   right: 0;
   bottom: 0;
   background: #FFFFFF;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #E3E7E5;
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 100;
 }

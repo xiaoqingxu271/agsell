@@ -253,7 +253,7 @@ async function onViewAfterSales() {
 <style scoped>
 .order-detail-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
   display: flex;
   flex-direction: column;
 }
@@ -264,22 +264,23 @@ async function onViewAfterSales() {
   overflow-y: auto;
 }
 
-/* ===== 状态卡片 ===== */
+/* ===== 状态卡片（深翡翠渐变，signature） ===== */
 .status-card {
   display: flex;
   align-items: center;
   margin: 24rpx 24rpx 8rpx;
   padding: 40rpx 32rpx;
   border-radius: 28rpx;
-  background: linear-gradient(135deg, #15803D 0%, #16A34A 55%, #22C55E 100%);
-  box-shadow: 0 8rpx 24rpx rgba(21, 128, 61, 0.22);
+  background: linear-gradient(135deg, #15803D 0%, #14532D 100%);
+  box-shadow: 0 12rpx 32rpx rgba(21, 128, 61, 0.25);
 }
 
 .status-badge {
   width: 96rpx;
   height: 96rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -308,7 +309,7 @@ async function onViewAfterSales() {
 
 .status-hint {
   font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.88);
+  color: #FFFFFF;
   display: block;
 }
 
@@ -318,14 +319,14 @@ async function onViewAfterSales() {
   margin: 16rpx 24rpx;
   padding: 28rpx;
   border-radius: 24rpx;
-  border: 1px solid #DCFCE7;
-  box-shadow: 0 2rpx 8rpx rgba(16, 24, 40, 0.04);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .card-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #15803D;
   margin-bottom: 20rpx;
   padding-left: 18rpx;
   position: relative;
@@ -348,7 +349,7 @@ async function onViewAfterSales() {
   justify-content: space-between;
   align-items: center;
   padding: 14rpx 0;
-  border-bottom: 1px solid #F1F5F0;
+  border-bottom: 1rpx solid #EEF1EF;
   font-size: 26rpx;
 }
 
@@ -377,7 +378,7 @@ async function onViewAfterSales() {
   display: flex;
   align-items: center;
   padding: 20rpx 0;
-  border-bottom: 1px solid #F1F5F0;
+  border-bottom: 1rpx solid #EEF1EF;
 }
 
 .goods-item:last-child { border-bottom: none; }
@@ -386,7 +387,7 @@ async function onViewAfterSales() {
   width: 128rpx;
   height: 128rpx;
   border-radius: 16rpx;
-  background: #F0FDF4;
+  background: #F4F6F5;
   flex-shrink: 0;
 }
 
@@ -413,7 +414,6 @@ async function onViewAfterSales() {
   margin-top: 6rpx;
   display: block;
 }
-
 .goods-bottom {
   display: flex;
   align-items: baseline;
@@ -461,7 +461,7 @@ async function onViewAfterSales() {
 
 .amount-divider {
   height: 1px;
-  background: #F1F5F0;
+  background: #EEF1EF;
   margin: 8rpx 0;
 }
 
@@ -537,7 +537,7 @@ async function onViewAfterSales() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #E3E7E5;
   z-index: 100;
   justify-content: flex-end;
 }
@@ -552,18 +552,24 @@ async function onViewAfterSales() {
   font-size: 28rpx;
   font-weight: 500;
   box-sizing: border-box;
+  transition: transform 120ms ease-out, opacity 120ms ease-out;
+}
+
+.action-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-primary {
   background: #15803D;
   color: #FFFFFF;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
 }
 
 .btn-ghost {
   background: transparent;
   color: #15803D;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
 }
 
 .btn-danger {

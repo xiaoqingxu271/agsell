@@ -50,7 +50,7 @@
         </view>
 
         <view class="order-footer">
-          <text class="order-time">{{ order.createTime }}</text>
+          <text class="order-time">{{ formatDate(order.createTime) }}</text>
           <text class="order-amount">共{{ order.itemCount }}件　合计：<text class="amount-highlight">¥{{ order.payAmount }}</text></text>
           <view class="order-actions">
             <view
@@ -93,6 +93,7 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getOrderList, cancelOrder, confirmReceive } from '../../../api/order'
 import { createPayment } from '../../../api/payment'
+import { formatDate } from '../../../utils/format'
 
 const tabs = [
   { label: '全部', value: null, count: 0 },
@@ -153,16 +154,29 @@ async function loadOrders() {
     status: currentTabValue
   })
   if (res.code === 0) {
-    const { records, current, pages, total } = res.data
+    const { records, current, pages } = res.data
     orders.value = pageNum.value === 1 ? records : [...orders.value, ...records]
     hasMore.value = current < pages
-    // 记录当前状态的订单总数，用于"我的"页面未读红点计算
-    if (currentTabValue !== null && currentTabValue !== undefined) {
-      uni.setStorageSync('order_last_total_' + currentTabValue, total || 0)
+    // 用户已查看订单列表（首页加载完成），同步清除"我的"页各状态未读角标
+    if (pageNum.value === 1) {
+      markOrderStatusViewed()
     }
   }
   loading.value = false
   refreshing.value = false
+}
+
+function markOrderStatusViewed() {
+  // 拉取各状态订单总数并记录为已查看，使"我的"页角标归零（失败静默，不影响列表）
+  ;[0, 1, 2, 3].forEach(status => {
+    getOrderList({ pageNum: 1, pageSize: 1, status })
+      .then(res => {
+        if (res && res.code === 0) {
+          uni.setStorageSync('order_last_total_' + status, res.data?.total || 0)
+        }
+      })
+      .catch(() => {})
+  })
 }
 
 function onTabChange(index) {
@@ -241,13 +255,13 @@ function onRepurchase(order) {
 <style scoped>
 .order-list-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .tabs {
   display: flex;
   background: #FFFFFF;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E7E5;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -275,7 +289,7 @@ function onRepurchase(order) {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 48rpx;
+  width: 56rpx;
   height: 6rpx;
   background: #15803D;
   border-radius: 3rpx;
@@ -300,13 +314,19 @@ function onRepurchase(order) {
 .order-card {
   margin: 16rpx 24rpx;
   padding: 24rpx;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+}
+
+.order-card:active {
+  transform: scale(0.99);
+  box-shadow: 0 2rpx 8rpx rgba(16, 24, 40, 0.06);
 }
 
 .card {
   background: #FFFFFF;
   border-radius: 24rpx;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .order-header {
@@ -314,7 +334,7 @@ function onRepurchase(order) {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16rpx;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #EEF1EF;
 }
 
 .order-no {
@@ -326,14 +346,14 @@ function onRepurchase(order) {
   font-size: 24rpx;
   font-weight: 500;
   padding: 4rpx 16rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   line-height: 1.4;
 }
 
 .tag-warning { background: #FEF3C7; color: #92400E; }
 .tag-primary { background: #BBF7D0; color: #14532D; }
 .tag-success { background: #DCFCE7; color: #166534; }
-.tag-info { background: #F3F4F6; color: #4B5563; }
+.tag-info { background: #F3F5F4; color: #4B5563; }
 .tag-danger { background: #FEE2E2; color: #991B1B; }
 
 .order-product {
@@ -346,7 +366,7 @@ function onRepurchase(order) {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #F0FDF4;
+  background: #F4F6F5;
   flex-shrink: 0;
 }
 
@@ -383,7 +403,7 @@ function onRepurchase(order) {
   align-items: flex-end;
   gap: 12rpx;
   padding-top: 16rpx;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #EEF1EF;
 }
 
 .order-time {
@@ -414,24 +434,30 @@ function onRepurchase(order) {
   align-items: center;
   justify-content: center;
   padding: 0 32rpx;
-  border-radius: 40rpx;
+  border-radius: 36rpx;
   font-size: 24rpx;
-  min-height: 56rpx;
+  min-height: 64rpx;
   box-sizing: border-box;
   text-align: center;
   line-height: 1.2;
+  transition: transform 120ms ease-out, opacity 120ms ease-out;
+}
+
+.action-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-primary {
   background: #15803D;
   color: #FFFFFF;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
 }
 
 .btn-ghost {
   background: transparent;
   color: #15803D;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
 }
 
 .btn-danger {
@@ -442,7 +468,7 @@ function onRepurchase(order) {
 .loading, .no-more, .empty-orders {
   text-align: center;
   padding: 60rpx;
-  color: #9CA3AF;
+  color: #4B5563;
   font-size: 26rpx;
 }
 </style>

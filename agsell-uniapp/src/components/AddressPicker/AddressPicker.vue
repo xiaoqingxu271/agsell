@@ -55,23 +55,26 @@ function handleMaskClick() {
 }
 .address-picker-content {
   width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
   background: #FFFFFF;
   border-radius: 32rpx 32rpx 0 0;
   max-height: 70vh;
   display: flex;
   flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .address-picker-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 32rpx;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #EEF1EF;
 }
 .title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #14532D;
 }
 .cancel-btn {
   font-size: 28rpx;
@@ -90,9 +93,9 @@ function handleMaskClick() {
 }
 .address-item {
   padding: 24rpx 32rpx;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #EEF1EF;
   min-height: 88rpx;
-  border: 1px solid transparent;
+  border: 1rpx solid transparent;
   margin: 8rpx 16rpx;
   border-radius: 16rpx;
 }

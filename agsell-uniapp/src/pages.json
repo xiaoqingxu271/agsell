@@ -20,14 +20,14 @@
     "navigationBarBackgroundColor": "#15803D",
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "agsell 农产品",
-    "backgroundColor": "#F0FDF4",
+    "backgroundColor": "#F4F6F5",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
     "color": "#9CA3AF",
     "selectedColor": "#15803D",
     "backgroundColor": "#FFFFFF",
-    "borderStyle": "white",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",

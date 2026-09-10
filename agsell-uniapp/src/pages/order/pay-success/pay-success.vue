@@ -54,7 +54,7 @@ function goHome() {
 <style scoped>
 .pay-success-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,6 +70,7 @@ function goHome() {
   height: 160rpx;
   border-radius: 50%;
   background: #DCFCE7;
+  border: 6rpx solid rgba(22, 163, 74, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,17 +125,23 @@ function goHome() {
   min-width: 88rpx;
   text-align: center;
   box-sizing: border-box;
+  transition: transform 120ms ease-out, opacity 120ms ease-out;
+}
+
+.btn-order:active, .btn-home:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-order {
   background: #15803D;
   color: #FFFFFF;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
 }
 
 .btn-home {
   background: #FFFFFF;
   color: #15803D;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
 }
 </style>

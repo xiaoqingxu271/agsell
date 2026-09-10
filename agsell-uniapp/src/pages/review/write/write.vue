@@ -193,7 +193,7 @@ async function onSubmit() {
 <style scoped>
 .review-write-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
   padding-bottom: 140rpx;
 }
 
@@ -207,8 +207,8 @@ async function onSubmit() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .product-info {
@@ -220,7 +220,7 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   padding: 12rpx 0;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #EEF1EF;
   min-height: 88rpx;
   box-sizing: border-box;
 }
@@ -241,7 +241,7 @@ async function onSubmit() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #F0FDF4;
+  background: #F4F6F5;
   flex-shrink: 0;
 }
 
@@ -310,7 +310,7 @@ async function onSubmit() {
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #15803D;
   margin-bottom: 20rpx;
   display: block;
 }
@@ -339,7 +339,7 @@ async function onSubmit() {
   border-radius: 12rpx;
   padding: 20rpx;
   box-sizing: border-box;
-  border: 1px solid #D1D5DB;
+  border: 1rpx solid #D1D5DB;
   line-height: 1.6;
 }
 
@@ -353,14 +353,14 @@ async function onSubmit() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .add-img-btn {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  border: 2px dashed #D1D5DB;
+  border: 2rpx dashed #D1D5DB;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -423,7 +423,7 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #E3E7E5;
   z-index: 100;
 }
 

@@ -12,37 +12,51 @@
  * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
  */
 
+/* ============================================================
+ * agsell 小程序设计系统 v3.0（企业级高级感）
+ * 权威来源：doc/miniprogram-design-system-v3.md
+ * 页面改造禁止引入本文档之外的裸色值/裸字号/裸间距
+ * ============================================================ */
+
 /* 颜色变量 */
 
-/* 行为相关颜色 */
-$uni-color-primary: #15803D;
-$uni-color-success: #16A34A;
-$uni-color-warning: #D97706;
-$uni-color-error: #DC2626;
+/* 品牌绿阶（与管理端 v3.0 一致） */
+$uni-color-primary: #15803D; // brand-600 品牌主色：主按钮、链接、激活态、tab 选中
+$uni-color-primary-dark: #14532D; // brand-700 主色 active、深绿文字
+$uni-color-primary-deeper: #166534; // brand-500 主按钮 hover、渐变深端
+$uni-color-primary-500: #166534; // brand-500 主按钮 hover
+$uni-color-success: #16A34A; // brand-400 成功实心
+$uni-color-warning: #D97706; // 待付款、库存预警
+$uni-color-error: #DC2626; // 危险动作、删除、错误
 
 /* 文字基本颜色 */
-$uni-text-color: #1F2937; // 基本色
+$uni-text-color: #1F2937; // 基本色（正文）
 $uni-text-color-inverse: #FFFFFF; // 反色
-$uni-text-color-grey: #6B7280; // 辅助灰色，如加载更多的提示信息
+$uni-text-color-grey: #6B7280; // 辅助灰色（置于白卡内）
+$uni-text-color-on-bg: #4B5563; // 页面底 #F4F6F5 上的直接文字（6.87:1 ✅）
 $uni-text-color-placeholder: #9CA3AF;
 $uni-text-color-disable: #9CA3AF;
+$uni-text-color-heading: #14532D; // 页面标题（品牌深绿）
+$uni-text-color-card-title: #15803D; // 卡片标题
 
 /* 背景颜色 */
 $uni-bg-color: #FFFFFF;
-$uni-bg-color-grey: #F0FDF4; // 页面背景（生态浅绿，MASTER v2.0）
-$uni-bg-color-muted: #E8F0F1; // muted 中性层：表头底、禁用底
-$uni-bg-color-hover: #F0FDF4; // 点击状态颜色
+$uni-bg-color-grey: #F4F6F5; // 页面背景（微绿中性灰，v3.0）
+$uni-bg-color-muted: #F3F5F4; // muted 中性层：表头底、禁用底
+$uni-bg-color-hover: #F4F9F5; // 点击状态颜色（微绿）
 $uni-bg-color-mask: rgba(15, 23, 42, 0.5); // 遮罩颜色
+$uni-bg-color-brand-50: #F0FDF4; // 极浅绿底：选中行、图标底、分类激活底
 
 /* 边框颜色 */
-$uni-border-color: #E5E7EB;
-$uni-border-color-brand: #BBF7D0; // 卡片品牌描边（MASTER v2.0 §6.2）
-$uni-border-color-strong: #D1D5DB; // 输入框边框
+$uni-border-color: #E3E7E5; // 卡片描边（中性，装饰性）
+$uni-border-color-brand: #BBF7D0; // 浅绿描边（仅装饰，不再承担卡片边界）
+$uni-border-color-strong: #D1D5DB; // 输入框边框、可交互控件边框
+$uni-border-color-divider: #EEF1EF; // 列表项分隔线
 
 /* 尺寸变量 */
 
 /* 文字尺寸 */
-$uni-font-size-sm: 24rpx;
+$uni-font-size-sm: 22rpx;
 $uni-font-size-base: 28rpx;
 $uni-font-size-lg: 32rpx;
 
@@ -52,10 +66,12 @@ $uni-img-size-base: 52rpx;
 $uni-img-size-lg: 80rpx;
 
 /* Border Radius */
-$uni-border-radius-sm: 8rpx;
+$uni-border-radius-sm: 12rpx;
 $uni-border-radius-base: 16rpx;
 $uni-border-radius-lg: 24rpx;
+$uni-border-radius-xl: 32rpx;
 $uni-border-radius-circle: 50%;
+$uni-border-radius-pill: 999rpx;
 
 /* 水平间距 */
 $uni-spacing-row-sm: 8rpx;
@@ -69,6 +85,11 @@ $uni-spacing-col-lg: 24rpx;
 
 /* 透明度 */
 $uni-opacity-disabled: 0.4; // 组件禁用态的透明度
+
+/* 阴影（分层质感） */
+$uni-shadow-sm: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
+$uni-shadow-base: 0 2rpx 8rpx rgba(16, 24, 40, 0.06);
+$uni-shadow-lg: 0 12rpx 32rpx rgba(16, 24, 40, 0.12);
 
 /* 文章场景相关 */
 $uni-color-title: #14532D; // 文章标题颜色

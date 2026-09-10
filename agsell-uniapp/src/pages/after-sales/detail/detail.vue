@@ -32,7 +32,7 @@
         </view>
         <view class="info-row">
           <text class="info-label">申请时间</text>
-          <text class="info-value">{{ detail?.createTime }}</text>
+          <text class="info-value">{{ formatDate(detail?.createTime) }}</text>
         </view>
         <view class="info-row">
           <text class="info-label">退款金额</text>
@@ -40,7 +40,7 @@
         </view>
         <view v-if="detail?.handleTime" class="info-row">
           <text class="info-label">处理时间</text>
-          <text class="info-value">{{ detail?.handleTime }}</text>
+          <text class="info-value">{{ formatDate(detail?.handleTime) }}</text>
         </view>
       </view>
 
@@ -88,6 +88,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import { getAfterSalesDetail, cancelAfterSales } from '../../../api/afterSales'
+import { formatDate } from '../../../utils/format'
 
 const detail = ref(null)
 
@@ -158,7 +159,7 @@ function onCancelApply() {
 <style scoped>
 .as-detail-page {
   min-height: 100vh;
-  background: #F6F8F7;
+  background: #F4F6F5;
   display: flex;
   flex-direction: column;
 }
@@ -177,14 +178,19 @@ function onCancelApply() {
   background: #FFFFFF;
   margin: 16rpx 24rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
-  border: 1px solid #E5E7EB;
+  border-radius: 24rpx;
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
+/* 状态区：品牌绿渐变（signature，同订单详情） */
 .status-section {
   text-align: center;
-  padding: 48rpx 24rpx;
-  background: linear-gradient(135deg, #15803D 0%, #22C55E 100%);
+  margin: 24rpx 24rpx 8rpx;
+  padding: 56rpx 24rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #15803D 0%, #14532D 100%);
+  box-shadow: 0 12rpx 32rpx rgba(21, 128, 61, 0.25);
 }
 
 .status-icon {
@@ -205,14 +211,14 @@ function onCancelApply() {
 
 .status-hint {
   font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.85);
+  color: #FFFFFF;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   padding: 16rpx 0;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #EEF1EF;
   font-size: 26rpx;
 }
 
@@ -225,7 +231,7 @@ function onCancelApply() {
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #15803D;
   margin-bottom: 16rpx;
   display: block;
 }
@@ -246,7 +252,7 @@ function onCancelApply() {
   width: 200rpx;
   height: 200rpx;
   border-radius: 12rpx;
-  background: #F6F8F7;
+  background: #F4F6F5;
 }
 
 .bottom-bar {
@@ -260,7 +266,7 @@ function onCancelApply() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #E3E7E5;
   z-index: 100;
 }
 
@@ -278,7 +284,7 @@ function onCancelApply() {
 
 .btn-ghost {
   background: transparent;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
   color: #15803D;
 }
 

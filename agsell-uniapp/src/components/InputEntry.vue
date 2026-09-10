@@ -69,20 +69,20 @@ function handleInput(e) {
   min-height: 88rpx;
   padding: 0 24rpx;
   background: #FFFFFF;
-  border: 1px solid #D1D5DB;
+  border: 1rpx solid #D1D5DB;
   border-radius: 12rpx;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .input-wrapper:focus-within,
 .input-wrapper:focus {
   border-color: #15803D;
-  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15);
+  box-shadow: 0 0 0 3rpx rgba(21, 128, 61, 0.15);
 }
 .input-wrapper.is-error {
   border-color: #DC2626;
 }
 .input-wrapper.is-disabled {
-  background: #F3F4F6;
+  background: #F3F5F4;
   color: #9CA3AF;
 }
 .input-field {

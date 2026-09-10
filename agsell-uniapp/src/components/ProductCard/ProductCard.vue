@@ -1,5 +1,5 @@
 <template>
-  <view class="product-card" @click="$emit('tap', product)">
+  <view class="product-card" hover-class="product-card-hover" :hover-stay-time="120" @click="$emit('tap', product)">
     <view class="product-image-wrap">
       <image
         class="product-image"
@@ -39,11 +39,17 @@ defineEmits(['tap'])
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  border: 1px solid #BBF7D0;
+  border: 1rpx solid #E3E7E5;
   border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
   min-height: 88rpx;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+}
+
+.product-card-hover {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(16, 24, 40, 0.06);
 }
 
 .product-image-wrap {
@@ -51,7 +57,7 @@ defineEmits(['tap'])
   padding-top: 100%;
   position: relative;
   overflow: hidden;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .product-image {
@@ -98,7 +104,7 @@ defineEmits(['tap'])
   color: #14532D;
   background: #DCFCE7;
   padding: 4rpx 12rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   line-height: 1.4;
 }
 

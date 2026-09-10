@@ -275,7 +275,7 @@ async function onSetDefault(addr) {
 <style scoped>
 .address-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .content {
@@ -296,13 +296,13 @@ async function onSetDefault(addr) {
 .empty-icon {
   width: 96rpx;
   height: 96rpx;
-  color: #9CA3AF;
+  color: #C7CECB;
   margin-bottom: 24rpx;
 }
 
 .empty-text {
   font-size: 28rpx;
-  color: #9CA3AF;
+  color: #4B5563;
   margin-bottom: 32rpx;
 }
 
@@ -335,7 +335,7 @@ async function onSetDefault(addr) {
   padding: 0 28rpx;
   height: 56rpx;
   border-radius: 28rpx;
-  box-shadow: 0 2rpx 8rpx rgba(21, 128, 61, 0.25);
+  box-shadow: 0 4rpx 16rpx rgba(21, 128, 61, 0.30);
 }
 
 .add-plus {
@@ -354,8 +354,8 @@ async function onSetDefault(addr) {
   border-radius: 24rpx;
   margin-bottom: 16rpx;
   overflow: hidden;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .address-card.is-default {
@@ -388,7 +388,7 @@ async function onSetDefault(addr) {
 .tag {
   font-size: 22rpx;
   padding: 4rpx 12rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   line-height: 1.4;
 }
 
@@ -413,14 +413,14 @@ async function onSetDefault(addr) {
   gap: 16rpx;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #EEF1EF;
   flex-wrap: wrap;
 }
 
 .action-btn {
   font-size: 24rpx;
   padding: 8rpx 20rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   min-height: 60rpx;
   line-height: 60rpx;
   box-sizing: border-box;
@@ -430,17 +430,17 @@ async function onSetDefault(addr) {
 
 .action-edit {
   color: #15803D;
-  border: 1px solid #15803D;
+  border: 1rpx solid #15803D;
 }
 
 .action-delete {
   color: #DC2626;
-  border: 1px solid #DC2626;
+  border: 1rpx solid #DC2626;
 }
 
 .action-default {
   color: #A16207;
-  border: 1px solid #A16207;
+  border: 1rpx solid #A16207;
 }
 
 /* 编辑弹窗 */
@@ -458,6 +458,8 @@ async function onSetDefault(addr) {
 
 .edit-content {
   width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
   background: #FFFFFF;
   border-radius: 32rpx 32rpx 0 0;
   padding: 32rpx;
@@ -474,7 +476,7 @@ async function onSetDefault(addr) {
 .edit-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #14532D;
 }
 
 .edit-close {
@@ -483,7 +485,7 @@ async function onSetDefault(addr) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9CA3AF;
+  color: #6B7280;
 }
 
 .edit-close svg {
@@ -537,7 +539,7 @@ async function onSetDefault(addr) {
 
 .tag-option {
   padding: 12rpx 32rpx;
-  border: 1px solid #BBF7D0;
+  border: 1rpx solid #E3E7E5;
   border-radius: 44rpx;
   font-size: 26rpx;
   color: #6B7280;

@@ -55,7 +55,7 @@
               <StarRating :rating="review.rating" :readonly="true" size="28rpx" />
             </view>
           </template>
-          <text class="review-time">{{ review.createTime }}</text>
+          <text class="review-time">{{ formatDate(review.createTime) }}</text>
         </view>
         <text class="review-content">{{ review.content }}</text>
         <view v-if="review.images && review.images.length > 0" class="review-images">
@@ -71,7 +71,7 @@
         <view v-if="review.replyContent" class="review-reply">
           <text class="reply-label">商家回复：</text>
           <text class="reply-content">{{ review.replyContent }}</text>
-          <text v-if="review.replyTime" class="reply-time">{{ review.replyTime }}</text>
+          <text v-if="review.replyTime" class="reply-time">{{ formatDate(review.replyTime) }}</text>
         </view>
       </view>
 
@@ -88,6 +88,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import StarRating from '../../../components/StarRating/StarRating.vue'
 import { getProductReviews, getMyReviews } from '../../../api/review'
+import { formatDate } from '../../../utils/format'
 
 const productId = ref('')
 const productName = ref('')
@@ -157,7 +158,7 @@ function onReachBottom() {
 <style scoped>
 .review-list-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .content {
@@ -171,8 +172,8 @@ function onReachBottom() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .overview {
@@ -215,7 +216,7 @@ function onReachBottom() {
 .ratio-bar-bg {
   flex: 1;
   height: 12rpx;
-  background: #F3F4F6;
+  background: #F3F5F4;
   border-radius: 6rpx;
   overflow: hidden;
 }
@@ -247,7 +248,7 @@ function onReachBottom() {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #F3F4F6;
+  background: #F3F5F4;
   flex-shrink: 0;
 }
 
@@ -255,7 +256,7 @@ function onReachBottom() {
   width: 96rpx;
   height: 96rpx;
   border-radius: 12rpx;
-  background: #F3F4F6;
+  background: #F3F5F4;
   flex-shrink: 0;
 }
 
@@ -320,12 +321,12 @@ function onReachBottom() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .review-reply {
-  background: #F0FDF4;
-  border-radius: 8rpx;
+  background: #F4F6F5;
+  border-radius: 12rpx;
   padding: 16rpx;
 }
 
@@ -350,7 +351,7 @@ function onReachBottom() {
 .empty, .loading, .no-more {
   text-align: center;
   padding: 60rpx;
-  color: #9CA3AF;
+  color: #4B5563;
   font-size: 26rpx;
 }
 </style>

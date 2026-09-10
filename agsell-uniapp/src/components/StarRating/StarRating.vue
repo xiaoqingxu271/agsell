@@ -45,8 +45,17 @@ function handleClick(star) {
   align-items: center;
   justify-content: center;
 }
+/* 交互态加大触控命中区（可点目标 ≥ 56rpx，配合按压反馈） */
+.star-rating:not(.is-readonly) .star {
+  width: 64rpx;
+  height: 64rpx;
+}
 .star.interactive {
   cursor: pointer;
+}
+.star-rating:not(.is-readonly) .star:active {
+  transform: scale(0.92);
+  transition: transform 120ms ease-out;
 }
 .star-icon {
   width: v-bind(size);

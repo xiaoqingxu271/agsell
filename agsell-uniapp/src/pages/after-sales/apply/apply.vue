@@ -201,7 +201,7 @@ async function onSubmit() {
 <style scoped>
 .apply-page {
   min-height: 100vh;
-  background: #F6F8F7;
+  background: #F4F6F5;
   display: flex;
   flex-direction: column;
 }
@@ -220,14 +220,15 @@ async function onSubmit() {
   background: #FFFFFF;
   margin: 16rpx 24rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
-  border: 1px solid #E5E7EB;
+  border-radius: 24rpx;
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #15803D;
   margin-bottom: 20rpx;
   display: block;
 }
@@ -284,9 +285,9 @@ async function onSubmit() {
   width: 100%;
   height: 200rpx;
   margin-top: 24rpx;
-  background: #F6F8F7;
-  border-radius: 16rpx;
-  border: 1px solid #E5E7EB;
+  background: #F4F6F5;
+  border-radius: 12rpx;
+  border: 1rpx solid #D1D5DB;
   padding: 20rpx;
   font-size: 28rpx;
   color: #1F2937;
@@ -296,9 +297,9 @@ async function onSubmit() {
 .amount-input-row {
   display: flex;
   align-items: center;
-  background: #F6F8F7;
-  border-radius: 16rpx;
-  border: 1px solid #E5E7EB;
+  background: #F4F6F5;
+  border-radius: 12rpx;
+  border: 1rpx solid #D1D5DB;
   padding: 0 24rpx;
   height: 88rpx;
 }
@@ -319,7 +320,7 @@ async function onSubmit() {
 
 .amount-hint {
   font-size: 24rpx;
-  color: #9CA3AF;
+  color: #6B7280;
   margin-top: 12rpx;
 }
 
@@ -339,7 +340,7 @@ async function onSubmit() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F6F8F7;
+  background: #F4F6F5;
 }
 
 .image-remove {
@@ -359,13 +360,13 @@ async function onSubmit() {
 .image-add {
   width: 160rpx;
   height: 160rpx;
-  border: 1px dashed #D1D5DB;
+  border: 2rpx dashed #D1D5DB;
   border-radius: 12rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #F6F8F7;
+  background: #FAFAFA;
 }
 
 .add-icon {
@@ -388,7 +389,7 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #E3E7E5;
   z-index: 100;
 }
 

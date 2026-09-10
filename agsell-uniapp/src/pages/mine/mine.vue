@@ -203,15 +203,15 @@ async function onChooseAvatar() {
 <style scoped>
 .mine-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
   padding-bottom: 40rpx;
 }
 
 .user-header {
   display: flex;
   align-items: center;
-  padding: 60rpx 40rpx;
-  background: linear-gradient(135deg, #15803D 0%, #22C55E 100%);
+  padding: 56rpx 40rpx 64rpx;
+  background: linear-gradient(160deg, #15803D 0%, #166534 100%);
 }
 
 .login-btn {
@@ -287,14 +287,14 @@ async function onChooseAvatar() {
   margin: 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .section-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #15803D;
   margin-bottom: 20rpx;
 }
 
@@ -311,6 +311,12 @@ async function onChooseAvatar() {
   min-width: 88rpx;
   min-height: 88rpx;
   position: relative;
+  border-radius: 16rpx;
+  transition: background 150ms ease-out;
+}
+
+.order-tab:active {
+  background: #F4F9F5;
 }
 
 .tab-icon-wrap {
@@ -357,9 +363,14 @@ async function onChooseAvatar() {
   display: flex;
   align-items: center;
   padding: 32rpx 0;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #EEF1EF;
   min-height: 88rpx;
   box-sizing: border-box;
+  transition: background 150ms ease-out;
+}
+
+.menu-item:active {
+  background: #F4F9F5;
 }
 
 .menu-item:last-child { border-bottom: none; }
@@ -386,8 +397,7 @@ async function onChooseAvatar() {
 .logout-btn {
   margin: 40rpx 24rpx;
   text-align: center;
-  padding: 24rpx;
-  border: 1px solid #DC2626;
+  border: 1rpx solid #DC2626;
   border-radius: 44rpx;
   color: #DC2626;
   font-size: 30rpx;

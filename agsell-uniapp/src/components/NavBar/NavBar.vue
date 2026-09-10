@@ -32,7 +32,7 @@ onMounted(() => {
 <style scoped>
 .nav-bar {
   width: 100%;
-  background: #15803D;
+  background: linear-gradient(180deg, #15803D 0%, #14532D 100%);
 }
 .nav-content {
   position: relative;
@@ -58,9 +58,10 @@ onMounted(() => {
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 32rpx;
+  font-size: 34rpx;
   color: #FFFFFF;
   font-weight: 600;
+  letter-spacing: 1rpx;
   pointer-events: none;
 }
 .nav-right {

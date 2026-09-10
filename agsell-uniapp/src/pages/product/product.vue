@@ -91,7 +91,9 @@
             <view class="review-card-footer">
               <text class="review-date-text">{{ formatDate(r.createTime) }}</text>
               <view class="review-like-btn">
-                <text class="like-thumb">👍</text>
+                <svg class="like-thumb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                </svg>
                 <text class="like-num">{{ r.likeCount || 0 }}</text>
               </view>
             </view>
@@ -254,7 +256,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F0FDF4;
+  background: #F4F6F5;
 }
 
 .product-scroll {
@@ -280,8 +282,8 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   margin: 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .info-section .price-row {
@@ -330,7 +332,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .meta-tag {
   font-size: 22rpx;
   padding: 4rpx 16rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   line-height: 1.4;
 }
 
@@ -340,7 +342,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 }
 
 .tag-info {
-  background: #F3F4F6;
+  background: #F3F5F4;
   color: #4B5563;
 }
 
@@ -364,7 +366,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #15803D;
   margin-bottom: 20rpx;
 }
 
@@ -379,11 +381,12 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   flex-direction: column;
   align-items: center;
   padding: 20rpx 24rpx;
-  border: 1px solid #BBF7D0;
-  border-radius: 12rpx;
+  border: 1rpx solid #D1D5DB;
+  border-radius: 16rpx;
   min-width: 180rpx;
   min-height: 88rpx;
   box-sizing: border-box;
+  transition: border-color 150ms ease-out, background 150ms ease-out;
 }
 
 .spec-item.active {
@@ -419,14 +422,18 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .qty-btn {
   width: 64rpx;
   height: 64rpx;
-  border: 1px solid #D1D5DB;
-  border-radius: 8rpx;
+  border: 1rpx solid #D1D5DB;
+  border-radius: 12rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32rpx;
   color: #1F2937;
   background: #FFFFFF;
+}
+
+.qty-btn:active {
+  background: #F4F9F5;
 }
 
 .qty-value {
@@ -464,7 +471,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .review-card-item {
   padding-bottom: 24rpx;
-  border-bottom: 1px solid #F3F4F6;
+  border-bottom: 1rpx solid #EEF1EF;
 }
 
 .review-card-item:last-child {
@@ -482,7 +489,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #F3F4F6;
+  background: #F3F5F4;
   flex-shrink: 0;
 }
 
@@ -524,11 +531,13 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   gap: 6rpx;
   padding: 6rpx 16rpx;
   border-radius: 20rpx;
-  background: #F9FAFB;
+  background: #F3F5F4;
 }
 
 .like-thumb {
-  font-size: 24rpx;
+  width: 28rpx;
+  height: 28rpx;
+  color: #6B7280;
   line-height: 1;
 }
 
@@ -554,7 +563,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #E3E7E5;
   position: fixed;
   bottom: 0;
   left: 0;

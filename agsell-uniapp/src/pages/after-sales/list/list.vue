@@ -47,7 +47,7 @@
           </view>
           <view class="as-row">
             <text class="as-label">申请时间</text>
-            <text class="as-value">{{ item.createTime }}</text>
+            <text class="as-value">{{ formatDate(item.createTime) }}</text>
           </view>
         </view>
       </view>
@@ -62,6 +62,7 @@ import { ref, computed } from 'vue'
 import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import { getAfterSalesList } from '../../../api/afterSales'
+import { formatDate } from '../../../utils/format'
 
 const tabs = [
   { label: '全部', value: null },
@@ -128,7 +129,7 @@ function goDetail(afterSalesNo) {
 <style scoped>
 .as-list-page {
   min-height: 100vh;
-  background: #F6F8F7;
+  background: #F4F6F5;
   display: flex;
   flex-direction: column;
 }
@@ -136,7 +137,7 @@ function goDetail(afterSalesNo) {
 .filter-bar {
   display: flex;
   background: #FFFFFF;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E7E5;
   padding: 0 24rpx;
 }
 
@@ -163,7 +164,7 @@ function goDetail(afterSalesNo) {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 48rpx;
+  width: 56rpx;
   height: 6rpx;
   border-radius: 3rpx;
   background: #15803D;
@@ -179,8 +180,9 @@ function goDetail(afterSalesNo) {
   background: #FFFFFF;
   margin: 16rpx 24rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
-  border: 1px solid #E5E7EB;
+  border-radius: 24rpx;
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .as-card-header {
@@ -188,7 +190,7 @@ function goDetail(afterSalesNo) {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16rpx;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1rpx solid #EEF1EF;
 }
 
 .as-no {
@@ -220,7 +222,7 @@ function goDetail(afterSalesNo) {
 
 .empty-text {
   font-size: 28rpx;
-  color: #9CA3AF;
+  color: #4B5563;
 }
 
 .load-more {

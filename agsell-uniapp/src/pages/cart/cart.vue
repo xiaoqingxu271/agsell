@@ -185,7 +185,7 @@ function goToShop() {
 <style scoped>
 .cart-page {
   min-height: 100vh;
-  background: #F0FDF4;
+  background: #F4F6F5;
   padding-bottom: 140rpx;
 }
 
@@ -199,13 +199,13 @@ function goToShop() {
 .empty-icon {
   width: 120rpx;
   height: 120rpx;
-  color: #9CA3AF;
+  color: #C7CECB;
   margin-bottom: 24rpx;
 }
 
 .empty-text {
   font-size: 32rpx;
-  color: #9CA3AF;
+  color: #4B5563;
   margin-bottom: 40rpx;
 }
 
@@ -232,8 +232,13 @@ function goToShop() {
   margin: 16rpx 24rpx;
   background: #FFFFFF;
   border-radius: 24rpx;
-  border: 1px solid #BBF7D0;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
+  transition: transform 120ms ease-out;
+}
+
+.cart-item:active {
+  transform: scale(0.99);
 }
 
 .item-checkbox {
@@ -252,7 +257,7 @@ function goToShop() {
   color: #D1D5DB;
   width: 40rpx;
   height: 40rpx;
-  border: 2px solid #D1D5DB;
+  border: 2rpx solid #D1D5DB;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -269,7 +274,7 @@ function goToShop() {
 
 .item-checkbox.disabled .checkbox-icon {
   color: #E5E7EB;
-  background: #F3F4F6;
+  background: #F3F5F4;
   border-color: #E5E7EB;
 }
 
@@ -277,7 +282,7 @@ function goToShop() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F0FDF4;
+  background: #F4F6F5;
   flex-shrink: 0;
 }
 
@@ -328,8 +333,8 @@ function goToShop() {
 .qty-btn {
   width: 56rpx;
   height: 56rpx;
-  border: 1px solid #D1D5DB;
-  border-radius: 8rpx;
+  border: 1rpx solid #D1D5DB;
+  border-radius: 12rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -374,7 +379,7 @@ function goToShop() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1px solid #E5E7EB;
+  border-top: 1rpx solid #E3E7E5;
   z-index: 100;
 }
 
@@ -452,6 +457,6 @@ function goToShop() {
 
 .item-invalid {
   font-size: 24rpx;
-  color: #9CA3AF;
+  color: #6B7280;
 }
 </style>
