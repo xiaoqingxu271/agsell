@@ -18,6 +18,7 @@ import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.SysUser;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.AdminAfterSalesDetailVO;
 import com.lichun.agsell.model.vo.AdminAfterSalesListItemVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
@@ -67,11 +68,6 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
             1, "已同意",
             2, "已拒绝",
             3, "已撤销"
-    );
-
-    private static final Map<Integer, String> ORDER_STATUS_TEXT_MAP = Map.of(
-            2, "待收货",
-            3, "已完成"
     );
 
     private final AfterSalesMapper afterSalesMapper;
@@ -165,7 +161,7 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
         vo.setOrderNo(afterSales.getOrderNo());
         vo.setUserId(afterSales.getUserId());
         vo.setOriginalStatus(afterSales.getOriginalStatus());
-        vo.setOriginalStatusText(ORDER_STATUS_TEXT_MAP.getOrDefault(afterSales.getOriginalStatus(), "未知"));
+        vo.setOriginalStatusText(OrderStatusEnum.textOf(afterSales.getOriginalStatus()));
         vo.setType(afterSales.getType());
         vo.setTypeText(TYPE_TEXT_MAP.getOrDefault(afterSales.getType(), "未知"));
         vo.setReasonType(afterSales.getReasonType());
@@ -263,7 +259,7 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
                 }
                 // 仅已完成订单（确认收货累加过销量）回滚销量，GREATEST 防负数
                 // 退款即交易未完成，仅退款/退货退款均回滚销量
-                if (afterSales.getOriginalStatus() == 3) {
+                if (afterSales.getOriginalStatus() == OrderStatusEnum.COMPLETED.getCode()) {
                     productMapper.update(null, new LambdaUpdateWrapper<Product>()
                             .setSql("sales = GREATEST(sales - " + item.getQuantity() + ", 0)")
                             .eq(Product::getId, item.getProductId()));
@@ -273,7 +269,7 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
             // 2. 订单置为已退款（独立状态，不复用"已取消"；已取消保留给用户取消/超时取消）
             Order update = new Order();
             update.setId(order.getId());
-            update.setStatus(6);
+            update.setStatus(OrderStatusEnum.REFUNDED.getCode());
             update.setCancelReason("售后同意退款，订单已退款");
             orderMapper.updateById(update);
             log.info("[AfterSales] 管理员 {} 同意售后 {} 退款 {} 元, 订单 {} 置为已退款{}",

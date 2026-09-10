@@ -15,6 +15,7 @@ import com.lichun.agsell.mapper.SysUserAddressMapper;
 import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.dto.OrderCreateRequest;
 import com.lichun.agsell.model.entity.*;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.OrderCreateVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
 import com.lichun.agsell.model.vo.OrderListItemVO;
@@ -39,16 +40,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-
-    private static final Map<String, String> STATUS_TEXT_MAP = Map.of(
-            "0", "待付款",
-            "1", "待发货",
-            "2", "待收货",
-            "3", "已完成",
-            "4", "已取消",
-            "5", "售后处理中",
-            "6", "已退款"
-    );
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
@@ -177,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
         order.setFreight(BigDecimal.ZERO);
         order.setDiscount(BigDecimal.ZERO);
         order.setPayAmount(totalAmount);
-        order.setStatus(0); // 待付款
+        order.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode()); // 待付款
         order.setAddressId(request.getAddressId());
         order.setReceiver(address.getReceiver());
         order.setPhone(address.getPhone());
@@ -202,7 +193,7 @@ public class OrderServiceImpl implements OrderService {
         vo.setOrderNo(orderNo);
         vo.setPayAmount(totalAmount);
         vo.setTotalAmount(totalAmount);
-        vo.setStatus(0);
+        vo.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode());
         vo.setCreateTime(order.getCreateTime());
         vo.setExpireSeconds(computeExpireSeconds(order.getCreateTime()));
         return vo;
@@ -222,6 +213,16 @@ public class OrderServiceImpl implements OrderService {
 
         Page<Order> page = orderMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
 
+        // 批量统计每单商品数量，避免 N+1 查询（一次 IN 查出所有明细再分组计数）
+        List<Long> orderIds = page.getRecords().stream()
+                .map(Order::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> itemCountMap = orderIds.isEmpty() ? Map.of()
+                : orderItemMapper.selectList(
+                                new LambdaQueryWrapper<OrderItem>().in(OrderItem::getOrderId, orderIds))
+                        .stream()
+                        .collect(Collectors.groupingBy(OrderItem::getOrderId, Collectors.counting()));
+
         Page<OrderListItemVO> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         result.setRecords(page.getRecords().stream().map(order -> {
             OrderListItemVO vo = new OrderListItemVO();
@@ -230,12 +231,11 @@ public class OrderServiceImpl implements OrderService {
             vo.setTotalAmount(order.getTotalAmount());
             vo.setPayAmount(order.getPayAmount());
             vo.setStatus(order.getStatus());
-            vo.setStatusText(STATUS_TEXT_MAP.get(String.valueOf(order.getStatus())));
+            vo.setStatusText(OrderStatusEnum.textOf(order.getStatus()));
             vo.setCreateTime(order.getCreateTime());
-            // 查询商品数量
-            long itemCount = orderItemMapper.selectCount(
-                    new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, order.getId()));
-            vo.setItemCount((int) itemCount);
+            // 商品数量来自批量统计结果
+            Long itemCount = itemCountMap.getOrDefault(order.getId(), 0L);
+            vo.setItemCount(itemCount.intValue());
             return vo;
         }).collect(Collectors.toList()));
         return result;
@@ -259,7 +259,7 @@ public class OrderServiceImpl implements OrderService {
         vo.setFreight(order.getFreight());
         vo.setDiscount(order.getDiscount());
         vo.setStatus(order.getStatus());
-        vo.setStatusText(STATUS_TEXT_MAP.get(String.valueOf(order.getStatus())));
+        vo.setStatusText(OrderStatusEnum.textOf(order.getStatus()));
         vo.setReceiver(order.getReceiver());
         vo.setPhone(order.getPhone());
         vo.setAddress(order.getAddress());
@@ -302,13 +302,13 @@ public class OrderServiceImpl implements OrderService {
                 .eq(Order::getOrderNo, orderNo)
                 .eq(Order::getUserId, userId));
         ThrowUtils.throwIf(order == null, ErrorCode.NOT_FOUND_ERROR, "订单不存在");
-        ThrowUtils.throwIf(order.getStatus() != 0,
+        ThrowUtils.throwIf(order.getStatus() != OrderStatusEnum.PENDING_PAYMENT.getCode(),
                 ErrorCode.ORDER_STATUS_ERROR, "只有待付款订单可以取消");
 
         // 库存说明：库存仅在支付成功时扣减，待付款订单未占用库存，取消时无需恢复库存。
         Order update = new Order();
         update.setId(order.getId());
-        update.setStatus(4); // 已取消
+        update.setStatus(OrderStatusEnum.CANCELLED.getCode()); // 已取消
         update.setCancelReason(reason);
         orderMapper.updateById(update);
     }
@@ -323,13 +323,13 @@ public class OrderServiceImpl implements OrderService {
                 .eq(Order::getOrderNo, orderNo)
                 .eq(Order::getUserId, userId));
         ThrowUtils.throwIf(order == null, ErrorCode.NOT_FOUND_ERROR, "订单不存在");
-        ThrowUtils.throwIf(order.getStatus() != 2,
+        ThrowUtils.throwIf(order.getStatus() != OrderStatusEnum.PENDING_RECEIPT.getCode(),
                 ErrorCode.ORDER_STATUS_ERROR, "只有待收货订单可以确认收货");
 
         // 更新订单状态
         Order update = new Order();
         update.setId(order.getId());
-        update.setStatus(3); // 已完成
+        update.setStatus(OrderStatusEnum.COMPLETED.getCode()); // 已完成
         update.setReceiveTime(LocalDateTime.now());
         orderMapper.updateById(update);
 
@@ -353,10 +353,10 @@ public class OrderServiceImpl implements OrderService {
         // 避免与支付流程竞态（扫描与更新之间用户完成支付，导致误取消已支付订单）。
         // 命中行数即实际取消笔数；MyBatis-Plus 会自动追加逻辑删除条件 deleted=0。
         return orderMapper.update(null, new LambdaUpdateWrapper<Order>()
-                .set(Order::getStatus, 4) // 已取消
+                .set(Order::getStatus, OrderStatusEnum.CANCELLED.getCode()) // 已取消
                 .set(Order::getCancelReason, "订单超时未支付，系统自动取消")
                 .setSql("update_time = NOW()")
-                .eq(Order::getStatus, 0) // 仅待付款（状态守卫）
+                .eq(Order::getStatus, OrderStatusEnum.PENDING_PAYMENT.getCode()) // 仅待付款（状态守卫）
                 .lt(Order::getCreateTime, deadline));
     }
 

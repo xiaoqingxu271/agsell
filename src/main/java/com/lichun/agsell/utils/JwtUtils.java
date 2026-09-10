@@ -28,11 +28,24 @@ public class JwtUtils {
     @Value("${jwt.token-prefix}")
     private String tokenPrefix;
 
+    /** 加密密钥缓存：懒加载一次，避免每个请求/每张 token 都重复计算 HMAC Key（高并发热点） */
+    private volatile SecretKey cachedSignKey;
+
     /**
-     * 获取加密密钥
+     * 获取加密密钥（首次调用时生成并缓存，之后直接复用）
      */
     private SecretKey getSignKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        SecretKey key = cachedSignKey;
+        if (key == null) {
+            synchronized (this) {
+                key = cachedSignKey;
+                if (key == null) {
+                    key = Keys.hmacShaKeyFor(secret.getBytes());
+                    cachedSignKey = key;
+                }
+            }
+        }
+        return key;
     }
 
     /**

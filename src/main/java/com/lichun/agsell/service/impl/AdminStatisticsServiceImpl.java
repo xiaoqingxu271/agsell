@@ -8,6 +8,7 @@ import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.SysUser;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.AdminStatisticsVO;
 import com.lichun.agsell.model.vo.StatisticsTrendVO;
 import com.lichun.agsell.service.AdminStatisticsService;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 管理端数据统计实现
@@ -33,8 +33,12 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AdminStatisticsServiceImpl implements AdminStatisticsService {
 
-    /** 有效已支付订单状态：待发货/待收货/已完成/售后中（排除待付款0、已取消4、已退款6——交易未完成或已退款） */
-    private static final List<Integer> PAID_STATUSES = List.of(1, 2, 3, 5);
+    /** 有效已支付订单状态：待发货/待收货/已完成/售后中（排除待付款、已取消、已退款——交易未完成或已退款） */
+    private static final List<Integer> PAID_STATUSES = List.of(
+            OrderStatusEnum.PENDING_SHIPMENT.getCode(),
+            OrderStatusEnum.PENDING_RECEIPT.getCode(),
+            OrderStatusEnum.COMPLETED.getCode(),
+            OrderStatusEnum.AFTER_SALES.getCode());
 
     private final SysUserMapper userMapper;
     private final ProductMapper productMapper;
@@ -64,17 +68,16 @@ public class AdminStatisticsServiceImpl implements AdminStatisticsService {
         vo.setPaidOrders(orderMapper.selectCount(
                 new LambdaQueryWrapper<Order>().in(Order::getStatus, PAID_STATUSES)));
         vo.setPendingShipOrders(orderMapper.selectCount(
-                new LambdaQueryWrapper<Order>().eq(Order::getStatus, 1)));
+                new LambdaQueryWrapper<Order>().eq(Order::getStatus, OrderStatusEnum.PENDING_SHIPMENT.getCode())));
 
-        // 销售总额：已支付订单实付金额合计
-        List<Order> paidOrders = orderMapper.selectList(
-                new LambdaQueryWrapper<Order>()
-                        .in(Order::getStatus, PAID_STATUSES)
-                        .select(Order::getPayAmount));
-        BigDecimal totalSales = paidOrders.stream()
-                .map(Order::getPayAmount)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 销售总额：已支付订单实付金额合计（SQL 聚合，避免全表加载后 Java 求和）
+        List<Map<String, Object>> salesRows = orderMapper.selectMaps(
+                new QueryWrapper<Order>()
+                        .select("COALESCE(SUM(pay_amount), 0) AS total")
+                        .in("status", PAID_STATUSES));
+        BigDecimal totalSales = salesRows.isEmpty() || salesRows.get(0).get("total") == null
+                ? BigDecimal.ZERO
+                : new BigDecimal(salesRows.get(0).get("total").toString());
         vo.setTotalSales(totalSales);
 
         log.info("[AdminStatistics] 数据概览统计完成: userTotal={}, orderTotal={}, totalSales={}",

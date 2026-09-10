@@ -14,6 +14,7 @@ import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Review;
 import com.lichun.agsell.model.entity.SysUser;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.ReviewMyVO;
 import com.lichun.agsell.model.vo.ReviewVO;
 import com.lichun.agsell.service.ReviewService;
@@ -54,7 +55,7 @@ public class ReviewServiceImpl implements ReviewService {
         ThrowUtils.throwIf(order == null, ErrorCode.NOT_FOUND_ERROR, "订单不存在");
 
         // 校验订单状态为已完成
-        ThrowUtils.throwIf(order.getStatus() != 3,
+        ThrowUtils.throwIf(order.getStatus() != OrderStatusEnum.COMPLETED.getCode(),
                 ErrorCode.OPERATION_ERROR, "只有已完成的订单才能评价");
 
         // 定位订单明细：优先按 orderItemId，兼容旧调用（订单仅一条明细时允许不传）

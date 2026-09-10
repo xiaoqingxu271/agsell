@@ -13,6 +13,7 @@ import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.ProductSpec;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.service.PaymentService;
 import com.lichun.agsell.utils.ThrowUtils;
 import lombok.RequiredArgsConstructor;
@@ -22,22 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
-
-    private static final Map<Integer, String> STATUS_TEXT_MAP = Map.of(
-            0, "待付款",
-            1, "已支付",
-            2, "待收货",
-            3, "已完成",
-            4, "已取消",
-            5, "售后处理中",
-            6, "已退款"
-    );
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
@@ -54,7 +44,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .eq(Order::getOrderNo, orderNo)
                 .eq(Order::getUserId, userId));
         ThrowUtils.throwIf(order == null, ErrorCode.NOT_FOUND_ERROR, "订单不存在");
-        ThrowUtils.throwIf(order.getStatus() != 0,
+        ThrowUtils.throwIf(order.getStatus() != OrderStatusEnum.PENDING_PAYMENT.getCode(),
                 ErrorCode.ORDER_STATUS_ERROR, "订单状态异常，无法支付");
 
         // 1. 扣减库存（乐观锁：stock >= quantity 才允许扣减，防止超卖）
@@ -87,7 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
         // 2. 更新订单状态为已支付（待发货）
         Order update = new Order();
         update.setId(order.getId());
-        update.setStatus(1); // 待发货
+        update.setStatus(OrderStatusEnum.PENDING_SHIPMENT.getCode()); // 待发货
         update.setPayType(1); // 模拟支付
         update.setPayTime(LocalDateTime.now());
         orderMapper.updateById(update);
@@ -106,7 +96,7 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentStatusVO vo = new PaymentStatusVO();
         vo.setOrderNo(order.getOrderNo());
         vo.setStatus(order.getStatus());
-        vo.setStatusText(STATUS_TEXT_MAP.getOrDefault(order.getStatus(), "未知"));
+        vo.setStatusText(OrderStatusEnum.textOf(order.getStatus()));
         vo.setPayTime(order.getPayTime());
         return vo;
     }

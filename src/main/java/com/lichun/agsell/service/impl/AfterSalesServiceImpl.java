@@ -11,6 +11,7 @@ import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.model.dto.AfterSalesCreateRequest;
 import com.lichun.agsell.model.entity.AfterSales;
 import com.lichun.agsell.model.entity.Order;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.AfterSalesDetailVO;
 import com.lichun.agsell.model.vo.AfterSalesListItemVO;
 import com.lichun.agsell.service.AfterSalesService;
@@ -43,7 +44,9 @@ public class AfterSalesServiceImpl implements AfterSalesService {
     private static final int STATUS_CANCELLED = 3;
 
     /** 可申请售后的订单状态：待收货 / 已完成 */
-    private static final List<Integer> APPLICABLE_ORDER_STATUS = List.of(2, 3);
+    private static final List<Integer> APPLICABLE_ORDER_STATUS = List.of(
+            OrderStatusEnum.PENDING_RECEIPT.getCode(),
+            OrderStatusEnum.COMPLETED.getCode());
 
     private static final Map<Integer, String> TYPE_TEXT_MAP = Map.of(
             1, "仅退款",
@@ -62,11 +65,6 @@ public class AfterSalesServiceImpl implements AfterSalesService {
             1, "已同意",
             2, "已拒绝",
             3, "已撤销"
-    );
-
-    private static final Map<Integer, String> ORDER_STATUS_TEXT_MAP = Map.of(
-            2, "待收货",
-            3, "已完成"
     );
 
     private final AfterSalesMapper afterSalesMapper;
@@ -133,7 +131,7 @@ public class AfterSalesServiceImpl implements AfterSalesService {
         // 5. 订单进入售后中
         Order update = new Order();
         update.setId(order.getId());
-        update.setStatus(5); // 售后中
+        update.setStatus(OrderStatusEnum.AFTER_SALES.getCode()); // 售后中
         orderMapper.updateById(update);
 
         return convertToDetailVO(afterSales);
@@ -199,7 +197,7 @@ public class AfterSalesServiceImpl implements AfterSalesService {
         // 2. 订单恢复申请前状态（防止状态已被其他流程修改，按 status=5 条件更新）
         orderMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<Order>()
                 .eq("id", afterSales.getOrderId())
-                .eq("status", 5)
+                .eq("status", OrderStatusEnum.AFTER_SALES.getCode())
                 .set("status", afterSales.getOriginalStatus()));
         log.info("[AfterSales] 用户 {} 撤销售后申请, 售后单号: {}, 订单恢复状态: {}",
                 userId, afterSalesNo, afterSales.getOriginalStatus());
@@ -239,7 +237,7 @@ public class AfterSalesServiceImpl implements AfterSalesService {
         vo.setAfterSalesNo(afterSales.getAfterSalesNo());
         vo.setOrderNo(afterSales.getOrderNo());
         vo.setOriginalStatus(afterSales.getOriginalStatus());
-        vo.setOriginalStatusText(ORDER_STATUS_TEXT_MAP.getOrDefault(afterSales.getOriginalStatus(), "未知"));
+        vo.setOriginalStatusText(OrderStatusEnum.textOf(afterSales.getOriginalStatus()));
         vo.setType(afterSales.getType());
         vo.setTypeText(TYPE_TEXT_MAP.getOrDefault(afterSales.getType(), "未知"));
         vo.setReasonType(afterSales.getReasonType());

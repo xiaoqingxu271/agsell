@@ -69,12 +69,9 @@ class AdminStatisticsServiceImplTest {
         when(orderMapper.selectCount(null)).thenReturn(200L);
         when(orderMapper.selectCount(any(Wrapper.class))).thenReturn(150L, 10L);
 
-        // 销售总额：已支付订单 payAmount 合计 19.90 + 30.00 = 49.90
-        Order paid1 = new Order();
-        paid1.setPayAmount(new BigDecimal("19.90"));
-        Order paid2 = new Order();
-        paid2.setPayAmount(new BigDecimal("30.00"));
-        when(orderMapper.selectList(any(Wrapper.class))).thenReturn(List.of(paid1, paid2));
+        // 销售总额：SQL 聚合返回合计 19.90 + 30.00 = 49.90
+        when(orderMapper.selectMaps(any(Wrapper.class)))
+                .thenReturn(List.of(Map.of("total", new BigDecimal("49.90"))));
 
         AdminStatisticsVO vo = statisticsService.getOverview();
 
@@ -99,7 +96,8 @@ class AdminStatisticsServiceImplTest {
         when(productMapper.selectCount(any(Wrapper.class))).thenReturn(0L);
         when(orderMapper.selectCount(null)).thenReturn(0L);
         when(orderMapper.selectCount(any(Wrapper.class))).thenReturn(0L, 0L);
-        when(orderMapper.selectList(any(Wrapper.class))).thenReturn(List.of());
+        // 销售总额：无已支付订单，聚合返回空（实现按 0 处理）
+        when(orderMapper.selectMaps(any(Wrapper.class))).thenReturn(List.of());
 
         AdminStatisticsVO vo = statisticsService.getOverview();
 

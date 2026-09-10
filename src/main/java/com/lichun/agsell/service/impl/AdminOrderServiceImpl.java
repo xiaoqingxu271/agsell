@@ -11,6 +11,7 @@ import com.lichun.agsell.model.dto.OrderShipRequest;
 import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.SysUser;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.AdminOrderDetailVO;
 import com.lichun.agsell.model.vo.AdminOrderListItemVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
@@ -30,16 +31,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminOrderServiceImpl implements AdminOrderService {
-
-    private static final Map<Integer, String> STATUS_TEXT_MAP = Map.of(
-            0, "待付款",
-            1, "待发货",
-            2, "待收货",
-            3, "已完成",
-            4, "已取消",
-            5, "售后处理中",
-            6, "已退款"
-    );
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
@@ -105,7 +96,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
             vo.setTotalAmount(order.getTotalAmount());
             vo.setPayAmount(order.getPayAmount());
             vo.setStatus(order.getStatus());
-            vo.setStatusText(STATUS_TEXT_MAP.getOrDefault(order.getStatus(), "未知"));
+            vo.setStatusText(OrderStatusEnum.textOf(order.getStatus()));
             vo.setReceiver(order.getReceiver());
             vo.setPhone(order.getPhone());
             vo.setCreateTime(order.getCreateTime());
@@ -139,7 +130,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         vo.setFreight(order.getFreight());
         vo.setDiscount(order.getDiscount());
         vo.setStatus(order.getStatus());
-        vo.setStatusText(STATUS_TEXT_MAP.getOrDefault(order.getStatus(), "未知"));
+        vo.setStatusText(OrderStatusEnum.textOf(order.getStatus()));
         vo.setReceiver(order.getReceiver());
         vo.setPhone(order.getPhone());
         vo.setAddress(order.getAddress());
@@ -192,12 +183,12 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         Order order = orderMapper.selectOne(new LambdaQueryWrapper<Order>()
                 .eq(Order::getOrderNo, orderNo));
         ThrowUtils.throwIf(order == null, ErrorCode.NOT_FOUND_ERROR, "订单不存在");
-        ThrowUtils.throwIf(order.getStatus() != 1,
+        ThrowUtils.throwIf(order.getStatus() != OrderStatusEnum.PENDING_SHIPMENT.getCode(),
                 ErrorCode.ORDER_STATUS_ERROR, "只有待发货订单可以发货");
 
         Order update = new Order();
         update.setId(order.getId());
-        update.setStatus(2); // 待收货
+        update.setStatus(OrderStatusEnum.PENDING_RECEIPT.getCode()); // 待收货
         update.setLogType(request.getLogType());
         update.setLogNo(request.getLogNo());
         update.setDeliveryTime(java.time.LocalDateTime.now());
