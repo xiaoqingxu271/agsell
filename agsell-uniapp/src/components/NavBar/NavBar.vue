@@ -2,7 +2,7 @@
   <view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
     <view class="nav-content" :style="{ height: navBarHeight + 'px' }">
       <view v-if="showBack" class="nav-back" aria-label="返回" @click="$emit('back')">
-        <image class="back-icon" src="/static/icon-back.png" mode="aspectFit" alt="返回" />
+        <view class="nav-back-arrow"></view>
       </view>
       <text class="nav-title">{{ title }}</text>
       <view class="nav-right"><slot name="right" /></view>
@@ -32,7 +32,7 @@ onMounted(() => {
 <style scoped>
 .nav-bar {
   width: 100%;
-  background: linear-gradient(180deg, #15803D 0%, #14532D 100%);
+  background: #F0FDF4;
 }
 .nav-content {
   position: relative;
@@ -49,9 +49,12 @@ onMounted(() => {
   margin-left: -12rpx;
   flex-shrink: 0;
 }
-.back-icon {
-  width: 40rpx;
-  height: 40rpx;
+.nav-back-arrow {
+  width: 22rpx;
+  height: 22rpx;
+  border-left: 5rpx solid #14532D;
+  border-bottom: 5rpx solid #14532D;
+  transform: rotate(45deg);
 }
 .nav-title {
   position: absolute;
@@ -59,7 +62,7 @@ onMounted(() => {
   right: 0;
   text-align: center;
   font-size: 34rpx;
-  color: #FFFFFF;
+  color: #14532D;
   font-weight: 600;
   letter-spacing: 1rpx;
   pointer-events: none;

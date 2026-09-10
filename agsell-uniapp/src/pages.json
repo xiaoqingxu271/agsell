@@ -7,6 +7,7 @@
     { "path": "pages/order/list/list", "type": "page" },
     { "path": "pages/order/detail/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/order/confirm/confirm", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/order/pay/pay", "type": "page" },
     { "path": "pages/order/pay-success/pay-success", "type": "page" },
     { "path": "pages/review/write/write", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/review/list/list", "type": "page", "style": { "navigationStyle": "custom" } },
@@ -19,7 +20,7 @@
   "globalStyle": {
     "navigationBarBackgroundColor": "#15803D",
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "agsell 农产品",
+    "navigationBarTitleText": "农产品商城",
     "backgroundColor": "#F4F6F5",
     "backgroundTextStyle": "dark"
   },

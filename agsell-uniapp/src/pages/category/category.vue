@@ -67,6 +67,7 @@
                   class="product-img"
                   :src="product.mainImage || '/static/default-product.png'"
                   mode="aspectFill"
+                  lazy-load
                   :alt="product.name"
                 />
               </view>
@@ -391,8 +392,6 @@ function onReachBottom() {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-
-.product-price::before { content: '¥'; font-size: 22rpx; }
 
 .product-original {
   color: #9CA3AF;

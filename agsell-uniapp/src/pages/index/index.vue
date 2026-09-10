@@ -15,6 +15,7 @@
           class="banner-image"
           :src="banner.image"
           mode="aspectFill"
+          lazy-load
           @click="onBannerTap(banner)"
           :show-menu-by-longpress="false"
           :alt="banner.title || '轮播图'"
@@ -36,7 +37,7 @@
         :aria-label="cat.name"
       >
         <view class="category-icon-wrap">
-          <image v-if="cat.icon" class="category-icon" :src="cat.icon" mode="aspectFill" :alt="cat.name" />
+          <image v-if="cat.icon" class="category-icon" :src="cat.icon" mode="aspectFill" lazy-load :alt="cat.name" />
           <text v-else class="category-icon-default">{{ cat.name[0] }}</text>
         </view>
         <text class="category-name">{{ cat.name }}</text>
@@ -158,7 +159,7 @@ function onSearchTap() {
 }
 
 .search-bar {
-  background: linear-gradient(160deg, #15803D 0%, #166534 100%);
+  background: #F0FDF4;
   padding: 20rpx 24rpx 32rpx;
 }
 
@@ -170,7 +171,7 @@ function onSearchTap() {
   height: 76rpx;
   padding: 0 24rpx;
   min-width: 88rpx;
-  box-shadow: 0 4rpx 16rpx rgba(21, 128, 61, 0.28);
+  box-shadow: 0 4rpx 16rpx rgba(21, 128, 61, 0.10);
 }
 
 .search-icon {
@@ -205,17 +206,18 @@ function onSearchTap() {
   height: 360rpx;
   width: calc(100% - 48rpx);
   margin: -16rpx 24rpx 0;
-  background: linear-gradient(135deg, #15803D 0%, #14532D 100%);
+  background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.12);
+  border: 1rpx solid #DCFCE7;
+  box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.06);
 }
 
 .placeholder-text {
   font-size: 32rpx;
-  color: #FFFFFF;
+  color: #166534;
   font-weight: 600;
   letter-spacing: 4rpx;
 }

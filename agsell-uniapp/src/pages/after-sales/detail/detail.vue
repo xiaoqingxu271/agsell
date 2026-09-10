@@ -5,9 +5,18 @@
     <scroll-view scroll-y class="content">
       <!-- 状态区 -->
       <view class="status-section">
-        <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path :d="statusIconPath"></path>
-        </svg>
+        <view v-if="detail?.status === 0" class="as-status">
+          <view class="as-clock"><view class="as-clock-hand"></view></view>
+        </view>
+        <view v-else-if="detail?.status === 1" class="as-status">
+          <view class="as-check"></view>
+        </view>
+        <view v-else-if="detail?.status === 2" class="as-status">
+          <view class="as-cross"><view class="as-cross-h"></view><view class="as-cross-v"></view></view>
+        </view>
+        <view v-else class="as-status">
+          <view class="as-back"></view>
+        </view>
         <text class="status-text">{{ detail?.statusText }}</text>
         <text class="status-hint">{{ statusHint }}</text>
       </view>
@@ -60,6 +69,7 @@
             class="image-item"
             :src="img"
             mode="aspectFill"
+            lazy-load
             :alt="'凭证' + (idx + 1)"
             @click="previewImage(img)"
           />
@@ -103,24 +113,6 @@ async function loadDetail(afterSalesNo) {
     detail.value = res.data
   }
 }
-
-const statusIconPath = computed(() => {
-  const status = detail.value?.status
-  if (status === 0) {
-    // 待处理：时钟
-    return 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2'
-  }
-  if (status === 1) {
-    // 已同意：对勾
-    return 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3'
-  }
-  if (status === 2) {
-    // 已拒绝：叉
-    return 'M18 6 6 18M6 6l12 12'
-  }
-  // 已撤销：回退箭头
-  return 'M1 4v6h6M3.51 15a9 9 0 1 0 2.13-9.36L1 10'
-})
 
 const statusHint = computed(() => {
   const status = detail.value?.status
@@ -183,35 +175,109 @@ function onCancelApply() {
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
-/* 状态区：品牌绿渐变（signature，同订单详情） */
+/* 状态区：浅绿底（同订单详情，浅色降重） */
 .status-section {
   text-align: center;
   margin: 24rpx 24rpx 8rpx;
   padding: 56rpx 24rpx;
   border-radius: 28rpx;
-  background: linear-gradient(135deg, #15803D 0%, #14532D 100%);
-  box-shadow: 0 12rpx 32rpx rgba(21, 128, 61, 0.25);
+  background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+  border: 1rpx solid #DCFCE7;
+  box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.06);
 }
 
-.status-icon {
+.as-status {
+  position: relative;
   width: 80rpx;
   height: 80rpx;
-  color: #FFFFFF;
-  display: block;
   margin: 0 auto 16rpx;
+}
+
+/* 待处理：时钟 */
+.as-clock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 56rpx;
+  height: 56rpx;
+  border: 6rpx solid #15803D;
+  border-radius: 50%;
+}
+
+.as-clock-hand {
+  position: absolute;
+  left: 50%;
+  top: 14rpx;
+  width: 4rpx;
+  height: 15rpx;
+  background: #15803D;
+  border-radius: 2rpx;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(-60deg);
+}
+
+/* 已同意：对勾 */
+.as-check {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  width: 40rpx;
+  height: 20rpx;
+  border-left: 6rpx solid #15803D;
+  border-bottom: 6rpx solid #15803D;
+  border-radius: 2rpx;
+}
+
+/* 已拒绝：叉 */
+.as-cross {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.as-cross-h,
+.as-cross-v {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48rpx;
+  height: 6rpx;
+  background: #15803D;
+  border-radius: 3rpx;
+}
+
+.as-cross-h { transform: translate(-50%, -50%) rotate(45deg); }
+.as-cross-v { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* 已撤销：回退箭头 */
+.as-back {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 34rpx;
+  height: 34rpx;
+  border-left: 6rpx solid #15803D;
+  border-bottom: 6rpx solid #15803D;
+  border-radius: 2rpx;
 }
 
 .status-text {
   font-size: 36rpx;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #14532D;
   display: block;
   margin-bottom: 8rpx;
 }
 
 .status-hint {
   font-size: 26rpx;
-  color: #FFFFFF;
+  color: #4B5563;
 }
 
 .info-row {

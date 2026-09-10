@@ -6,10 +6,10 @@
       <!-- 商品图片轮播 -->
       <swiper class="product-swiper" indicator-dots autoplay circular interval="3000">
         <swiper-item v-for="(img, i) in images" :key="i">
-          <image :src="img" mode="aspectFill" class="swiper-image" :alt="product.name || '商品图片'" @click="onPreviewImage(img)" />
+          <image :src="img" mode="aspectFill" lazy-load class="swiper-image" :alt="product.name || '商品图片'" @click="onPreviewImage(img)" />
         </swiper-item>
         <swiper-item v-if="images.length === 0">
-          <image :src="product.mainImage || '/static/default-product.png'" mode="aspectFill" class="swiper-image" :alt="product.name || '商品图片'" @click="onPreviewImage(product.mainImage)" />
+          <image :src="product.mainImage || '/static/default-product.png'" mode="aspectFill" lazy-load class="swiper-image" :alt="product.name || '商品图片'" @click="onPreviewImage(product.mainImage)" />
         </swiper-item>
       </swiper>
 
@@ -81,7 +81,7 @@
         <view v-if="reviews.length > 0" class="review-list">
           <view v-for="r in reviews.slice(0, 2)" :key="r.id" class="review-card-item">
             <view class="review-user-row">
-              <image class="review-avatar" :src="r.userAvatar || '/static/default-avatar.png'" mode="aspectFill" />
+              <image class="review-avatar" :src="r.userAvatar || '/static/default-avatar.png'" mode="aspectFill" lazy-load />
               <view class="review-user-col">
                 <text class="review-username">{{ r.userName || '匿名用户' }}</text>
                 <StarRating :rating="r.rating || 5" :readonly="true" size="24rpx" />
@@ -91,9 +91,7 @@
             <view class="review-card-footer">
               <text class="review-date-text">{{ formatDate(r.createTime) }}</text>
               <view class="review-like-btn">
-                <svg class="like-thumb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                </svg>
+                <view class="like-thumb"></view>
                 <text class="like-num">{{ r.likeCount || 0 }}</text>
               </view>
             </view>
@@ -297,8 +295,6 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-
-.price::before { content: '¥'; font-size: 28rpx; }
 
 .original-price {
   font-size: 28rpx;
@@ -535,11 +531,26 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 }
 
 .like-thumb {
-  width: 28rpx;
-  height: 28rpx;
-  color: #6B7280;
-  line-height: 1;
+  position: relative;
+  width: 18rpx;
+  height: 18rpx;
+  transform: rotate(45deg);
+  background: #6B7280;
+  flex-shrink: 0;
 }
+
+.like-thumb::before,
+.like-thumb::after {
+  content: '';
+  position: absolute;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #6B7280;
+}
+
+.like-thumb::before { left: -9rpx; }
+.like-thumb::after { top: -9rpx; }
 
 .like-num {
   font-size: 22rpx;

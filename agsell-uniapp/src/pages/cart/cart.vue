@@ -1,11 +1,12 @@
 <template>
   <view class="cart-page">
     <view v-if="cartItems.length === 0" class="empty-cart">
-      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="9" cy="21" r="1"></circle>
-        <circle cx="20" cy="21" r="1"></circle>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-      </svg>
+      <view class="cart-empty">
+        <view class="ce-handle"></view>
+        <view class="ce-basket"></view>
+        <view class="ce-wheel wl"></view>
+        <view class="ce-wheel wr"></view>
+      </view>
       <text class="empty-text">购物车是空的</text>
       <button class="go-shop-btn" @click="goToShop">去逛逛</button>
     </view>
@@ -23,6 +24,7 @@
             class="item-image"
             :src="item.productImage || '/static/default-product.png'"
             mode="aspectFill"
+            lazy-load
             @click="onProductTap(item.productId)"
             :alt="item.productName"
           />
@@ -30,22 +32,32 @@
             <text class="item-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="item-spec">{{ item.specName }}</text>
             <view class="item-bottom">
-              <text v-if="item.valid === 0" class="item-invalid">{{ item.invalidReason || '商品已失效' }}</text>
+              <template v-if="item.valid === 0">
+                <text class="item-invalid">{{ item.invalidReason || '商品已失效' }}</text>
+                <view class="item-delete" @click="onDelete(item)" role="button" aria-label="删除商品">
+                  <view class="trash-icon">
+                    <view class="trash-lid"></view>
+                    <view class="trash-body"></view>
+                  </view>
+                </view>
+              </template>
               <template v-else>
                 <text class="item-price">¥{{ item.price }}</text>
-                <view class="qty-control">
-                  <view class="qty-btn" @click="onMinus(item)" role="button" aria-label="减少数量">-</view>
-                  <text class="qty-value">{{ item.quantity }}</text>
-                  <view class="qty-btn" @click="onPlus(item)" role="button" aria-label="增加数量">+</view>
+                <view class="item-bottom-right">
+                  <view class="qty-control">
+                    <view class="qty-btn" @click="onMinus(item)" role="button" aria-label="减少数量">-</view>
+                    <text class="qty-value">{{ item.quantity }}</text>
+                    <view class="qty-btn" @click="onPlus(item)" role="button" aria-label="增加数量">+</view>
+                  </view>
+                  <view class="item-delete" @click="onDelete(item)" role="button" aria-label="删除商品">
+                    <view class="trash-icon">
+                      <view class="trash-lid"></view>
+                      <view class="trash-body"></view>
+                    </view>
+                  </view>
                 </view>
               </template>
             </view>
-          </view>
-          <view class="item-delete" @click="onDelete(item)" role="button" aria-label="删除商品">
-            <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
           </view>
         </view>
       </view>
@@ -196,12 +208,60 @@ function goToShop() {
   padding-top: 200rpx;
 }
 
-.empty-icon {
+.cart-empty {
+  position: relative;
   width: 120rpx;
   height: 120rpx;
-  color: #C7CECB;
   margin-bottom: 24rpx;
 }
+
+.ce-basket {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  transform: translate(-50%, -50%);
+  width: 76rpx;
+  height: 46rpx;
+  border: 6rpx solid #C7CECB;
+  border-top: none;
+  border-radius: 0 0 10rpx 10rpx;
+}
+
+.ce-basket::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -16rpx;
+  transform: translateX(-50%);
+  width: 88rpx;
+  border-top: 6rpx solid #C7CECB;
+  border-radius: 6rpx;
+}
+
+.ce-handle {
+  position: absolute;
+  left: 50%;
+  top: 16%;
+  transform: translateX(-50%);
+  width: 30rpx;
+  height: 30rpx;
+  border: 6rpx solid #C7CECB;
+  border-bottom: none;
+  border-radius: 18rpx 18rpx 0 0;
+}
+
+.ce-wheel {
+  position: absolute;
+  top: 66%;
+  width: 10rpx;
+  height: 10rpx;
+  border: 5rpx solid #C7CECB;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+
+.ce-wheel.wl { left: 16%; }
+.ce-wheel.wr { right: 16%; }
 
 .empty-text {
   font-size: 32rpx;
@@ -315,14 +375,18 @@ function goToShop() {
   margin-top: 16rpx;
 }
 
+.item-bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
 .item-price {
   font-size: 32rpx;
   color: #A16207;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-
-.item-price::before { content: '¥'; font-size: 22rpx; }
 
 .qty-control {
   display: flex;
@@ -353,19 +417,51 @@ function goToShop() {
 }
 
 .item-delete {
-  width: 64rpx;
-  height: 64rpx;
+  width: 56rpx;
+  height: 56rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 16rpx;
   flex-shrink: 0;
 }
 
-.delete-icon {
+.trash-icon {
+  position: relative;
   width: 36rpx;
   height: 36rpx;
-  color: #9CA3AF;
+}
+
+.trash-lid {
+  position: absolute;
+  left: 50%;
+  top: 9rpx;
+  transform: translateX(-50%);
+  width: 28rpx;
+  border-top: 4rpx solid #9CA3AF;
+  border-radius: 2rpx;
+}
+
+.trash-lid::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -8rpx;
+  transform: translateX(-50%);
+  width: 12rpx;
+  border-top: 4rpx solid #9CA3AF;
+  border-radius: 2rpx;
+}
+
+.trash-body {
+  position: absolute;
+  left: 50%;
+  top: 15rpx;
+  transform: translateX(-50%);
+  width: 22rpx;
+  height: 18rpx;
+  border: 4rpx solid #9CA3AF;
+  border-top: none;
+  border-radius: 0 0 4rpx 4rpx;
 }
 
 .bottom-bar {
@@ -375,12 +471,12 @@ function goToShop() {
   right: 0;
   display: flex;
   align-items: center;
-  min-height: 100rpx;
-  padding: 16rpx 24rpx;
-  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  height: 110rpx;
+  padding: 0 24rpx;
   background: #FFFFFF;
   border-top: 1rpx solid #E3E7E5;
-  z-index: 100;
+  box-sizing: border-box;
+  z-index: 999;
 }
 
 .select-all {
@@ -420,7 +516,8 @@ function goToShop() {
 
 .total-info {
   flex: 1;
-  text-align: right;
+  text-align: center;
+  padding-right: 24rpx;
 }
 
 .total-label {
@@ -429,13 +526,11 @@ function goToShop() {
 }
 
 .total-price {
-  font-size: 40rpx;
+  font-size: 32rpx;
   color: #A16207;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-
-.total-price::before { content: '¥'; font-size: 24rpx; }
 
 .checkout-btn {
   background: #15803D;

@@ -22,10 +22,12 @@ import com.lichun.agsell.service.OrderService;
 import com.lichun.agsell.utils.ThrowUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,10 @@ public class OrderServiceImpl implements OrderService {
     private final ProductSpecMapper productSpecMapper;
     private final SysUserAddressMapper addressMapper;
     private final SysUserMapper userMapper;
+
+    /** 待付款订单超时分钟数（与 OrderTimeoutScheduler 共用配置 order.timeout-minutes） */
+    @Value("${order.timeout-minutes:30}")
+    private int timeoutMinutes;
 
     @Override
     @Transactional
@@ -198,6 +204,7 @@ public class OrderServiceImpl implements OrderService {
         vo.setTotalAmount(totalAmount);
         vo.setStatus(0);
         vo.setCreateTime(order.getCreateTime());
+        vo.setExpireSeconds(computeExpireSeconds(order.getCreateTime()));
         return vo;
     }
 
@@ -264,6 +271,7 @@ public class OrderServiceImpl implements OrderService {
         vo.setLogType(order.getLogType());
         vo.setLogNo(order.getLogNo());
         vo.setCancelReason(order.getCancelReason());
+        vo.setExpireSeconds(computeExpireSeconds(order.getCreateTime()));
 
         // 查询订单明细
         List<OrderItem> items = orderItemMapper.selectList(
@@ -341,23 +349,30 @@ public class OrderServiceImpl implements OrderService {
         ThrowUtils.throwIf(expireMinutes <= 0, ErrorCode.PARAMS_ERROR, "超时时长必须大于0");
         LocalDateTime deadline = LocalDateTime.now().minusMinutes(expireMinutes);
 
-        List<Order> expired = orderMapper.selectList(new LambdaQueryWrapper<Order>()
-                .eq(Order::getStatus, 0) // 仅待付款
+        // 单条原子 UPDATE + 状态守卫：仅 status=0（待付款）的订单会被置为已取消，
+        // 避免与支付流程竞态（扫描与更新之间用户完成支付，导致误取消已支付订单）。
+        // 命中行数即实际取消笔数；MyBatis-Plus 会自动追加逻辑删除条件 deleted=0。
+        return orderMapper.update(null, new LambdaUpdateWrapper<Order>()
+                .set(Order::getStatus, 4) // 已取消
+                .set(Order::getCancelReason, "订单超时未支付，系统自动取消")
+                .setSql("update_time = NOW()")
+                .eq(Order::getStatus, 0) // 仅待付款（状态守卫）
                 .lt(Order::getCreateTime, deadline));
-        if (expired.isEmpty()) {
-            return 0;
-        }
-        for (Order order : expired) {
-            Order update = new Order();
-            update.setId(order.getId());
-            update.setStatus(4); // 已取消
-            update.setCancelReason("订单超时未支付，系统自动取消");
-            orderMapper.updateById(update);
-        }
-        return expired.size();
     }
 
     // ==================== 私有方法 ====================
+
+    /**
+     * 计算待付款订单的剩余支付秒数（服务端单一事实来源，供前端倒计时展示）。
+     * 创建时间缺失或已超时返回 0。
+     */
+    private Long computeExpireSeconds(LocalDateTime createTime) {
+        if (createTime == null) {
+            return 0L;
+        }
+        long seconds = Duration.between(LocalDateTime.now(), createTime.plusMinutes(timeoutMinutes)).getSeconds();
+        return Math.max(0L, seconds);
+    }
 
     /**
      * 生成订单号：AGS + 雪花ID（全局唯一、并发安全），长度 22 位，满足 order_no VARCHAR(32)

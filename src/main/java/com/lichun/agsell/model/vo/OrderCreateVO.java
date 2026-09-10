@@ -30,4 +30,7 @@ public class OrderCreateVO implements Serializable {
 
     /** 创建时间 */
     private LocalDateTime createTime;
+
+    /** 剩余支付秒数（前端待支付页倒计时用；已超时返回 0） */
+    private Long expireSeconds;
 }

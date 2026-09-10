@@ -1,6 +1,8 @@
 package com.lichun.agsell.service.impl;
 
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.lichun.agsell.common.BaseContext;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
@@ -19,6 +21,7 @@ import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.ProductSpec;
 import com.lichun.agsell.model.entity.SysUserAddress;
 import com.lichun.agsell.model.vo.OrderCreateVO;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -67,6 +71,9 @@ class OrderServiceImplTest {
     @BeforeEach
     void setUp() {
         BaseContext.setCurrentId(USER_ID);
+        // MyBatis-Plus 的 LambdaUpdateWrapper.set() 会立即解析列名，依赖 TableInfo 元数据缓存；
+        // 纯 Mockito 单测没有 Spring 启动流程，需手动注册，否则抛 "can not find lambda cache"。
+        TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new MybatisConfiguration(), ""), Order.class);
     }
 
     @AfterEach
@@ -282,9 +289,28 @@ class OrderServiceImplTest {
         assertNotNull(vo.getOrderNo());
     }
 
-    // ==================== A2：库存口径 ====================
-
     @Test
+    @DisplayName("创建订单：返回服务端计算的剩余支付秒数（供待支付页倒计时）")
+    void createOrder_returnsExpireSeconds() {
+        ReflectionTestUtils.setField(orderService, "timeoutMinutes", 30);
+        when(addressMapper.selectById(100L)).thenReturn(mockAddress(USER_ID));
+        when(productMapper.selectById(1L)).thenReturn(mockProduct(1L, "赣南脐橙", new BigDecimal("100.00"), 50));
+        when(productSpecMapper.selectById(2L)).thenReturn(mockSpec(2L, 1L, "5斤装", new BigDecimal("88.00"), 30));
+        when(orderMapper.insert(any(Order.class))).thenAnswer(inv -> {
+            Order o = inv.getArgument(0, Order.class);
+            o.setCreateTime(LocalDateTime.now().minusMinutes(5));
+            return 1;
+        });
+
+        OrderCreateVO vo = orderService.createOrder(buyNowRequest(1L, 2L, 2));
+
+        // 30 分钟阈值，创建已过 5 分钟 → 剩余应在 24~26 分钟区间
+        assertNotNull(vo.getExpireSeconds());
+        assertTrue(vo.getExpireSeconds() > 24 * 60 && vo.getExpireSeconds() < 26 * 60,
+                "expireSeconds 应在 24~26 分钟区间，实际：" + vo.getExpireSeconds());
+    }
+
+    // ==================== A2：库存口径 ====================    @Test
     @DisplayName("取消待付款订单：不操作库存（库存仅在支付成功时扣减）")
     void cancelOrder_pending_doesNotTouchStock() {
         Order order = new Order();
@@ -341,32 +367,33 @@ class OrderServiceImplTest {
     // ==================== A4：超时自动取消 ====================
 
     @Test
-    @DisplayName("超时自动取消：取消超过阈值的待付款订单")
+    @DisplayName("超时自动取消：单条原子 SQL 取消超时待付款订单（含状态守卫）")
     void cancelExpiredOrders_cancelsExpiredOrders() {
-        Order expired = new Order();
-        expired.setId(1L);
-        expired.setOrderNo("AGS111");
-        expired.setStatus(0);
-        expired.setCreateTime(LocalDateTime.now().minusHours(2));
-        when(orderMapper.selectList(any())).thenReturn(List.of(expired));
+        when(orderMapper.update(isNull(), any())).thenReturn(1);
 
         int count = orderService.cancelExpiredOrders(30);
 
         assertEquals(1, count);
-        ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-        verify(orderMapper).updateById((Order) captor.capture());
-        assertEquals(4, captor.getValue().getStatus());
-        assertNotNull(captor.getValue().getCancelReason());
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Wrapper<Order>> captor = ArgumentCaptor.forClass(Wrapper.class);
+        verify(orderMapper).update(isNull(), captor.capture());
+        String setSql = captor.getValue().getSqlSet();
+        String whereSql = captor.getValue().getSqlSegment();
+        // SET 部分：置为已取消并记录取消原因
+        assertTrue(setSql.contains("status"), "SET 应包含 status，实际：" + setSql);
+        assertTrue(setSql.contains("cancel_reason"), "SET 应包含 cancel_reason，实际：" + setSql);
+        // WHERE 部分：状态守卫（仅 status=0）且限定超时阈值
+        assertTrue(whereSql.contains("status ="), "WHERE 应包含 status 守卫，实际：" + whereSql);
+        assertTrue(whereSql.contains("create_time <"), "WHERE 应限定超时阈值，实际：" + whereSql);
     }
 
     @Test
     @DisplayName("超时自动取消：无超时订单时返回 0")
     void cancelExpiredOrders_noExpired_returnsZero() {
-        when(orderMapper.selectList(any())).thenReturn(List.of());
+        when(orderMapper.update(isNull(), any())).thenReturn(0);
 
         int count = orderService.cancelExpiredOrders(30);
 
         assertEquals(0, count);
-        verify(orderMapper, never()).updateById(any(Order.class));
     }
 }

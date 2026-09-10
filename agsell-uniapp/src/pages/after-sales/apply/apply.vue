@@ -78,10 +78,10 @@
             <view class="image-remove" @click="removeImage(idx)" role="button" aria-label="删除图片">×</view>
           </view>
           <view v-if="images.length < 3" class="image-add" @click="chooseImage" role="button">
-            <svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            <view class="add-icon">
+              <view class="add-h"></view>
+              <view class="add-v"></view>
+            </view>
             <text class="add-text">添加图片</text>
           </view>
         </view>
@@ -370,9 +370,30 @@ async function onSubmit() {
 }
 
 .add-icon {
+  position: relative;
   width: 48rpx;
   height: 48rpx;
-  color: #6B7280;
+}
+
+.add-h,
+.add-v {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #6B7280;
+  border-radius: 2rpx;
+}
+
+.add-h {
+  width: 36rpx;
+  height: 4rpx;
+  transform: translate(-50%, -50%);
+}
+
+.add-v {
+  width: 4rpx;
+  height: 36rpx;
+  transform: translate(-50%, -50%);
 }
 
 .add-text {

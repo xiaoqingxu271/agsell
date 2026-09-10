@@ -1,0 +1,71 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: agsell-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: agsell
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: agsell-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  backend:
+    build:
+      context: .
+    container_name: agsell-backend
+    restart: unless-stopped
+    environment:
+      ACTIVE_PROFILE: prod
+      SERVER_PORT: 8080
+      SERVER_CONTEXT_PATH: /api
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      REDIS_DATABASE: 0
+      REDIS_TIMEOUT: 60s
+      JWT_EXPIRATION: 86400000
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TOKEN_HEADER: Authorization
+      JWT_TOKEN_PREFIX: Bearer
+      WECHAT_MINIAPP_APPID: ${WECHAT_MINIAPP_APPID}
+      WECHAT_MINIAPP_SECRET: ${WECHAT_MINIAPP_SECRET}
+      ALIYUN_OSS_ENDPOINT: ${ALIYUN_OSS_ENDPOINT}
+      ALIYUN_OSS_ACCESS_KEY_ID: ${ALIYUN_OSS_ACCESS_KEY_ID}
+      ALIYUN_OSS_ACCESS_KEY_SECRET: ${ALIYUN_OSS_ACCESS_KEY_SECRET}
+      ALIYUN_OSS_BUCKET_NAME: ${ALIYUN_OSS_BUCKET_NAME}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./agsell-frontend
+    container_name: agsell-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:
+  redis-data:

@@ -57,6 +57,9 @@ public class OrderDetailVO implements Serializable {
 
     private String cancelReason;
 
+    /** 剩余支付秒数（仅待付款订单有意义，供前端倒计时；已超时返回 0） */
+    private Long expireSeconds;
+
     /** 订单明细 */
     private List<OrderItemVO> items;
 

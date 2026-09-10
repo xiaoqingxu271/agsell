@@ -5,19 +5,19 @@
     <view class="content">
       <!-- 未登录时显示登录引导 -->
       <view v-if="!isLoggedInUser" class="empty-state" @click="onLogin">
-        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-          <circle cx="12" cy="10" r="3"></circle>
-        </svg>
+        <view class="pin-empty">
+          <view class="pin-body"></view>
+          <view class="pin-dot"></view>
+        </view>
         <text class="empty-text">登录后管理您的收货地址</text>
         <view class="login-hint-btn">微信一键登录</view>
       </view>
 
       <!-- 已登录但无地址 -->
       <view v-else-if="addresses.length === 0" class="empty-state">
-        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
+        <view class="msg-empty">
+          <view class="msg-box"></view>
+        </view>
         <text class="empty-text">暂无收货地址</text>
       </view>
 
@@ -63,10 +63,7 @@
         <view class="edit-header">
           <text class="edit-title">{{ editingId ? '编辑地址' : '新增地址' }}</text>
           <view class="edit-close" @click="closeEdit" role="button" aria-label="关闭">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <view class="close-x"></view>
           </view>
         </view>
         <view class="form-item">
@@ -293,11 +290,64 @@ async function onSetDefault(addr) {
   text-align: center;
 }
 
-.empty-icon {
+.pin-empty {
+  position: relative;
   width: 96rpx;
   height: 96rpx;
-  color: #C7CECB;
   margin-bottom: 24rpx;
+}
+
+.pin-body {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50% 50% 50% 0;
+  border: 6rpx solid #C7CECB;
+}
+
+.pin-dot {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #C7CECB;
+}
+
+.msg-empty {
+  position: relative;
+  width: 96rpx;
+  height: 96rpx;
+  margin-bottom: 24rpx;
+}
+
+.msg-box {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  width: 64rpx;
+  height: 46rpx;
+  border: 6rpx solid #C7CECB;
+  border-radius: 8rpx;
+}
+
+.msg-box::after {
+  content: '';
+  position: absolute;
+  left: 14rpx;
+  bottom: -16rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-right: 6rpx solid #C7CECB;
+  border-bottom: 6rpx solid #C7CECB;
+  transform: rotate(45deg);
+  background: #F4F6F5;
 }
 
 .empty-text {
@@ -488,10 +538,26 @@ async function onSetDefault(addr) {
   color: #6B7280;
 }
 
-.edit-close svg {
+.edit-close .close-x {
+  position: relative;
   width: 36rpx;
   height: 36rpx;
 }
+
+.close-x::before,
+.close-x::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30rpx;
+  height: 4rpx;
+  background: #6B7280;
+  border-radius: 2rpx;
+}
+
+.close-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+.close-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
 
 .form-item {
   margin-bottom: 24rpx;

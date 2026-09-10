@@ -20,16 +20,14 @@
           <text>请选择收货地址</text>
           <text class="add-btn-text">+ 新增地址</text>
         </view>
-        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <view class="arrow-icon"></view>
       </view>
 
       <!-- 商品清单 -->
       <view class="product-section card">
         <view class="section-title">商品清单</view>
         <view v-for="item in orderItems" :key="item.id" class="order-item">
-          <image class="item-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" :alt="item.productName" />
+          <image class="item-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" lazy-load :alt="item.productName" />
           <view class="item-info">
             <text class="item-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="item-spec">{{ item.specName }}</text>
@@ -199,7 +197,7 @@ async function onSubmit() {
   if (res.code === 0) {
     const { orderNo, payAmount } = res.data
     uni.redirectTo({
-      url: `/pages/order/pay-success/pay-success?orderNo=${orderNo}&payAmount=${payAmount}`
+      url: `/pages/order/pay/pay?orderNo=${orderNo}&payAmount=${payAmount}`
     })
   } else {
     uni.showToast({ title: res.message || '下单失败', icon: 'none' })
@@ -288,9 +286,12 @@ async function onSubmit() {
 }
 
 .arrow-icon {
-  width: 36rpx;
-  height: 36rpx;
-  color: #9CA3AF;
+  width: 18rpx;
+  height: 18rpx;
+  border-top: 4rpx solid #9CA3AF;
+  border-right: 4rpx solid #9CA3AF;
+  border-radius: 2rpx;
+  transform: rotate(45deg);
   flex-shrink: 0;
   margin-left: 16rpx;
 }
@@ -353,8 +354,6 @@ async function onSubmit() {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-
-.item-price::before { content: '¥'; font-size: 20rpx; }
 
 .item-qty {
   font-size: 24rpx;
@@ -433,8 +432,6 @@ async function onSubmit() {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-
-.pay-price::before { content: '¥'; font-size: 24rpx; }
 
 .submit-btn {
   background: #15803D;

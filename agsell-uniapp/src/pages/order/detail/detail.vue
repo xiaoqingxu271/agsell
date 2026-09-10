@@ -6,10 +6,7 @@
       <!-- 状态卡片 -->
       <view class="status-card">
         <view class="status-badge">
-          <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
+          <view class="status-check"></view>
         </view>
         <view class="status-info">
           <text class="status-text">{{ orderDetail?.statusText }}</text>
@@ -46,7 +43,7 @@
       <view class="section-card">
         <view class="card-title">商品清单</view>
         <view v-for="item in orderDetail?.items" :key="item.productId" class="goods-item">
-          <image class="goods-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" :alt="item.productName" />
+          <image class="goods-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" lazy-load :alt="item.productName" />
           <view class="goods-info">
             <text class="goods-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="goods-spec">{{ item.specName }}</text>
@@ -271,16 +268,17 @@ async function onViewAfterSales() {
   margin: 24rpx 24rpx 8rpx;
   padding: 40rpx 32rpx;
   border-radius: 28rpx;
-  background: linear-gradient(135deg, #15803D 0%, #14532D 100%);
-  box-shadow: 0 12rpx 32rpx rgba(21, 128, 61, 0.25);
+  background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+  border: 1rpx solid #DCFCE7;
+  box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.06);
 }
 
 .status-badge {
   width: 96rpx;
   height: 96rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  background: #FFFFFF;
+  border: 1rpx solid #BBF7D0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,10 +286,14 @@ async function onViewAfterSales() {
   margin-right: 28rpx;
 }
 
-.status-icon {
-  width: 52rpx;
-  height: 52rpx;
-  color: #FFFFFF;
+.status-check {
+  width: 34rpx;
+  height: 18rpx;
+  border-left: 6rpx solid #15803D;
+  border-bottom: 6rpx solid #15803D;
+  border-radius: 2rpx;
+  transform: rotate(-45deg);
+  margin-top: -4rpx;
 }
 
 .status-info {
@@ -302,14 +304,14 @@ async function onViewAfterSales() {
 .status-text {
   font-size: 38rpx;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #14532D;
   display: block;
   margin-bottom: 6rpx;
 }
 
 .status-hint {
   font-size: 26rpx;
-  color: #FFFFFF;
+  color: #4B5563;
   display: block;
 }
 

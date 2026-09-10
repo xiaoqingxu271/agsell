@@ -97,11 +97,6 @@ page {
   font-variant-numeric: tabular-nums;
 }
 
-.price::before {
-  content: '¥';
-  font-size: 24rpx;
-}
-
 /* 分割线 */
 .divider {
   height: 1rpx;

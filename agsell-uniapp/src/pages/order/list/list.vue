@@ -41,7 +41,7 @@
         </view>
 
         <view v-for="item in order.items" :key="item.productId" class="order-product">
-          <image class="product-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" :alt="item.productName" />
+          <image class="product-img" :src="item.productImage || '/static/default-product.png'" mode="aspectFill" lazy-load :alt="item.productName" />
           <view class="product-info">
             <text class="product-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="product-spec">{{ item.specName }}</text>

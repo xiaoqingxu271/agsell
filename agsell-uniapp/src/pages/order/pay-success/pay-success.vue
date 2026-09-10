@@ -2,10 +2,7 @@
   <view class="pay-success-page">
     <view class="success-content">
       <view class="success-icon-wrap">
-        <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
+        <view class="checkmark"></view>
       </view>
       <text class="success-title">支付成功</text>
       <text class="success-amount">¥{{ payAmount }}</text>
@@ -22,25 +19,14 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { createPayment } from '../../../api/payment'
-import { getOrderDetail } from '../../../api/order'
 
 const orderNo = ref('')
 const payAmount = ref('0.00')
 
-onLoad(async (options) => {
+onLoad((options) => {
   orderNo.value = options.orderNo || ''
   payAmount.value = options.payAmount || '0.00'
-  await handlePayment()
 })
-
-async function handlePayment() {
-  if (!orderNo.value) return
-  const res = await createPayment(orderNo.value)
-  if (res.code !== 0) {
-    console.error('支付失败', res)
-  }
-}
 
 function goToOrder() {
   uni.redirectTo({ url: `/pages/order/detail/detail?orderNo=${orderNo.value}` })
@@ -77,10 +63,14 @@ function goHome() {
   margin: 0 auto 40rpx;
 }
 
-.success-icon {
-  width: 88rpx;
-  height: 88rpx;
-  color: #16A34A;
+.checkmark {
+  width: 46rpx;
+  height: 24rpx;
+  border-left: 8rpx solid #16A34A;
+  border-bottom: 8rpx solid #16A34A;
+  border-radius: 2rpx;
+  transform: rotate(-45deg);
+  margin-top: -6rpx;
 }
 
 .success-title {
@@ -99,8 +89,6 @@ function goHome() {
   margin-bottom: 16rpx;
   font-variant-numeric: tabular-nums;
 }
-
-.success-amount::before { content: '¥'; font-size: 32rpx; }
 
 .success-hint {
   font-size: 28rpx;

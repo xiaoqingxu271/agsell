@@ -34,6 +34,7 @@
               class="product-thumb"
               :src="review.productImage || '/static/default-product.png'"
               mode="aspectFill"
+              lazy-load
               :alt="review.productName || '商品图片'"
             />
             <view class="product-info">
@@ -48,6 +49,7 @@
               class="user-avatar"
               :src="review.userAvatar || '/static/default-avatar.png'"
               mode="aspectFill"
+              lazy-load
               :alt="review.userName || '用户头像'"
             />
             <view class="user-info">
@@ -64,6 +66,7 @@
             :key="i"
             :src="img"
             mode="aspectFill"
+            lazy-load
             class="review-img"
             :alt="'评价图片' + (i + 1)"
           />

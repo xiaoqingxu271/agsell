@@ -157,7 +157,7 @@ function goToAfterSales() {
 }
 
 function goToAbout() {
-  uni.showToast({ title: 'agsell 农产品销售系统 v1.0', icon: 'none' })
+  uni.showToast({ title: '农产品商城 v1.0', icon: 'none' })
 }
 
 async function onLogout() {
@@ -211,7 +211,7 @@ async function onChooseAvatar() {
   display: flex;
   align-items: center;
   padding: 56rpx 40rpx 64rpx;
-  background: linear-gradient(160deg, #15803D 0%, #166534 100%);
+  background: #F0FDF4;
 }
 
 .login-btn {
@@ -219,12 +219,12 @@ async function onChooseAvatar() {
   width: 240rpx;
   height: 72rpx;
   line-height: 72rpx;
-  background: #FFFFFF;
-  color: #15803D;
+  background: #15803D;
+  color: #FFFFFF;
   font-size: 28rpx;
   font-weight: 600;
   border-radius: 36rpx;
-  border: 2rpx solid #FFFFFF;
+  border: 2rpx solid #15803D;
   padding: 0;
   display: flex;
   align-items: center;
@@ -240,8 +240,8 @@ async function onChooseAvatar() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  border: 4rpx solid rgba(255, 255, 255, 0.5);
+  background: #FFFFFF;
+  border: 4rpx solid #BBF7D0;
   flex-shrink: 0;
 }
 
@@ -249,14 +249,15 @@ async function onChooseAvatar() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: #FFFFFF;
+  border: 4rpx solid #BBF7D0;
 }
 
 .avatar-tip {
   margin-left: 24rpx;
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.2);
+  color: #166534;
+  background: #DCFCE7;
   padding: 8rpx 16rpx;
   border-radius: 20rpx;
   flex-shrink: 0;
@@ -271,13 +272,13 @@ async function onChooseAvatar() {
 .user-name {
   font-size: 36rpx;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #14532D;
   display: block;
 }
 
 .user-phone {
   font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: #6B7280;
   margin-top: 8rpx;
   display: block;
 }

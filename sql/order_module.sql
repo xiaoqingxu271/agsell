@@ -54,7 +54,10 @@ CREATE TABLE `order` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_order_no` (`order_no`),
     KEY `idx_user_id` (`user_id`),
-    KEY `idx_status` (`status`),
+    -- 超时取消查询（WHERE status = 0 AND create_time < ?）专用联合索引：
+    -- 等值 status + 范围 create_time 一次命中，避免在两列单列索引间二选一退化为大范围扫描。
+    -- 最左前缀同时覆盖纯 status 查询，替代原 idx_status。
+    KEY `idx_status_create_time` (`status`, `create_time`),
     KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单表';
 
