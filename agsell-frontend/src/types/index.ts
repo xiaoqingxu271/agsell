@@ -271,3 +271,97 @@ export interface AfterSalesHandleRequest {
   agree: boolean
   remark?: string
 }
+
+// ─── 产地溯源相关类型 ─────────────────────────────────────────────────────────
+
+/** 认证类型 */
+export type CertificationType = 'ORGANIC' | 'GREEN' | 'GEOGRAPHICAL' | 'NONE'
+
+/** 生产记录类型 */
+export type RecordType =
+  | 'SEEDING'
+  | 'FERTILIZING'
+  | 'WATERING'
+  | 'PEST_CONTROL'
+  | 'HARVEST'
+  | 'OTHER'
+
+export interface ProductionRecordRequest {
+  traceabilityId?: number
+  recordType: RecordType
+  recordDate: string
+  content: string
+  images?: string[]
+  operator?: string
+}
+
+export interface ProductionRecordVO {
+  id: number
+  recordType: string
+  recordTypeText: string
+  recordDate: string
+  content: string
+  images: string[]
+  operator: string | null
+  createTime: string
+}
+
+export interface TraceabilityListItemVO {
+  id: number
+  productId: number
+  productName: string
+  productImage: string | null
+  batchNo: string
+  farmerName: string
+  origin: string
+  harvestDate: string | null
+  certificationType: string | null
+  certificationTypeText: string | null
+  qrCodeUrl: string | null
+  createTime: string
+}
+
+export interface TraceabilityDetailVO {
+  id: number
+  productId: number
+  productName: string
+  productImage: string | null
+  batchNo: string
+  farmerName: string
+  farmerPhone: string | null
+  originProvince: string | null
+  originCity: string | null
+  originDistrict: string | null
+  plantingDate: string | null
+  harvestDate: string | null
+  qualityCheckResult: string | null
+  pesticideTest: string | null
+  certificationType: string | null
+  certificationTypeText: string | null
+  certificationUrls: string[]
+  qrCodeUrl: string | null
+  productionRecords: ProductionRecordVO[]
+  createTime: string
+}
+
+export interface TraceabilityCreateRequest {
+  productId?: number
+  farmerName: string
+  farmerPhone?: string
+  originProvince?: string
+  originCity?: string
+  originDistrict?: string
+  plantingDate?: string
+  harvestDate?: string
+  qualityCheckResult?: string
+  pesticideTest?: string
+  certificationType?: CertificationType | ''
+  certificationUrls?: string[]
+}
+
+export interface TraceabilityUpdateRequest extends TraceabilityCreateRequest {}
+
+export interface TraceabilityCreateResultVO {
+  id: number
+  batchNo: string
+}

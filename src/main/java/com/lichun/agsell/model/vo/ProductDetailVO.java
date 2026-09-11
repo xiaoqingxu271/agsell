@@ -60,6 +60,12 @@ public class ProductDetailVO implements Serializable {
     /** 规格列表 */
     private List<ProductSpecVO> specs;
 
+    /** 是否有溯源信息 */
+    private Boolean hasTrace;
+
+    /** 最新溯源批次号 */
+    private String traceBatchNo;
+
     private LocalDateTime createTime;
 
     @Data

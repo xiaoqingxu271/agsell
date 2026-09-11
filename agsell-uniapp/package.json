@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev:h5": "vite",
-    "dev:mp-weixin": "vite build --watch --mode mp-weixin",
+    "dev:mp-weixin": "uni -p mp-weixin",
     "build:h5": "vite build",
-    "build:mp-weixin": "vite build --mode mp-weixin"
+    "build:mp-weixin": "uni build -p mp-weixin"
   },
   "dependencies": {
     "@babel/generator": "^7.25.6",

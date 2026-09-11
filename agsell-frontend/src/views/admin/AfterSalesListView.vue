@@ -165,7 +165,7 @@ onMounted(fetchList)
         <el-table-column prop="username" label="用户" min-width="200" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.username ?? '-' }}</template>
         </el-table-column>
-        <el-table-column label="售后类型" width="110" align="center">
+        <el-table-column label="售后类型" width="130" align="center">
           <template #default="{ row }">{{ row.typeText }}</template>
         </el-table-column>
         <el-table-column label="原因" min-width="220" align="center" show-overflow-tooltip>
@@ -256,6 +256,7 @@ onMounted(fetchList)
               :initial-index="idx"
               fit="cover"
               class="evidence-image"
+              preview-teleported
             />
           </div>
 

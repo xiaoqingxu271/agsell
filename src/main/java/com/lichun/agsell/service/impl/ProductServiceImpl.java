@@ -10,6 +10,7 @@ import com.lichun.agsell.mapper.ProductCategoryMapper;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.mapper.ProductSpecMapper;
 import com.lichun.agsell.mapper.OrderItemMapper;
+import com.lichun.agsell.mapper.TraceabilityInfoMapper;
 import com.lichun.agsell.model.dto.ProductCreateRequest;
 import com.lichun.agsell.model.dto.ProductListRequest;
 import com.lichun.agsell.model.dto.ProductQueryRequest;
@@ -17,6 +18,7 @@ import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.ProductCategory;
 import com.lichun.agsell.model.entity.ProductSpec;
+import com.lichun.agsell.model.entity.TraceabilityInfo;
 import com.lichun.agsell.model.vo.ProductDetailVO;
 import com.lichun.agsell.model.vo.ProductListItemVO;
 import com.lichun.agsell.service.ProductService;
@@ -41,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductSpecMapper productSpecMapper;
     private final ProductCategoryMapper categoryMapper;
     private final OrderItemMapper orderItemMapper;
+    private final TraceabilityInfoMapper traceabilityInfoMapper;
 
     @Override
     public Page<ProductListItemVO> listProducts(ProductQueryRequest request) {
@@ -139,7 +142,21 @@ public class ProductServiceImpl implements ProductService {
         List<ProductSpec> specs = productSpecMapper.selectList(
                 new LambdaQueryWrapper<ProductSpec>().eq(ProductSpec::getProductId, id));
 
-        return convertToDetailVO(product, categoryName, parentCategoryName, specs);
+        ProductDetailVO vo = convertToDetailVO(product, categoryName, parentCategoryName, specs);
+
+        // 溯源摘要：是否存在溯源信息 + 最新批次号（商品详情页溯源入口）
+        TraceabilityInfo latestTrace = traceabilityInfoMapper.selectOne(
+                new LambdaQueryWrapper<TraceabilityInfo>()
+                        .eq(TraceabilityInfo::getProductId, id)
+                        .orderByDesc(TraceabilityInfo::getId)
+                        .last("LIMIT 1"));
+        if (latestTrace != null) {
+            vo.setHasTrace(true);
+            vo.setTraceBatchNo(latestTrace.getBatchNo());
+        } else {
+            vo.setHasTrace(false);
+        }
+        return vo;
     }
 
     @Override

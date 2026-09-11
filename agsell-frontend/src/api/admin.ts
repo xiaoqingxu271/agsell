@@ -22,6 +22,13 @@ import type {
   AdminAfterSalesListItemVO,
   AdminAfterSalesDetailVO,
   AfterSalesHandleRequest,
+  TraceabilityListItemVO,
+  TraceabilityDetailVO,
+  TraceabilityCreateRequest,
+  TraceabilityUpdateRequest,
+  TraceabilityCreateResultVO,
+  ProductionRecordRequest,
+  ProductionRecordVO,
 } from '@/types'
 
 /** 管理员登录 */
@@ -208,4 +215,61 @@ export function getStatisticsTrend(days = 7) {
   return request.get<StatisticsTrendVO>('/admin/statistics/trend', {
     params: { days },
   })
+}
+
+// ─── 产地溯源 ────────────────────────────────────────────────────────────────
+
+/** 溯源信息分页查询 */
+export function listTraceability(params: {
+  pageNum?: number
+  pageSize?: number
+  productName?: string
+  batchNo?: string
+}) {
+  return request.get<Page<TraceabilityListItemVO>>('/admin/traceability/page', { params })
+}
+
+/** 溯源信息详情（含生产记录） */
+export function getTraceabilityDetail(id: number) {
+  return request.get<TraceabilityDetailVO>(`/admin/traceability/detail/${id}`)
+}
+
+/** 新增溯源信息 */
+export function createTraceability(data: TraceabilityCreateRequest) {
+  return request.post<TraceabilityCreateResultVO>('/admin/traceability', data)
+}
+
+/** 编辑溯源信息 */
+export function updateTraceability(id: number, data: TraceabilityUpdateRequest) {
+  return request.put<null>(`/admin/traceability/${id}`, data)
+}
+
+/** 删除溯源信息（级联删除生产记录） */
+export function deleteTraceability(id: number) {
+  return request.delete<null>(`/admin/traceability/${id}`)
+}
+
+/** 生成溯源二维码 */
+export function generateTraceQr(id: number) {
+  return request.post<{ qrCodeUrl: string }>(`/admin/traceability/${id}/generate-qr`)
+}
+
+/** 生产记录列表 */
+export function listTraceRecords(id: number) {
+  return request.get<ProductionRecordVO[]>(`/admin/traceability/${id}/records`)
+}
+
+/** 新增生产记录 */
+export function createTraceRecord(data: ProductionRecordRequest) {
+  return request.post<{ id: number }>('/admin/traceability/record', data)
+}
+
+/** 编辑生产记录 */
+export function updateTraceRecord(id: number, data: ProductionRecordRequest) {
+  return request.put<null>(`/admin/traceability/record/${id}`, data)
+}
+
+/** 删除生产记录 */
+export function deleteTraceRecord(id: number) {
+  return request.delete<null>(`/admin/traceability/record/${id}`)
 }

@@ -19,6 +19,17 @@ public interface FileUploadService {
     String upload(MultipartFile file, String prefix, FileType fileType);
 
     /**
+     * 上传字节数据到 OSS（服务端生成的图片等，如溯源二维码 PNG）
+     * objectKey 由调用方指定，重复上传同一 objectKey 会覆盖（幂等）
+     *
+     * @param data        图片字节
+     * @param objectKey   存储对象路径，如 trace/qr/B202609110001.png
+     * @param contentType 内容类型，如 image/png
+     * @return 文件访问 URL
+     */
+    String uploadBytes(byte[] data, String objectKey, String contentType);
+
+    /**
      * 文件类型枚举
      */
     enum FileType {

@@ -1,5 +1,6 @@
 // 全局请求封装
-const BASE_URL = 'http://localhost:8080/api'
+// API 地址统一从环境文件读取：改 agsell-uniapp/.env.mp-weixin 里的 VITE_API_BASE_URL 即可
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
 /**
  * 统一处理非 0 的响应码，返回 false 表示业务失败，不抛出异常

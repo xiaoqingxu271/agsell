@@ -67,3 +67,7 @@ logging:
 order:
   timeout-minutes: 30 # 待付款订单超时分钟数，超过自动取消
 
+# 溯源配置
+trace:
+  base-url: ${trace.base-url:http://localhost:8080/api} # 溯源 H5 页面域名（二维码内容前缀）
+

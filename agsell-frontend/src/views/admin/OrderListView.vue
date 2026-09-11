@@ -175,12 +175,12 @@ onMounted(fetchList)
             {{ row.username ?? row.phone ?? '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="实付金额" width="100" align="center">
+        <el-table-column label="实付金额" width="130" align="center">
           <template #default="{ row }">
             <span class="admin-price">¥{{ Number(row.payAmount ?? 0).toFixed(2) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="收货人" width="90" align="center" show-overflow-tooltip>
+        <el-table-column label="收货人" width="100" how-overflow-tooltip>
           <template #default="{ row }">
             {{ row.receiver }}
           </template>
@@ -190,8 +190,8 @@ onMounted(fetchList)
             {{ row.phone }}
           </template>
         </el-table-column>
-        <el-table-column prop="itemCount" label="商品数" width="80" align="center" />
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column prop="itemCount" label="商品数" width="100" align="center" />
+        <el-table-column label="状态" width="120" align="center">
           <template #default="{ row }">
             <el-tag :type="orderStatusType(row.status)" class="admin-status-tag" size="small">
               {{ row.statusText }}

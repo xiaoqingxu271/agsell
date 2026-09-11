@@ -154,7 +154,7 @@ onMounted(fetchList)
     <el-card shadow="never">
       <el-table class="admin-table" :data="formatPagedData()" v-loading="loading" stripe :border="false" style="width: 100%">
         <el-table-column prop="id" label="ID" width="220" align="center" show-overflow-tooltip />
-        <el-table-column label="预览图" width="200" align="center">
+        <el-table-column label="预览图" width="180" align="center">
           <template #default="{ row }">
             <el-image
               v-if="row.image"
@@ -163,11 +163,12 @@ onMounted(fetchList)
               alt="轮播图预览"
               style="width: 85px;height:48px;border-radius:6px"
               :preview-src-list="[row.image]"
+              preview-teleported
             />
             <span v-else class="admin-empty">—</span>
           </template>
         </el-table-column>
-        <el-table-column prop="title" label="标题" min-width="180" align="center" show-overflow-tooltip />
+        <el-table-column prop="title" label="标题" min-width="140" align="center" show-overflow-tooltip />
         <el-table-column prop="link" label="跳转链接" min-width="180" align="center" show-overflow-tooltip />
         <el-table-column prop="sort" label="排序" width="100" align="center" />
         <el-table-column label="状态" width="200" align="center">
@@ -177,7 +178,7 @@ onMounted(fetchList)
               active-text="启用"
               inactive-text="禁用"
               active-color="#15803D"
-              @change="(val) => handleStatusChange(row, val ? 1 : 0)"
+              @change="(val: unknown) => handleStatusChange(row, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
@@ -231,6 +232,7 @@ onMounted(fetchList)
               alt="轮播图预览"
               style="width:80px;height:44px;border-radius:6px"
               :preview-src-list="[pendingBannerUrl]"
+              preview-teleported
             />
             <el-image
               v-else-if="form.image"
@@ -239,6 +241,7 @@ onMounted(fetchList)
               alt="轮播图"
               style="width:80px;height:44px;border-radius:6px"
               :preview-src-list="[form.image]"
+              preview-teleported
             />
             <span v-else class="no-img">暂无图片</span>
           </div>

@@ -61,6 +61,11 @@
         <text class="menu-text">我的售后</text>
         <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
       </view>
+      <view class="menu-item" @click="onScanTrace" role="button">
+        <view class="menu-icon menu-icon-qr" aria-hidden="true"></view>
+        <text class="menu-text">扫码溯源</text>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      </view>
       <view class="menu-item" @click="goToAbout" role="button">
         <image class="menu-icon" src="/static/icon-menu-about.png" mode="aspectFit" alt="关于我们" />
         <text class="menu-text">关于我们</text>
@@ -154,6 +159,32 @@ function goToMyReviews() {
 
 function goToAfterSales() {
   uni.navigateTo({ url: '/pages/after-sales/list/list' })
+}
+
+/** 扫码溯源：识别二维码中的批次号，跳转溯源档案 */
+function onScanTrace() {
+  uni.scanCode({
+    success: (res) => {
+      const result = String(res.result || '').trim()
+      let batchNo = ''
+      // 二维码内容为 URL（.../api/trace?batchNo=B202609110001）
+      const m = result.match(/[?&]batchNo=([^&]+)/)
+      if (m && m[1]) {
+        batchNo = decodeURIComponent(m[1])
+      } else if (/^B\d{12}$/.test(result)) {
+        // 二维码内容为纯批次号
+        batchNo = result
+      }
+      if (batchNo) {
+        uni.navigateTo({ url: `/pages/trace/detail?batchNo=${encodeURIComponent(batchNo)}` })
+      } else {
+        uni.showToast({ title: '未识别到溯源批次号', icon: 'none' })
+      }
+    },
+    fail: () => {
+      // 用户取消扫码，不做处理
+    }
+  })
 }
 
 function goToAbout() {
@@ -381,6 +412,39 @@ async function onChooseAvatar() {
   height: 40rpx;
   margin-right: 20rpx;
   flex-shrink: 0;
+}
+
+/* 扫码溯源图标：CSS 二维码角点（无 emoji） */
+.menu-icon-qr {
+  border-radius: 8rpx;
+  background: #15803D;
+  position: relative;
+}
+
+.menu-icon-qr::before {
+  content: '';
+  position: absolute;
+  left: 7rpx;
+  top: 7rpx;
+  width: 11rpx;
+  height: 11rpx;
+  border: 3rpx solid #FFFFFF;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 4rpx;
+}
+
+.menu-icon-qr::after {
+  content: '';
+  position: absolute;
+  right: 7rpx;
+  bottom: 7rpx;
+  width: 11rpx;
+  height: 11rpx;
+  border: 3rpx solid #FFFFFF;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 4rpx;
 }
 
 .menu-text {

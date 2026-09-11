@@ -104,6 +104,45 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
+    public String uploadBytes(byte[] data, String objectKey, String contentType) {
+        // 1. 非空校验
+        if (data == null || data.length == 0) {
+            throw new BusinessException(ErrorCode.FILE_UPLOAD_FAILED, "上传数据不能为空");
+        }
+
+        // 2. 存储对象路径安全校验（防止路径穿越与越权目录）
+        if (!StringUtils.hasText(objectKey)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "存储对象路径不能为空");
+        }
+        if (objectKey.contains("..") || objectKey.startsWith("/") || objectKey.length() > 200) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "存储对象路径不合法");
+        }
+
+        try {
+            // 3. 执行上传（公共读，否则直接访问 URL 会返回 403）
+            com.aliyun.oss.model.ObjectMetadata objectMetadata = new com.aliyun.oss.model.ObjectMetadata();
+            objectMetadata.setContentType(contentType);
+            objectMetadata.setContentLength(data.length);
+            objectMetadata.setObjectAcl(CannedAccessControlList.PublicRead);
+            PutObjectRequest putObjectRequest = new PutObjectRequest(
+                    ossProperties.getBucketName(),
+                    objectKey,
+                    new java.io.ByteArrayInputStream(data),
+                    objectMetadata
+            );
+            PutObjectResult result = ossClient.putObject(putObjectRequest);
+            log.info("字节数据上传成功，objectKey={}, etag={}", objectKey, result.getETag());
+
+            // 4. 拼接访问 URL
+            return buildFileUrl(objectKey);
+
+        } catch (Exception e) {
+            log.error("字节数据上传失败，objectKey={}", objectKey, e);
+            throw new BusinessException(ErrorCode.OSS_CLIENT_ERROR, "文件上传失败：" + e.getMessage());
+        }
+    }
+
+    @Override
     public boolean delete(String fileUrl) {
         if (!StringUtils.hasText(fileUrl)) {
             return false;

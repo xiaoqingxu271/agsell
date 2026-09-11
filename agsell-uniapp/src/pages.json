@@ -14,6 +14,7 @@
     { "path": "pages/after-sales/apply/apply", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/after-sales/detail/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/after-sales/list/list", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/trace/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/mine/mine", "type": "page" },
     { "path": "pages/mine/address", "type": "page", "style": { "navigationStyle": "custom" } }
   ],

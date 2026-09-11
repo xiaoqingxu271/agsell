@@ -199,15 +199,15 @@ onMounted(fetchList)
             <span v-else class="admin-empty">—</span>
           </template>
         </el-table-column>
-        <el-table-column prop="sort" label="排序" width="140" align="center" />
-        <el-table-column label="状态" width="220" align="center">
+        <el-table-column prop="sort" label="排序" width="120" align="center" />
+        <el-table-column label="状态" width="180" align="center">
           <template #default="{ row }">
             <el-switch
               :model-value="row.status === 1"
               active-text="启用"
               inactive-text="禁用"
               active-color="#15803D"
-              @change="(val) => handleStatusChange(row as CategoryListItemVO, val ? 1 : 0)"
+              @change="(val: unknown) => handleStatusChange(row as CategoryListItemVO, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
@@ -262,6 +262,7 @@ onMounted(fetchList)
               alt="分类图标预览"
               style="width:48px;height:48px;border-radius:8px"
               :preview-src-list="[pendingIconUrl]"
+              preview-teleported
             />
             <el-image
               v-else-if="form.icon"
@@ -270,6 +271,7 @@ onMounted(fetchList)
               alt="分类图标"
               style="width:48px;height:48px;border-radius:8px"
               :preview-src-list="[form.icon]"
+              preview-teleported
             />
             <span v-else class="no-icon">暂无图标</span>
           </div>

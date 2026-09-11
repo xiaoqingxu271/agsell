@@ -1,5 +1,8 @@
 import { uploadImage } from '../api/upload'
 
+// API 地址统一从环境文件读取：改 agsell-uniapp/.env.mp-weixin 里的 VITE_API_BASE_URL 即可
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+
 /**
  * 小程序上传图片到 OSS
  * @param filePath 本地文件路径（chooseImage 返回）
@@ -9,7 +12,7 @@ import { uploadImage } from '../api/upload'
 export function uploadMiniImage(filePath, prefix) {
   return new Promise((resolve, reject) => {
     uni.uploadFile({
-      url: 'http://localhost:8080/api/file/upload',
+      url: `${BASE_URL}/file/upload`,
       filePath: filePath,
       name: 'file',
       formData: { prefix, fileType: 'IMAGE' },

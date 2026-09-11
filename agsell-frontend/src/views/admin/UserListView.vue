@@ -139,7 +139,7 @@ onMounted(fetchList)
               active-text="启用"
               inactive-text="禁用"
               active-color="#15803D"
-              @change="(val) => handleStatusChange(row as AdminUserListItemVO, val ? 1 : 0)"
+              @change="(val: unknown) => handleStatusChange(row as AdminUserListItemVO, val ? 1 : 0)"
             />
           </template>
         </el-table-column>

@@ -79,6 +79,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         component: () => import('@/views/admin/AfterSalesListView.vue'),
         meta: { title: '售后管理' },
       },
+      {
+        path: 'traceability',
+        name: 'AdminTraceability',
+        component: () => import('@/views/admin/TraceabilityListView.vue'),
+        meta: { title: '产地溯源' },
+      },
     ],
   },
   {

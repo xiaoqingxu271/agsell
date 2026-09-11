@@ -12,6 +12,7 @@ import {
   ShoppingCart,
   ChatDotRound,
   Picture,
+  Aim,
   RefreshLeft,
   SwitchButton,
   Fold,
@@ -118,6 +119,10 @@ async function handleLogout() {
         <el-menu-item index="/admin/banners">
           <el-icon><Picture /></el-icon>
           <span>轮播图管理</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/traceability">
+          <el-icon><Aim /></el-icon>
+          <span>产地溯源</span>
         </el-menu-item>
       </el-menu>
 

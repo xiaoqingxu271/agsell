@@ -323,20 +323,21 @@ onMounted(() => {
               fit="cover"
               alt="商品图片"
               style="width: 40px; height: 40px; border-radius: 4px"
+              preview-teleported
             />
             <span v-else class="admin-empty">—</span>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="商品名称" min-width="180" align="center" show-overflow-tooltip />
-        <el-table-column prop="categoryName" label="分类" width="100" align="center" show-overflow-tooltip />
+        <el-table-column prop="categoryName" label="分类" width="120" align="center" show-overflow-tooltip />
         <el-table-column label="价格" width="150" align="center">
           <template #default="{ row }">
             <span class="admin-price">¥{{ Number(row.price ?? 0).toFixed(2) }}</span>
             <span v-if="row.originalPrice" class="admin-original-price">¥{{ Number(row.originalPrice).toFixed(2) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stock" label="库存" width="80" align="center" />
-        <el-table-column prop="sales" label="销量" width="80" align="center" />
+        <el-table-column prop="stock" label="库存" width="100" align="center" />
+        <el-table-column prop="sales" label="销量" width="100" align="center" />
         <el-table-column label="状态" width="200" align="center">
           <template #default="{ row }">
             <el-switch
@@ -344,11 +345,11 @@ onMounted(() => {
               active-text="上架"
               inactive-text="下架"
               active-color="#15803D"
-              @change="(val) => handleStatusChange(row as ProductListItemVO, val ? 1 : 0)"
+              @change="(val: unknown) => handleStatusChange(row as ProductListItemVO, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" min-width="180" show-overflow-tooltip>
+        <el-table-column label="创建时间" min-width="180" align="center" show-overflow-tooltip>
           <template #default="{ row }">
             {{ formatTime(row.createTime) }}
           </template>
@@ -443,6 +444,7 @@ onMounted(() => {
               alt="商品主图预览"
               style="width:80px;height:80px;border-radius:8px"
               :preview-src-list="[pendingMainUrl]"
+              preview-teleported
             />
             <el-image
               v-else-if="form.mainImage"
@@ -451,6 +453,7 @@ onMounted(() => {
               alt="商品主图"
               style="width:80px;height:80px;border-radius:8px"
               :preview-src-list="[form.mainImage]"
+              preview-teleported
             />
             <span v-else class="no-img">暂无图片</span>
           </div>
@@ -500,6 +503,7 @@ onMounted(() => {
                     alt="规格图片预览"
                     style="width:44px;height:44px;border-radius:4px"
                     :preview-src-list="[pendingSpecUrls[$index]!]"
+                    preview-teleported
                   />
                   <el-image
                     v-else-if="specs[$index]!.image"
@@ -508,6 +512,7 @@ onMounted(() => {
                     alt="规格图片"
                     style="width:44px;height:44px;border-radius:4px"
                     :preview-src-list="[specs[$index]!.image!]"
+                    preview-teleported
                   />
                   <span v-else class="spec-img-placeholder">+</span>
                 </label>

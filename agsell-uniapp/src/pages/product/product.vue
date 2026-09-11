@@ -34,6 +34,18 @@
           <text v-if="product.shelfLife" class="origin-item">保质期：{{ product.shelfLife }}</text>
           <text v-if="product.storage" class="origin-item">储存：{{ product.storage }}</text>
         </view>
+
+        <!-- 溯源入口 -->
+        <view v-if="product.hasTrace" class="trace-entry" @click="onViewTrace" role="button">
+          <view class="trace-entry-left">
+            <view class="trace-entry-icon" aria-hidden="true"></view>
+            <view class="trace-entry-col">
+              <text class="trace-entry-title">产地溯源档案</text>
+              <text class="trace-entry-batch">{{ product.traceBatchNo }}</text>
+            </view>
+          </view>
+          <view class="trace-entry-arrow" aria-hidden="true">›</view>
+        </view>
       </view>
 
       <!-- 规格选择 -->
@@ -235,6 +247,16 @@ function onViewReviews() {
   })
 }
 
+function onViewTrace() {
+  if (!product.value.traceBatchNo) {
+    uni.showToast({ title: '溯源信息暂不可用', icon: 'none' })
+    return
+  }
+  uni.navigateTo({
+    url: `/pages/trace/detail?batchNo=${encodeURIComponent(product.value.traceBatchNo)}`
+  })
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return ''
   // 取日期部分，处理 "2026-09-09T08:07:08" 或 "2026-09-09 08:07:08" 格式
@@ -357,6 +379,95 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .origin-item {
   font-size: 24rpx;
   color: #6B7280;
+}
+
+/* ── 溯源入口 ── */
+.trace-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24rpx;
+  padding: 20rpx 24rpx;
+  background: #F0FDF4;
+  border: 1rpx solid #BBF7D0;
+  border-radius: 16rpx;
+}
+
+.trace-entry:active {
+  background: #DCFCE7;
+}
+
+.trace-entry-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  min-width: 0;
+  flex: 1;
+}
+
+.trace-entry-icon {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 12rpx;
+  background: #15803D;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* 二维码角点示意（纯 CSS，无 emoji） */
+.trace-entry-icon::before {
+  content: '';
+  position: absolute;
+  left: 8rpx;
+  top: 8rpx;
+  width: 12rpx;
+  height: 12rpx;
+  border: 3rpx solid #FFFFFF;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 4rpx;
+}
+
+.trace-entry-icon::after {
+  content: '';
+  position: absolute;
+  right: 8rpx;
+  bottom: 8rpx;
+  width: 12rpx;
+  height: 12rpx;
+  border: 3rpx solid #FFFFFF;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 4rpx;
+}
+
+.trace-entry-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.trace-entry-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #14532D;
+}
+
+.trace-entry-batch {
+  font-size: 22rpx;
+  color: #15803D;
+  font-family: Consolas, Menlo, monospace;
+  margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trace-entry-arrow {
+  font-size: 36rpx;
+  color: #15803D;
+  flex-shrink: 0;
+  margin-left: 16rpx;
 }
 
 .section-title {
