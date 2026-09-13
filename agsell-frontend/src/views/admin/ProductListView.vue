@@ -7,6 +7,7 @@ import {
   updateProductStatus,
   saveOrUpdateProduct,
   getCategoryTree,
+  getProductDetail,
 } from '@/api/admin'
 import { uploadFile } from '@/api/upload'
 import type { ProductListItemVO, ProductQueryRequest, CategoryTreeVO, ProductSpecDTO, ProductCreateRequest } from '@/types'
@@ -156,8 +157,8 @@ function openEdit(row: ProductListItemVO) {
   formTitle.value = '编辑商品'
   form.value = {
     id: row.id, name: row.name, subtitle: row.subtitle ?? '',
-    categoryId: row.categoryId, price: row.price,
-    originalPrice: row.originalPrice ?? undefined, stock: row.stock,
+    categoryId: row.categoryId, price: Number(row.price),
+    originalPrice: row.originalPrice != null ? Number(row.originalPrice) : undefined, stock: row.stock,
     mainImage: row.mainImage ?? '', description: '', origin: '',
     harvestDate: '', shelfLife: '', storage: '',
     status: row.status, sort: 0,
@@ -167,8 +168,31 @@ function openEdit(row: ProductListItemVO) {
   pendingMainUrl.value = null
   pendingSpecFiles.value = [null]
   pendingSpecUrls.value = [null]
+  traceInfo.value = null
   formDialogVisible.value = true
+  // 异步加载商品详情：回填规格、溯源信息与详情字段
+  getProductDetail(row.id)
+    .then((d) => {
+      form.value.description = d.description ?? ''
+      // 产地回显：商品自身产地优先，否则取溯源产地（省+市+区县），无需手动填写
+      form.value.origin = (d.origin && d.origin.trim()) ? d.origin : (d.traceOrigin ?? '')
+      form.value.harvestDate = d.harvestDate ?? ''
+      form.value.shelfLife = d.shelfLife ?? ''
+      form.value.storage = d.storage ?? ''
+      specs.value = (d.specs && d.specs.length)
+        ? d.specs.map((s) => ({ id: s.id, specName: s.specName, price: Number(s.price), stock: Number(s.stock), image: s.image ?? '' }))
+        : [{ specName: '', price: 0, stock: 0 }]
+      pendingSpecFiles.value = specs.value.map(() => null)
+      pendingSpecUrls.value = specs.value.map(() => null)
+      traceInfo.value = d.hasTrace ? { batchNo: d.traceBatchNo ?? '' } : null
+    })
+    .catch(() => {
+      // interceptor handles error
+    })
 }
+
+/** 商品已关联的溯源批次（编辑回显） */
+const traceInfo = ref<{ batchNo: string } | null>(null)
 
 function handleAddSpec() {
   specs.value.push({ specName: '', price: 0, stock: 0 })
@@ -381,7 +405,7 @@ onMounted(() => {
     <el-dialog
       v-model="formDialogVisible"
       :title="formTitle"
-      width="720px"
+      width="920px"
       destroy-on-close
     >
       <el-form ref="formRef" :model="form" label-width="90px">
@@ -473,24 +497,31 @@ onMounted(() => {
         <el-form-item label="商品详情">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入商品详情HTML" />
         </el-form-item>
+        <el-form-item label="溯源信息">
+          <template v-if="traceInfo">
+            <el-tag type="success" size="small">已关联溯源批次：{{ traceInfo.batchNo }}</el-tag>
+            <span class="trace-hint">可在「产地溯源」模块查看与维护</span>
+          </template>
+          <span v-else class="no-img">暂无溯源信息</span>
+        </el-form-item>
         <el-form-item label="规格">
           <el-table :data="specs" border size="small">
-            <el-table-column label="规格名称" width="120">
+            <el-table-column label="规格名称" min-width="180">
               <template #default="{ $index }">
                 <el-input v-model="specs[$index]!.specName" placeholder="如：500g装" />
               </template>
             </el-table-column>
-            <el-table-column label="售价" width="100">
+            <el-table-column label="售价" width="170">
               <template #default="{ $index }">
-                <el-input-number v-model="specs[$index]!.price" :min="0" :precision="2" size="small" />
+                <el-input-number v-model="specs[$index]!.price" :min="0" :precision="2" size="small" style="width: 100%" />
               </template>
             </el-table-column>
-            <el-table-column label="库存" width="80">
+            <el-table-column label="库存" width="140">
               <template #default="{ $index }">
-                <el-input-number v-model="specs[$index]!.stock" :min="0" size="small" />
+                <el-input-number v-model="specs[$index]!.stock" :min="0" size="small" style="width: 100%" />
               </template>
             </el-table-column>
-            <el-table-column label="图片" width="120">
+            <el-table-column label="图片" width="150">
               <template #default="{ $index }">
                 <input type="file" accept="image/*" style="display:none"
                   :id="`spec-img-${$index}`"
@@ -501,7 +532,7 @@ onMounted(() => {
                     :src="pendingSpecUrls[$index]!"
                     fit="cover"
                     alt="规格图片预览"
-                    style="width:44px;height:44px;border-radius:4px"
+                    style="width:56px;height:56px;border-radius:4px"
                     :preview-src-list="[pendingSpecUrls[$index]!]"
                     preview-teleported
                   />
@@ -510,7 +541,7 @@ onMounted(() => {
                     :src="specs[$index]!.image"
                     fit="cover"
                     alt="规格图片"
-                    style="width:44px;height:44px;border-radius:4px"
+                    style="width:56px;height:56px;border-radius:4px"
                     :preview-src-list="[specs[$index]!.image!]"
                     preview-teleported
                   />
@@ -567,12 +598,18 @@ onMounted(() => {
   color: #9CA3AF;
 }
 
+.trace-hint {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
 .spec-img-upload {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   border: 1px dashed #D1D5DB;
   border-radius: 4px;
   cursor: pointer;

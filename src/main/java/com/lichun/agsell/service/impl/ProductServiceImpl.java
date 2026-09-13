@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -153,6 +154,11 @@ public class ProductServiceImpl implements ProductService {
         if (latestTrace != null) {
             vo.setHasTrace(true);
             vo.setTraceBatchNo(latestTrace.getBatchNo());
+            // 溯源产地拼接（省+市+区县，跳过空段），供商品编辑页回显产地
+            vo.setTraceOrigin(
+                    Stream.of(latestTrace.getOriginProvince(), latestTrace.getOriginCity(), latestTrace.getOriginDistrict())
+                            .filter(StrUtil::isNotBlank)
+                            .collect(Collectors.joining()));
         } else {
             vo.setHasTrace(false);
         }

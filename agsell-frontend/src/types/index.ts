@@ -84,6 +84,32 @@ export interface ProductSpecDTO {
   image?: string
 }
 
+export interface ProductDetailVO {
+  id: number
+  name: string
+  subtitle: string | null
+  categoryName: string | null
+  categoryId: number
+  price: number
+  originalPrice: number | null
+  stock: number
+  sales: number
+  mainImage: string | null
+  images: string[]
+  description: string | null
+  origin: string | null
+  harvestDate: string | null
+  shelfLife: string | null
+  storage: string | null
+  status: number
+  specs: ProductSpecDTO[]
+  hasTrace: boolean
+  traceBatchNo: string | null
+  /** 溯源产地（省+市+区县拼接，用于商品编辑回显） */
+  traceOrigin: string | null
+  createTime: string
+}
+
 export interface ProductListItemVO {
   id: number
   name: string
@@ -364,4 +390,39 @@ export interface TraceabilityUpdateRequest extends TraceabilityCreateRequest {}
 export interface TraceabilityCreateResultVO {
   id: number
   batchNo: string
+}
+
+
+// ─── 秒杀相关类型 ─────────────────────────────────────────────────────────
+
+export interface SeckillActivityVO {
+  id: number
+  activityCode: string
+  productId: number
+  productSpecId: number | null
+  productName: string | null
+  productImage: string | null
+  productPrice: string | null
+  seckillPrice: string
+  seckillStock: number
+  remainingStock: number
+  seckillLimit: number
+  startTime: string
+  endTime: string
+  status: number
+  activityStatusText: string
+  sort: number
+  createTime: string
+}
+
+export interface SeckillActivityRequest {
+  productId?: number
+  productSpecId?: number | null
+  seckillPrice?: number
+  seckillStock?: number
+  seckillLimit?: number
+  startTime?: string
+  endTime?: string
+  sort?: number
+  status?: number
 }

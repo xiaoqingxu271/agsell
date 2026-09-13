@@ -37,7 +37,12 @@ public enum ErrorCode {
     FILE_TYPE_NOT_ALLOWED(50101, "不支持的文件类型"),
     FILE_SIZE_EXCEEDED(50102, "文件大小超出限制"),
     FILE_NAME_INVALID(50103, "文件名不合法"),
-    OSS_CLIENT_ERROR(50104, "OSS 服务异常");
+    OSS_CLIENT_ERROR(50104, "OSS 服务异常"),
+    // 秒杀相关
+    SECKILL_NOT_STARTED(50010, "秒杀尚未开始"),
+    SECKILL_ENDED(50011, "秒杀已结束"),
+    SECKILL_SOLD_OUT(50012, "手慢了，商品已被抢光"),
+    SECKILL_REPEAT(50013, "您已参与过该秒杀，请勿重复购买");
 
     /**
      * 状态码

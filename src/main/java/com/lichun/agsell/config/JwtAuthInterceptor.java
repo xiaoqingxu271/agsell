@@ -44,6 +44,9 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/banner/list",
             // 溯源查询接口（无需登录）
             "/api/trace",
+            // 秒杀活动浏览接口（无需登录；下单 /api/seckill/order 需登录）
+            "/api/seckill/list",
+            "/api/seckill/detail",
             // Swagger/Knife4j 文档
             "/api/doc.html",
             "/api/v3/api-docs",

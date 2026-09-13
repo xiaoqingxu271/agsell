@@ -66,6 +66,9 @@ public class ProductDetailVO implements Serializable {
     /** 最新溯源批次号 */
     private String traceBatchNo;
 
+    /** 溯源产地（省+市+区县拼接，用于商品编辑回显） */
+    private String traceOrigin;
+
     private LocalDateTime createTime;
 
     @Data

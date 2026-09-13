@@ -62,6 +62,8 @@ class OrderServiceImplTest {
     private SysUserAddressMapper addressMapper;
     @Mock
     private SysUserMapper userMapper;
+    @Mock
+    private com.lichun.agsell.service.SeckillService seckillService;
 
     @InjectMocks
     private OrderServiceImpl orderService;
@@ -369,6 +371,11 @@ class OrderServiceImplTest {
     @Test
     @DisplayName("超时自动取消：单条原子 SQL 取消超时待付款订单（含状态守卫）")
     void cancelExpiredOrders_cancelsExpiredOrders() {
+        Order expired = new Order();
+        expired.setId(1L);
+        expired.setStatus(com.lichun.agsell.model.enums.OrderStatusEnum.PENDING_PAYMENT.getCode());
+        expired.setCreateTime(LocalDateTime.now().minusHours(1));
+        when(orderMapper.selectList(any())).thenReturn(List.of(expired));
         when(orderMapper.update(isNull(), any())).thenReturn(1);
 
         int count = orderService.cancelExpiredOrders(30);
@@ -382,18 +389,20 @@ class OrderServiceImplTest {
         // SET 部分：置为已取消并记录取消原因
         assertTrue(setSql.contains("status"), "SET 应包含 status，实际：" + setSql);
         assertTrue(setSql.contains("cancel_reason"), "SET 应包含 cancel_reason，实际：" + setSql);
-        // WHERE 部分：状态守卫（仅 status=0）且限定超时阈值
+        // WHERE 部分：状态守卫（仅 status=0）
         assertTrue(whereSql.contains("status ="), "WHERE 应包含 status 守卫，实际：" + whereSql);
-        assertTrue(whereSql.contains("create_time <"), "WHERE 应限定超时阈值，实际：" + whereSql);
+        // 非秒杀订单不触发名额释放
+        verify(seckillService, never()).releaseSeckillQuota(any(), any());
     }
 
     @Test
     @DisplayName("超时自动取消：无超时订单时返回 0")
     void cancelExpiredOrders_noExpired_returnsZero() {
-        when(orderMapper.update(isNull(), any())).thenReturn(0);
+        when(orderMapper.selectList(any())).thenReturn(List.of());
 
         int count = orderService.cancelExpiredOrders(30);
 
         assertEquals(0, count);
+        verify(orderMapper, never()).update(isNull(), any());
     }
 }

@@ -48,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductSpecMapper productSpecMapper;
     private final SysUserAddressMapper addressMapper;
     private final SysUserMapper userMapper;
+    private final com.lichun.agsell.service.SeckillService seckillService;
 
     /** 待付款订单超时分钟数（与 OrderTimeoutScheduler 共用配置 order.timeout-minutes） */
     @Value("${order.timeout-minutes:30}")
@@ -311,6 +312,11 @@ public class OrderServiceImpl implements OrderService {
         update.setStatus(OrderStatusEnum.CANCELLED.getCode()); // 已取消
         update.setCancelReason(reason);
         orderMapper.updateById(update);
+
+        // 秒杀订单：释放 Redis 抢购名额（幂等，回补库存 + 清除用户标记）
+        if (order.getSeckillActivityId() != null) {
+            seckillService.releaseSeckillQuota(order.getSeckillActivityId(), order.getUserId());
+        }
     }
 
     @Override
@@ -349,15 +355,30 @@ public class OrderServiceImpl implements OrderService {
         ThrowUtils.throwIf(expireMinutes <= 0, ErrorCode.PARAMS_ERROR, "超时时长必须大于0");
         LocalDateTime deadline = LocalDateTime.now().minusMinutes(expireMinutes);
 
-        // 单条原子 UPDATE + 状态守卫：仅 status=0（待付款）的订单会被置为已取消，
-        // 避免与支付流程竞态（扫描与更新之间用户完成支付，导致误取消已支付订单）。
-        // 命中行数即实际取消笔数；MyBatis-Plus 会自动追加逻辑删除条件 deleted=0。
-        return orderMapper.update(null, new LambdaUpdateWrapper<Order>()
-                .set(Order::getStatus, OrderStatusEnum.CANCELLED.getCode()) // 已取消
-                .set(Order::getCancelReason, "订单超时未支付，系统自动取消")
-                .setSql("update_time = NOW()")
-                .eq(Order::getStatus, OrderStatusEnum.PENDING_PAYMENT.getCode()) // 仅待付款（状态守卫）
-                .lt(Order::getCreateTime, deadline));
+        // 1. 查出超时待付款订单（上限500/批），记录秒杀订单待释放
+        List<Order> expiredOrders = orderMapper.selectList(new LambdaQueryWrapper<Order>()
+                .eq(Order::getStatus, OrderStatusEnum.PENDING_PAYMENT.getCode())
+                .lt(Order::getCreateTime, deadline)
+                .last("LIMIT 500"));
+
+        // 2. 逐单原子取消（单条 UPDATE + 状态守卫，避免与支付流程竞态误取消已支付订单）
+        int cancelled = 0;
+        for (Order order : expiredOrders) {
+            int rows = orderMapper.update(null, new LambdaUpdateWrapper<Order>()
+                    .set(Order::getStatus, OrderStatusEnum.CANCELLED.getCode()) // 已取消
+                    .set(Order::getCancelReason, "订单超时未支付，系统自动取消")
+                    .setSql("update_time = NOW()")
+                    .eq(Order::getId, order.getId())
+                    .eq(Order::getStatus, OrderStatusEnum.PENDING_PAYMENT.getCode())); // 状态守卫
+            if (rows > 0) {
+                cancelled++;
+                // 3. 秒杀订单：释放 Redis 抢购名额（幂等）
+                if (order.getSeckillActivityId() != null) {
+                    seckillService.releaseSeckillQuota(order.getSeckillActivityId(), order.getUserId());
+                }
+            }
+        }
+        return cancelled;
     }
 
     // ==================== 私有方法 ====================

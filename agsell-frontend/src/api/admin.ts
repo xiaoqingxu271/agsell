@@ -29,6 +29,10 @@ import type {
   TraceabilityCreateResultVO,
   ProductionRecordRequest,
   ProductionRecordVO,
+  SeckillActivityVO,
+  SeckillActivityRequest,
+  ProductSpecDTO,
+  ProductDetailVO,
 } from '@/types'
 
 /** 管理员登录 */
@@ -104,6 +108,11 @@ export function saveOrUpdateProduct(data: ProductCreateRequest) {
 /** 删除商品 */
 export function deleteProduct(id: number) {
   return request.delete<null>(`/admin/product/${id}`)
+}
+
+/** 商品详情（含规格、溯源信息，用于商品编辑回显与秒杀绑定规格） */
+export function getProductDetail(id: number) {
+  return request.get<ProductDetailVO>(`/product/detail/${id}`)
 }
 
 /** 上架/下架商品 */
@@ -272,4 +281,30 @@ export function updateTraceRecord(id: number, data: ProductionRecordRequest) {
 /** 删除生产记录 */
 export function deleteTraceRecord(id: number) {
   return request.delete<null>(`/admin/traceability/record/${id}`)
+}
+
+
+/** 秒杀活动分页 */
+export function pageSeckill(params: { pageNum?: number; pageSize?: number; keyword?: string; status?: number }) {
+  return request.get<Page<SeckillActivityVO>>('/admin/seckill/page', { params })
+}
+
+/** 创建秒杀活动 */
+export function createSeckill(data: SeckillActivityRequest) {
+  return request.post<{ id: number }>('/admin/seckill', data)
+}
+
+/** 编辑秒杀活动 */
+export function updateSeckill(id: number, data: SeckillActivityRequest) {
+  return request.put<null>(`/admin/seckill/${id}`, data)
+}
+
+/** 删除秒杀活动 */
+export function deleteSeckill(id: number) {
+  return request.delete<null>(`/admin/seckill/${id}`)
+}
+
+/** 秒杀活动上下架 */
+export function updateSeckillStatus(id: number, status: number) {
+  return request.put<null>(`/admin/seckill/${id}/status?status=${status}`)
 }

@@ -26,6 +26,41 @@
       <text class="placeholder-text">新鲜水果 · 有机蔬菜 · 当季特产</text>
     </view>
 
+    <!-- 限时秒杀横卡（无进行中/未开始活动时整条隐藏） -->
+    <view v-if="seckillActivities.length > 0" class="seckill-card">
+      <view class="seckill-head">
+        <view class="seckill-title-wrap">
+          <text class="seckill-title">限时秒杀</text>
+          <text class="seckill-sub">超值抢购 · 手慢无</text>
+        </view>
+        <view class="seckill-more" @click="onSeckillMoreTap" role="button" aria-label="查看全部秒杀">
+          <text class="seckill-more-text">更多</text>
+          <text class="seckill-more-arrow">›</text>
+        </view>
+      </view>
+      <scroll-view scroll-x class="seckill-scroll">
+        <view class="seckill-scroll-inner">
+          <view
+            v-for="act in seckillActivities"
+            :key="act.id"
+            class="seckill-item"
+            @click="onSeckillItemTap(act)"
+            role="button"
+            :aria-label="act.productName"
+          >
+            <image class="seckill-img" :src="act.productImage" mode="aspectFill" lazy-load :alt="act.productName" />
+            <view class="seckill-price-row">
+              <text class="seckill-price">¥{{ act.seckillPrice }}</text>
+              <text class="seckill-origin">¥{{ act.productPrice }}</text>
+            </view>
+            <view class="seckill-btn" :class="{ 'seckill-btn-disabled': act.activityStatus !== 2 }">
+              {{ act.activityStatus === 1 ? '即将开始' : '立即抢购' }}
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
     <!-- 分类快捷入口 -->
     <view class="category-grid">
       <view
@@ -87,18 +122,26 @@ import { ref, onMounted } from 'vue'
 import ProductCard from '../../components/ProductCard/ProductCard.vue'
 import { getBannerList } from '../../api/banner'
 import { getCategoryList, getHotProducts, getNewProducts } from '../../api/product'
+import { getSeckillList } from '../../api/seckill'
 
 const banners = ref([])
 const categories = ref([])
 const hotProducts = ref([])
 const newProducts = ref([])
+const seckillActivities = ref([])
 
 onMounted(async () => {
   await loadBanners()
+  await loadSeckill()
   await loadCategories()
   await loadHotProducts()
   await loadNewProducts()
 })
+
+async function loadSeckill() {
+  const res = await getSeckillList({ filter: 0 })
+  if (res.code === 0) seckillActivities.value = res.data || []
+}
 
 async function loadBanners() {
   const res = await getBannerList()
@@ -148,6 +191,19 @@ function onBannerTap(banner) {
 
 function onSearchTap() {
   uni.showToast({ title: '搜索功能开发中', icon: 'none' })
+}
+
+function onSeckillMoreTap() {
+  uni.navigateTo({ url: '/pages/seckill/list' })
+}
+
+function onSeckillItemTap(act) {
+  const code = String(act?.activityCode || '')
+  if (!code || code === 'undefined' || code === 'null') {
+    uni.showToast({ title: '活动编号无效', icon: 'none' })
+    return
+  }
+  uni.navigateTo({ url: `/pages/seckill/detail?code=${code}` })
 }
 </script>
 
@@ -233,6 +289,116 @@ function onSearchTap() {
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
+/* 限时秒杀横卡（红橙系） */
+.seckill-card {
+  margin: 16rpx 24rpx 24rpx;
+  padding: 20rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #FF4D2E 0%, #FF7A1A 100%);
+  box-shadow: 0 8rpx 24rpx rgba(255, 77, 46, 0.28);
+}
+
+.seckill-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14rpx;
+}
+
+.seckill-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}
+
+.seckill-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.seckill-sub {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.seckill-more {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.seckill-more-text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.seckill-more-arrow {
+  font-size: 30rpx;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+.seckill-scroll {
+  white-space: nowrap;
+}
+
+.seckill-scroll-inner {
+  display: inline-flex;
+  gap: 16rpx;
+}
+
+.seckill-item {
+  width: 168rpx;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 10rpx;
+  box-sizing: border-box;
+}
+
+.seckill-img {
+  width: 148rpx;
+  height: 148rpx;
+  border-radius: 12rpx;
+  background: #F4F6F5;
+}
+
+.seckill-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  margin-top: 8rpx;
+}
+
+.seckill-price {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #DC2626;
+}
+
+.seckill-origin {
+  font-size: 20rpx;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.seckill-btn {
+  margin-top: 8rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  text-align: center;
+  background: #FF4D2E;
+  color: #FFFFFF;
+  font-size: 22rpx;
+  font-weight: 600;
+  border-radius: 24rpx;
+}
+
+.seckill-btn-disabled {
+  background: #D1D5DB;
+}
+
 .category-item {
   width: 25%;
   display: flex;
@@ -310,7 +476,28 @@ function onSearchTap() {
 }
 
 .product-scroll-inner :deep(.product-card) {
-  width: 240rpx;
+  width: 200rpx;
   flex-shrink: 0;
+}
+
+.product-scroll-inner :deep(.product-info) {
+  padding: 12rpx;
+}
+
+.product-scroll-inner :deep(.product-name) {
+  font-size: 24rpx;
+  line-height: 1.35;
+}
+
+.product-scroll-inner :deep(.price) {
+  font-size: 30rpx;
+}
+
+.product-scroll-inner :deep(.original-price) {
+  font-size: 20rpx;
+}
+
+.product-scroll-inner :deep(.sales) {
+  font-size: 20rpx;
 }
 </style>

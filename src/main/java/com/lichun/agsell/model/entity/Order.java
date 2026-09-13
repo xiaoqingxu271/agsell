@@ -72,6 +72,9 @@ public class Order implements Serializable {
     /** 买家备注 */
     private String remark;
 
+    /** 秒杀活动ID（非秒杀订单为NULL；配合唯一索引 uk_user_seckill 实现一人一单） */
+    private Long seckillActivityId;
+
     /** 取消原因 */
     private String cancelReason;
 

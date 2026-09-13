@@ -85,6 +85,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         component: () => import('@/views/admin/TraceabilityListView.vue'),
         meta: { title: '产地溯源' },
       },
+      {
+        path: 'seckill',
+        name: 'AdminSeckill',
+        component: () => import('@/views/admin/SeckillListView.vue'),
+        meta: { title: '秒杀管理' },
+      },
     ],
   },
   {

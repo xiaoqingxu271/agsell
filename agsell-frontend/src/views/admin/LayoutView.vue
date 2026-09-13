@@ -13,6 +13,7 @@ import {
   ChatDotRound,
   Picture,
   Aim,
+  Timer,
   RefreshLeft,
   SwitchButton,
   Fold,
@@ -123,6 +124,10 @@ async function handleLogout() {
         <el-menu-item index="/admin/traceability">
           <el-icon><Aim /></el-icon>
           <span>产地溯源</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/seckill">
+          <el-icon><Timer /></el-icon>
+          <span>秒杀管理</span>
         </el-menu-item>
       </el-menu>
 
