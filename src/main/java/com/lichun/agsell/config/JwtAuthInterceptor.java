@@ -38,6 +38,9 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/product/list",
             "/api/product/hot",
             "/api/product/new",
+            // 搜索接口（无需登录）
+            "/api/product/search",
+            "/api/product/search/hot",
             // 评价浏览接口（无需登录）
             "/api/review/product",
             // 轮播图接口（无需登录）

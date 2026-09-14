@@ -26,6 +26,8 @@
   padding: 12px 16px;
   border-bottom: 1px solid #E3E7E5;
   letter-spacing: 0.02em;
+  /* 统一居中：保证列名与内容水平对齐（万能对齐法，无需逐列配置 header-align） */
+  text-align: center;
 }
 
 /* 单元格样式 */
@@ -35,6 +37,8 @@
   color: #1F2937;
   border-bottom: 1px solid #EBEEEC;
   line-height: 1.5;
+  /* 统一居中：内容垂直对齐在列名下 */
+  text-align: center;
 }
 
 /* 斑马纹 */

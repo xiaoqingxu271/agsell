@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lichun.agsell.mapper.ProductSearchMapper">
+
+    <!--
+      全文检索（自然语言模式）：
+      1. MATCH 列必须与 FULLTEXT 索引 (name, subtitle) 完全一致；
+      2. WHERE 中不能引用 SELECT 别名，因此 ft_score 需重复计算；
+      3. deleted = 0 与 MyBatis-Plus 逻辑删除口径一致（XML 手写 SQL 需显式带出）；
+      4. 排序走 <choose> 映射，默认按相关度分数倒序。
+    -->
+    <select id="searchByFulltext" resultType="com.lichun.agsell.model.entity.Product">
+        SELECT id, name, subtitle, category_id, price, original_price, stock, sales,
+               main_image, images, description, origin, harvest_date, shelf_life, storage,
+               status, sort, create_time, update_time, deleted,
+               MATCH(name, subtitle) AGAINST (#{keyword} IN NATURAL LANGUAGE MODE) AS ft_score
+        FROM product
+        WHERE deleted = 0
+          AND status = 1
+        <if test="categoryId != null">
+          AND category_id = #{categoryId}
+        </if>
+          AND MATCH(name, subtitle) AGAINST (#{keyword} IN NATURAL LANGUAGE MODE)
+        <choose>
+            <when test="sortBy == 'hot'">ORDER BY sales DESC</when>
+            <when test="sortBy == 'new'">ORDER BY create_time DESC</when>
+            <when test="sortBy == 'price_asc'">ORDER BY price ASC</when>
+            <when test="sortBy == 'price_desc'">ORDER BY price DESC</when>
+            <otherwise>ORDER BY ft_score DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countByFulltext" resultType="long">
+        SELECT COUNT(*)
+        FROM product
+        WHERE deleted = 0
+          AND status = 1
+        <if test="categoryId != null">
+          AND category_id = #{categoryId}
+        </if>
+          AND MATCH(name, subtitle) AGAINST (#{keyword} IN NATURAL LANGUAGE MODE)
+    </select>
+
+</mapper>

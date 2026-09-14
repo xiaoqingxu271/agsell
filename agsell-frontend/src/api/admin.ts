@@ -33,6 +33,8 @@ import type {
   SeckillActivityRequest,
   ProductSpecDTO,
   ProductDetailVO,
+  SearchHotWord,
+  SearchHotWordRequest,
 } from '@/types'
 
 /** 管理员登录 */
@@ -307,4 +309,28 @@ export function deleteSeckill(id: number) {
 /** 秒杀活动上下架 */
 export function updateSeckillStatus(id: number, status: number) {
   return request.put<null>(`/admin/seckill/${id}/status?status=${status}`)
+}
+
+// ─── 搜索热词 ─────────────────────────────────────────────────────────────────
+
+/** 热词列表（分页） */
+export function listHotWords(params: { pageNum?: number; pageSize?: number }) {
+  return request.get<Page<SearchHotWord>>('/admin/hot-word/list', { params })
+}
+
+/** 新增手工热词 / 编辑排序与状态 */
+export function saveOrUpdateHotWord(data: SearchHotWordRequest) {
+  return request.post<null>('/admin/hot-word', data)
+}
+
+/** 启停热词 */
+export function updateHotWordStatus(id: number, status: number) {
+  return request.put<null>(`/admin/hot-word/${id}/status`, null, {
+    params: { status },
+  })
+}
+
+/** 删除热词 */
+export function deleteHotWord(id: number) {
+  return request.delete<null>(`/admin/hot-word/${id}`)
 }

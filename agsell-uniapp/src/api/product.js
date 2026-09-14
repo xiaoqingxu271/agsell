@@ -25,10 +25,22 @@ export function getNewProducts(limit = 10) {
   return request('GET', '/product/new', null, { params: { limit } })
 }
 
+/** 商品搜索（全文检索+高亮，需登录） */
+export function searchProducts(params) {
+  return request('GET', '/product/search', null, { params })
+}
+
+/** 热门搜索词（无需登录） */
+export function getHotWords(limit = 10) {
+  return request('GET', '/product/search/hot', null, { params: { limit } })
+}
+
 export default {
   getCategoryList,
   getProductList,
   getProductDetail,
   getHotProducts,
-  getNewProducts
+  getNewProducts,
+  searchProducts,
+  getHotWords
 }

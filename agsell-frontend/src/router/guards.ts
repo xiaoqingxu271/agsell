@@ -91,6 +91,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         component: () => import('@/views/admin/SeckillListView.vue'),
         meta: { title: '秒杀管理' },
       },
+      {
+        path: 'hot-word',
+        name: 'AdminHotWord',
+        component: () => import('@/views/admin/HotWordListView.vue'),
+        meta: { title: '搜索热词' },
+      },
     ],
   },
   {

@@ -18,7 +18,8 @@
     { "path": "pages/seckill/list", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/seckill/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/mine/mine", "type": "page" },
-    { "path": "pages/mine/address", "type": "page", "style": { "navigationStyle": "custom" } }
+    { "path": "pages/mine/address", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/search/search", "type": "page", "style": { "navigationBarTitleText": "搜索" } }
   ],
   "globalStyle": {
     "navigationBarBackgroundColor": "#15803D",

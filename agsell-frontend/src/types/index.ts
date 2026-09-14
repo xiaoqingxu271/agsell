@@ -426,3 +426,23 @@ export interface SeckillActivityRequest {
   sort?: number
   status?: number
 }
+
+// ─── 搜索热词 ────────────────────────────────────────────────────────────────
+
+export interface SearchHotWord {
+  id: number
+  word: string
+  searchCount: number
+  sort: number
+  status: number
+  isManual: number
+  createTime?: string
+  updateTime?: string
+}
+
+export interface SearchHotWordRequest {
+  id?: number
+  word?: string
+  sort?: number
+  status?: number
+}

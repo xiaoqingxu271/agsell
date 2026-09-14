@@ -15,6 +15,7 @@ import {
   Aim,
   Timer,
   RefreshLeft,
+  Search,
   SwitchButton,
   Fold,
   Expand,
@@ -128,6 +129,10 @@ async function handleLogout() {
         <el-menu-item index="/admin/seckill">
           <el-icon><Timer /></el-icon>
           <span>秒杀管理</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/hot-word">
+          <el-icon><Search /></el-icon>
+          <span>搜索热词</span>
         </el-menu-item>
       </el-menu>
 

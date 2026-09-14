@@ -190,7 +190,7 @@ function onBannerTap(banner) {
 }
 
 function onSearchTap() {
-  uni.showToast({ title: '搜索功能开发中', icon: 'none' })
+  uni.navigateTo({ url: '/pages/search/search' })
 }
 
 function onSeckillMoreTap() {
