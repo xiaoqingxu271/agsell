@@ -29,9 +29,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -316,11 +319,15 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<ProductSpec> specList = new ArrayList<>();
+        Set<String> specNames = new HashSet<>();
         for (ProductCreateRequest.ProductSpecDTO specDto : specs) {
             ThrowUtils.throwIf(StrUtil.isBlank(specDto.getSpecName()),
                     ErrorCode.PARAMS_ERROR, "规格名称不能为空");
             ThrowUtils.throwIf(specDto.getSpecName().length() > 50,
                     ErrorCode.PARAMS_ERROR, "规格名称不能超过50个字符");
+            // 同一商品不允许出现重复规格名，避免详情页规格重复展示
+            ThrowUtils.throwIf(!specNames.add(specDto.getSpecName().trim()),
+                    ErrorCode.PARAMS_ERROR, "规格名称重复，请检查后重试");
             ThrowUtils.throwIf(specDto.getPrice() == null
                             || specDto.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0,
                     ErrorCode.PARAMS_ERROR, "规格价格必须大于0");
@@ -398,7 +405,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (specs != null && !specs.isEmpty()) {
-            vo.setSpecs(specs.stream().map(spec -> {
+            // 防御性去重：按规格名称去重，避免历史脏数据导致详情页规格重复展示
+            Map<String, ProductSpec> specMap = new LinkedHashMap<>();
+            for (ProductSpec spec : specs) {
+                specMap.putIfAbsent(spec.getSpecName(), spec);
+            }
+            vo.setSpecs(specMap.values().stream().map(spec -> {
                 ProductDetailVO.ProductSpecVO specVo = new ProductDetailVO.ProductSpecVO();
                 specVo.setId(spec.getId());
                 specVo.setSpecName(spec.getSpecName());
