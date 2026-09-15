@@ -446,3 +446,49 @@ export interface SearchHotWordRequest {
   sort?: number
   status?: number
 }
+
+// ─── 系统管理（管理员/配置/日志） ────────────────────────────────────────────────
+
+export interface AdminListItemVO {
+  id: number
+  username: string
+  realName: string | null
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'OPERATOR'
+  status: number
+  loginIp: string | null
+  loginTime: string | null
+  createTime: string
+}
+
+export interface AdminCreateRequest {
+  username: string
+  password: string
+  realName?: string
+  role: 'ADMIN' | 'OPERATOR'
+}
+
+export interface AdminUpdateRequest {
+  realName?: string
+  role?: 'ADMIN' | 'OPERATOR'
+}
+
+export interface ConfigItemVO {
+  configKey: string
+  configValue: string
+  description: string
+}
+
+export interface ConfigUpdateRequest {
+  items: Array<{ configKey: string; configValue: string }>
+}
+
+export interface SysLogVO {
+  id: number
+  adminId: number
+  adminName: string
+  module: string
+  action: string
+  content: string | null
+  ip: string
+  createTime: string
+}

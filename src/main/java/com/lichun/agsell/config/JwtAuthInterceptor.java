@@ -50,6 +50,8 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             // 秒杀活动浏览接口（无需登录；下单 /api/seckill/order 需登录）
             "/api/seckill/list",
             "/api/seckill/detail",
+            // 系统配置公开读取（小程序端）
+            "/api/system/config",
             // Swagger/Knife4j 文档
             "/api/doc.html",
             "/api/v3/api-docs",
@@ -57,6 +59,27 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/swagger-resources",
             "/api/webjars"
     };
+
+    /** OPERATOR 角色禁止访问的业务管理前缀（需求权限矩阵：运营专员仅商品/订单/分类/统计） */
+    private static final String[] OPERATOR_FORBIDDEN_PREFIXES = {
+            "/api/admin/user",
+            "/api/admin/review",
+            "/api/admin/banner",
+            "/api/admin/after-sales",
+            "/api/admin/trace",
+            "/api/admin/seckill",
+            "/api/admin/hot-word"
+    };
+
+    /** 判断 uri 是否命中运营专员禁止访问的模块 */
+    private boolean isOperatorForbidden(String uri) {
+        for (String prefix : OPERATOR_FORBIDDEN_PREFIXES) {
+            if (uri.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -91,6 +114,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             // 管理端接口必须使用管理员 token，防止普通用户越权访问；
             // 文件上传接口（/api/file/upload）管理端与用户端共用，两端 token 均可
             boolean isAdminApi = uri.startsWith("/api/admin/");
+            boolean isSystemApi = uri.startsWith("/api/admin/system/");
             boolean isFileUploadApi = uri.startsWith("/api/file/upload");
             if (isAdminApi || (isFileUploadApi && "admin".equals(type))) {
                 if (!"admin".equals(type)) {
@@ -98,6 +122,14 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
                 }
                 Long adminId = userId;
                 String role = claims.get("role", String.class);
+                // 系统管理接口（管理员管理/系统配置/操作日志）仅超级管理员可访问
+                if (isSystemApi && !"SUPER_ADMIN".equals(role)) {
+                    throw new BusinessException(ErrorCode.ADMIN_NO_AUTH_ERROR, "仅超级管理员可操作系统管理");
+                }
+                // 运营专员（OPERATOR）仅可访问商品/订单/分类/统计，其余业务管理模块拒绝（需求权限矩阵）
+                if ("OPERATOR".equals(role) && isOperatorForbidden(uri)) {
+                    throw new BusinessException(ErrorCode.ADMIN_NO_AUTH_ERROR, "运营专员无该模块权限");
+                }
                 // 校验 Redis 中的 token 是否一致
                 if (!redisTokenService.validateAdminToken(adminId, token, jti)) {
                     throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "登录已失效，请重新登录");

@@ -1,6 +1,7 @@
 package com.lichun.agsell.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lichun.agsell.annotation.OperationLog;
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.model.dto.OrderShipRequest;
 import com.lichun.agsell.model.vo.AdminOrderDetailVO;
@@ -39,6 +40,7 @@ public class AdminOrderController {
 
     @Operation(summary = "发货")
     @PostMapping("/{orderNo}/ship")
+    @OperationLog(module = "订单管理", action = "订单发货")
     public BaseResponse<Void> shipOrder(@PathVariable String orderNo,
                                          @RequestBody OrderShipRequest request) {
         adminOrderService.shipOrder(orderNo, request);

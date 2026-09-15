@@ -97,6 +97,24 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         component: () => import('@/views/admin/HotWordListView.vue'),
         meta: { title: '搜索热词' },
       },
+      {
+        path: 'system/admin',
+        name: 'AdminSystemAdmin',
+        component: () => import('@/views/admin/AdminListView.vue'),
+        meta: { title: '管理员管理' },
+      },
+      {
+        path: 'system/config',
+        name: 'AdminSystemConfig',
+        component: () => import('@/views/admin/SystemConfigView.vue'),
+        meta: { title: '系统配置' },
+      },
+      {
+        path: 'system/log',
+        name: 'AdminSystemLog',
+        component: () => import('@/views/admin/OperationLogView.vue'),
+        meta: { title: '操作日志' },
+      },
     ],
   },
   {

@@ -66,6 +66,12 @@
         <text class="menu-text">扫码溯源</text>
         <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
       </view>
+      <view v-if="servicePhone" class="menu-item" @click="onContactService" role="button">
+        <view class="menu-icon menu-icon-service" aria-hidden="true"></view>
+        <text class="menu-text">联系客服</text>
+        <text class="menu-phone">{{ servicePhone }}</text>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      </view>
       <view class="menu-item" @click="goToAbout" role="button">
         <image class="menu-icon" src="/static/icon-menu-about.png" mode="aspectFit" alt="关于我们" />
         <text class="menu-text">关于我们</text>
@@ -83,12 +89,13 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getUserInfo, updateUserInfo, logout } from '../../api/user'
 import { getOrderList } from '../../api/order'
-import { wxLogin, isLoggedIn } from '../../utils/request'
+import { wxLogin, isLoggedIn, request } from '../../utils/request'
 import { uploadMiniImage } from '../../utils/upload'
 
 const userInfo = ref(null)
 const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
 const isUserLoggedIn = ref(isLoggedIn())
+const servicePhone = ref('')
 
 const orderTabs = [
   { label: '待付款', status: 0, icon: '/static/icon-order-pay.png', count: 0 },
@@ -103,7 +110,25 @@ onShow(async () => {
     await loadUserInfo()
     await loadOrderCounts()
   }
+  loadServicePhone()
 })
+
+/** 加载系统配置中的客服电话（未配置则隐藏"联系客服"入口） */
+async function loadServicePhone() {
+  try {
+    const res = await request('GET', '/system/config', null, { params: { keys: 'service_phone' } })
+    if (res.code === 0 && res.data?.service_phone) {
+      servicePhone.value = res.data.service_phone
+    }
+  } catch (e) {
+    console.warn('加载客服电话失败', e)
+  }
+}
+
+function onContactService() {
+  if (!servicePhone.value) return
+  uni.makePhoneCall({ phoneNumber: servicePhone.value })
+}
 
 async function loadUserInfo() {
   const res = await getUserInfo()
@@ -447,6 +472,22 @@ async function onChooseAvatar() {
   border-bottom-right-radius: 4rpx;
 }
 
+.menu-icon-service {
+  border-radius: 8rpx;
+  background: #15803D;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon-service::before {
+  content: '☎';
+  color: #FFFFFF;
+  font-size: 26rpx;
+  line-height: 1;
+}
+
 .menu-text {
   flex: 1;
   font-size: 30rpx;
@@ -456,6 +497,13 @@ async function onChooseAvatar() {
 .menu-arrow {
   width: 32rpx;
   height: 32rpx;
+  flex-shrink: 0;
+}
+
+.menu-phone {
+  font-size: 24rpx;
+  color: #15803D;
+  margin-right: 8rpx;
   flex-shrink: 0;
 }
 

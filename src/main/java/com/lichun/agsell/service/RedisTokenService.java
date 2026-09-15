@@ -68,4 +68,11 @@ public interface RedisTokenService {
      * @param jti     JWT ID
      */
     void deleteAdminToken(Long adminId, String jti);
+
+    /**
+     * 删除管理员全部 token（禁用管理员时调用，立即踢下线）
+     *
+     * @param adminId 管理员ID
+     */
+    void deleteAdminTokens(Long adminId);
 }

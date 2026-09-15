@@ -35,6 +35,12 @@ import type {
   ProductDetailVO,
   SearchHotWord,
   SearchHotWordRequest,
+  AdminListItemVO,
+  AdminCreateRequest,
+  AdminUpdateRequest,
+  ConfigItemVO,
+  ConfigUpdateRequest,
+  SysLogVO,
 } from '@/types'
 
 /** 管理员登录 */
@@ -333,4 +339,51 @@ export function updateHotWordStatus(id: number, status: number) {
 /** 删除热词 */
 export function deleteHotWord(id: number) {
   return request.delete<null>(`/admin/hot-word/${id}`)
+}
+
+// ─── 系统管理（仅超级管理员） ───────────────────────────────────────────────────
+
+/** 管理员列表（分页） */
+export function listAdmins(params: { pageNum?: number; pageSize?: number; keyword?: string }) {
+  return request.get<Page<AdminListItemVO>>('/admin/system/admin/list', { params })
+}
+
+/** 新增管理员 */
+export function createAdmin(data: AdminCreateRequest) {
+  return request.post<null>('/admin/system/admin', data)
+}
+
+/** 编辑管理员 */
+export function updateAdmin(id: number, data: AdminUpdateRequest) {
+  return request.put<null>(`/admin/system/admin/${id}`, data)
+}
+
+/** 重置密码 */
+export function resetAdminPassword(id: number, newPassword: string) {
+  return request.put<null>(`/admin/system/admin/${id}/password`, { newPassword })
+}
+
+/** 启用/禁用管理员 */
+export function updateAdminStatus(id: number, status: number) {
+  return request.put<null>(`/admin/system/admin/${id}/status`, null, { params: { status } })
+}
+
+/** 删除管理员 */
+export function deleteAdmin(id: number) {
+  return request.delete<null>(`/admin/system/admin/${id}`)
+}
+
+/** 系统配置列表 */
+export function listConfigs() {
+  return request.get<ConfigItemVO[]>('/admin/system/config/list')
+}
+
+/** 更新系统配置 */
+export function updateConfigs(data: ConfigUpdateRequest) {
+  return request.put<null>('/admin/system/config', data)
+}
+
+/** 操作日志分页 */
+export function listSysLogs(params: { pageNum?: number; pageSize?: number; module?: string; adminName?: string }) {
+  return request.get<Page<SysLogVO>>('/admin/system/log/list', { params })
 }

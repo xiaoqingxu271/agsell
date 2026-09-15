@@ -6,8 +6,10 @@ import com.lichun.agsell.common.AdminContext;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.SysAdminMapper;
+import com.lichun.agsell.mapper.SysLogMapper;
 import com.lichun.agsell.model.dto.AdminLoginRequest;
 import com.lichun.agsell.model.entity.SysAdmin;
+import com.lichun.agsell.model.entity.SysLog;
 import com.lichun.agsell.model.vo.AdminInfoVO;
 import com.lichun.agsell.model.vo.AdminLoginVO;
 import com.lichun.agsell.service.AdminAuthService;
@@ -29,6 +31,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private final SysAdminMapper adminMapper;
     private final JwtUtils jwtUtils;
     private final RedisTokenService redisTokenService;
+    private final SysLogMapper sysLogMapper;
 
     @Override
     @Transactional
@@ -70,7 +73,21 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         redisTokenService.saveAdminToken(admin.getId(), token, jti, jwtUtils.getExpirationSeconds());
         log.info("[AdminLogin] 登录成功, adminId={}, token前30={}", admin.getId(), token.substring(0, Math.min(30, token.length())));
 
-        // 7. 构建响应
+        // 7. 写登录操作日志（失败不影响登录主流程）
+        try {
+            SysLog sysLog = new SysLog();
+            sysLog.setAdminId(admin.getId());
+            sysLog.setAdminName(admin.getRealName() != null ? admin.getRealName() : admin.getUsername());
+            sysLog.setModule("认证");
+            sysLog.setAction("管理员登录");
+            sysLog.setContent("账号 " + request.getUsername() + " 登录成功");
+            sysLog.setIp("127.0.0.1"); // 与现有 login_ip 处理一致
+            sysLogMapper.insert(sysLog);
+        } catch (Exception e) {
+            log.warn("[AdminLogin] 登录日志写入失败: {}", e.getMessage());
+        }
+
+        // 8. 构建响应
         AdminLoginVO vo = new AdminLoginVO();
         vo.setToken(token);
         vo.setAdminId(admin.getId());

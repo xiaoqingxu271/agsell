@@ -49,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
     private final SysUserAddressMapper addressMapper;
     private final SysUserMapper userMapper;
     private final com.lichun.agsell.service.SeckillService seckillService;
+    private final com.lichun.agsell.service.SysConfigService sysConfigService;
 
     /** 待付款订单超时分钟数（与 OrderTimeoutScheduler 共用配置 order.timeout-minutes） */
     @Value("${order.timeout-minutes:30}")
@@ -160,15 +161,18 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 4. 生成订单
+        // 4. 计算运费（读取系统配置：满额包邮阈值、默认运费）
+        BigDecimal freight = computeFreight(totalAmount);
+
+        // 5. 生成订单
         String orderNo = generateOrderNo();
         Order order = new Order();
         order.setOrderNo(orderNo);
         order.setUserId(userId);
         order.setTotalAmount(totalAmount);
-        order.setFreight(BigDecimal.ZERO);
+        order.setFreight(freight);
         order.setDiscount(BigDecimal.ZERO);
-        order.setPayAmount(totalAmount);
+        order.setPayAmount(totalAmount.add(freight));
         order.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode()); // 待付款
         order.setAddressId(request.getAddressId());
         order.setReceiver(address.getReceiver());
@@ -178,26 +182,43 @@ public class OrderServiceImpl implements OrderService {
         order.setRemark(request.getRemark());
         orderMapper.insert(order);
 
-        // 5. 保存订单明细
+        // 6. 保存订单明细
         orderItems.forEach(item -> item.setOrderId(order.getId()));
         orderItemMapper.insert(orderItems);
 
-        // 6. 购物车结算：删除已下单的购物车条目
+        // 7. 购物车结算：删除已下单的购物车条目
         if (hasCartIds) {
             cartMapper.delete(new LambdaQueryWrapper<Cart>()
                     .eq(Cart::getUserId, userId)
                     .in(Cart::getId, request.getCartItemIds()));
         }
 
-        // 7. 返回订单信息
+        // 8. 返回订单信息
         OrderCreateVO vo = new OrderCreateVO();
         vo.setOrderNo(orderNo);
-        vo.setPayAmount(totalAmount);
+        vo.setPayAmount(totalAmount.add(freight));
         vo.setTotalAmount(totalAmount);
         vo.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode());
         vo.setCreateTime(order.getCreateTime());
         vo.setExpireSeconds(computeExpireSeconds(order.getCreateTime()));
         return vo;
+    }
+
+    /**
+     * 计算运费：商品金额 ≥ 满额包邮阈值（阈值 > 0）时免运费，否则收取默认运费
+     */
+    private BigDecimal computeFreight(BigDecimal totalAmount) {
+        try {
+            BigDecimal threshold = new BigDecimal(sysConfigService.getConfigOrDefault("free_shipping_threshold", "0"));
+            BigDecimal defaultFreight = new BigDecimal(sysConfigService.getConfigOrDefault("default_freight", "0"));
+            if (threshold.compareTo(BigDecimal.ZERO) > 0 && totalAmount.compareTo(threshold) >= 0) {
+                return BigDecimal.ZERO;
+            }
+            return defaultFreight;
+        } catch (NumberFormatException e) {
+            log.warn("[Order] 运费配置解析异常，使用默认 0: {}", e.getMessage());
+            return BigDecimal.ZERO;
+        }
     }
 
     @Override

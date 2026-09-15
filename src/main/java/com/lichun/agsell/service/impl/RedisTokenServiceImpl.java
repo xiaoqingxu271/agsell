@@ -83,4 +83,16 @@ public class RedisTokenServiceImpl implements RedisTokenService {
         Boolean deleted = redisTemplate.delete(key);
         log.info("[RedisToken] 删除管理员token, adminId={}, jti={}, deleted={}", adminId, jti, deleted);
     }
+
+    @Override
+    public void deleteAdminTokens(Long adminId) {
+        String pattern = ADMIN_TOKEN_PREFIX + adminId + ":*";
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+            log.info("[RedisToken] 删除管理员全部token, adminId={}, count={}", adminId, keys.size());
+        } else {
+            log.info("[RedisToken] 删除管理员全部token, adminId={}, 无有效token", adminId);
+        }
+    }
 }

@@ -16,6 +16,7 @@ import {
   Timer,
   RefreshLeft,
   Search,
+  Setting,
   SwitchButton,
   Fold,
   Expand,
@@ -134,6 +135,21 @@ async function handleLogout() {
           <el-icon><Search /></el-icon>
           <span>搜索热词</span>
         </el-menu-item>
+        <el-sub-menu v-if="adminStore.adminInfo?.role === 'SUPER_ADMIN'" index="system">
+          <template #title>
+            <el-icon><Setting /></el-icon>
+            <span>系统管理</span>
+          </template>
+          <el-menu-item index="/admin/system/admin">
+            <span>管理员管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/system/config">
+            <span>系统配置</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/system/log">
+            <span>操作日志</span>
+          </el-menu-item>
+        </el-sub-menu>
       </el-menu>
 
       <div class="aside-footer">

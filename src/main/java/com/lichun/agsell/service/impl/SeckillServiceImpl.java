@@ -55,6 +55,7 @@ public class SeckillServiceImpl implements SeckillService {
     private final OrderItemMapper orderItemMapper;
     private final SysUserAddressMapper addressMapper;
     private final SeckillRedisService seckillRedisService;
+    private final com.lichun.agsell.service.SysConfigService sysConfigService;
 
     /** 待付款订单超时分钟数（与 order.timeout-minutes 对齐） */
     @Value("${order.timeout-minutes:30}")
@@ -272,14 +273,15 @@ public class SeckillServiceImpl implements SeckillService {
 
         // 7. 构建秒杀订单（服务端计价：金额=秒杀价，数量=1，不信任前端）
         try {
+            BigDecimal freight = computeFreight(activity.getSeckillPrice());
             String orderNo = "AGS" + IdUtil.getSnowflakeNextIdStr();
             Order order = new Order();
             order.setOrderNo(orderNo);
             order.setUserId(userId);
             order.setTotalAmount(activity.getSeckillPrice());
-            order.setFreight(BigDecimal.ZERO);
+            order.setFreight(freight);
             order.setDiscount(BigDecimal.ZERO);
-            order.setPayAmount(activity.getSeckillPrice());
+            order.setPayAmount(activity.getSeckillPrice().add(freight));
             order.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode());
             order.setAddressId(address.getId());
             order.setReceiver(address.getReceiver());
@@ -304,7 +306,7 @@ public class SeckillServiceImpl implements SeckillService {
 
             OrderCreateVO vo = new OrderCreateVO();
             vo.setOrderNo(orderNo);
-            vo.setPayAmount(activity.getSeckillPrice());
+            vo.setPayAmount(activity.getSeckillPrice().add(freight));
             vo.setTotalAmount(activity.getSeckillPrice());
             vo.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode());
             vo.setCreateTime(order.getCreateTime());
@@ -325,6 +327,23 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     public void releaseSeckillQuota(Long activityId, Long userId) {
         seckillRedisService.releaseSeckill(activityId, userId);
+    }
+
+    /**
+     * 计算运费：商品金额 ≥ 满额包邮阈值（阈值 > 0）时免运费，否则收取默认运费
+     */
+    private BigDecimal computeFreight(BigDecimal totalAmount) {
+        try {
+            BigDecimal threshold = new BigDecimal(sysConfigService.getConfigOrDefault("free_shipping_threshold", "0"));
+            BigDecimal defaultFreight = new BigDecimal(sysConfigService.getConfigOrDefault("default_freight", "0"));
+            if (threshold.compareTo(BigDecimal.ZERO) > 0 && totalAmount.compareTo(threshold) >= 0) {
+                return BigDecimal.ZERO;
+            }
+            return defaultFreight;
+        } catch (NumberFormatException e) {
+            log.error("[Seckill] 运费配置解析异常，使用默认 0", e);
+            return BigDecimal.ZERO;
+        }
     }
 
     // ==================== 管理端 ====================
