@@ -69,5 +69,5 @@ order:
 
 # 溯源配置
 trace:
-  base-url: ${trace.base-url:http://localhost:8080/api} # 溯源 H5 页面域名（二维码内容前缀）
+  base-url: ${TRACE_BASE_URL:http://localhost:8080/api} # 溯源 H5 页面域名（二维码内容前缀），可用环境变量 TRACE_BASE_URL 覆盖
 
