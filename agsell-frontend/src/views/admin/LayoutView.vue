@@ -7,6 +7,7 @@ import { ElMessageBox } from 'element-plus'
 import {
   DataAnalysis,
   User,
+  UserFilled,
   List,
   Goods,
   ShoppingCart,
@@ -17,6 +18,8 @@ import {
   RefreshLeft,
   Search,
   Setting,
+  Tools,
+  Document,
   SwitchButton,
   Fold,
   Expand,
@@ -27,6 +30,17 @@ const adminStore = useAdminStore()
 
 const displayName = computed(() => adminStore.adminInfo?.realName ?? '管理员')
 const initial = computed(() => displayName.value.trim().charAt(0) || '管')
+
+// ── 角色 → 可见模块（对应 系统管理模块开发文档 §3.2 权限矩阵，与后端拦截器口径一致）──
+const roleModules: Record<string, string[]> = {
+  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'hotWord', 'system'],
+  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'hotWord'],
+  OPERATOR: ['dashboard', 'categories', 'products', 'orders'],
+}
+const currentRole = computed(() => adminStore.adminInfo?.role ?? '')
+function canAccess(moduleKey: string): boolean {
+  return roleModules[currentRole.value]?.includes(moduleKey) ?? false
+}
 
 // ── 侧栏折叠（企业级 v3 §7：<768px 自动折叠 + 顶栏手动切换）──
 const isCollapse = ref(false)
@@ -91,62 +105,65 @@ async function handleLogout() {
         :collapse="isCollapse"
         :collapse-transition="false"
       >
-        <el-menu-item index="/admin/dashboard">
+        <el-menu-item v-if="canAccess('dashboard')" index="/admin/dashboard">
           <el-icon><DataAnalysis /></el-icon>
           <span>数据概览</span>
         </el-menu-item>
-        <el-menu-item index="/admin/users">
+        <el-menu-item v-if="canAccess('users')" index="/admin/users">
           <el-icon><User /></el-icon>
           <span>用户管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/categories">
+        <el-menu-item v-if="canAccess('categories')" index="/admin/categories">
           <el-icon><List /></el-icon>
           <span>分类管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/products">
+        <el-menu-item v-if="canAccess('products')" index="/admin/products">
           <el-icon><Goods /></el-icon>
           <span>商品管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/orders">
+        <el-menu-item v-if="canAccess('orders')" index="/admin/orders">
           <el-icon><ShoppingCart /></el-icon>
           <span>订单管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/reviews">
+        <el-menu-item v-if="canAccess('reviews')" index="/admin/reviews">
           <el-icon><ChatDotRound /></el-icon>
           <span>评价管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/after-sales">
+        <el-menu-item v-if="canAccess('afterSales')" index="/admin/after-sales">
           <el-icon><RefreshLeft /></el-icon>
           <span>售后管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/banners">
+        <el-menu-item v-if="canAccess('banners')" index="/admin/banners">
           <el-icon><Picture /></el-icon>
           <span>轮播图管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/traceability">
+        <el-menu-item v-if="canAccess('traceability')" index="/admin/traceability">
           <el-icon><Aim /></el-icon>
           <span>产地溯源</span>
         </el-menu-item>
-        <el-menu-item index="/admin/seckill">
+        <el-menu-item v-if="canAccess('seckill')" index="/admin/seckill">
           <el-icon><Timer /></el-icon>
           <span>秒杀管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/hot-word">
+        <el-menu-item v-if="canAccess('hotWord')" index="/admin/hot-word">
           <el-icon><Search /></el-icon>
           <span>搜索热词</span>
         </el-menu-item>
-        <el-sub-menu v-if="adminStore.adminInfo?.role === 'SUPER_ADMIN'" index="system">
+        <el-sub-menu v-if="canAccess('system')" index="system">
           <template #title>
             <el-icon><Setting /></el-icon>
             <span>系统管理</span>
           </template>
           <el-menu-item index="/admin/system/admin">
+            <el-icon><UserFilled /></el-icon>
             <span>管理员管理</span>
           </el-menu-item>
           <el-menu-item index="/admin/system/config">
+            <el-icon><Tools /></el-icon>
             <span>系统配置</span>
           </el-menu-item>
           <el-menu-item index="/admin/system/log">
+            <el-icon><Document /></el-icon>
             <span>操作日志</span>
           </el-menu-item>
         </el-sub-menu>
@@ -280,8 +297,55 @@ async function handleLogout() {
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* 子菜单「系统管理」：标题与顶级菜单项保持同一视觉层级 */
+.sidebar-menu :deep(.el-sub-menu__title) {
+  margin: 4px 10px;
+  height: 46px;
+  line-height: 46px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+.sidebar-menu :deep(.el-sub-menu__title .el-icon) {
+  font-size: 18px;
+}
+.sidebar-menu :deep(.el-sub-menu__title:hover) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9);
+}
+/* 子项激活时，父级「系统管理」标题同步高亮 */
+.sidebar-menu :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+/* 子菜单展开容器与子项 */
+.sidebar-menu :deep(.el-menu--inline) {
+  background: transparent;
+  padding-bottom: 4px;
+}
+.sidebar-menu :deep(.el-sub-menu .el-menu-item) {
+  margin: 2px 10px 2px 34px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.65);
+}
+.sidebar-menu :deep(.el-sub-menu .el-menu-item .el-icon) {
+  font-size: 16px;
+}
+.sidebar-menu :deep(.el-sub-menu .el-menu-item:hover) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 /* 折叠态：图标居中，隐藏文案 */
 .sidebar-menu.el-menu--collapse .el-menu-item {
+  margin: 4px 8px;
+  padding: 0 !important;
+  justify-content: center;
+}
+.sidebar-menu.el-menu--collapse :deep(.el-sub-menu__title) {
   margin: 4px 8px;
   padding: 0 !important;
   justify-content: center;

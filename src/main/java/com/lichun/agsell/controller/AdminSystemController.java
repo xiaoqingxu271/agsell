@@ -6,7 +6,7 @@ import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.model.dto.*;
 import com.lichun.agsell.model.vo.AdminListItemVO;
 import com.lichun.agsell.model.vo.ConfigItemVO;
-import com.lichun.agsell.model.vo.SysLogVO;
+import com.lichun.agsell.model.vo.SysLogPageVO;
 import com.lichun.agsell.service.AdminSystemService;
 import com.lichun.agsell.service.SysConfigService;
 import com.lichun.agsell.service.SysLogService;
@@ -103,7 +103,7 @@ public class AdminSystemController {
 
     @Operation(summary = "操作日志列表")
     @GetMapping("/log/list")
-    public BaseResponse<Page<SysLogVO>> listLogs(SysLogQueryRequest request) {
+    public BaseResponse<SysLogPageVO> listLogs(SysLogQueryRequest request) {
         return ResultUtils.success(sysLogService.listLogs(request));
     }
 }

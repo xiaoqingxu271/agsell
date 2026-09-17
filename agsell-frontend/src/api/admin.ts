@@ -40,7 +40,7 @@ import type {
   AdminUpdateRequest,
   ConfigItemVO,
   ConfigUpdateRequest,
-  SysLogVO,
+  SysLogPageVO,
 } from '@/types'
 
 /** 管理员登录 */
@@ -383,7 +383,7 @@ export function updateConfigs(data: ConfigUpdateRequest) {
   return request.put<null>('/admin/system/config', data)
 }
 
-/** 操作日志分页 */
-export function listSysLogs(params: { pageNum?: number; pageSize?: number; module?: string; adminName?: string }) {
-  return request.get<Page<SysLogVO>>('/admin/system/log/list', { params })
+/** 操作日志 keyset 游标分页（create_time desc, id desc，避免深分页） */
+export function listSysLogs(params: { pageSize?: number; module?: string; adminName?: string; cursorTime?: string; cursorId?: number }) {
+  return request.get<SysLogPageVO>('/admin/system/log/list', { params })
 }

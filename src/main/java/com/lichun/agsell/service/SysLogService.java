@@ -1,14 +1,13 @@
 package com.lichun.agsell.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.model.dto.SysLogQueryRequest;
-import com.lichun.agsell.model.vo.SysLogVO;
+import com.lichun.agsell.model.vo.SysLogPageVO;
 
 /**
  * 操作日志服务
  */
 public interface SysLogService {
 
-    /** 分页查询（时间倒序，支持模块/操作人筛选） */
-    Page<SysLogVO> listLogs(SysLogQueryRequest request);
+    /** keyset 游标分页（create_time desc, id desc，避免深分页） */
+    SysLogPageVO listLogs(SysLogQueryRequest request);
 }

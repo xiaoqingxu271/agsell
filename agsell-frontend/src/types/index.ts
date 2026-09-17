@@ -468,6 +468,7 @@ export interface AdminCreateRequest {
 }
 
 export interface AdminUpdateRequest {
+  username?: string
   realName?: string
   role?: 'ADMIN' | 'OPERATOR'
 }
@@ -491,4 +492,17 @@ export interface SysLogVO {
   content: string | null
   ip: string
   createTime: string
+}
+
+/** 操作日志 keyset 游标分页响应 */
+export interface SysLogPageVO {
+  records: SysLogVO[]
+  /** 总条数（后端 Long 序列化为字符串，前端需 Number() 转换） */
+  total: number
+  /** 是否还有下一页 */
+  hasMore: boolean
+  /** 下一页游标：本页最后一条 createTime */
+  cursorTime: string | null
+  /** 下一页游标：本页最后一条 id */
+  cursorId: number | null
 }

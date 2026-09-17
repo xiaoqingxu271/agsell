@@ -27,7 +27,7 @@ async function fetchList() {
   try {
     const res = await listAdmins({ pageNum: page.value, pageSize: pageSize.value, keyword: keyword.value || undefined })
     list.value = res.records
-    total.value = res.total
+    total.value = Number(res.total)
   } catch {
     // interceptor handles error
   } finally {
@@ -96,7 +96,11 @@ async function handleSubmit() {
   formLoading.value = true
   try {
     if (form.value.id) {
-      const payload: AdminUpdateRequest = { realName: form.value.realName, role: form.value.role }
+      const payload: AdminUpdateRequest = {
+        username: form.value.username?.trim(),
+        realName: form.value.realName,
+        role: form.value.role,
+      }
       await updateAdmin(form.value.id, payload)
       ElMessage.success('编辑成功')
     } else {
@@ -206,17 +210,17 @@ onMounted(fetchList)
       </template>
 
       <el-table class="admin-table" :data="list" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="190" align="center" show-overflow-tooltip />
-        <el-table-column prop="username" label="用户名" min-width="110" align="center" show-overflow-tooltip />
-        <el-table-column prop="realName" label="姓名" min-width="100" align="center" show-overflow-tooltip>
+        <el-table-column prop="id" label="ID" width="200" align="center" show-overflow-tooltip />
+        <el-table-column prop="username" label="用户名" min-width="160" align="center" show-overflow-tooltip />
+        <el-table-column prop="realName" label="姓名" min-width="160" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.realName || '—' }}</template>
         </el-table-column>
-        <el-table-column label="角色" width="120" align="center">
+        <el-table-column label="角色" width="160" align="center">
           <template #default="{ row }">
             <el-tag :type="roleTagType(row.role)" size="small">{{ roleText(row.role) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column label="状态" width="160" align="center">
           <template #default="{ row }">
             <el-switch
               :model-value="row.status === 1"
@@ -228,7 +232,7 @@ onMounted(fetchList)
             />
           </template>
         </el-table-column>
-        <el-table-column label="最后登录" width="160" align="center" show-overflow-tooltip>
+        <el-table-column label="最后登录" width="200" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ formatTime(row.loginTime) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center" fixed="right">
@@ -240,13 +244,15 @@ onMounted(fetchList)
         </el-table-column>
       </el-table>
 
+      <!-- 分页 -->
       <div class="admin-pagination">
+        <span class="admin-total-text">共 {{ total }} 条记录</span>
         <el-pagination
-          background
-          layout="total, prev, pager, next"
-          :total="total"
+          v-model:current-page="page"
           :page-size="pageSize"
-          :current-page="page"
+          :total="total"
+          layout="prev, pager, next"
+          :hide-on-single-page="false"
           @current-change="handlePageChange"
         />
       </div>
@@ -256,7 +262,7 @@ onMounted(fetchList)
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="440px" destroy-on-close>
       <el-form label-width="80px">
         <el-form-item label="用户名">
-          <el-input v-model="form.username" :disabled="!!form.id" placeholder="登录用户名" maxlength="32" />
+          <el-input v-model="form.username" placeholder="登录用户名" maxlength="32" />
         </el-form-item>
         <el-form-item v-if="!form.id" label="密码">
           <el-input v-model="form.password" type="password" show-password placeholder="至少 6 位" maxlength="32" />

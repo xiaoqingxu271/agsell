@@ -6,13 +6,16 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 编辑管理员请求（仅允许修改姓名 / 角色）
+ * 编辑管理员请求（允许修改用户名 / 姓名 / 角色）
  */
 @Data
 public class AdminUpdateRequest implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    /** 登录用户名（可选，为空则不修改；需唯一） */
+    private String username;
 
     /** 真实姓名 */
     private String realName;

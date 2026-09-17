@@ -21,7 +21,7 @@ async function fetchList() {
   try {
     const res = await listHotWords({ pageNum: page.value, pageSize: pageSize.value })
     list.value = res.records
-    total.value = res.total
+    total.value = Number(res.total)
   } catch {
     // interceptor handles error
   } finally {

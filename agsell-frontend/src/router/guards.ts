@@ -126,6 +126,20 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
 
 // ─── 守卫工具 ──────────────────────────────────────────────────────────────────
 
+/** 角色 → 可访问的管理端路径（与 LayoutView 侧栏菜单权限矩阵一致） */
+const roleAllowedPaths: Record<string, string[]> = {
+  OPERATOR: ['/admin/dashboard', '/admin/categories', '/admin/products', '/admin/orders'],
+}
+
+/** 判断当前角色是否可访问指定管理端路径 */
+function isPathAllowed(role: string, path: string): boolean {
+  if (role === 'SUPER_ADMIN') return true
+  if (role === 'ADMIN') return path.startsWith('/admin/') && !path.startsWith('/admin/system/')
+  const allowed = roleAllowedPaths[role]
+  if (!allowed) return false
+  return allowed.some((p) => path === p || path.startsWith(p + '/'))
+}
+
 export function setTitle(meta: RouteMeta) {
   const title = meta.title ? `${meta.title} | 农产品销售系统` : '农产品销售系统'
   document.title = title
@@ -142,6 +156,10 @@ export async function handleAuthGuard(
     const adminStore = useAdminStore()
     const valid = await adminStore.fetchAdminInfo()
     if (!valid) return { path: '/admin/login', query: { redirect: to.fullPath } }
+    // 当前角色无该模块权限 → 回到数据概览，避免进入无权限页面触发后端 40201
+    if (!isPathAllowed(adminStore.adminInfo?.role ?? '', to.path)) {
+      return '/admin/dashboard'
+    }
     return true
   }
 

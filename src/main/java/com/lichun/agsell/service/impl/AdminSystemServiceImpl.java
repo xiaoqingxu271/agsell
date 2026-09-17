@@ -93,6 +93,17 @@ public class AdminSystemServiceImpl implements AdminSystemService {
 
         SysAdmin update = new SysAdmin();
         update.setId(id);
+        // 用户名修改：格式校验 + 唯一性校验（排除自身，先清理同名逻辑删除记录支持复用）
+        if (StringUtils.hasText(request.getUsername())) {
+            String username = request.getUsername().trim();
+            ThrowUtils.throwIf(username.length() > 32, ErrorCode.PARAMS_ERROR, "用户名长度不能超过32个字符");
+            adminMapper.purgeDeletedByUsername(username);
+            Long exists = adminMapper.selectCount(new LambdaQueryWrapper<SysAdmin>()
+                    .eq(SysAdmin::getUsername, username)
+                    .ne(SysAdmin::getId, id));
+            ThrowUtils.throwIf(exists > 0, ErrorCode.OPERATION_ERROR, "用户名已存在");
+            update.setUsername(username);
+        }
         if (request.getRealName() != null) {
             update.setRealName(request.getRealName());
         }

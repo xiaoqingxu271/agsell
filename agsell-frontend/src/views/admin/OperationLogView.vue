@@ -13,17 +13,37 @@ const pageSize = ref(10)
 const module = ref('')
 const adminName = ref('')
 
-async function fetchList() {
+// 游标分页 + 页码跳页混合：cursorMap.get(n) = 第 n 页的查询游标（不存在则按页码 OFFSET 查询）
+// 顺序翻页（上一页/下一页相邻）走 keyset 游标，任意跳页走 OFFSET 兜底
+const cursorMap = ref<Map<number, { cursorTime?: string; cursorId?: number }>>(new Map())
+
+interface Cursor {
+  cursorTime?: string
+  cursorId?: number
+}
+
+async function fetchPage(targetPage: number) {
   loading.value = true
   try {
+    const cursor: Cursor = cursorMap.value.get(targetPage) ?? {}
     const res = await listSysLogs({
-      pageNum: page.value,
       pageSize: pageSize.value,
       module: module.value || undefined,
       adminName: adminName.value || undefined,
+      // 有游标走 keyset；无游标（首屏或跳页）走页码 OFFSET
+      pageNum: cursor.cursorTime ? undefined : targetPage,
+      cursorTime: cursor.cursorTime,
+      cursorId: cursor.cursorId,
     })
     list.value = res.records
-    total.value = res.total
+    // 后端 Long 序列化为字符串（防雪花 ID 精度丢失），必须转 number 否则新版 ElPagination 不渲染
+    total.value = Number(res.total)
+    page.value = targetPage
+    // 记录下一页游标 = 本页最后一条
+    const last = res.records[res.records.length - 1]
+    if (last) {
+      cursorMap.value.set(targetPage + 1, { cursorTime: last.createTime, cursorId: last.id })
+    }
   } catch {
     // interceptor handles error
   } finally {
@@ -32,20 +52,20 @@ async function fetchList() {
 }
 
 function handleSearch() {
-  page.value = 1
-  fetchList()
+  cursorMap.value = new Map()
+  fetchPage(1)
 }
 
 function handlePageChange(val: number) {
-  page.value = val
-  fetchList()
+  // 注意：v-model:current-page 已先更新 page，此处 val 与 page 恒相等，不能再做去重判断
+  fetchPage(val)
 }
 
 function formatTime(time: string): string {
   return time.replace('T', ' ').substring(0, 19)
 }
 
-onMounted(fetchList)
+onMounted(() => fetchPage(1))
 </script>
 
 <template>
@@ -81,26 +101,28 @@ onMounted(fetchList)
       </template>
 
       <el-table class="admin-table" :data="list" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="190" align="center" show-overflow-tooltip />
-        <el-table-column prop="adminName" label="操作人" width="110" align="center" show-overflow-tooltip />
-        <el-table-column prop="module" label="模块" width="130" align="center" show-overflow-tooltip />
-        <el-table-column prop="action" label="动作" width="130" align="center" show-overflow-tooltip />
-        <el-table-column prop="content" label="内容" min-width="220" align="center" show-overflow-tooltip>
+        <el-table-column prop="id" label="ID" width="150" align="center" show-overflow-tooltip />
+        <el-table-column prop="adminName" label="操作人" width="90" align="center" show-overflow-tooltip />
+        <el-table-column prop="module" label="模块" width="100" align="center" show-overflow-tooltip />
+        <el-table-column prop="action" label="动作" width="100" align="center" show-overflow-tooltip />
+        <el-table-column prop="content" label="内容" min-width="160" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.content || '—' }}</template>
         </el-table-column>
-        <el-table-column prop="ip" label="IP" width="140" align="center" show-overflow-tooltip />
-        <el-table-column label="操作时间" width="170" align="center" show-overflow-tooltip>
+        <el-table-column prop="ip" label="IP" width="100" align="center" show-overflow-tooltip />
+        <el-table-column label="操作时间" width="260" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ formatTime(row.createTime) }}</template>
         </el-table-column>
       </el-table>
 
+      <!-- 游标 + 页码混合分页：相邻翻页走游标，任意跳页走 OFFSET -->
       <div class="admin-pagination">
+        <span class="admin-total-text">共 {{ total }} 条记录</span>
         <el-pagination
-          background
-          layout="total, prev, pager, next"
-          :total="total"
+          v-model:current-page="page"
           :page-size="pageSize"
-          :current-page="page"
+          :total="total"
+          layout="prev, pager, next"
+          :hide-on-single-page="false"
           @current-change="handlePageChange"
         />
       </div>

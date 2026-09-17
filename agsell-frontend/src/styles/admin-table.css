@@ -101,6 +101,14 @@
   flex-shrink: 0;
 }
 
+/* 卡片头部操作区（搜索框/按钮）间距 */
+.admin-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* ── 搜索卡片样式 ── */
 .admin-search-card {
   margin-bottom: 1rem;
