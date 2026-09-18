@@ -49,6 +49,23 @@ function fmtSales(v: number | undefined): string {
   return `¥${Number(v ?? 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+// ── 主卡制指标带（v4）：销售总额主卡 + 4 项次卡 ──────────────────────────────
+
+const mainKpi = computed(() => ({
+  label: '销售总额',
+  value: fmtSales(stats.value?.totalSales),
+  pill: '实时',
+  sub: '近 7 天销售额走势',
+  spark: trend.value?.sales ?? [],
+}))
+
+const bizKpis = computed(() => [
+  { label: '今日新增用户', value: stats.value?.todayNewUsers ?? 0, icon: 'users' as const },
+  { label: '今日活跃用户', value: stats.value?.activeTodayUsers ?? 0, icon: 'active' as const },
+  { label: '订单总数', value: stats.value?.orderTotal ?? 0, icon: 'order' as const },
+  { label: '在售商品', value: stats.value?.onSaleProducts ?? 0, icon: 'product' as const },
+])
+
 // ─── 图表 option（由 dashboard-options.ts 统一构建） ──────────────────────────
 
 const userPieOption = computed(() => buildUserPieOption(stats.value))
@@ -73,47 +90,14 @@ const salesTrendOption = computed(() =>
       <el-button :icon="Refresh" @click="loadAll">刷新</el-button>
     </PageHeader>
 
-    <!-- 第一行：用户相关指标（一个大面板包裹，内部指标块竖分隔） -->
+    <!-- 指标带：主卡 + 次卡（v4 主卡制） -->
     <KpiPanel
-      title="用户数据"
-      caption="平台注册用户运营指标"
-      :items="[
-        { label: '用户总数', value: stats?.userTotal ?? 0 },
-        { label: '今日新增', value: stats?.todayNewUsers ?? 0 },
-        { label: '今日活跃', value: stats?.activeTodayUsers ?? 0 },
-        { label: '禁用用户', value: stats?.disabledUsers ?? 0 },
-      ]"
+      :main="mainKpi"
+      :items="bizKpis"
     />
 
-    <!-- 第二行：商品/订单/销售指标（一个大面板包裹） -->
-    <KpiPanel
-      title="商品与订单"
-      caption="商品库存、订单流转与销售金额"
-      :items="[
-        { label: '商品总数', value: stats?.productTotal ?? 0 },
-        { label: '在售商品', value: stats?.onSaleProducts ?? 0 },
-        { label: '订单总数', value: stats?.orderTotal ?? 0 },
-        { label: '待发货订单', value: stats?.pendingShipOrders ?? 0 },
-        { label: '已支付订单', value: stats?.paidOrders ?? 0 },
-        { label: '销售总额', value: fmtSales(stats?.totalSales), accent: true },
-      ]"
-    />
-
-    <!-- 第三块：趋势图区 2 图（lg 2列 / xs 1列） -->
+    <!-- 趋势图区 2 图（lg 2列 / xs 1列） -->
     <el-row :gutter="16" class="chart-row">
-      <el-col :xs="24" :lg="12">
-        <el-card shadow="never" class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">新增用户趋势</div>
-              <div class="chart-sub">近 {{ trendDays }} 天每日新增用户</div>
-            </div>
-          </div>
-          <div class="chart-box">
-            <BaseChart :option="userTrendOption" />
-          </div>
-        </el-card>
-      </el-col>
       <el-col :xs="24" :lg="12">
         <el-card shadow="never" class="chart-card">
           <div class="chart-head">
@@ -127,9 +111,22 @@ const salesTrendOption = computed(() =>
           </div>
         </el-card>
       </el-col>
+      <el-col :xs="24" :lg="12">
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">新增用户趋势</div>
+              <div class="chart-sub">近 {{ trendDays }} 天每日新增用户</div>
+            </div>
+          </div>
+          <div class="chart-box">
+            <BaseChart :option="userTrendOption" />
+          </div>
+        </el-card>
+      </el-col>
     </el-row>
 
-    <!-- 第四块：构成图区 2x2（两行独立排列，行间留白） -->
+    <!-- 构成图区 2x2（两行独立排列，行间留白） -->
     <el-row :gutter="16" class="chart-row">
       <el-col :xs="24" :md="12">
         <el-card shadow="never" class="chart-card">
@@ -197,7 +194,7 @@ const salesTrendOption = computed(() =>
 
 /* 图表区块间距（行与行之间留白） */
 .chart-row {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 /* 图表卡片 */
@@ -209,23 +206,36 @@ const salesTrendOption = computed(() =>
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .chart-title {
   font-size: 15px;
-  font-weight: 600;
-  color: #0E3B25;
+  font-weight: 700;
+  color: #10231A;
   line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 标题前品牌小竖条 */
+.chart-title::before {
+  content: '';
+  width: 4px;
+  height: 15px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #34C77B, #15803D);
+  flex-shrink: 0;
 }
 
 .chart-sub {
   font-size: 12px;
-  color: #9CA3AF;
+  color: #8A9A91;
   margin-top: 2px;
 }
 
 .chart-box {
-  height: 280px;
+  height: 260px;
 }
 </style>

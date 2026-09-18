@@ -1,6 +1,6 @@
-# agsell-frontend
+# Agsell 前端（agsell-frontend）
 
-农产品销售管理系统 · 管理端前端（Vue 3 + TypeScript + Vite + Element Plus + ECharts）
+> 项目名：**Agsell**（中文品牌：农臻 Agsell）· 农产品销售运营管理平台 · 管理端前端（Vue 3 + TypeScript + Vite + Element Plus + ECharts）
 
 ## 技术栈
 
@@ -17,13 +17,13 @@ src/
 ├── components/   # BaseChart（图表封装）、admin/（PageHeader、KpiPanel 等复用组件）
 ├── router/       # 路由与登录守卫
 ├── stores/       # Pinia（管理员状态）
-├── styles/       # theme.css（设计系统 v3 token 与 EP 覆盖）、admin-table.css（表格/分页）
+├── styles/       # theme.css（设计系统 v4 token 与 EP 覆盖）、admin-table.css（表格/分页）
 ├── types/        # 全局类型
 ├── utils/        # axios 实例
-└── views/admin/  # 登录、布局与 8 个管理页面
+└── views/admin/  # 登录/布局/数据概览 + list/（运营列表页）+ system/（系统管理页）
 ```
 
-设计规范见仓库根 `doc/design-system-v3.md`。
+设计规范见仓库根 `doc/design-system-v4.md`（v4.0 青翠绿 × 丰收金 × 中性底，取代 v3）。
 
 ## 常用命令
 

@@ -176,7 +176,7 @@ onMounted(fetchList)
             <span class="refund-amount">¥{{ row.refundAmount }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column label="状态" width="110" align="center">
           <template #default="{ row }">
             <el-tag :type="statusTag(row.status)" class="admin-status-tag" size="small">
               {{ statusLabel(row.status) }}
@@ -320,7 +320,7 @@ onMounted(fetchList)
 .page { min-height: 100%; }
 
 .refund-amount {
-  color: #A16207;
+  color: #D97706;
   font-weight: 600;
 }
 

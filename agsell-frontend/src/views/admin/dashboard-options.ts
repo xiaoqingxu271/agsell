@@ -2,16 +2,16 @@ import type { EChartsOption } from 'echarts'
 import type { AdminStatisticsVO, StatisticsTrendVO } from '@/types'
 
 // ─── 公共配置 ────────────────────────────────────────────────────────────────
-// 设计系统 v3.0 §8 图表规范：系列色板 #15803D, #10B981, #D97706, #2563EB, #64748B, #DC2626
+// 设计系统 v4.0 图表规范：系列色板 #15803D, #34C77B, #F59E0B, #2563EB, #64748B, #DC2626
 
-const AXIS_LABEL_COLOR = '#6B7280'
-const AXIS_LINE_COLOR = '#E3E7E5'
-const SPLIT_LINE_COLOR = '#EEF1EF'
+const AXIS_LABEL_COLOR = '#8A9A91'
+const AXIS_LINE_COLOR = '#E7ECE9'
+const SPLIT_LINE_COLOR = '#EFF3F0'
 const EMPTY_COLOR = '#E5E7EB'
 const PRIMARY = '#15803D'
-const SUCCESS = '#10B981'
+const SUCCESS = '#34C77B'
 
-/** 品牌绿柱状渐变（v3：深翡翠纵向渐变 + 圆角） */
+/** 品牌绿柱状渐变（v4：青翠绿纵向渐变 + 圆角） */
 const brandBarStyle = {
   color: {
     type: 'linear' as const,
@@ -20,7 +20,7 @@ const brandBarStyle = {
     x2: 0,
     y2: 1,
     colorStops: [
-      { offset: 0, color: '#22C55E' },
+      { offset: 0, color: '#34C77B' },
       { offset: 1, color: '#15803D' },
     ],
   },
@@ -36,16 +36,16 @@ const goldBarStyle = {
     x2: 0,
     y2: 1,
     colorStops: [
-      { offset: 0, color: '#D97706' },
-      { offset: 1, color: '#A16207' },
+      { offset: 0, color: '#F59E0B' },
+      { offset: 1, color: '#D97706' },
     ],
   },
   borderRadius: [6, 6, 0, 0] as [number, number, number, number],
 }
 
-/** 统一 tooltip 深色质感 */
+/** 统一 tooltip 深色质感（墨绿黑） */
 const tooltipStyle = {
-  backgroundColor: 'rgba(10, 42, 27, 0.92)',
+  backgroundColor: 'rgba(16, 35, 26, 0.92)',
   borderColor: 'transparent',
   textStyle: { color: '#FFFFFF', fontSize: 12 },
   padding: [8, 12] as [number, number],
@@ -58,7 +58,7 @@ const emptyAxis = {
 }
 
 /**
- * 环形图通用构建（v3 清爽排版）：
+ * 环形图通用构建（v4 清爽排版）：
  * - 不显示图上标签（避免文字拥挤），改为「中心汇总数字 + 底部图例带百分比」
  * - 颜色显式传入；全 0 时回退灰色"暂无数据"
  */
@@ -87,8 +87,8 @@ function buildDonutOption(opts: {
       subtext: opts.centerSub,
       left: 'center',
       top: '35%',
-      textStyle: { fontSize: 22, fontWeight: 700, color: '#1F2937' },
-      subtextStyle: { fontSize: 12, color: '#9CA3AF', lineHeight: 18 },
+      textStyle: { fontSize: 22, fontWeight: 700, color: '#10231A' },
+      subtextStyle: { fontSize: 12, color: '#8A9A91', lineHeight: 18 },
       itemGap: 4,
     },
     tooltip: { ...tooltipStyle, trigger: 'item' as const, formatter: '{b}: {c} ({d}%)' },
@@ -129,7 +129,7 @@ export function buildUserPieOption(stats: AdminStatisticsVO | null): EChartsOpti
     centerSub: '用户总数',
     items: [
       { name: '正常用户', value: Math.max(total - disabled, 0), color: PRIMARY },
-      { name: '禁用用户', value: disabled, color: '#CBD5E1' },
+      { name: '禁用用户', value: disabled, color: '#F59E0B' },
     ],
   })
 }
@@ -144,7 +144,7 @@ export function buildActivePieOption(stats: AdminStatisticsVO | null): EChartsOp
     centerSub: '今日活跃率',
     items: [
       { name: '今日活跃', value: active, color: SUCCESS },
-      { name: '今日未活跃', value: Math.max(total - active, 0), color: '#E5E7EB' },
+      { name: '今日未活跃', value: Math.max(total - active, 0), color: '#DDE4DF' },
     ],
   })
 }
@@ -164,7 +164,7 @@ export function buildOrderPieOption(stats: AdminStatisticsVO | null): EChartsOpt
     items: [
       { name: '待发货', value: pending, color: PRIMARY },
       { name: '其他已支付', value: Math.max(paid - pending, 0), color: SUCCESS },
-      { name: '待付款/已取消', value: Math.max(total - paid, 0), color: '#CBD5E1' },
+      { name: '待付款/已取消', value: Math.max(total - paid, 0), color: '#E5E7EB' },
     ],
   })
 }
@@ -287,7 +287,7 @@ export function buildSalesTrendOption(trend: StatisticsTrendVO | null): EChartsO
         name: '销售额',
         type: 'bar',
         barMaxWidth: 32,
-        itemStyle: goldBarStyle,
+        itemStyle: brandBarStyle,
         data: trend?.sales ?? [],
       },
       {
@@ -297,8 +297,8 @@ export function buildSalesTrendOption(trend: StatisticsTrendVO | null): EChartsO
         yAxisIndex: 1,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { color: PRIMARY, width: 2 },
-        itemStyle: { color: PRIMARY },
+        lineStyle: { color: '#F59E0B', width: 2.2 },
+        itemStyle: { color: '#F59E0B' },
         areaStyle: {
           color: {
             type: 'linear' as const,
@@ -307,8 +307,8 @@ export function buildSalesTrendOption(trend: StatisticsTrendVO | null): EChartsO
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(34, 197, 94, 0.18)' },
-              { offset: 1, color: 'rgba(34, 197, 94, 0.02)' },
+              { offset: 0, color: 'rgba(245, 158, 11, 0.16)' },
+              { offset: 1, color: 'rgba(245, 158, 11, 0.02)' },
             ],
           },
         },

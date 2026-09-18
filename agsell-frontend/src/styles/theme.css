@@ -1,38 +1,47 @@
 /**
- * agsell 管理端主题覆盖 - 企业级高级感 v3.0
- * 依据 doc/design-system-v3.md（唯一样式权威来源）
- * 品牌深翡翠 #15803D 系 + 中性高级底 #F4F6F5 + 卡片分层阴影（去绿描边）
+ * agsell 管理端主题覆盖 - 自然丰盈 v4.0
+ * 依据 doc/design-mockup-v4（青翠绿 × 丰收金 × 中性底）
+ * 品牌主色 #15803D 提亮体系 + 中性高级底 #F6F8F7 + 金色强调 #D97706
  * 加载顺序：element-plus css → admin-table.css → theme.css（本文件最后生效）
  */
 
 :root {
-  /* ── 品牌绿阶（v3）── */
-  --brand-900: #0A2A1B;
-  --brand-800: #0E3B25;
-  --brand-700: #14532D;
-  --brand-600: #15803D;
-  --brand-500: #166534;
-  --brand-400: #16A34A;
-  --brand-300: #22C55E;
-  --brand-200: #BBF7D0;
-  --brand-100: #DCFCE7;
-  --brand-50: #F0FDF4;
+  /* ── 品牌绿阶（v4：青翠绿）── */
+  --brand-900: #10231A;   /* 墨绿黑 · 主文字/深底 */
+  --brand-800: #0E3B25;   /* 侧栏深端（保留，登录页/主卡用） */
+  --brand-700: #14532D;   /* 主按钮 active、深绿文字 */
+  --brand-600: #15803D;   /* 品牌主色：主按钮、链接、激活态 */
+  --brand-500: #166534;   /* 主按钮 hover */
+  --brand-400: #22A55A;   /* 主色亮部、图表主系列 */
+  --brand-300: #34C77B;   /* 成功实心、图表次系列 */
+  --brand-200: #6EE7A8;   /* 指示条、focus ring */
+  --brand-100: #DDF7E8;   /* success 类标签底 */
+  --brand-50:  #EAF6EF;   /* 激活底、选中行、图标底 */
+  --brand-20:  #F0FBF4;   /* 极浅绿底 */
 
-  /* ── 中性层（v3）── */
-  --neutral-bg: #F4F6F5;
-  --neutral-card: #FFFFFF;
-  --neutral-muted: #F3F5F4;
-  --neutral-border: #E3E7E5;
-  --neutral-border-strong: #D1D5DB;
-  --neutral-zebra: #FAFBFA;
+  /* ── 丰收金（金额/评分强调）── */
+  --gold-600: #92400E;    /* 金标签文字 */
+  --gold-500: #D97706;    /* 金额、评分强调 */
+  --gold-400: #F59E0B;    /* 金亮部、预警 */
+  --gold-100: #FFF4E0;    /* 金标签底 */
+
+  /* ── 中性层（v4）── */
+  --neutral-bg: #F6F8F7;          /* 页面背景（清爽浅灰绿） */
+  --neutral-card: #FFFFFF;        /* 卡片背景 */
+  --neutral-muted: #F7F9F8;       /* 表头底、搜索底 */
+  --neutral-hover: #F2F5F3;       /* 悬浮底、禁用底 */
+  --neutral-border: #E7ECE9;      /* 卡片描边 */
+  --neutral-border-strong: #DDE4DF; /* 输入框/可交互控件边框 */
+  --neutral-zebra: #FAFBFA;       /* 表格斑马纹 */
 
   /* ── 文字 ── */
-  --text-heading: #0A2A1B;
-  --text-card-title: #0E3B25;
-  --text-regular: #1F2937;
-  --text-secondary: #6B7280;
-  --text-placeholder: #9CA3AF;
-  --text-inverse: #FFFFFF;
+  --text-heading: #10231A;        /* 页面标题（墨绿黑） */
+  --text-card-title: #10231A;     /* 卡片标题 */
+  --text-regular: #10231A;        /* 正文/表格体 */
+  --text-secondary: #5B6B63;      /* 次要文字 */
+  --text-tertiary: #8A9A91;       /* 辅助/占位 */
+  --text-placeholder: #A8B4AC;    /* 仅占位符/禁用 */
+  --text-inverse: #FFFFFF;        /* 品牌色底文字 */
 
   /* ── Element Plus 品牌主色映射 ── */
   --el-color-primary: #15803D;
@@ -40,20 +49,20 @@
   --el-color-primary-light-5: #8ABFA1;
   --el-color-primary-light-7: #C7DFD0;
   --el-color-primary-light-8: #DCEFE3;
-  --el-color-primary-light-9: #F0FDF4;
+  --el-color-primary-light-9: #F0FBF4;
   --el-color-primary-dark-2: #14532D;
 
   /* ── 语义色 ── */
   --el-color-success: #16A34A;
-  --el-color-success-light-9: #DCFCE7;
+  --el-color-success-light-9: #E8F8EF;
   --el-color-warning: #D97706;
-  --el-color-warning-light-9: #FEF3C7;
+  --el-color-warning-light-9: #FFF4E0;
   --el-color-danger: #DC2626;
-  --el-color-danger-light-9: #FEE2E2;
+  --el-color-danger-light-9: #FEE9E9;
   --el-color-error: #DC2626;
-  --el-color-error-light-9: #FEE2E2;
-  --el-color-info: #6B7280;
-  --el-color-info-light-9: #F3F4F6;
+  --el-color-error-light-9: #FEE9E9;
+  --el-color-info: #64748B;
+  --el-color-info-light-9: #F1F3F2;
 
   /* ── 圆角与字号 ── */
   --el-border-radius-base: 8px;
@@ -61,34 +70,34 @@
   --el-font-size-base: 14px;
 
   /* ── 文字色（EP 映射）── */
-  --el-text-color-primary: #1F2937;
-  --el-text-color-regular: #475569;
-  --el-text-color-secondary: #6B7280;
-  --el-text-color-placeholder: #9CA3AF;
-  --el-text-color-disabled: #9CA3AF;
+  --el-text-color-primary: #10231A;
+  --el-text-color-regular: #5B6B63;
+  --el-text-color-secondary: #8A9A91;
+  --el-text-color-placeholder: #A8B4AC;
+  --el-text-color-disabled: #A8B4AC;
 
   /* ── 边框色（中性化）── */
-  --el-border-color: #E3E7E5;
-  --el-border-color-light: #E5E8E6;
-  --el-border-color-lighter: #EDF0EE;
-  --el-border-color-extra-light: #F1F3F2;
-  --el-border-color-dark: #D1D5DB;
-  --el-border-color-darker: #9CA3AF;
+  --el-border-color: #E7ECE9;
+  --el-border-color-light: #E7ECE9;
+  --el-border-color-lighter: #EDF1EE;
+  --el-border-color-extra-light: #F1F4F2;
+  --el-border-color-dark: #DDE4DF;
+  --el-border-color-darker: #A8B4AC;
 
   /* ── 填充与背景 ── */
   --el-fill-color-blank: #FFFFFF;
-  --el-fill-color: #F3F5F4;
-  --el-fill-color-light: #F3F5F4;
-  --el-fill-color-lighter: #F7F8F7;
+  --el-fill-color: #F2F5F3;
+  --el-fill-color-light: #F7F9F8;
+  --el-fill-color-lighter: #FAFBFA;
   --el-fill-color-extra-light: #FAFBFA;
-  --el-fill-color-dark: #E3E7E5;
-  --el-fill-color-darker: #D1D5DB;
+  --el-fill-color-dark: #E7ECE9;
+  --el-fill-color-darker: #DDE4DF;
   --el-bg-color: #FFFFFF;
-  --el-bg-color-page: #F4F6F5;
+  --el-bg-color-page: #F6F8F7;
   --el-bg-color-overlay: #FFFFFF;
 
   /* ── 阴影（分层质感）── */
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.04);
   --shadow-base: 0 1px 3px rgba(16, 24, 40, 0.06), 0 4px 12px rgba(16, 24, 40, 0.05);
   --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.12);
   --el-box-shadow: var(--shadow-base);
@@ -102,31 +111,31 @@
   --el-overlay-color-lighter: rgba(15, 23, 42, 0.2);
 
   /* ── 禁用态 ── */
-  --el-disabled-bg-color: #F3F5F4;
-  --el-disabled-text-color: #9CA3AF;
-  --el-disabled-border-color: #E5E8E6;
+  --el-disabled-bg-color: #F2F5F3;
+  --el-disabled-text-color: #A8B4AC;
+  --el-disabled-border-color: #EDF1EE;
 
   /* ── 表格 ── */
   --el-table-bg-color: #FFFFFF;
   --el-table-tr-bg-color: #FFFFFF;
-  --el-table-header-bg-color: #F3F5F4;
-  --el-table-header-text-color: #475569;
-  --el-table-text-color: #1F2937;
-  --el-table-border-color: #EBEEEC;
-  --el-table-row-hover-bg-color: #F4F9F5;
-  --el-table-current-row-bg-color: #DCFCE7;
-  --el-table-expanded-cell-bg-color: #F3F5F4;
+  --el-table-header-bg-color: #F7F9F8;
+  --el-table-header-text-color: #5B6B63;
+  --el-table-text-color: #10231A;
+  --el-table-border-color: #EDF1EE;
+  --el-table-row-hover-bg-color: #F6FAF7;
+  --el-table-current-row-bg-color: #EAF6EF;
+  --el-table-expanded-cell-bg-color: #F7F9F8;
 
-  /* ── 菜单（深翡翠渐变在 LayoutView 落地，此处只给 EP 变量）── */
+  /* ── 菜单（浅色侧栏落地在 LayoutView，此处只给 EP 变量）── */
   --el-menu-bg-color: transparent;
-  --el-menu-hover-bg-color: rgba(255, 255, 255, 0.08);
-  --el-menu-text-color: rgba(255, 255, 255, 0.72);
-  --el-menu-active-color: #FFFFFF;
-  --el-menu-item-height: 48px;
+  --el-menu-hover-bg-color: #F2F5F3;
+  --el-menu-text-color: #5B6B63;
+  --el-menu-active-color: #15803D;
+  --el-menu-item-height: 44px;
 
   /* ── 开关 ── */
   --el-switch-on-color: #15803D;
-  --el-switch-off-color: #D1D5DB;
+  --el-switch-off-color: #DDE4DF;
 
   /* ── 标签 ── */
   --el-tag-padding-horizontal: 8px;
@@ -135,14 +144,14 @@
   --el-tag-border-radius: 6px;
 
   /* ── 弹窗 ── */
-  --el-dialog-border-radius: 12px;
+  --el-dialog-border-radius: 14px;
 
-  /* ── 字号层级（v3）── */
+  /* ── 字号层级（v4）── */
   --fs-display: 24px;
-  --fs-page: 20px;
+  --fs-page: 22px;
   --fs-card-title: 15px;
   --fs-body: 14px;
-  --fs-table: 13px;
+  --fs-table: 13.5px;
   --fs-caption: 12px;
 
   /* ── 间距 ── */
@@ -158,17 +167,18 @@
   --radius-sm: 6px;
   --radius-base: 8px;
   --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
 }
 
 /* ──────────────────────────────────────────────
-   组件级精修（v3 企业质感）
+   组件级精修（v4 自然丰盈质感）
    ────────────────────────────────────────────── */
 
-/* ── el-card：白底 + 中性描边 + 分层阴影，hover 提升 ── */
+/* ── el-card：白底 + 中性描边 + 14px 圆角，hover 提升 ── */
 .el-card {
   border: 1px solid var(--neutral-border) !important;
-  border-radius: var(--radius-lg) !important;
+  border-radius: var(--radius-xl) !important;
   box-shadow: var(--shadow-sm) !important;
   transition: box-shadow 0.2s ease-out, border-color 0.2s ease-out, transform 0.2s ease-out;
 }
@@ -179,41 +189,41 @@
 }
 .el-card:hover {
   box-shadow: var(--shadow-base) !important;
-  border-color: #D8DEDB !important;
+  border-color: #DDE4DF !important;
 }
 .el-card__header {
-  padding: 18px 20px 0;
+  padding: 16px 20px 0;
   border-bottom: none;
 }
 .el-card__body {
-  padding: 18px 20px 20px;
+  padding: 16px 20px 20px;
 }
 
-/* ── el-tag：浅底深字 + 圆角 6px ── */
+/* ── el-tag：浅底深字 + 圆角 6px（v4 色板）── */
 .el-tag {
   border: none !important;
   font-weight: 500;
   border-radius: 6px;
 }
 .el-tag--success {
-  background-color: #DCFCE7 !important;
+  background-color: #E8F8EF !important;
   color: #166534 !important;
 }
 .el-tag--warning {
-  background-color: #FEF3C7 !important;
+  background-color: #FFF4E0 !important;
   color: #92400E !important;
 }
 .el-tag--danger {
-  background-color: #FEE2E2 !important;
+  background-color: #FEE9E9 !important;
   color: #991B1B !important;
 }
 .el-tag--info {
-  background-color: #F1F2F4 !important;
-  color: #4B5563 !important;
+  background-color: #F1F3F2 !important;
+  color: #5B6B63 !important;
 }
 .el-tag--primary {
-  background-color: #BBF7D0 !important;
-  color: #14532D !important;
+  background-color: #EAF6EF !important;
+  color: #15803D !important;
 }
 
 /* ── 按钮：统一圆角与 hover 层级 ── */
@@ -225,6 +235,7 @@
 .el-button--primary {
   background-color: #15803D;
   border-color: #15803D;
+  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.18);
 }
 .el-button--primary:not(.is-link):hover,
 .el-button--primary:not(.is-link):focus {
@@ -235,7 +246,7 @@
   background-color: #14532D !important;
   border-color: #14532D !important;
 }
-/* 链接型主色按钮：仅改文字色，保留透明底（弹窗关闭后焦点停留时不会出现实心背景） */
+/* 链接型主色按钮：仅改文字色，保留透明底 */
 .el-button--primary.is-link:hover,
 .el-button--primary.is-link:focus {
   background-color: transparent !important;
@@ -245,7 +256,7 @@
 .el-button--default:focus-visible,
 .el-button--danger:focus-visible,
 .el-button--success:focus-visible {
-  outline: 2px solid #22C55E;
+  outline: 2px solid #6EE7A8;
   outline-offset: 2px;
 }
 
@@ -255,7 +266,7 @@
 .el-textarea__inner:focus,
 .el-cascader:focus .el-input__wrapper,
 .el-input-number .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.13) !important;
 }
 .el-input__wrapper,
 .el-textarea__inner {
@@ -264,7 +275,7 @@
 
 /* ── 弹窗：圆角 + 内边距节奏 ── */
 .el-dialog {
-  border-radius: 12px !important;
+  border-radius: 14px !important;
   box-shadow: var(--shadow-lg) !important;
 }
 .el-dialog__header {
@@ -289,12 +300,12 @@
   --el-pagination-hover-color: #15803D;
 }
 .el-pagination.is-background .el-pager li {
-  border-radius: 6px;
-  min-width: 28px;
-  height: 28px;
-  line-height: 28px;
+  border-radius: 7px;
+  min-width: 30px;
+  height: 30px;
+  line-height: 30px;
   background: transparent;
-  color: #475569;
+  color: #5B6B63;
 }
 .el-pagination.is-background .el-pager li.is-active {
   background-color: #15803D !important;
@@ -303,12 +314,12 @@
 }
 .el-pagination.is-background .btn-prev,
 .el-pagination.is-background .btn-next {
-  border-radius: 6px;
+  border-radius: 7px;
   background: transparent;
 }
 .el-pagination.is-background .btn-prev:not(:disabled):hover,
 .el-pagination.is-background .btn-next:not(:disabled):hover {
-  background-color: #F0FDF4;
+  background-color: #EAF6EF;
   color: #15803D;
 }
 
@@ -316,12 +327,6 @@
 .el-switch.is-checked .el-switch__core {
   background-color: #15803D !important;
   border-color: #15803D !important;
-}
-
-/* ── 主按钮 focus ring ── */
-.el-button--primary:focus-visible {
-  outline: 2px solid #22C55E;
-  outline-offset: 2px;
 }
 
 /* ── 表格操作列右侧渐变遮罩（fixed 列可读性）── */
@@ -347,17 +352,17 @@
 
 /* ── 加载遮罩提示 ── */
 .el-loading-mask {
-  background-color: rgba(244, 246, 245, 0.7) !important;
+  background-color: rgba(246, 248, 247, 0.7) !important;
   backdrop-filter: blur(1px);
 }
 
 /* ──────────────────────────────────────────────
-   工具类（v3）
+   工具类（v4）
    ────────────────────────────────────────────── */
 
-/* 评分星色 */
+/* 评分星色（丰收金） */
 .rating-accent {
-  color: #A16207;
+  color: #D97706;
   letter-spacing: 2px;
 }
 
@@ -380,10 +385,7 @@
 }
 
 /* ──────────────────────────────────────────────
-   图片组件兜底样式（v3）
-   防止 Element Plus 组件样式未加载时，el-image 内部
-   <img> 按原始尺寸渲染溢出容器、铺满页面背景。
-   与 element-plus 自带样式等价，仅在缺失时兜底。
+   图片组件兜底样式（v4）
    ────────────────────────────────────────────── */
 .el-image {
   position: relative;

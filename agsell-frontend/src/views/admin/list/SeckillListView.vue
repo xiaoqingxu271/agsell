@@ -245,7 +245,7 @@ function stockProgress(row: SeckillActivityVO): number {
 /** 库存进度条颜色：售罄显示灰色，否则绿色 */
 function stockColor(row: SeckillActivityVO): string {
   const remaining = row.remainingStock ?? row.seckillStock ?? 0
-  return remaining <= 0 ? '#9CA3AF' : '#15803D'
+  return remaining <= 0 ? '#8A9A91' : '#15803D'
 }
 
 function statusTagType(text: string): 'success' | 'warning' | 'info' | 'danger' {
@@ -493,7 +493,7 @@ onMounted(() => {
 }
 
 .origin-price {
-  color: #9CA3AF;
+  color: #8A9A91;
   font-size: 12px;
   text-decoration: line-through;
 }
@@ -522,7 +522,7 @@ onMounted(() => {
   padding: 0 12px;
   height: 32px;
   line-height: 32px;
-  background: #F3F5F4;
+  background: #F7F9F8;
   border-radius: 6px;
   font-size: 13px;
   color: #374151;

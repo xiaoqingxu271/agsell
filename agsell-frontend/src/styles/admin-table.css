@@ -1,41 +1,41 @@
 /**
- * 管理后台全局样式 - 表格/分页/卡片/状态标签（v3.0 企业级）
- * 依据 doc/design-system-v3.md §6
- * 表头 #F3F5F4 / 13px 600 / #475569 · 行高 48px · 斑马 #FAFBFA · hover #F4F9F5
+ * 管理后台全局样式 - 表格/分页/卡片/状态标签（v4.0 自然丰盈）
+ * 依据 doc/design-mockup-v4
+ * 表头 #F7F9F8 / 13px 600 / #5B6B63 · 行高 48px · hover #F6FAF7 · 卡片圆角 14px
  */
 
 /* ── 表格统一样式 ── */
 .admin-table {
-  --el-table-font-size: 14px;
+  --el-table-font-size: 13.5px;
   --el-table-header-font-size: 13px;
-  --el-table-header-text-color: #475569;
-  --el-table-header-bg-color: #F3F5F4;
+  --el-table-header-text-color: #5B6B63;
+  --el-table-header-bg-color: #F7F9F8;
   --el-table-tr-bg-color: #fff;
-  --el-table-expanded-cell-bg-color: #F3F5F4;
-  --el-table-row-hover-bg-color: #F4F9F5;
-  --el-table-current-row-bg-color: #DCFCE7;
-  --el-table-border-color: #EBEEEC;
+  --el-table-expanded-cell-bg-color: #F7F9F8;
+  --el-table-row-hover-bg-color: #F6FAF7;
+  --el-table-current-row-bg-color: #EAF6EF;
+  --el-table-border-color: #EDF1EE;
 }
 
 /* 表头样式 */
 .admin-table .el-table__header-wrapper th.el-table__cell {
-  background-color: #F3F5F4 !important;
+  background-color: #F7F9F8 !important;
   font-weight: 600;
-  font-size: 13px;
-  color: #475569;
-  padding: 12px 16px;
-  border-bottom: 1px solid #E3E7E5;
-  letter-spacing: 0.02em;
+  font-size: 12px;
+  color: #5B6B63;
+  padding: 11px 16px;
+  border-bottom: 1px solid #EDF1EE;
+  letter-spacing: 0.04em;
   /* 统一居中：保证列名与内容水平对齐（万能对齐法，无需逐列配置 header-align） */
   text-align: center;
 }
 
 /* 单元格样式 */
 .admin-table .el-table__body-wrapper td.el-table__cell {
-  padding: 12px 16px;
-  font-size: 14px;
-  color: #1F2937;
-  border-bottom: 1px solid #EBEEEC;
+  padding: 11px 16px;
+  font-size: 13.5px;
+  color: #10231A;
+  border-bottom: 1px solid #F3F6F4;
   line-height: 1.5;
   /* 统一居中：内容垂直对齐在列名下 */
   text-align: center;
@@ -48,7 +48,7 @@
 
 /* 悬停效果 */
 .admin-table .el-table__body-wrapper tr:hover > td.el-table__cell {
-  background-color: #F4F9F5 !important;
+  background-color: #F6FAF7 !important;
 }
 
 /* 表格容器横向滚动 */
@@ -62,15 +62,16 @@
   align-items: center;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid #EBEEEC;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid #F3F6F4;
 }
 
 .admin-total-text {
-  font-size: 13px;
-  color: #6B7280;
+  font-size: 12.5px;
+  color: #8A9A91;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── 卡片头部统一样式 ── */
@@ -84,20 +85,20 @@
 
 .admin-card-title {
   font-size: 15px;
-  font-weight: 600;
-  color: #0E3B25;
+  font-weight: 700;
+  color: #10231A;
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-/* 标题前的品牌小圆点装饰 */
+/* 标题前的品牌小竖条 */
 .admin-card-title::before {
   content: '';
   width: 4px;
-  height: 16px;
+  height: 15px;
   border-radius: 2px;
-  background: linear-gradient(180deg, #22C55E, #15803D);
+  background: linear-gradient(180deg, #34C77B, #15803D);
   flex-shrink: 0;
 }
 
@@ -111,7 +112,7 @@
 
 /* ── 搜索卡片样式 ── */
 .admin-search-card {
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
 }
 
 .admin-search-card .el-form-item {
@@ -121,6 +122,12 @@
 /* 搜索卡表单项间距（换行时保持节奏） */
 .admin-search-card .el-form--inline .el-form-item {
   margin-right: 20px;
+}
+
+/* 搜索卡内 label 颜色 */
+.admin-search-card .el-form-item__label {
+  color: #5B6B63;
+  font-weight: 500;
 }
 
 /* ── 操作列按钮间距 ── */
@@ -139,36 +146,36 @@
   height: 22px;
   line-height: 20px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 999px;
   border: none;
 }
 
-/* ── 价格样式（丰收金 #A16207）── */
+/* ── 价格样式（丰收金 #D97706）── */
 .admin-price {
-  color: #A16207;
-  font-weight: 600;
-  font-size: 14px;
+  color: #D97706;
+  font-weight: 700;
+  font-size: 13.5px;
   font-variant-numeric: tabular-nums;
 }
 
 .admin-original-price {
-  color: #9CA3AF;
+  color: #A8B4AC;
   font-size: 12px;
   text-decoration: line-through;
   margin-left: 4px;
 }
 
-/* ── 评分样式（丰收金 #A16207）── */
+/* ── 评分样式（丰收金 #D97706）── */
 .admin-rating {
-  color: #A16207;
-  font-size: 14px;
+  color: #D97706;
+  font-size: 13.5px;
   letter-spacing: 2px;
 }
 
 /* ── 评价内容样式 ── */
 .admin-content {
   font-size: 13px;
-  color: #1F2937;
+  color: #10231A;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -177,13 +184,13 @@
 
 /* ── 无数据占位 ── */
 .admin-empty {
-  color: #9CA3AF;
+  color: #8A9A91;
   font-size: 13px;
 }
 
 /* ── 表格内头像/图片圆形化 ── */
 .admin-avatar-cell .el-avatar {
-  background-color: #F0FDF4;
+  background-color: #EAF6EF;
   color: #15803D;
   font-weight: 600;
 }

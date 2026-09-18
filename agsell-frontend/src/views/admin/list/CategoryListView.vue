@@ -323,6 +323,6 @@ onMounted(fetchList)
 
 .no-icon {
   font-size: 13px;
-  color: #9CA3AF;
+  color: #8A9A91;
 }
 </style>

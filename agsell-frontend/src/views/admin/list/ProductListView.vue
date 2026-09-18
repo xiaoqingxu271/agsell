@@ -595,13 +595,13 @@ onMounted(() => {
 
 .no-img {
   font-size: 13px;
-  color: #9CA3AF;
+  color: #8A9A91;
 }
 
 .trace-hint {
   margin-left: 8px;
   font-size: 12px;
-  color: #9CA3AF;
+  color: #8A9A91;
 }
 
 .spec-img-upload {
@@ -613,7 +613,7 @@ onMounted(() => {
   border: 1px dashed #D1D5DB;
   border-radius: 4px;
   cursor: pointer;
-  color: #9CA3AF;
+  color: #8A9A91;
   transition: all 0.2s;
 }
 .spec-img-upload:hover {

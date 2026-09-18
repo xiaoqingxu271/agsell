@@ -166,7 +166,7 @@ onMounted(fetchList)
 
 /* 表格内头像：品牌浅绿底 + 深绿字 */
 .admin-avatar-cell {
-  background: #F0FDF4 !important;
+  background: #EAF6EF !important;
   color: #15803D !important;
   font-weight: 600;
 }

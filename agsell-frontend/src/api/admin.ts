@@ -384,6 +384,6 @@ export function updateConfigs(data: ConfigUpdateRequest) {
 }
 
 /** 操作日志 keyset 游标分页（create_time desc, id desc，避免深分页） */
-export function listSysLogs(params: { pageSize?: number; module?: string; adminName?: string; cursorTime?: string; cursorId?: number }) {
+export function listSysLogs(params: { pageSize?: number; module?: string; adminName?: string; pageNum?: number; cursorTime?: string; cursorId?: number }) {
   return request.get<SysLogPageVO>('/admin/system/log/list', { params })
 }

@@ -203,7 +203,7 @@ onMounted(fetchList)
 
 .form-tip {
   font-size: 12px;
-  color: #9CA3AF;
+  color: #8A9A91;
   line-height: 1.5;
   margin-top: 4px;
   width: 100%;

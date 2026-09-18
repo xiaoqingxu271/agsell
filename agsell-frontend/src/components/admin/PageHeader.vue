@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 页面级标题头（企业级 v3 规范 §6.8 / §3.2）
+ * 页面级标题头（v4.0 自然丰盈规范）
  * 用法：<PageHeader title="商品管理" description="维护商品信息与上下架状态"><el-button>…</el-button></PageHeader>
  */
 defineProps<{
@@ -30,7 +30,7 @@ defineProps<{
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .page-header-main {
@@ -39,18 +39,18 @@ defineProps<{
 
 .page-header-title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.4;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.35;
   letter-spacing: 0.01em;
-  color: #0A2A1B;
+  color: #10231A;
 }
 
 .page-header-desc {
   margin: 4px 0 0;
   font-size: 13px;
   line-height: 1.5;
-  color: #6B7280;
+  color: #8A9A91;
 }
 
 .page-header-actions {

@@ -813,8 +813,8 @@ onMounted(async () => {
 }
 
 .product-img-empty {
-  background: #F0FDF4;
-  border: 1px dashed #BBF7D0;
+  background: #EAF6EF;
+  border: 1px dashed #CBE9D8;
 }
 
 .qr-thumb {
@@ -866,7 +866,7 @@ onMounted(async () => {
 
 .qr-hint {
   font-size: 12px;
-  color: #9CA3AF;
+  color: #8A9A91;
   margin-top: 6px;
 }
 
@@ -926,9 +926,9 @@ onMounted(async () => {
 .img-add {
   width: 72px;
   height: 72px;
-  border: 1px dashed #BBF7D0;
+  border: 1px dashed #CBE9D8;
   border-radius: 8px;
-  background: #F0FDF4;
+  background: #EAF6EF;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -940,7 +940,7 @@ onMounted(async () => {
 }
 
 .img-add:hover {
-  background: #DCFCE7;
+  background: #E8F8EF;
 }
 
 .img-add-icon {

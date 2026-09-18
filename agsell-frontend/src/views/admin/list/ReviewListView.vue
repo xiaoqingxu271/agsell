@@ -259,14 +259,14 @@ onMounted(fetchList)
 <style scoped>
 .page { min-height: 100%; }
 
-/* 弹窗内评分星：丰收金 #A16207 */
+/* 弹窗内评分星：丰收金 #D97706 */
 .rating {
-  color: #A16207;
+  color: #D97706;
   letter-spacing: 2px;
 }
 
 .text-muted {
-  color: #9CA3AF;
+  color: #8A9A91;
   font-size: 13px;
 }
 </style>

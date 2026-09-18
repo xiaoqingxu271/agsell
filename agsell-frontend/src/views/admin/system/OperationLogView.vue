@@ -81,7 +81,7 @@ onMounted(() => fetchPage(1))
               v-model="module"
               placeholder="模块（如：管理员管理）"
               clearable
-              style="width: 160px"
+              style="width: 200px"
               @keyup.enter="handleSearch"
               @clear="handleSearch"
             />
@@ -101,11 +101,11 @@ onMounted(() => fetchPage(1))
       </template>
 
       <el-table class="admin-table" :data="list" v-loading="loading" stripe :border="false" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="150" align="center" show-overflow-tooltip />
-        <el-table-column prop="adminName" label="操作人" width="90" align="center" show-overflow-tooltip />
-        <el-table-column prop="module" label="模块" width="100" align="center" show-overflow-tooltip />
-        <el-table-column prop="action" label="动作" width="100" align="center" show-overflow-tooltip />
-        <el-table-column prop="content" label="内容" min-width="160" align="center" show-overflow-tooltip>
+        <el-table-column prop="id" label="ID" width="180" align="center" show-overflow-tooltip />
+        <el-table-column prop="adminName" label="操作人" width="120" align="center" show-overflow-tooltip />
+        <el-table-column prop="module" label="模块" width="120" align="center" show-overflow-tooltip />
+        <el-table-column prop="action" label="动作" width="120" align="center" show-overflow-tooltip />
+        <el-table-column prop="content" label="内容" min-width="10" align="center" show-overflow-tooltip>
           <template #default="{ row }">{{ row.content || '—' }}</template>
         </el-table-column>
         <el-table-column prop="ip" label="IP" width="100" align="center" show-overflow-tooltip />

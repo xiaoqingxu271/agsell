@@ -27,8 +27,8 @@ body {
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: #1F2937;
-  background: #F4F6F5;
+  color: #10231A;
+  background: #F6F8F7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
