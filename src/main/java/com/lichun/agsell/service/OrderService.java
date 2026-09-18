@@ -2,9 +2,12 @@ package com.lichun.agsell.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.model.dto.OrderCreateRequest;
+import com.lichun.agsell.model.vo.FreightPreviewVO;
 import com.lichun.agsell.model.vo.OrderCreateVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
 import com.lichun.agsell.model.vo.OrderListItemVO;
+
+import java.math.BigDecimal;
 
 public interface OrderService {
 
@@ -12,6 +15,11 @@ public interface OrderService {
      * 提交订单
      */
     OrderCreateVO createOrder(OrderCreateRequest request);
+
+    /**
+     * 运费预估（订单确认页展示用，与下单计算口径一致）
+     */
+    FreightPreviewVO previewFreight(BigDecimal totalAmount);
 
     /**
      * 我的订单列表

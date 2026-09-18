@@ -92,7 +92,6 @@
 import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getOrderList, cancelOrder, confirmReceive } from '../../../api/order'
-import { createPayment } from '../../../api/payment'
 import { formatDate } from '../../../utils/format'
 
 const tabs = [
@@ -157,26 +156,33 @@ async function loadOrders() {
     const { records, current, pages } = res.data
     orders.value = pageNum.value === 1 ? records : [...orders.value, ...records]
     hasMore.value = current < pages
-    // 用户已查看订单列表（首页加载完成），同步清除"我的"页各状态未读角标
+    // 第一页加载完成后，只把"当前正在查看的这个状态"记为已读基准；
+    // 其他状态的角标不动，避免用户只看了待付款就连带把待发货等角标也清掉。
     if (pageNum.value === 1) {
-      markOrderStatusViewed()
+      await markOrderStatusViewed(currentTabValue)
     }
   }
   loading.value = false
   refreshing.value = false
 }
 
-function markOrderStatusViewed() {
-  // 拉取各状态订单总数并记录为已查看，使"我的"页角标归零（失败静默，不影响列表）
-  ;[0, 1, 2, 3].forEach(status => {
-    getOrderList({ pageNum: 1, pageSize: 1, status })
-      .then(res => {
-        if (res && res.code === 0) {
-          uni.setStorageSync('order_last_total_' + status, res.data?.total || 0)
-        }
-      })
-      .catch(() => {})
-  })
+/**
+ * 把指定状态的订单总数写为"已读基准"，回到"我的"页时该状态未读数归零。
+ * 只处理用户实际查看的那个状态；"全部"tab（status=null）不标记任何单一状态。
+ * 必须 await：确保返回上一页读缓存前，写入已落盘。
+ */
+async function markOrderStatusViewed(status) {
+  if (status === null || status === undefined) return
+  try {
+    const res = await getOrderList({ pageNum: 1, pageSize: 1, status })
+    if (res && res.code === 0) {
+      uni.setStorageSync('order_last_total_' + status, res.data?.total || 0)
+      // 立即通知"我的"页把该状态角标清零，返回时无需等 onShow 重新拉接口
+      uni.$emit('orderBadgeCleared', status)
+    }
+  } catch (e) {
+    // 失败静默，不影响列表展示
+  }
 }
 
 function onTabChange(index) {
@@ -221,10 +227,11 @@ async function onCancelOrder(order) {
   })
 }
 
-async function onPayOrder(order) {
-  await createPayment(order.orderNo)
-  uni.showToast({ title: '支付成功', icon: 'success' })
-  loadOrders()
+function onPayOrder(order) {
+  // 跳转支付页选择支付方式（支付宝/微信），由支付页完成模拟支付
+  uni.navigateTo({
+    url: `/pages/order/pay/pay?orderNo=${order.orderNo}&payAmount=${order.payAmount}`
+  })
 }
 
 async function onConfirmReceive(order) {

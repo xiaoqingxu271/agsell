@@ -71,8 +71,7 @@ CREATE TABLE `user_address` (
     `update_time` DATETIME     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted`     TINYINT      NOT NULL DEFAULT 0 COMMENT '软删除标记',
     PRIMARY KEY (`id`),
-    KEY `idx_user_id` (`user_id`),
-    UNIQUE KEY `uk_user_default` (`user_id`, `is_default`)
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户收货地址表';
 
 -- ------------------------------------------------------------

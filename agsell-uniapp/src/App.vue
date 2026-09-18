@@ -1,5 +1,6 @@
 <script setup>
 import { onLaunch } from '@dcloudio/uni-app'
+import { request } from './utils/request'
 
 onLaunch(() => {
   // 恢复上次登录的 token（依赖 uniStorage，不依赖 globalData）
@@ -7,7 +8,21 @@ onLaunch(() => {
   if (token) {
     console.log('[App] 恢复登录态，token:', token ? token.substring(0, 20) + '...' : 'none')
   }
+  // 拉取平台名称并缓存，供首页导航栏 / 关于弹窗等展示（管理端"系统配置"可修改）
+  loadPlatformName()
 })
+
+/** 从系统配置拉取平台名称，缓存到本地；失败时静默，保留页面默认值兜底 */
+async function loadPlatformName() {
+  try {
+    const res = await request('GET', '/system/config', null, { params: { keys: 'platform_name' } })
+    if (res.code === 0 && res.data?.platform_name) {
+      uni.setStorageSync('platform_name', res.data.platform_name)
+    }
+  } catch (e) {
+    console.warn('[App] 加载平台名称失败', e)
+  }
+}
 </script>
 
 <style>

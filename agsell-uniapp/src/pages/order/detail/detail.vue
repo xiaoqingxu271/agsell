@@ -146,7 +146,6 @@ import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../../components/NavBar/NavBar.vue'
 import { getOrderDetail, cancelOrder, confirmReceive } from '../../../api/order'
-import { createPayment } from '../../../api/payment'
 import { getAfterSalesList } from '../../../api/afterSales'
 
 const orderDetail = ref(null)
@@ -195,10 +194,11 @@ async function onCancel() {
   })
 }
 
-async function onPay() {
-  await createPayment(orderDetail.value.orderNo)
-  uni.showToast({ title: '支付成功', icon: 'success' })
-  loadDetail(orderDetail.value.orderNo)
+function onPay() {
+  // 跳转支付页选择支付方式（支付宝/微信），由支付页完成模拟支付
+  uni.navigateTo({
+    url: `/pages/order/pay/pay?orderNo=${orderDetail.value.orderNo}&payAmount=${orderDetail.value.payAmount}`
+  })
 }
 
 async function onConfirmReceive() {

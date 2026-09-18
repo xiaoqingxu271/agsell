@@ -17,9 +17,9 @@ export function request(method, url, data = null, extra = {}) {
       header['Authorization'] = `Bearer ${token}`
     }
 
-    // GET 请求：将 params 拼接到 URL 查询字符串
+    // 任意方法（GET/PUT/DELETE 等）：将 params 拼接到 URL 查询字符串
     let requestUrl = BASE_URL + url
-    if (method === 'GET' && extra.params) {
+    if (extra.params) {
       const pairs = []
       for (const [key, value] of Object.entries(extra.params)) {
         if (value !== null && value !== undefined && value !== '') {
@@ -82,4 +82,22 @@ export function isLoggedIn() {
   return !!uni.getStorageSync('token')
 }
 
-export default { request, wxLogin, isLoggedIn }
+/**
+ * 用系统配置的平台名称覆盖当前页导航栏标题（首页/分类/购物车/我的 四个 tab 统一调用）。
+ * 优先用本地缓存立即设置，再请求最新配置更新；未配置或失败时保留 pages.json 默认标题。
+ */
+export async function setPlatformTitle() {
+  try {
+    const cached = uni.getStorageSync('platform_name')
+    if (cached) uni.setNavigationBarTitle({ title: cached })
+    const res = await request('GET', '/system/config', null, { params: { keys: 'platform_name' } })
+    if (res.code === 0 && res.data?.platform_name) {
+      uni.setStorageSync('platform_name', res.data.platform_name)
+      uni.setNavigationBarTitle({ title: res.data.platform_name })
+    }
+  } catch (e) {
+    // 静默失败，保留默认标题
+  }
+}
+
+export default { request, wxLogin, isLoggedIn, setPlatformTitle }

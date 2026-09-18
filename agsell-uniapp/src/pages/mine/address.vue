@@ -263,8 +263,12 @@ async function onSetDefault(addr) {
     await onLogin()
     if (!isLoggedInUser.value) return
   }
-  await setDefaultAddress(addr.id)
-  uni.showToast({ title: '已设为默认地址', icon: 'success' })
+  const res = await setDefaultAddress(addr.id)
+  if (res.code === 0) {
+    uni.showToast({ title: '已设为默认地址', icon: 'success' })
+  } else {
+    uni.showToast({ title: res.message || '设置失败', icon: 'none' })
+  }
   loadAddresses()
 }
 </script>

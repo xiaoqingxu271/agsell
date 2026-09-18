@@ -6,6 +6,7 @@
       </view>
       <text class="success-title">支付成功</text>
       <text class="success-amount">¥{{ payAmount }}</text>
+      <text class="success-paytype" v-if="payTypeText">支付方式：{{ payTypeText }}</text>
       <text class="success-hint">订单已提交，请耐心等待发货</text>
 
       <view class="action-buttons">
@@ -22,10 +23,14 @@ import { onLoad } from '@dcloudio/uni-app'
 
 const orderNo = ref('')
 const payAmount = ref('0.00')
+const payTypeText = ref('')
+
+const payTypeMap = { 1: '支付宝', 2: '微信支付' }
 
 onLoad((options) => {
   orderNo.value = options.orderNo || ''
   payAmount.value = options.payAmount || '0.00'
+  payTypeText.value = payTypeMap[Number(options.payType)] || '支付宝'
 })
 
 function goToOrder() {
@@ -88,6 +93,13 @@ function goHome() {
   display: block;
   margin-bottom: 16rpx;
   font-variant-numeric: tabular-nums;
+}
+
+.success-paytype {
+  font-size: 26rpx;
+  color: #6B7280;
+  display: block;
+  margin-bottom: 8rpx;
 }
 
 .success-hint {

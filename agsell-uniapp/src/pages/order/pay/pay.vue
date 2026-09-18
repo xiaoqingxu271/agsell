@@ -31,6 +31,26 @@
       </view>
     </view>
 
+    <!-- 支付方式选择 -->
+    <view v-if="!expired" class="pay-methods-card">
+      <view class="methods-title">支付方式</view>
+      <view
+        v-for="m in payMethods"
+        :key="m.value"
+        class="method-row"
+        :class="{ active: payType === m.value }"
+        @click="payType = m.value"
+      >
+        <view class="method-icon" :style="{ background: m.bg }">
+          <text class="method-icon-text" :style="{ color: m.color }">{{ m.short }}</text>
+        </view>
+        <text class="method-name">{{ m.name }}</text>
+        <view class="method-radio" :class="{ checked: payType === m.value }">
+          <view v-if="payType === m.value" class="radio-dot"></view>
+        </view>
+      </view>
+    </view>
+
     <!-- 底部操作 -->
     <view class="bottom-bar">
       <view class="btn-cancel" :class="{ disabled: expired || paying || cancelling }" @click="onCancel">取消支付</view>
@@ -50,6 +70,13 @@ const payAmount = ref('0.00')
 const expired = ref(false)
 const paying = ref(false)
 const cancelling = ref(false)
+
+// 支付方式：1=支付宝 2=微信支付，默认支付宝
+const payType = ref(1)
+const payMethods = [
+  { value: 1, name: '支付宝', short: '支', color: '#1677FF', bg: '#E8F1FF' },
+  { value: 2, name: '微信支付', short: '微', color: '#07C160', bg: '#E6F9EE' }
+]
 
 // 倒计时：以服务端下发的到期时间戳为准，切后台/回来用 onShow 重算
 const deadline = ref(0)
@@ -142,10 +169,10 @@ async function onPay() {
   if (expired.value || paying.value) return
   paying.value = true
   try {
-    const res = await createPayment(orderNo.value)
+    const res = await createPayment(orderNo.value, payType.value)
     if (res.code === 0) {
       uni.redirectTo({
-        url: `/pages/order/pay-success/pay-success?orderNo=${orderNo.value}&payAmount=${payAmount.value}`
+        url: `/pages/order/pay-success/pay-success?orderNo=${orderNo.value}&payAmount=${payAmount.value}&payType=${payType.value}`
       })
     } else {
       uni.showToast({ title: res.message || '支付失败', icon: 'none' })
@@ -361,6 +388,83 @@ async function onCancel() {
   color: #4B5563;
   line-height: 1.5;
   flex: 1;
+}
+
+/* 支付方式选择 */
+.pay-methods-card {
+  background: #FFFFFF;
+  margin: 0 24rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid #E5E7EB;
+}
+
+.methods-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16rpx;
+}
+
+.method-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx 16rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+  margin-bottom: 12rpx;
+}
+
+.method-row:last-child { margin-bottom: 0; }
+
+.method-row.active {
+  border-color: #00B578;
+  background: rgba(0, 181, 120, 0.04);
+}
+
+.method-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.method-icon-text {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.method-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #1A1B1C;
+}
+
+.method-radio {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  border: 2rpx solid #D1D5DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.method-radio.checked {
+  border-color: #00B578;
+}
+
+.radio-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #00B578;
 }
 
 .bottom-bar {

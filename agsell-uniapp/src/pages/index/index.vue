@@ -123,6 +123,7 @@ import ProductCard from '../../components/ProductCard/ProductCard.vue'
 import { getBannerList } from '../../api/banner'
 import { getCategoryList, getHotProducts, getNewProducts } from '../../api/product'
 import { getSeckillList } from '../../api/seckill'
+import { request } from '../../utils/request'
 
 const banners = ref([])
 const categories = ref([])
@@ -131,12 +132,28 @@ const newProducts = ref([])
 const seckillActivities = ref([])
 
 onMounted(async () => {
+  setNavTitle()
   await loadBanners()
   await loadSeckill()
   await loadCategories()
   await loadHotProducts()
   await loadNewProducts()
 })
+
+/** 首页导航栏展示系统配置的平台名称（管理端可改），失败时保留 pages.json 默认标题 */
+async function setNavTitle() {
+  try {
+    const cached = uni.getStorageSync('platform_name')
+    if (cached) uni.setNavigationBarTitle({ title: cached })
+    const res = await request('GET', '/system/config', null, { params: { keys: 'platform_name' } })
+    if (res.code === 0 && res.data?.platform_name) {
+      uni.setStorageSync('platform_name', res.data.platform_name)
+      uni.setNavigationBarTitle({ title: res.data.platform_name })
+    }
+  } catch (e) {
+    console.warn('[Index] 加载平台名称失败，使用默认标题', e)
+  }
+}
 
 async function loadSeckill() {
   const res = await getSeckillList({ filter: 0 })
@@ -471,7 +488,9 @@ function onSeckillItemTap(act) {
 }
 
 .product-scroll-inner :deep(.product-card) {
-  width: 200rpx;
+  /* 内容区 = 750 - section 左右margin(48) - section 左右padding(48) = 654rpx；
+     3 张卡片 + 2 个 gap(16rpx) 正好撑满：(654 - 32) / 3 ≈ 207rpx */
+  width: 207rpx;
   flex-shrink: 0;
 }
 
@@ -493,6 +512,6 @@ function onSeckillItemTap(act) {
 }
 
 .product-scroll-inner :deep(.sales) {
-  font-size: 20rpx;
+  display: none;
 }
 </style>

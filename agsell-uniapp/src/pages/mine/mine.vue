@@ -86,7 +86,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onUnload } from '@dcloudio/uni-app'
 import { getUserInfo, updateUserInfo, logout } from '../../api/user'
 import { getOrderList } from '../../api/order'
 import { wxLogin, isLoggedIn, request } from '../../utils/request'
@@ -113,15 +113,33 @@ onShow(async () => {
   loadServicePhone()
 })
 
-/** 加载系统配置中的客服电话（未配置则隐藏"联系客服"入口） */
+// 订单列表页查看完某个状态后，立即把对应角标清零，返回时无需等 onShow 重新拉接口
+uni.$on('orderBadgeCleared', onOrderBadgeCleared)
+onUnload(() => {
+  uni.$off('orderBadgeCleared', onOrderBadgeCleared)
+})
+function onOrderBadgeCleared(status) {
+  if (status === null || status === undefined) return
+  if (orderTabs[status]) orderTabs[status].count = 0
+  orderCounts.value[status] = 0
+}
+
+/** 加载系统配置中的客服电话与平台名称（客服电话未配置则隐藏"联系客服"入口） */
 async function loadServicePhone() {
   try {
-    const res = await request('GET', '/system/config', null, { params: { keys: 'service_phone' } })
+    const res = await request('GET', '/system/config', null, { params: { keys: 'service_phone,platform_name' } })
     if (res.code === 0 && res.data?.service_phone) {
       servicePhone.value = res.data.service_phone
     }
+    if (res.code === 0 && res.data?.platform_name) {
+      uni.setStorageSync('platform_name', res.data.platform_name)
+      uni.setNavigationBarTitle({ title: res.data.platform_name })
+    }
   } catch (e) {
     console.warn('加载客服电话失败', e)
+    // 接口失败时用本地缓存的平台名兜底标题
+    const cached = uni.getStorageSync('platform_name')
+    if (cached) uni.setNavigationBarTitle({ title: cached })
   }
 }
 
@@ -213,7 +231,8 @@ function onScanTrace() {
 }
 
 function goToAbout() {
-  uni.showToast({ title: '农产品商城 v1.0', icon: 'none' })
+  const platformName = uni.getStorageSync('platform_name') || '农产品商城'
+  uni.showToast({ title: `${platformName} v1.0`, icon: 'none' })
 }
 
 async function onLogout() {

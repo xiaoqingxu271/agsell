@@ -51,7 +51,7 @@ public class Order implements Serializable {
     /** 详细地址（快照） */
     private String address;
 
-    /** 支付方式 1=模拟支付 */
+    /** 支付方式 1=支付宝 2=微信支付 */
     private Integer payType;
 
     /** 支付时间 */

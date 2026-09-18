@@ -3,6 +3,7 @@ package com.lichun.agsell.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.model.dto.OrderCreateRequest;
+import com.lichun.agsell.model.vo.FreightPreviewVO;
 import com.lichun.agsell.model.vo.OrderCreateVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
 import com.lichun.agsell.model.vo.OrderListItemVO;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @Tag(name = "用户端-订单接口", description = "订单创建、列表、详情、取消、确认收货")
 @RestController
 @RequestMapping("/order")
@@ -20,6 +23,12 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
+
+    @Operation(summary = "运费预估")
+    @GetMapping("/freight-preview")
+    public BaseResponse<FreightPreviewVO> previewFreight(@RequestParam BigDecimal totalAmount) {
+        return ResultUtils.success(orderService.previewFreight(totalAmount));
+    }
 
     @Operation(summary = "提交订单")
     @PostMapping("/create")

@@ -40,7 +40,7 @@ CREATE TABLE `order` (
     `receiver`      VARCHAR(50)    NOT NULL COMMENT '收件人',
     `phone`         VARCHAR(20)    NOT NULL COMMENT '收件电话',
     `address`       VARCHAR(255)   NOT NULL COMMENT '详细地址',
-    `pay_type`      TINYINT        DEFAULT NULL COMMENT '支付方式 1=模拟支付',
+    `pay_type`      TINYINT        DEFAULT NULL COMMENT '支付方式 1=支付宝 2=微信支付',
     `pay_time`      DATETIME       DEFAULT NULL COMMENT '支付时间',
     `delivery_time` DATETIME       DEFAULT NULL COMMENT '发货时间',
     `receive_time`  DATETIME       DEFAULT NULL COMMENT '确认收货时间',

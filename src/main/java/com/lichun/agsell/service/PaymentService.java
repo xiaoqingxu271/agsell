@@ -2,10 +2,19 @@ package com.lichun.agsell.service;
 
 public interface PaymentService {
 
+    /** 支付方式：支付宝 */
+    int PAY_TYPE_ALIPAY = 1;
+
+    /** 支付方式：微信支付 */
+    int PAY_TYPE_WECHAT = 2;
+
     /**
-     * 创建支付（模拟）
+     * 创建支付（模拟）：支付直接成功，但将所选支付方式写入订单
+     *
+     * @param orderNo 订单号
+     * @param payType 支付方式 1=支付宝 2=微信支付，为空默认支付宝
      */
-    void createPayment(String orderNo);
+    void createPayment(String orderNo, Integer payType);
 
     /**
      * 查询支付状态

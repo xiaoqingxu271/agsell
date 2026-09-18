@@ -25,16 +25,16 @@
             :src="item.productImage || '/static/default-product.png'"
             mode="aspectFill"
             lazy-load
-            @click="onProductTap(item.productId)"
+            @click="onProductTap(item)"
             :alt="item.productName"
           />
-          <view class="item-info">
+          <view class="item-info" @click="onProductTap(item)">
             <text class="item-name">{{ item.productName }}</text>
             <text v-if="item.specName" class="item-spec">{{ item.specName }}</text>
             <view class="item-bottom">
               <template v-if="item.valid === 0">
                 <text class="item-invalid">{{ item.invalidReason || '商品已失效' }}</text>
-                <view class="item-delete" @click="onDelete(item)" role="button" aria-label="删除商品">
+                <view class="item-delete" @click.stop="onDelete(item)" role="button" aria-label="删除商品">
                   <view class="trash-icon">
                     <view class="trash-lid"></view>
                     <view class="trash-body"></view>
@@ -45,11 +45,11 @@
                 <text class="item-price">¥{{ item.price }}</text>
                 <view class="item-bottom-right">
                   <view class="qty-control">
-                    <view class="qty-btn" @click="onMinus(item)" role="button" aria-label="减少数量">-</view>
+                    <view class="qty-btn" @click.stop="onMinus(item)" role="button" aria-label="减少数量">-</view>
                     <text class="qty-value">{{ item.quantity }}</text>
-                    <view class="qty-btn" @click="onPlus(item)" role="button" aria-label="增加数量">+</view>
+                    <view class="qty-btn" @click.stop="onPlus(item)" role="button" aria-label="增加数量">+</view>
                   </view>
-                  <view class="item-delete" @click="onDelete(item)" role="button" aria-label="删除商品">
+                  <view class="item-delete" @click.stop="onDelete(item)" role="button" aria-label="删除商品">
                     <view class="trash-icon">
                       <view class="trash-lid"></view>
                       <view class="trash-body"></view>
@@ -92,11 +92,13 @@
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getCartList, updateCartQuantity, deleteCartItem, toggleCartSelect, selectAllCart } from '../../api/cart'
+import { setPlatformTitle } from '../../utils/request'
 
 const cartItems = ref([])
 const allSelected = ref(false)
 
 onShow(async () => {
+  setPlatformTitle()
   await loadCart()
 })
 
@@ -168,8 +170,16 @@ function onDelete(item) {
   })
 }
 
-function onProductTap(productId) {
-  uni.navigateTo({ url: `/pages/product/product?id=${productId}` })
+function onProductTap(item) {
+  if (item.valid === 0) {
+    uni.showToast({ title: item.invalidReason || '商品已失效', icon: 'none' })
+    return
+  }
+  if (!item.productId) {
+    uni.showToast({ title: '商品信息缺失', icon: 'none' })
+    return
+  }
+  uni.navigateTo({ url: `/pages/product/product?id=${item.productId}` })
 }
 
 function onCheckout() {

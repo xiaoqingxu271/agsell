@@ -36,9 +36,14 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public void createPayment(String orderNo) {
+    public void createPayment(String orderNo, Integer payType) {
         Long userId = BaseContext.getCurrentId();
         ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR);
+
+        // 支付方式校验：1=支付宝 2=微信支付，缺省按支付宝处理
+        int channel = payType == null ? PAY_TYPE_ALIPAY : payType;
+        ThrowUtils.throwIf(channel != PAY_TYPE_ALIPAY && channel != PAY_TYPE_WECHAT,
+                ErrorCode.PARAMS_ERROR, "不支持的支付方式");
 
         Order order = orderMapper.selectOne(new LambdaQueryWrapper<Order>()
                 .eq(Order::getOrderNo, orderNo)
@@ -74,11 +79,11 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
 
-        // 2. 更新订单状态为已支付（待发货）
+        // 2. 更新订单状态为已支付（待发货），记录所选支付方式
         Order update = new Order();
         update.setId(order.getId());
         update.setStatus(OrderStatusEnum.PENDING_SHIPMENT.getCode()); // 待发货
-        update.setPayType(1); // 模拟支付
+        update.setPayType(channel); // 1=支付宝 2=微信支付
         update.setPayTime(LocalDateTime.now());
         orderMapper.updateById(update);
     }

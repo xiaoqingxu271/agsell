@@ -48,12 +48,12 @@
         </view>
         <view class="price-row">
           <text class="price-label">运费</text>
-          <text class="price-value">¥0.00</text>
+          <text class="price-value">¥{{ freight }}</text>
         </view>
         <view class="divider"></view>
         <view class="price-row total">
           <text class="price-label">实付金额</text>
-          <text class="price-value pay">¥{{ totalAmount }}</text>
+          <text class="price-value pay">¥{{ payAmount }}</text>
         </view>
       </view>
 
@@ -75,7 +75,7 @@
     <view class="bottom-bar">
       <view class="total-pay">
         <text class="pay-label">合计：</text>
-        <text class="pay-price">¥{{ totalAmount }}</text>
+        <text class="pay-price">¥{{ payAmount }}</text>
       </view>
       <view class="submit-btn" @click="onSubmit" role="button">提交订单</view>
     </view>
@@ -100,6 +100,7 @@ import AddressPicker from '../../../components/AddressPicker/AddressPicker.vue'
 import { getAddressList } from '../../../api/user'
 import { createOrder } from '../../../api/order'
 import { getProductDetail } from '../../../api/product'
+import { request } from '../../../utils/request'
 
 const addresses = ref([])
 const selectedAddress = ref(null)
@@ -108,6 +109,8 @@ const showAddressPicker = ref(false)
 const cartData = ref([])
 const orderItems = ref([])
 const totalAmount = ref('0.00')
+const freight = ref('0.00')
+const payAmount = ref('0.00')
 const buyNowProductId = ref(null)
 const buyNowSpecId = ref(null)
 const buyNowQuantity = ref(1)
@@ -124,8 +127,25 @@ onLoad(async (options) => {
     buyNowQuantity.value = Number(options.quantity) || 1
     await loadBuyNowProduct()
   }
+  await loadFreight()
   await loadAddresses()
 })
+
+/** 调用后端运费预估接口展示运费与实付金额（与下单计算口径一致）；接口失败时按 0 运费兜底，不阻塞下单 */
+async function loadFreight() {
+  const amount = Number(totalAmount.value) || 0
+  freight.value = '0.00'
+  payAmount.value = totalAmount.value
+  try {
+    const res = await request('GET', '/order/freight-preview', null, { params: { totalAmount: amount } })
+    if (res.code === 0 && res.data) {
+      freight.value = Number(res.data.freight || 0).toFixed(2)
+      payAmount.value = Number(res.data.payAmount || amount).toFixed(2)
+    }
+  } catch (e) {
+    console.warn('运费预估失败，按 0 运费展示', e)
+  }
+}
 
 async function loadAddresses() {
   const res = await getAddressList()

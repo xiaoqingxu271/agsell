@@ -93,6 +93,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getCategoryList, getProductList } from '../../api/product'
+import { setPlatformTitle } from '../../utils/request'
 
 const firstCategories = ref([])
 const secondCategories = ref([])
@@ -115,6 +116,7 @@ const sortOptions = [
 ]
 
 onMounted(async () => {
+  setPlatformTitle()
   await loadCategories()
 })
 

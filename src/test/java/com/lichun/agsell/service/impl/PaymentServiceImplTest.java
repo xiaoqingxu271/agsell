@@ -81,15 +81,16 @@ class PaymentServiceImplTest {
         when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, 2L, 2)));
         when(productSpecMapper.update(any(), any())).thenReturn(1);
 
-        paymentService.createPayment("AGS123");
+        paymentService.createPayment("AGS123", 1);
 
         // 规格库存被扣减，商品库存不动
         verify(productSpecMapper).update(any(), any());
         verify(productMapper, never()).update(any(), any());
-        // 订单状态更新为已支付（待发货）
+        // 订单状态更新为已支付（待发货），支付方式落库为支付宝
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
         verify(orderMapper).updateById((Order) captor.capture());
         assertEquals(1, captor.getValue().getStatus());
+        assertEquals(1, captor.getValue().getPayType());
     }
 
     @Test
@@ -99,13 +100,39 @@ class PaymentServiceImplTest {
         when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, null, 3)));
         when(productMapper.update(any(), any())).thenReturn(1);
 
-        paymentService.createPayment("AGS123");
+        paymentService.createPayment("AGS123", 2);
 
         verify(productMapper).update(any(), any());
         verify(productSpecMapper, never()).update(any(), any());
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
         verify(orderMapper).updateById((Order) captor.capture());
         assertEquals(1, captor.getValue().getStatus());
+        // 微信支付方式落库
+        assertEquals(2, captor.getValue().getPayType());
+    }
+
+    @Test
+    @DisplayName("支付成功：未传支付方式时默认按支付宝落库")
+    void createPayment_defaultPayType_whenNull() {
+        when(orderMapper.selectOne(any())).thenReturn(pendingOrder());
+        when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, 2L, 1)));
+        when(productSpecMapper.update(any(), any())).thenReturn(1);
+
+        paymentService.createPayment("AGS123", null);
+
+        ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
+        verify(orderMapper).updateById((Order) captor.capture());
+        assertEquals(1, captor.getValue().getPayType());
+    }
+
+    @Test
+    @DisplayName("支付失败：不支持的支付方式时抛参数错误")
+    void createPayment_invalidPayType_throws() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> paymentService.createPayment("AGS123", 9));
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(orderMapper, never()).selectOne(any());
+        verify(orderMapper, never()).updateById(any(Order.class));
     }
 
     @Test
@@ -116,7 +143,7 @@ class PaymentServiceImplTest {
         when(productSpecMapper.update(any(), any())).thenReturn(0); // 乐观锁扣减失败
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> paymentService.createPayment("AGS123"));
+                () -> paymentService.createPayment("AGS123", 1));
         assertEquals(ErrorCode.STOCK_INSUFFICIENT.getCode(), ex.getCode());
         // 状态更新必须在库存扣减成功之后，失败时不得更新订单
         verify(orderMapper, never()).updateById(any(Order.class));
@@ -130,7 +157,7 @@ class PaymentServiceImplTest {
         when(productMapper.update(any(), any())).thenReturn(0);
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> paymentService.createPayment("AGS123"));
+                () -> paymentService.createPayment("AGS123", 1));
         assertEquals(ErrorCode.STOCK_INSUFFICIENT.getCode(), ex.getCode());
         verify(orderMapper, never()).updateById(any(Order.class));
     }
@@ -143,7 +170,7 @@ class PaymentServiceImplTest {
         when(orderMapper.selectOne(any())).thenReturn(paid);
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> paymentService.createPayment("AGS123"));
+                () -> paymentService.createPayment("AGS123", 1));
         assertEquals(ErrorCode.ORDER_STATUS_ERROR.getCode(), ex.getCode());
         verify(orderMapper, never()).updateById(any(Order.class));
         verify(orderItemMapper, never()).selectList(any());
@@ -155,7 +182,7 @@ class PaymentServiceImplTest {
         when(orderMapper.selectOne(any())).thenReturn(null);
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> paymentService.createPayment("AGS123"));
+                () -> paymentService.createPayment("AGS123", 1));
         assertEquals(ErrorCode.NOT_FOUND_ERROR.getCode(), ex.getCode());
     }
 }

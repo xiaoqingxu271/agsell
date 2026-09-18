@@ -16,6 +16,7 @@ import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.dto.OrderCreateRequest;
 import com.lichun.agsell.model.entity.*;
 import com.lichun.agsell.model.enums.OrderStatusEnum;
+import com.lichun.agsell.model.vo.FreightPreviewVO;
 import com.lichun.agsell.model.vo.OrderCreateVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
 import com.lichun.agsell.model.vo.OrderListItemVO;
@@ -201,6 +202,20 @@ public class OrderServiceImpl implements OrderService {
         vo.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode());
         vo.setCreateTime(order.getCreateTime());
         vo.setExpireSeconds(computeExpireSeconds(order.getCreateTime()));
+        return vo;
+    }
+
+    /**
+     * 运费预估：与 createOrder 中 computeFreight 同一口径，供订单确认页展示
+     */
+    @Override
+    public FreightPreviewVO previewFreight(BigDecimal totalAmount) {
+        BigDecimal amount = totalAmount == null ? BigDecimal.ZERO : totalAmount;
+        BigDecimal freight = computeFreight(amount);
+        FreightPreviewVO vo = new FreightPreviewVO();
+        vo.setTotalAmount(amount);
+        vo.setFreight(freight);
+        vo.setPayAmount(amount.add(freight));
         return vo;
     }
 
