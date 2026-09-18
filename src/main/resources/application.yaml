@@ -71,3 +71,8 @@ order:
 trace:
   base-url: ${TRACE_BASE_URL:http://localhost:8080/api} # 溯源 H5 页面域名（二维码内容前缀），可用环境变量 TRACE_BASE_URL 覆盖
 
+# AI 客服服务配置（阶段三）
+ai-service:
+  base-url: ${AI_SERVICE_BASE_URL:http://127.0.0.1:8000} # Python AI 服务地址
+  internal-key: ${AI_INTERNAL_KEY:agsell-ai-internal-2026} # Python 回调 Java 内部接口的密钥
+

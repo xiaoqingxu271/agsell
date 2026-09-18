@@ -10,18 +10,23 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Web MVC 配置
- * 注册 JWT 拦截器 + CORS 跨域配置
+ * 注册 JWT 拦截器 + AI 内部接口拦截器 + CORS 跨域配置
  */
 @Configuration
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final JwtAuthInterceptor jwtAuthInterceptor;
+    private final AiInternalAuthInterceptor aiInternalAuthInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**");
+        // AI 内部接口：JWT 白名单放行后，再由本拦截器校验 X-Internal-Key
+        // 注意：context-path=/api，拦截器 pathPattern 匹配的是 servlet path（不含 context-path）
+        registry.addInterceptor(aiInternalAuthInterceptor)
+                .addPathPatterns("/ai/internal/**");
     }
 
     /**

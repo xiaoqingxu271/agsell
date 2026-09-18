@@ -1,0 +1,17 @@
+# 密钥与环境
+.env
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# 本地数据（Chroma 向量库等）
+data/
+
+# IDE / 系统
+.idea/
+.vscode/
+*.log

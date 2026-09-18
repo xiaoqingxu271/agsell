@@ -32,6 +32,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/admin/login",
             "/api/health",
             "/api/sms/send",
+            // AI 客服对话（游客可咨询 FAQ；登录后业务查询 userId 由 Controller 解析 JWT）
+            "/api/ai/chat",
+            // AI 内部接口（Python 服务回调，由 AiInternalAuthInterceptor 校验 X-Internal-Key）
+            "/api/ai/internal",
             // 商品浏览接口（无需登录）
             "/api/product/category/list",
             "/api/product/detail",

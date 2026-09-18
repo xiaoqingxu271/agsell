@@ -1,0 +1,31 @@
+# ============================================================
+# agsell AI 智能客服服务 · 依赖清单（Python 3.14）
+# 阶段一：核心骨架；阶段二按注释启用知识库依赖
+# ============================================================
+
+# ---- 阶段一：核心依赖 ----
+fastapi[standard]>=0.130
+langgraph>=1.2,<2
+langchain>=1.4
+langchain-openai>=0.3
+langchain-text-splitters>=0.3
+httpx>=0.28
+pydantic>=2.9
+pydantic-settings>=2.5
+python-dotenv
+
+# ---- 阶段二：FAQ 知识库（RAG）----
+chromadb>=1.5.3        # 注意：<1.5.3 在 Python 3.14 有 ConfigError
+fastembed>=0.5         # 本地 bge-m3（ONNX Runtime），避免大体积 torch
+sqlalchemy>=2.0
+pymysql>=1.1
+
+# ---- 阶段五：会话记忆持久化 ----
+langgraph-checkpoint-sqlite>=2.0
+
+# 可选：Redis 后端（需 Redis 8+ 内置 RediSearch；本地 Windows Redis 5 不满足时勿装）
+# langgraph-checkpoint-redis>=0.4
+
+# ---- 测试 ----
+pytest
+pytest-asyncio

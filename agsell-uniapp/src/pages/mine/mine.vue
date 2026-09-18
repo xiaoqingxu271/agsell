@@ -68,8 +68,8 @@
       </view>
       <view v-if="servicePhone" class="menu-item" @click="onContactService" role="button">
         <view class="menu-icon menu-icon-service" aria-hidden="true"></view>
-        <text class="menu-text">联系客服</text>
-        <text class="menu-phone">{{ servicePhone }}</text>
+        <text class="menu-text">AI 智能客服</text>
+        <text class="menu-phone">AI 客服 · {{ servicePhone }}</text>
         <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
       </view>
       <view class="menu-item" @click="goToAbout" role="button">
@@ -126,8 +126,8 @@ async function loadServicePhone() {
 }
 
 function onContactService() {
-  if (!servicePhone.value) return
-  uni.makePhoneCall({ phoneNumber: servicePhone.value })
+  // 进入 AI 智能客服聊天页（客服电话已在聊天页欢迎语/兜底话术内提示）
+  uni.navigateTo({ url: '/pages/ai-chat/chat' })
 }
 
 async function loadUserInfo() {

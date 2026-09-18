@@ -36,7 +36,7 @@ export function request(method, url, data = null, extra = {}) {
       method,
       data: method === 'GET' ? undefined : data,
       header,
-      timeout: 8000,
+      timeout: extra.timeout || 8000,
       success: (res) => {
         const { data: result } = res
         if (result.code === 40100 || result.code === 10001) {
