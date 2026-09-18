@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="pay-page">
     <!-- 状态区 -->
     <view class="status-card" :class="{ expired: expired }">
@@ -190,7 +190,7 @@ async function onCancel() {
 <style scoped>
 .pay-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   padding-bottom: 140rpx;
   box-sizing: border-box;
 }
@@ -200,7 +200,7 @@ async function onCancel() {
   margin: 24rpx;
   padding: 48rpx 32rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
   display: flex;
   flex-direction: column;
@@ -234,7 +234,7 @@ async function onCancel() {
   width: 96rpx;
   height: 96rpx;
   border-radius: 50%;
-  border: 6rpx solid #A16207;
+  border: 6rpx solid #E63946;
   background: #FFFDF7;
   box-sizing: border-box;
 }
@@ -254,13 +254,13 @@ async function onCancel() {
 
 .clock-hand.hour {
   height: 26rpx;
-  background: #A16207;
+  background: #E63946;
   transform: translate(-50%, -100%) rotate(45deg);
 }
 
 .clock-hand.minute {
   height: 36rpx;
-  background: #A16207;
+  background: #E63946;
   transform: translate(-50%, -100%) rotate(135deg);
 }
 
@@ -275,7 +275,7 @@ async function onCancel() {
   width: 10rpx;
   height: 10rpx;
   border-radius: 50%;
-  background: #A16207;
+  background: #E63946;
   transform: translate(-50%, -50%);
 }
 
@@ -286,17 +286,17 @@ async function onCancel() {
 .status-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
   margin-bottom: 16rpx;
 }
 
 .status-card.expired .status-title {
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .pay-amount {
   font-size: 64rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
   margin-bottom: 24rpx;
   font-variant-numeric: tabular-nums;
@@ -311,7 +311,7 @@ async function onCancel() {
 
 .countdown-label {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .countdown-time {
@@ -323,7 +323,7 @@ async function onCancel() {
 
 .expired-hint {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-bottom: 16rpx;
   text-align: center;
 }
@@ -338,7 +338,7 @@ async function onCancel() {
   margin: 0 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
 }
 
 .tip-row {
@@ -351,14 +351,14 @@ async function onCancel() {
 .tip-row:last-child { margin-bottom: 0; }
 
 .tip-dot {
-  color: #15803D;
+  color: #00B578;
   font-size: 28rpx;
   line-height: 1.5;
 }
 
 .tip-text {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   line-height: 1.5;
   flex: 1;
 }
@@ -375,7 +375,7 @@ async function onCancel() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #E5E7EB;
   z-index: 100;
 }
 
@@ -402,9 +402,9 @@ async function onCancel() {
 }
 
 .btn-pay {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
-  border: 1rpx solid #15803D;
+  border: 1rpx solid #00B578;
 }
 
 .btn-cancel.disabled, .btn-pay.disabled {

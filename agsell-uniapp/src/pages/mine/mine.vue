@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="mine-page">
     <!-- 用户信息区 -->
     <view v-if="isUserLoggedIn" class="user-header" @click="onChooseAvatar">
@@ -259,7 +259,7 @@ async function onChooseAvatar() {
 <style scoped>
 .mine-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   padding-bottom: 40rpx;
 }
 
@@ -267,7 +267,7 @@ async function onChooseAvatar() {
   display: flex;
   align-items: center;
   padding: 56rpx 40rpx 64rpx;
-  background: #F0FDF4;
+  background: linear-gradient(135deg, #00B578 0%, #00C886 100%);
 }
 
 .login-btn {
@@ -275,12 +275,12 @@ async function onChooseAvatar() {
   width: 240rpx;
   height: 72rpx;
   line-height: 72rpx;
-  background: #15803D;
-  color: #FFFFFF;
+  background: #FFFFFF;
+  color: #00B578;
   font-size: 28rpx;
   font-weight: 600;
   border-radius: 36rpx;
-  border: 2rpx solid #15803D;
+  border: none;
   padding: 0;
   display: flex;
   align-items: center;
@@ -297,7 +297,7 @@ async function onChooseAvatar() {
   height: 120rpx;
   border-radius: 50%;
   background: #FFFFFF;
-  border: 4rpx solid #BBF7D0;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
 }
 
@@ -306,14 +306,14 @@ async function onChooseAvatar() {
   height: 120rpx;
   border-radius: 50%;
   background: #FFFFFF;
-  border: 4rpx solid #BBF7D0;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
 }
 
 .avatar-tip {
   margin-left: 24rpx;
   font-size: 22rpx;
-  color: #166534;
-  background: #DCFCE7;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.25);
   padding: 8rpx 16rpx;
   border-radius: 20rpx;
   flex-shrink: 0;
@@ -328,13 +328,13 @@ async function onChooseAvatar() {
 .user-name {
   font-size: 36rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #FFFFFF;
   display: block;
 }
 
 .user-phone {
   font-size: 26rpx;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.85);
   margin-top: 8rpx;
   display: block;
 }
@@ -344,14 +344,13 @@ async function onChooseAvatar() {
   margin: 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
-  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
 
 .section-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #111827;
   margin-bottom: 20rpx;
 }
 
@@ -369,11 +368,11 @@ async function onChooseAvatar() {
   min-height: 88rpx;
   position: relative;
   border-radius: 16rpx;
-  transition: background 150ms ease-out;
+  transition: opacity 150ms ease-out;
 }
 
 .order-tab:active {
-  background: #F4F9F5;
+  opacity: 0.7;
 }
 
 .tab-icon-wrap {
@@ -397,7 +396,7 @@ async function onChooseAvatar() {
   font-size: 20rpx;
   font-weight: 600;
   color: #FFFFFF;
-  background: #DC2626;
+  background: #E63946;
   min-width: 32rpx;
   height: 32rpx;
   line-height: 32rpx;
@@ -408,26 +407,29 @@ async function onChooseAvatar() {
 
 .tab-label {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .menu-section {
   margin: 24rpx;
   padding: 0 24rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   padding: 32rpx 0;
-  border-bottom: 1rpx solid #EEF1EF;
+  border-bottom: 1rpx solid #F0F0F0;
   min-height: 88rpx;
   box-sizing: border-box;
-  transition: background 150ms ease-out;
+  transition: opacity 150ms ease-out;
 }
 
 .menu-item:active {
-  background: #F4F9F5;
+  opacity: 0.7;
 }
 
 .menu-item:last-child { border-bottom: none; }
@@ -439,10 +441,9 @@ async function onChooseAvatar() {
   flex-shrink: 0;
 }
 
-/* 扫码溯源图标：CSS 二维码角点（无 emoji） */
 .menu-icon-qr {
   border-radius: 8rpx;
-  background: #15803D;
+  background: #00B578;
   position: relative;
 }
 
@@ -474,7 +475,7 @@ async function onChooseAvatar() {
 
 .menu-icon-service {
   border-radius: 8rpx;
-  background: #15803D;
+  background: #00B578;
   position: relative;
   display: flex;
   align-items: center;
@@ -491,7 +492,7 @@ async function onChooseAvatar() {
 .menu-text {
   flex: 1;
   font-size: 30rpx;
-  color: #1F2937;
+  color: #111827;
 }
 
 .menu-arrow {
@@ -502,7 +503,7 @@ async function onChooseAvatar() {
 
 .menu-phone {
   font-size: 24rpx;
-  color: #15803D;
+  color: #00B578;
   margin-right: 8rpx;
   flex-shrink: 0;
 }
@@ -510,8 +511,9 @@ async function onChooseAvatar() {
 .logout-btn {
   margin: 40rpx 24rpx;
   text-align: center;
-  border: 1rpx solid #DC2626;
-  border-radius: 44rpx;
+  border: none;
+  background: #FFFFFF;
+  border-radius: 24rpx;
   color: #DC2626;
   font-size: 30rpx;
   font-weight: 500;

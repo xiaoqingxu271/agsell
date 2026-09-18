@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="detail-page">
     <!-- 导航栏 -->
     <NavBar title="秒杀详情" @back="onBack" />
@@ -244,7 +244,7 @@ async function onBuy() {
 <style scoped>
 .detail-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   padding-bottom: 140rpx;
 }
 
@@ -284,7 +284,7 @@ async function onBuy() {
   padding: 28rpx;
   background: #FFFFFF;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
 }
 
 .price-row {
@@ -389,13 +389,13 @@ async function onBuy() {
   padding: 24rpx 28rpx;
   background: #FFFFFF;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
 }
 
 .spec-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
   margin-bottom: 20rpx;
 }
 
@@ -429,7 +429,7 @@ async function onBuy() {
 .spec-name {
   font-size: 26rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
 }
 
 .spec-price {
@@ -444,14 +444,14 @@ async function onBuy() {
   padding: 28rpx;
   background: #FFFFFF;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
 }
 
 .info-name {
   display: block;
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
   margin-bottom: 24rpx;
 }
 
@@ -474,7 +474,7 @@ async function onBuy() {
 
 .info-value {
   font-size: 26rpx;
-  color: #1F2937;
+  color: #111827;
 }
 
 .bottom-bar {

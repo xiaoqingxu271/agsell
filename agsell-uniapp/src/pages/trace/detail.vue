@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="trace-page">
     <NavBar title="溯源档案" @back="uni.navigateBack()" />
 
@@ -217,7 +217,7 @@ function onPreviewRecordImgs(record, index) {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .trace-scroll {
@@ -242,7 +242,7 @@ function onPreviewRecordImgs(record, index) {
 .state-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
   margin-top: 24rpx;
 }
 
@@ -257,7 +257,7 @@ function onPreviewRecordImgs(record, index) {
   margin: 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -271,7 +271,7 @@ function onPreviewRecordImgs(record, index) {
   width: 128rpx;
   height: 128rpx;
   border-radius: 16rpx;
-  background: #F3F5F4;
+  background: #F3F4F6;
   flex-shrink: 0;
 }
 
@@ -285,7 +285,7 @@ function onPreviewRecordImgs(record, index) {
   display: block;
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -301,7 +301,7 @@ function onPreviewRecordImgs(record, index) {
 
 .batch-no {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   font-family: Consolas, Menlo, monospace;
   letter-spacing: 0.02em;
   overflow: hidden;
@@ -312,14 +312,14 @@ function onPreviewRecordImgs(record, index) {
 .copy-btn {
   flex-shrink: 0;
   font-size: 22rpx;
-  color: #15803D;
-  background: #DCFCE7;
+  color: #00B578;
+  background: #D1FAE5;
   border-radius: 12rpx;
   padding: 6rpx 18rpx;
 }
 
 .copy-btn:active {
-  background: #BBF7D0;
+  background: #D1FAE5;
 }
 
 /* ── 新鲜度卡（按等级着色） ── */
@@ -356,9 +356,9 @@ function onPreviewRecordImgs(record, index) {
 }
 
 .freshness-FRESH {
-  background: #F0FDF4;
-  border-color: #BBF7D0;
-  color: #15803D;
+  background: #ECFDF5;
+  border-color: #D1FAE5;
+  color: #00B578;
 }
 
 .freshness-NORMAL {
@@ -370,7 +370,7 @@ function onPreviewRecordImgs(record, index) {
 .freshness-FAIR {
   background: #FFFBEB;
   border-color: #FDE68A;
-  color: #A16207;
+  color: #E63946;
 }
 
 .freshness-STALE {
@@ -383,7 +383,7 @@ function onPreviewRecordImgs(record, index) {
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #00B578;
   margin-bottom: 20rpx;
 }
 
@@ -411,7 +411,7 @@ function onPreviewRecordImgs(record, index) {
 
 .info-value {
   font-size: 26rpx;
-  color: #1F2937;
+  color: #111827;
   line-height: 1.5;
   word-break: break-all;
 }
@@ -419,8 +419,8 @@ function onPreviewRecordImgs(record, index) {
 .cert-tag {
   display: inline-block;
   font-size: 22rpx;
-  color: #14532D;
-  background: #BBF7D0;
+  color: #111827;
+  background: #D1FAE5;
   border-radius: 10rpx;
   padding: 4rpx 16rpx;
   line-height: 1.6;
@@ -437,7 +437,7 @@ function onPreviewRecordImgs(record, index) {
   width: 196rpx;
   height: 196rpx;
   border-radius: 12rpx;
-  background: #F3F5F4;
+  background: #F3F4F6;
   border: 1rpx solid #E5E7EB;
 }
 
@@ -467,7 +467,7 @@ function onPreviewRecordImgs(record, index) {
   width: 16rpx;
   height: 16rpx;
   border-radius: 50%;
-  background: #15803D;
+  background: #00B578;
   margin-top: 10rpx;
 }
 
@@ -477,11 +477,11 @@ function onPreviewRecordImgs(record, index) {
   top: 30rpx;
   bottom: -4rpx;
   width: 2rpx;
-  background: #DCFCE7;
+  background: #D1FAE5;
 }
 
 .record-dot.last-dot {
-  background: #BBF7D0;
+  background: #D1FAE5;
 }
 
 .record-body {
@@ -505,8 +505,8 @@ function onPreviewRecordImgs(record, index) {
 .record-type {
   font-size: 26rpx;
   font-weight: 600;
-  color: #14532D;
-  background: #DCFCE7;
+  color: #111827;
+  background: #D1FAE5;
   border-radius: 10rpx;
   padding: 4rpx 16rpx;
 }
@@ -537,7 +537,7 @@ function onPreviewRecordImgs(record, index) {
   width: 128rpx;
   height: 128rpx;
   border-radius: 12rpx;
-  background: #F3F5F4;
+  background: #F3F4F6;
 }
 
 .record-operator {

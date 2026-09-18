@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="index-page">
     <!-- 搜索栏 -->
     <view class="search-bar">
@@ -209,13 +209,13 @@ function onSeckillItemTap(act) {
 
 <style scoped>
 .index-page {
-  background: #F4F6F5;
+  background: #F5F5F5;
   min-height: 100vh;
   padding-bottom: 24rpx;
 }
 
 .search-bar {
-  background: #F0FDF4;
+  background: #00B578;
   padding: 20rpx 24rpx 32rpx;
 }
 
@@ -223,11 +223,10 @@ function onSeckillItemTap(act) {
   display: flex;
   align-items: center;
   background: #FFFFFF;
-  border-radius: 44rpx;
-  height: 76rpx;
+  border-radius: 999rpx;
+  height: 72rpx;
   padding: 0 24rpx;
   min-width: 88rpx;
-  box-shadow: 0 4rpx 16rpx rgba(21, 128, 61, 0.10);
 }
 
 .search-icon {
@@ -248,13 +247,13 @@ function onSeckillItemTap(act) {
   margin: -16rpx 24rpx 0;
   border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.10);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
 }
 
 .banner-image {
   width: 100%;
   height: 360rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   border-radius: 24rpx;
 }
 
@@ -262,18 +261,16 @@ function onSeckillItemTap(act) {
   height: 360rpx;
   width: calc(100% - 48rpx);
   margin: -16rpx 24rpx 0;
-  background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 24rpx;
-  border: 1rpx solid #DCFCE7;
-  box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.06);
 }
 
 .placeholder-text {
   font-size: 32rpx;
-  color: #166534;
+  color: #00B578;
   font-weight: 600;
   letter-spacing: 4rpx;
 }
@@ -285,8 +282,7 @@ function onSeckillItemTap(act) {
   margin: 24rpx;
   padding: 24rpx 0;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
-  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
 
 /* 限时秒杀横卡（红橙系） */
@@ -294,8 +290,8 @@ function onSeckillItemTap(act) {
   margin: 16rpx 24rpx 24rpx;
   padding: 20rpx;
   border-radius: 24rpx;
-  background: linear-gradient(135deg, #FF4D2E 0%, #FF7A1A 100%);
-  box-shadow: 0 8rpx 24rpx rgba(255, 77, 46, 0.28);
+  background: linear-gradient(135deg, #E63946 0%, #FF6B35 100%);
+  box-shadow: 0 8rpx 24rpx rgba(230, 57, 70, 0.28);
 }
 
 .seckill-head {
@@ -361,7 +357,7 @@ function onSeckillItemTap(act) {
   width: 148rpx;
   height: 148rpx;
   border-radius: 12rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .seckill-price-row {
@@ -374,7 +370,7 @@ function onSeckillItemTap(act) {
 .seckill-price {
   font-size: 28rpx;
   font-weight: 700;
-  color: #DC2626;
+  color: #E63946;
 }
 
 .seckill-origin {
@@ -388,7 +384,7 @@ function onSeckillItemTap(act) {
   height: 48rpx;
   line-height: 48rpx;
   text-align: center;
-  background: #FF4D2E;
+  background: #E63946;
   color: #FFFFFF;
   font-size: 22rpx;
   font-weight: 600;
@@ -420,15 +416,15 @@ function onSeckillItemTap(act) {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #F0FDF4;
+  background: #ECFDF5;
 }
 
 .category-icon-default {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #F0FDF4;
-  color: #15803D;
+  background: #ECFDF5;
+  color: #00B578;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -438,7 +434,7 @@ function onSeckillItemTap(act) {
 
 .category-name {
   font-size: 24rpx;
-  color: #1F2937;
+  color: #111827;
   margin-top: 8rpx;
 }
 
@@ -447,8 +443,7 @@ function onSeckillItemTap(act) {
   margin: 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
-  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
 
 .section-title {
@@ -457,7 +452,7 @@ function onSeckillItemTap(act) {
   gap: 8rpx;
   font-size: 32rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #111827;
   margin-bottom: 20rpx;
 }
 

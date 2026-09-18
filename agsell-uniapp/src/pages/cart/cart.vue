@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="cart-page">
     <view v-if="cartItems.length === 0" class="empty-cart">
       <view class="cart-empty">
@@ -197,7 +197,7 @@ function goToShop() {
 <style scoped>
 .cart-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   padding-bottom: 140rpx;
 }
 
@@ -270,7 +270,7 @@ function goToShop() {
 }
 
 .go-shop-btn {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   border: none;
   border-radius: 44rpx;
@@ -292,13 +292,12 @@ function goToShop() {
   margin: 16rpx 24rpx;
   background: #FFFFFF;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
-  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
-  transition: transform 120ms ease-out;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  transition: opacity 150ms ease-out;
 }
 
 .cart-item:active {
-  transform: scale(0.99);
+  opacity: 0.85;
 }
 
 .item-checkbox {
@@ -327,14 +326,14 @@ function goToShop() {
 
 .item-checkbox.checked .checkbox-icon {
   color: #FFFFFF;
-  background: #15803D;
-  border-color: #15803D;
+  background: #00B578;
+  border-color: #00B578;
   font-weight: 600;
 }
 
 .item-checkbox.disabled .checkbox-icon {
   color: #E5E7EB;
-  background: #F3F5F4;
+  background: #F3F4F6;
   border-color: #E5E7EB;
 }
 
@@ -342,7 +341,7 @@ function goToShop() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   flex-shrink: 0;
 }
 
@@ -354,7 +353,7 @@ function goToShop() {
 
 .item-name {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -364,7 +363,7 @@ function goToShop() {
 
 .item-spec {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 8rpx;
 }
 
@@ -383,8 +382,8 @@ function goToShop() {
 
 .item-price {
   font-size: 32rpx;
-  color: #A16207;
-  font-weight: 600;
+  color: #E63946;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -403,7 +402,7 @@ function goToShop() {
   align-items: center;
   justify-content: center;
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   background: #FFFFFF;
   min-width: 56rpx;
 }
@@ -412,7 +411,7 @@ function goToShop() {
   font-size: 28rpx;
   min-width: 48rpx;
   text-align: center;
-  color: #1F2937;
+  color: #111827;
   font-variant-numeric: tabular-nums;
 }
 
@@ -474,7 +473,7 @@ function goToShop() {
   height: 110rpx;
   padding: 0 24rpx;
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #F0F0F0;
   box-sizing: border-box;
   z-index: 999;
 }
@@ -498,8 +497,8 @@ function goToShop() {
 }
 
 .checkbox-circle.checked {
-  background: #15803D;
-  border-color: #15803D;
+  background: #00B578;
+  border-color: #00B578;
 }
 
 .check-mark {
@@ -511,7 +510,7 @@ function goToShop() {
 
 .select-text {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
 }
 
 .total-info {
@@ -522,18 +521,18 @@ function goToShop() {
 
 .total-label {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .total-price {
-  font-size: 32rpx;
-  color: #A16207;
-  font-weight: 600;
+  font-size: 36rpx;
+  color: #E63946;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .checkout-btn {
-  background: #15803D;
+  background: #E63946;
   color: #FFFFFF;
   padding: 0 48rpx;
   height: 88rpx;
@@ -552,6 +551,6 @@ function goToShop() {
 
 .item-invalid {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 </style>

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="address-page">
     <NavBar title="收货地址" @back="uni.navigateBack()" />
 
@@ -272,7 +272,7 @@ async function onSetDefault(addr) {
 <style scoped>
 .address-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .content {
@@ -347,7 +347,7 @@ async function onSetDefault(addr) {
   border-right: 6rpx solid #C7CECB;
   border-bottom: 6rpx solid #C7CECB;
   transform: rotate(45deg);
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .empty-text {
@@ -357,7 +357,7 @@ async function onSetDefault(addr) {
 }
 
 .login-hint-btn {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   padding: 20rpx 48rpx;
   border-radius: 44rpx;
@@ -376,7 +376,7 @@ async function onSetDefault(addr) {
   bottom: calc(20rpx + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   display: flex;
   align-items: center;
@@ -404,12 +404,12 @@ async function onSetDefault(addr) {
   border-radius: 24rpx;
   margin-bottom: 16rpx;
   overflow: hidden;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .address-card.is-default {
-  border-color: #15803D;
+  border-color: #00B578;
 }
 
 .addr-main {
@@ -427,12 +427,12 @@ async function onSetDefault(addr) {
 .receiver {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .tag {
@@ -448,13 +448,13 @@ async function onSetDefault(addr) {
 }
 
 .tag-success {
-  background: #DCFCE7;
-  color: #166534;
+  background: #D1FAE5;
+  color: #00B578;
 }
 
 .addr-detail {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   line-height: 1.6;
 }
 
@@ -463,7 +463,7 @@ async function onSetDefault(addr) {
   gap: 16rpx;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #EEF1EF;
+  border-top: 1rpx solid #F0F0F0;
   flex-wrap: wrap;
 }
 
@@ -479,8 +479,8 @@ async function onSetDefault(addr) {
 }
 
 .action-edit {
-  color: #15803D;
-  border: 1rpx solid #15803D;
+  color: #00B578;
+  border: 1rpx solid #00B578;
 }
 
 .action-delete {
@@ -489,8 +489,8 @@ async function onSetDefault(addr) {
 }
 
 .action-default {
-  color: #A16207;
-  border: 1rpx solid #A16207;
+  color: #E63946;
+  border: 1rpx solid #E63946;
 }
 
 /* 编辑弹窗 */
@@ -526,7 +526,7 @@ async function onSetDefault(addr) {
 .edit-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #111827;
 }
 
 .edit-close {
@@ -535,7 +535,7 @@ async function onSetDefault(addr) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .edit-close .close-x {
@@ -552,7 +552,7 @@ async function onSetDefault(addr) {
   top: 50%;
   width: 30rpx;
   height: 4rpx;
-  background: #6B7280;
+  background: #4B5563;
   border-radius: 2rpx;
 }
 
@@ -565,7 +565,7 @@ async function onSetDefault(addr) {
 
 .form-label {
   font-size: 28rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-bottom: 12rpx;
   display: block;
   font-weight: 500;
@@ -578,7 +578,7 @@ async function onSetDefault(addr) {
   border-radius: 12rpx;
   padding: 0 24rpx;
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   box-sizing: border-box;
   background: #FFFFFF;
 }
@@ -595,7 +595,7 @@ async function onSetDefault(addr) {
 
 .region-picker {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
 }
 
 .tag-options {
@@ -605,10 +605,10 @@ async function onSetDefault(addr) {
 
 .tag-option {
   padding: 12rpx 32rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   border-radius: 44rpx;
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   min-height: 60rpx;
   line-height: 60rpx;
   box-sizing: border-box;
@@ -617,9 +617,9 @@ async function onSetDefault(addr) {
 }
 
 .tag-option.active {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
-  border-color: #15803D;
+  border-color: #00B578;
 }
 
 .default-row {
@@ -635,7 +635,7 @@ async function onSetDefault(addr) {
 
 .toggle-text {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
 }
 
 .toggle-switch {
@@ -649,7 +649,7 @@ async function onSetDefault(addr) {
 }
 
 .toggle-switch.on {
-  background: #15803D;
+  background: #00B578;
 }
 
 .toggle-circle {
@@ -668,7 +668,7 @@ async function onSetDefault(addr) {
 }
 
 .save-btn {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   text-align: center;
   height: 88rpx;

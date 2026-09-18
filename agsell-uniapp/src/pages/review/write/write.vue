@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="review-write-page">
     <NavBar title="评价商品" @back="uni.navigateBack()" />
 
@@ -193,7 +193,7 @@ async function onSubmit() {
 <style scoped>
 .review-write-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   padding-bottom: 140rpx;
 }
 
@@ -207,7 +207,7 @@ async function onSubmit() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -220,13 +220,13 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   padding: 12rpx 0;
-  border-bottom: 1rpx solid #EEF1EF;
+  border-bottom: 1rpx solid #F0F0F0;
   min-height: 88rpx;
   box-sizing: border-box;
 }
 
 .product-item.active {
-  background: #F0FDF4;
+  background: #ECFDF5;
   border-radius: 12rpx;
   padding: 12rpx 16rpx;
   margin: 0 -16rpx;
@@ -241,7 +241,7 @@ async function onSubmit() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   flex-shrink: 0;
 }
 
@@ -254,7 +254,7 @@ async function onSubmit() {
 .product-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -263,14 +263,14 @@ async function onSubmit() {
 
 .product-spec {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 8rpx;
   display: block;
 }
 
 .product-price {
   font-size: 24rpx;
-  color: #A16207;
+  color: #E63946;
   margin-top: 8rpx;
   display: block;
   font-variant-numeric: tabular-nums;
@@ -289,8 +289,8 @@ async function onSubmit() {
 }
 
 .product-check.checked {
-  border-color: #15803D;
-  background: #15803D;
+  border-color: #00B578;
+  background: #00B578;
 }
 
 .check-mark {
@@ -302,7 +302,7 @@ async function onSubmit() {
 
 .product-hint {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 12rpx;
   display: block;
 }
@@ -310,7 +310,7 @@ async function onSubmit() {
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #00B578;
   margin-bottom: 20rpx;
   display: block;
 }
@@ -326,7 +326,7 @@ async function onSubmit() {
   display: block;
   text-align: center;
   font-size: 28rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
 }
 
@@ -334,7 +334,7 @@ async function onSubmit() {
   width: 100%;
   min-height: 240rpx;
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   background: #FFFFFF;
   border-radius: 12rpx;
   padding: 20rpx;
@@ -353,7 +353,7 @@ async function onSubmit() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .add-img-btn {
@@ -376,7 +376,7 @@ async function onSubmit() {
 
 .image-hint {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 12rpx;
   display: block;
 }
@@ -400,18 +400,18 @@ async function onSubmit() {
 }
 
 .checkbox.checked {
-  border-color: #15803D;
-  background: #15803D;
+  border-color: #00B578;
+  background: #00B578;
 }
 
 .anonymous-label {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
 }
 
 .anonymous-hint {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-left: auto;
 }
 
@@ -423,12 +423,12 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #E5E7EB;
   z-index: 100;
 }
 
 .submit-btn {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   text-align: center;
   height: 88rpx;

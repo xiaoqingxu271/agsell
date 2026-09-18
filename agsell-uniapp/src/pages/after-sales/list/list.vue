@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="as-list-page">
     <NavBar title="我的售后" @back="uni.navigateBack()" />
 
@@ -129,7 +129,7 @@ function goDetail(afterSalesNo) {
 <style scoped>
 .as-list-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   display: flex;
   flex-direction: column;
 }
@@ -137,7 +137,7 @@ function goDetail(afterSalesNo) {
 .filter-bar {
   display: flex;
   background: #FFFFFF;
-  border-bottom: 1rpx solid #E3E7E5;
+  border-bottom: 1rpx solid #E5E7EB;
   padding: 0 24rpx;
 }
 
@@ -146,7 +146,7 @@ function goDetail(afterSalesNo) {
   text-align: center;
   padding: 24rpx 0;
   font-size: 28rpx;
-  color: #6B7280;
+  color: #4B5563;
   position: relative;
   min-height: 88rpx;
   line-height: 40rpx;
@@ -154,7 +154,7 @@ function goDetail(afterSalesNo) {
 }
 
 .filter-active {
-  color: #15803D;
+  color: #00B578;
   font-weight: 600;
 }
 
@@ -167,7 +167,7 @@ function goDetail(afterSalesNo) {
   width: 56rpx;
   height: 6rpx;
   border-radius: 3rpx;
-  background: #15803D;
+  background: #00B578;
 }
 
 .content {
@@ -181,7 +181,7 @@ function goDetail(afterSalesNo) {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -190,18 +190,18 @@ function goDetail(afterSalesNo) {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16rpx;
-  border-bottom: 1rpx solid #EEF1EF;
+  border-bottom: 1rpx solid #F0F0F0;
 }
 
 .as-no {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .as-status {
   font-size: 24rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #00B578;
 }
 
 .as-row {
@@ -211,9 +211,9 @@ function goDetail(afterSalesNo) {
   font-size: 26rpx;
 }
 
-.as-label { color: #6B7280; flex-shrink: 0; margin-right: 24rpx; }
-.as-value { color: #1F2937; text-align: right; word-break: break-all; }
-.as-value.pay { color: #A16207; font-weight: 600; font-variant-numeric: tabular-nums; }
+.as-label { color: #4B5563; flex-shrink: 0; margin-right: 24rpx; }
+.as-value { color: #111827; text-align: right; word-break: break-all; }
+.as-value.pay { color: #E63946; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .empty-state {
   text-align: center;
@@ -229,6 +229,6 @@ function goDetail(afterSalesNo) {
   text-align: center;
   padding: 24rpx 0;
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 </style>

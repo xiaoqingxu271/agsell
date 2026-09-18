@@ -32,13 +32,14 @@ onMounted(() => {
 <style scoped>
 .nav-bar {
   width: 100%;
-  background: #F0FDF4;
+  background: #FFFFFF;
 }
 .nav-content {
   position: relative;
   display: flex;
   align-items: center;
   padding: 0 24rpx;
+  border-bottom: 1rpx solid #F0F0F0;
 }
 .nav-back {
   width: 88rpx;
@@ -52,8 +53,8 @@ onMounted(() => {
 .nav-back-arrow {
   width: 22rpx;
   height: 22rpx;
-  border-left: 5rpx solid #14532D;
-  border-bottom: 5rpx solid #14532D;
+  border-left: 5rpx solid #111827;
+  border-bottom: 5rpx solid #111827;
   transform: rotate(45deg);
 }
 .nav-title {
@@ -62,7 +63,7 @@ onMounted(() => {
   right: 0;
   text-align: center;
   font-size: 34rpx;
-  color: #14532D;
+  color: #111827;
   font-weight: 600;
   letter-spacing: 1rpx;
   pointer-events: none;

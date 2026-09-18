@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="product-page">
     <NavBar title="商品详情" @back="uni.navigateBack()" />
 
@@ -276,7 +276,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .product-scroll {
@@ -302,7 +302,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   margin: 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -313,7 +313,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .price {
   font-size: 48rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -328,14 +328,14 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .name {
   font-size: 36rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
   margin-top: 16rpx;
   line-height: 1.4;
 }
 
 .subtitle {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 8rpx;
 }
 
@@ -355,18 +355,18 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 }
 
 .tag-primary {
-  background: #BBF7D0;
-  color: #14532D;
+  background: #D1FAE5;
+  color: #111827;
 }
 
 .tag-info {
-  background: #F3F5F4;
+  background: #F3F4F6;
   color: #4B5563;
 }
 
 .meta-text {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .origin-info {
@@ -378,7 +378,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .origin-item {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 /* ── 溯源入口 ── */
@@ -388,13 +388,13 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   justify-content: space-between;
   margin-top: 24rpx;
   padding: 20rpx 24rpx;
-  background: #F0FDF4;
-  border: 1rpx solid #BBF7D0;
+  background: #ECFDF5;
+  border: 1rpx solid #D1FAE5;
   border-radius: 16rpx;
 }
 
 .trace-entry:active {
-  background: #DCFCE7;
+  background: #D1FAE5;
 }
 
 .trace-entry-left {
@@ -409,7 +409,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   width: 44rpx;
   height: 44rpx;
   border-radius: 12rpx;
-  background: #15803D;
+  background: #00B578;
   position: relative;
   flex-shrink: 0;
 }
@@ -450,12 +450,12 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .trace-entry-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #111827;
 }
 
 .trace-entry-batch {
   font-size: 22rpx;
-  color: #15803D;
+  color: #00B578;
   font-family: Consolas, Menlo, monospace;
   margin-top: 4rpx;
   overflow: hidden;
@@ -465,7 +465,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .trace-entry-arrow {
   font-size: 36rpx;
-  color: #15803D;
+  color: #00B578;
   flex-shrink: 0;
   margin-left: 16rpx;
 }
@@ -473,7 +473,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #00B578;
   margin-bottom: 20rpx;
 }
 
@@ -497,26 +497,26 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 }
 
 .spec-item.active {
-  border-color: #15803D;
-  background: #F0FDF4;
+  border-color: #00B578;
+  background: #ECFDF5;
 }
 
 .spec-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
 }
 
 .spec-price {
   font-size: 26rpx;
-  color: #A16207;
+  color: #E63946;
   margin-top: 8rpx;
   font-variant-numeric: tabular-nums;
 }
 
 .spec-stock {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 4rpx;
 }
 
@@ -535,31 +535,31 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   align-items: center;
   justify-content: center;
   font-size: 32rpx;
-  color: #1F2937;
+  color: #111827;
   background: #FFFFFF;
 }
 
 .qty-btn:active {
-  background: #F4F9F5;
+  background: #ECFDF5;
 }
 
 .qty-value {
   font-size: 32rpx;
   min-width: 60rpx;
   text-align: center;
-  color: #1F2937;
+  color: #111827;
   font-variant-numeric: tabular-nums;
 }
 
 .qty-stock {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-left: auto;
 }
 
 .detail-content {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   line-height: 1.8;
 }
 
@@ -578,7 +578,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .review-card-item {
   padding-bottom: 24rpx;
-  border-bottom: 1rpx solid #EEF1EF;
+  border-bottom: 1rpx solid #F0F0F0;
 }
 
 .review-card-item:last-child {
@@ -596,7 +596,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #F3F5F4;
+  background: #F3F4F6;
   flex-shrink: 0;
 }
 
@@ -608,7 +608,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .review-username {
   display: block;
   font-size: 26rpx;
-  color: #1F2937;
+  color: #111827;
   font-weight: 500;
   margin-bottom: 6rpx;
 }
@@ -638,7 +638,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   gap: 6rpx;
   padding: 6rpx 16rpx;
   border-radius: 20rpx;
-  background: #F3F5F4;
+  background: #F3F4F6;
 }
 
 .like-thumb {
@@ -646,7 +646,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   width: 18rpx;
   height: 18rpx;
   transform: rotate(45deg);
-  background: #6B7280;
+  background: #4B5563;
   flex-shrink: 0;
 }
 
@@ -657,7 +657,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   width: 18rpx;
   height: 18rpx;
   border-radius: 50%;
-  background: #6B7280;
+  background: #4B5563;
 }
 
 .like-thumb::before { left: -9rpx; }
@@ -665,7 +665,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .like-num {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .review-empty {
@@ -675,7 +675,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .review-more {
   font-size: 26rpx;
-  color: #15803D;
+  color: #00B578;
   flex-shrink: 0;
 }
 
@@ -685,7 +685,7 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #E5E7EB;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -712,10 +712,10 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 }
 
 .btn-cart {
-  background: #A16207;
+  background: #E63946;
 }
 
 .btn-buy {
-  background: #15803D;
+  background: #00B578;
 }
 </style>

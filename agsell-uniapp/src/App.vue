@@ -12,36 +12,35 @@ onLaunch(() => {
 
 <style>
 /* ============================================================
- * agsell 小程序设计系统 v3.0（企业级高级感）
- * 权威来源：doc/miniprogram-design-system-v3.md
+ * agsell 小程序设计系统 v4.0（生鲜电商标准版）
+ * 权威来源：doc/miniprogram-design-system-v4.md
  * ============================================================ */
 
 page {
-  background-color: #F4F6F5;
+  background-color: #F5F5F5;
   font-family: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei',
     'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   box-sizing: border-box;
 }
 
-/* 横屏/平板内容区居中（v3.0：CSS px 约束，rpx 随视口缩放无法做平板约束） */
+/* 横屏/平板内容区居中 */
 .container {
   max-width: 900px;
   margin: 0 auto;
 }
 
-/* 通用卡片（v3.0：白底 + 24rpx 圆角 + 中性描边 + 分层阴影，不再用绿描边识别边界） */
+/* 通用卡片：白底 + 24rpx 圆角 + 微阴影 */
 .card {
   background: #FFFFFF;
   border-radius: 24rpx;
   margin: 24rpx;
   padding: 24rpx;
-  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
-  border: 1rpx solid #E3E7E5;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
 
-/* 按压反馈（H5 生效；微信端关键组件用 hover-class，见 ProductCard 等） */
+/* 按压反馈 */
 .card:active,
 .btn-primary:active,
 .btn-ghost:active,
@@ -49,14 +48,13 @@ page {
 .checkout-btn:active,
 .submit-btn:active,
 .action-btn:active {
-  transform: scale(0.985);
-  opacity: 0.92;
-  transition: transform 120ms ease-out, opacity 120ms ease-out;
+  opacity: 0.85;
+  transition: opacity 150ms ease-out;
 }
 
-/* 按钮 */
+/* 主按钮（绿） */
 .btn-primary {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   border: none;
   border-radius: 44rpx;
@@ -77,12 +75,12 @@ page {
 
 /* 次要按钮 ghost */
 .btn-ghost {
-  background: transparent;
-  color: #15803D;
-  border: 1rpx solid #15803D;
-  border-radius: 44rpx;
-  height: 88rpx;
-  line-height: 88rpx;
+  background: #FFFFFF;
+  color: #00B578;
+  border: 1rpx solid #00B578;
+  border-radius: 40rpx;
+  height: 80rpx;
+  line-height: 80rpx;
   font-size: 28rpx;
 }
 
@@ -90,17 +88,17 @@ page {
   border: none;
 }
 
-/* 价格 */
+/* 价格（红色） */
 .price {
-  color: #A16207;
-  font-weight: 600;
+  color: #E63946;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 /* 分割线 */
 .divider {
   height: 1rpx;
-  background: #EEF1EF;
+  background: #F0F0F0;
   margin: 24rpx 0;
 }
 
@@ -114,51 +112,50 @@ page {
   font-size: 28rpx;
 }
 
-/* 状态标签 - 浅底深字（v3.0 §2.4，圆角 12rpx） */
+/* 状态标签 */
 .tag {
   display: inline-flex;
   align-items: center;
-  height: 44rpx;
+  height: 40rpx;
   padding: 0 16rpx;
-  border-radius: 12rpx;
-  font-size: 24rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
   font-weight: 500;
   line-height: 1;
 }
 
 .tag-success {
-  background: #DCFCE7;
-  color: #166534;
+  background: #ECFDF5;
+  color: #00B578;
 }
 
 .tag-warning {
-  background: #FEF3C7;
-  color: #92400E;
+  background: #FFF7ED;
+  color: #D97706;
 }
 
 .tag-danger {
-  background: #FEE2E2;
-  color: #991B1B;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .tag-primary {
-  background: #BBF7D0;
-  color: #14532D;
+  background: #ECFDF5;
+  color: #00B578;
 }
 
 .tag-info {
-  background: #F3F5F4;
+  background: #F3F4F6;
   color: #4B5563;
 }
 
 .tag-accent {
-  background: #FFF7ED;
-  color: #9A3412;
+  background: #FEE2E2;
+  color: #E63946;
 }
 
 /* ============================================================
- * 宽屏适配（平板 / H5 宽窗）：内容与底部固定栏居中到 900px
- * 注意：这里必须用 CSS px（rpx 会随视口缩放，无法做平板约束）
+ * 宽屏适配（平板 / H5 宽窗）
  * ============================================================ */
 @media (min-width: 1000px) {
   .index-page,

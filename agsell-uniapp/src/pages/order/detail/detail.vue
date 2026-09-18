@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="order-detail-page">
     <NavBar title="订单详情" @back="uni.navigateBack()" />
 
@@ -250,7 +250,7 @@ async function onViewAfterSales() {
 <style scoped>
 .order-detail-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   display: flex;
   flex-direction: column;
 }
@@ -268,8 +268,8 @@ async function onViewAfterSales() {
   margin: 24rpx 24rpx 8rpx;
   padding: 40rpx 32rpx;
   border-radius: 28rpx;
-  background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
-  border: 1rpx solid #DCFCE7;
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  border: 1rpx solid #D1FAE5;
   box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.06);
 }
 
@@ -278,7 +278,7 @@ async function onViewAfterSales() {
   height: 96rpx;
   border-radius: 50%;
   background: #FFFFFF;
-  border: 1rpx solid #BBF7D0;
+  border: 1rpx solid #D1FAE5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -289,8 +289,8 @@ async function onViewAfterSales() {
 .status-check {
   width: 34rpx;
   height: 18rpx;
-  border-left: 6rpx solid #15803D;
-  border-bottom: 6rpx solid #15803D;
+  border-left: 6rpx solid #00B578;
+  border-bottom: 6rpx solid #00B578;
   border-radius: 2rpx;
   transform: rotate(-45deg);
   margin-top: -4rpx;
@@ -304,7 +304,7 @@ async function onViewAfterSales() {
 .status-text {
   font-size: 38rpx;
   font-weight: 700;
-  color: #14532D;
+  color: #111827;
   display: block;
   margin-bottom: 6rpx;
 }
@@ -321,14 +321,14 @@ async function onViewAfterSales() {
   margin: 16rpx 24rpx;
   padding: 28rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .card-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #00B578;
   margin-bottom: 20rpx;
   padding-left: 18rpx;
   position: relative;
@@ -342,7 +342,7 @@ async function onViewAfterSales() {
   bottom: 6rpx;
   width: 8rpx;
   border-radius: 4rpx;
-  background: linear-gradient(180deg, #22C55E, #15803D);
+  background: linear-gradient(180deg, #22C55E, #00B578);
 }
 
 /* ===== 订单信息 ===== */
@@ -351,20 +351,20 @@ async function onViewAfterSales() {
   justify-content: space-between;
   align-items: center;
   padding: 14rpx 0;
-  border-bottom: 1rpx solid #EEF1EF;
+  border-bottom: 1rpx solid #F0F0F0;
   font-size: 26rpx;
 }
 
 .info-row:last-child { border-bottom: none; }
 
 .info-label {
-  color: #6B7280;
+  color: #4B5563;
   flex-shrink: 0;
   margin-right: 24rpx;
 }
 
 .info-value {
-  color: #1F2937;
+  color: #111827;
   text-align: right;
   font-variant-numeric: tabular-nums;
   word-break: break-all;
@@ -380,7 +380,7 @@ async function onViewAfterSales() {
   display: flex;
   align-items: center;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #EEF1EF;
+  border-bottom: 1rpx solid #F0F0F0;
 }
 
 .goods-item:last-child { border-bottom: none; }
@@ -389,7 +389,7 @@ async function onViewAfterSales() {
   width: 128rpx;
   height: 128rpx;
   border-radius: 16rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   flex-shrink: 0;
 }
 
@@ -402,7 +402,7 @@ async function onViewAfterSales() {
 
 .goods-name {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -424,7 +424,7 @@ async function onViewAfterSales() {
 
 .goods-price {
   font-size: 28rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -437,7 +437,7 @@ async function onViewAfterSales() {
 
 .goods-subtotal {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
@@ -452,10 +452,10 @@ async function onViewAfterSales() {
   font-size: 28rpx;
 }
 
-.amount-label { color: #6B7280; }
+.amount-label { color: #4B5563; }
 
 .amount-value {
-  color: #1F2937;
+  color: #111827;
   font-variant-numeric: tabular-nums;
 }
 
@@ -463,7 +463,7 @@ async function onViewAfterSales() {
 
 .amount-divider {
   height: 1px;
-  background: #EEF1EF;
+  background: #F0F0F0;
   margin: 8rpx 0;
 }
 
@@ -474,7 +474,7 @@ async function onViewAfterSales() {
 }
 
 .amount-value.total-value {
-  color: #A16207;
+  color: #E63946;
   font-size: 36rpx;
   font-weight: 700;
 }
@@ -489,19 +489,19 @@ async function onViewAfterSales() {
 .receiver {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-left: 24rpx;
   font-variant-numeric: tabular-nums;
 }
 
 .address-detail {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   line-height: 1.6;
 }
 
@@ -515,12 +515,12 @@ async function onViewAfterSales() {
 .logistics-company {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
 }
 
 .logistics-no {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   font-variant-numeric: tabular-nums;
 }
 
@@ -539,7 +539,7 @@ async function onViewAfterSales() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #E5E7EB;
   z-index: 100;
   justify-content: flex-end;
 }
@@ -563,15 +563,15 @@ async function onViewAfterSales() {
 }
 
 .btn-primary {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
-  border: 1rpx solid #15803D;
+  border: 1rpx solid #00B578;
 }
 
 .btn-ghost {
   background: transparent;
-  color: #15803D;
-  border: 1rpx solid #15803D;
+  color: #00B578;
+  border: 1rpx solid #00B578;
 }
 
 .btn-danger {

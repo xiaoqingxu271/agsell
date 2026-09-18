@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="pay-success-page">
     <view class="success-content">
       <view class="success-icon-wrap">
@@ -40,7 +40,7 @@ function goHome() {
 <style scoped>
 .pay-success-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,7 +55,7 @@ function goHome() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
-  background: #DCFCE7;
+  background: #D1FAE5;
   border: 6rpx solid rgba(22, 163, 74, 0.18);
   display: flex;
   align-items: center;
@@ -76,14 +76,14 @@ function goHome() {
 .success-title {
   font-size: 40rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #111827;
   display: block;
   margin-bottom: 20rpx;
 }
 
 .success-amount {
   font-size: 56rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
   display: block;
   margin-bottom: 16rpx;
@@ -92,7 +92,7 @@ function goHome() {
 
 .success-hint {
   font-size: 28rpx;
-  color: #6B7280;
+  color: #4B5563;
   display: block;
   margin-bottom: 60rpx;
 }
@@ -122,14 +122,14 @@ function goHome() {
 }
 
 .btn-order {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
-  border: 1rpx solid #15803D;
+  border: 1rpx solid #00B578;
 }
 
 .btn-home {
   background: #FFFFFF;
-  color: #15803D;
-  border: 1rpx solid #15803D;
+  color: #00B578;
+  border: 1rpx solid #00B578;
 }
 </style>

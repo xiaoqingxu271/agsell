@@ -39,17 +39,15 @@ defineEmits(['tap'])
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  border: 1rpx solid #E3E7E5;
   border-radius: 24rpx;
   overflow: hidden;
-  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
   min-height: 88rpx;
-  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+  transition: opacity 150ms ease-out;
 }
 
 .product-card-hover {
-  transform: scale(0.98);
-  box-shadow: 0 2rpx 8rpx rgba(16, 24, 40, 0.06);
+  opacity: 0.85;
 }
 
 .product-image-wrap {
@@ -57,7 +55,7 @@ defineEmits(['tap'])
   padding-top: 100%;
   position: relative;
   overflow: hidden;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .product-image {
@@ -74,7 +72,7 @@ defineEmits(['tap'])
 
 .product-name {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -84,7 +82,7 @@ defineEmits(['tap'])
 
 .product-subtitle {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 8rpx;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -101,10 +99,10 @@ defineEmits(['tap'])
 
 .product-tag {
   font-size: 22rpx;
-  color: #14532D;
-  background: #DCFCE7;
+  color: #00B578;
+  background: #ECFDF5;
   padding: 4rpx 12rpx;
-  border-radius: 12rpx;
+  border-radius: 8rpx;
   line-height: 1.4;
 }
 
@@ -115,9 +113,9 @@ defineEmits(['tap'])
 }
 
 .price {
-  color: #A16207;
-  font-size: 36rpx;
-  font-weight: 600;
+  color: #E63946;
+  font-size: 32rpx;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -129,7 +127,7 @@ defineEmits(['tap'])
 }
 
 .sales {
-  color: #6B7280;
+  color: #9CA3AF;
   font-size: 22rpx;
   margin-left: auto;
 }

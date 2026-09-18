@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="apply-page">
     <NavBar title="申请售后" @back="uni.navigateBack()" />
 
@@ -201,7 +201,7 @@ async function onSubmit() {
 <style scoped>
 .apply-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   display: flex;
   flex-direction: column;
 }
@@ -221,32 +221,32 @@ async function onSubmit() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #00B578;
   margin-bottom: 20rpx;
   display: block;
 }
 
 .order-no {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-bottom: 12rpx;
 }
 
 .order-amount {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .order-amount-value {
   font-size: 36rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
   margin-left: 12rpx;
   font-variant-numeric: tabular-nums;
@@ -263,16 +263,16 @@ async function onSubmit() {
   border-radius: 16rpx;
   border: 1px solid #D1D5DB;
   font-size: 26rpx;
-  color: #1F2937;
+  color: #111827;
   min-height: 88rpx;
   line-height: 56rpx;
   box-sizing: border-box;
 }
 
 .option-active {
-  border-color: #15803D;
-  color: #15803D;
-  background: #F0FDF4;
+  border-color: #00B578;
+  color: #00B578;
+  background: #ECFDF5;
   font-weight: 600;
 }
 
@@ -285,19 +285,19 @@ async function onSubmit() {
   width: 100%;
   height: 200rpx;
   margin-top: 24rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   border-radius: 12rpx;
   border: 1rpx solid #D1D5DB;
   padding: 20rpx;
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   box-sizing: border-box;
 }
 
 .amount-input-row {
   display: flex;
   align-items: center;
-  background: #F4F6F5;
+  background: #F5F5F5;
   border-radius: 12rpx;
   border: 1rpx solid #D1D5DB;
   padding: 0 24rpx;
@@ -306,21 +306,21 @@ async function onSubmit() {
 
 .amount-prefix {
   font-size: 32rpx;
-  color: #1F2937;
+  color: #111827;
   margin-right: 12rpx;
 }
 
 .amount-input {
   flex: 1;
   font-size: 32rpx;
-  color: #1F2937;
+  color: #111827;
   height: 88rpx;
   line-height: 88rpx;
 }
 
 .amount-hint {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 12rpx;
 }
 
@@ -340,7 +340,7 @@ async function onSubmit() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .image-remove {
@@ -380,7 +380,7 @@ async function onSubmit() {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: #6B7280;
+  background: #4B5563;
   border-radius: 2rpx;
 }
 
@@ -398,7 +398,7 @@ async function onSubmit() {
 
 .add-text {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 8rpx;
 }
 
@@ -410,12 +410,12 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #E5E7EB;
   z-index: 100;
 }
 
 .submit-btn {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   height: 88rpx;
   line-height: 88rpx;

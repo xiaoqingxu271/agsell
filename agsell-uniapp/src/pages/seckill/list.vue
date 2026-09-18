@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="seckill-page">
     <!-- 导航栏 -->
     <NavBar title="限时秒杀" @back="onBack" />
@@ -142,7 +142,7 @@ function formatCountdown(seconds) {
 <style scoped>
 .seckill-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   padding-bottom: 32rpx;
 }
 
@@ -150,14 +150,14 @@ function formatCountdown(seconds) {
   display: flex;
   background: #FFFFFF;
   padding: 0 24rpx;
-  border-bottom: 1rpx solid #E3E7E5;
+  border-bottom: 1rpx solid #E5E7EB;
 }
 
 .tab-item {
   padding: 24rpx 8rpx;
   margin-right: 48rpx;
   font-size: 30rpx;
-  color: #6B7280;
+  color: #4B5563;
   position: relative;
 }
 
@@ -199,7 +199,7 @@ function formatCountdown(seconds) {
   border-radius: 24rpx;
   padding: 20rpx;
   margin-bottom: 20rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -207,7 +207,7 @@ function formatCountdown(seconds) {
   width: 160rpx;
   height: 160rpx;
   border-radius: 16rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   flex-shrink: 0;
 }
 
@@ -222,7 +222,7 @@ function formatCountdown(seconds) {
 
 .act-name {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;

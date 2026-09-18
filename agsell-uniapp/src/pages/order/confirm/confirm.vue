@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="confirm-page">
     <NavBar title="订单确认" @back="uni.navigateBack()" />
 
@@ -208,7 +208,7 @@ async function onSubmit() {
 <style scoped>
 .confirm-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   padding-bottom: 140rpx;
 }
 
@@ -222,7 +222,7 @@ async function onSubmit() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -246,12 +246,12 @@ async function onSubmit() {
 .receiver {
   font-size: 30rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: #111827;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .tag {
@@ -262,11 +262,11 @@ async function onSubmit() {
 }
 
 .tag-accent { background: #FFF7ED; color: #9A3412; }
-.tag-success { background: #DCFCE7; color: #166534; }
+.tag-success { background: #D1FAE5; color: #00B578; }
 
 .address-detail {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 8rpx;
   line-height: 1.5;
 }
@@ -281,7 +281,7 @@ async function onSubmit() {
 }
 
 .add-btn-text {
-  color: #15803D;
+  color: #00B578;
   font-weight: 500;
 }
 
@@ -299,7 +299,7 @@ async function onSubmit() {
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #15803D;
+  color: #00B578;
   margin-bottom: 20rpx;
   display: block;
 }
@@ -308,7 +308,7 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   padding: 16rpx 0;
-  border-bottom: 1rpx solid #EEF1EF;
+  border-bottom: 1rpx solid #F0F0F0;
 }
 
 .order-item:last-child { border-bottom: none; }
@@ -317,7 +317,7 @@ async function onSubmit() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   flex-shrink: 0;
 }
 
@@ -329,7 +329,7 @@ async function onSubmit() {
 
 .item-name {
   font-size: 26rpx;
-  color: #1F2937;
+  color: #111827;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -338,7 +338,7 @@ async function onSubmit() {
 
 .item-spec {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 4rpx;
 }
 
@@ -350,20 +350,20 @@ async function onSubmit() {
 
 .item-price {
   font-size: 26rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .item-qty {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-left: 8rpx;
 }
 
 .item-subtotal {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   font-weight: 600;
   margin-left: 16rpx;
   font-variant-numeric: tabular-nums;
@@ -376,19 +376,19 @@ async function onSubmit() {
   font-size: 28rpx;
 }
 
-.price-label { color: #6B7280; }
-.price-value { color: #1F2937; font-variant-numeric: tabular-nums; }
+.price-label { color: #4B5563; }
+.price-value { color: #111827; font-variant-numeric: tabular-nums; }
 
 .price-row.total {
   font-size: 32rpx;
   font-weight: 600;
 }
 
-.price-value.pay { color: #A16207; }
+.price-value.pay { color: #E63946; }
 
 .divider {
   height: 1rpx;
-  background: #EEF1EF;
+  background: #F0F0F0;
   margin: 8rpx 0;
 }
 
@@ -396,8 +396,8 @@ async function onSubmit() {
   width: 100%;
   height: 88rpx;
   font-size: 28rpx;
-  color: #1F2937;
-  background: #F4F6F5;
+  color: #111827;
+  background: #F5F5F5;
   border-radius: 12rpx;
   padding: 0 24rpx;
   box-sizing: border-box;
@@ -416,7 +416,7 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #E5E7EB;
   z-index: 100;
 }
 
@@ -424,17 +424,17 @@ async function onSubmit() {
   flex: 1;
 }
 
-.pay-label { font-size: 26rpx; color: #6B7280; }
+.pay-label { font-size: 26rpx; color: #4B5563; }
 
 .pay-price {
   font-size: 40rpx;
-  color: #A16207;
+  color: #E63946;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .submit-btn {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   padding: 0 60rpx;
   height: 88rpx;

@@ -46,13 +46,13 @@ export const ORDER_STATUS_TEXT = {
  * 订单状态颜色（浅底深字方案，对应 MASTER §2.2）
  */
 export const ORDER_STATUS_COLOR = {
-  0: '#92400E',
-  1: '#14532D',
-  2: '#166534',
+  0: '#D97706',
+  1: '#111827',
+  2: '#00B578',
   3: '#4B5563',
   4: '#4B5563',
-  5: '#991B1B',
-  6: '#15803D'
+  5: '#DC2626',
+  6: '#00B578'
 }
 
 export function getOrderStatusText(status) {

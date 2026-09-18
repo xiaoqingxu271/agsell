@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="chat-page">
     <!-- 问题④修复：NavBar emit('back') 是事件，须用 @back 监听；:back 是 prop 绑定，无效 -->
     <NavBar title="AI 客服" show-back @back="onBack" />
@@ -177,7 +177,7 @@ async function onSend() {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
   overflow: hidden;
 }
 
@@ -230,15 +230,15 @@ async function onSend() {
 }
 
 .bubble-user {
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   border-top-right-radius: 4rpx;
 }
 
 .bubble-ai {
   background: #FFFFFF;
-  color: #1F2937;
-  border: 1rpx solid #E3E7E5;
+  color: #111827;
+  border: 1rpx solid #E5E7EB;
   border-top-left-radius: 4rpx;
 }
 
@@ -248,25 +248,25 @@ async function onSend() {
   display: flex;
   flex-direction: column;
   gap: 12rpx;
-  border-top: 1rpx dashed #E3E7E5;
+  border-top: 1rpx dashed #E5E7EB;
   padding-top: 16rpx;
 }
 
 .suggest-item {
   align-self: flex-start;
-  background: #F0FDF4;
-  border: 1rpx solid #BBF7D0;
+  background: #ECFDF5;
+  border: 1rpx solid #D1FAE5;
   border-radius: 12rpx;
   padding: 12rpx 20rpx;
 }
 
 .suggest-item:active {
-  background: #DCFCE7;
+  background: #D1FAE5;
 }
 
 .suggest-text {
   font-size: 24rpx;
-  color: #166534;
+  color: #00B578;
 }
 
 /* 输入中动画 */
@@ -310,17 +310,17 @@ async function onSend() {
   gap: 16rpx;
   padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E3E7E5;
+  border-top: 1rpx solid #E5E7EB;
 }
 
 .chat-input {
   flex: 1;
   height: 80rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
   border-radius: 40rpx;
   padding: 0 32rpx;
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
 }
 
 .input-placeholder {
@@ -332,7 +332,7 @@ async function onSend() {
   height: 80rpx;
   line-height: 80rpx;
   padding: 0 40rpx;
-  background: #15803D;
+  background: #00B578;
   color: #FFFFFF;
   font-size: 28rpx;
   font-weight: 600;

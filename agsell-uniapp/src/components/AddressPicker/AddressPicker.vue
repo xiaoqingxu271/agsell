@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="address-picker-mask" v-if="visible" @click="handleMaskClick">
     <view class="address-picker-content" @click.stop>
       <view class="address-picker-header">
@@ -74,7 +74,7 @@ function handleMaskClick() {
 .title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #14532D;
+  color: #111827;
 }
 .cancel-btn {
   font-size: 28rpx;
@@ -83,7 +83,7 @@ function handleMaskClick() {
 }
 .add-btn {
   font-size: 28rpx;
-  color: #15803D;
+  color: #00B578;
   font-weight: 500;
   min-width: 88rpx;
   text-align: right;
@@ -100,8 +100,8 @@ function handleMaskClick() {
   border-radius: 16rpx;
 }
 .address-item.selected {
-  background: #F0FDF4;
-  border-color: #15803D;
+  background: #ECFDF5;
+  border-color: #00B578;
 }
 .address-main {
   display: flex;
@@ -129,7 +129,7 @@ function handleMaskClick() {
   color: #9A3412;
 }
 .tag-success {
-  background: #DCFCE7;
+  background: #D1FAE5;
   color: #166534;
 }
 .address-detail {

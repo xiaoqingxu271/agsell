@@ -23,15 +23,15 @@
     { "path": "pages/search/search", "type": "page", "style": { "navigationBarTitleText": "搜索" } }
   ],
   "globalStyle": {
-    "navigationBarBackgroundColor": "#15803D",
+    "navigationBarBackgroundColor": "#00B578",
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "农产品商城",
-    "backgroundColor": "#F4F6F5",
+    "backgroundColor": "#F5F5F5",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
     "color": "#9CA3AF",
-    "selectedColor": "#15803D",
+    "selectedColor": "#00B578",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [

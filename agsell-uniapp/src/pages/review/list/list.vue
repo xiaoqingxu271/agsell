@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="review-list-page">
     <NavBar :title="productName || '商品评价'" @back="uni.navigateBack()" />
 
@@ -161,7 +161,7 @@ function onReachBottom() {
 <style scoped>
 .review-list-page {
   min-height: 100vh;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .content {
@@ -175,7 +175,7 @@ function onReachBottom() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E3E7E5;
+  border: 1rpx solid #E5E7EB;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -192,14 +192,14 @@ function onReachBottom() {
 .avg-score {
   font-size: 72rpx;
   font-weight: 600;
-  color: #A16207;
+  color: #E63946;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .total-reviews {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   margin-top: 12rpx;
 }
 
@@ -213,26 +213,26 @@ function onReachBottom() {
   gap: 12rpx;
   margin-bottom: 12rpx;
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
 }
 
 .ratio-bar-bg {
   flex: 1;
   height: 12rpx;
-  background: #F3F5F4;
+  background: #F3F4F6;
   border-radius: 6rpx;
   overflow: hidden;
 }
 
 .ratio-bar {
   height: 100%;
-  background: #A16207;
+  background: #E63946;
   border-radius: 6rpx;
 }
 
 .ratio-pct {
   font-size: 22rpx;
-  color: #6B7280;
+  color: #4B5563;
   min-width: 48rpx;
   font-variant-numeric: tabular-nums;
 }
@@ -251,7 +251,7 @@ function onReachBottom() {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: #F3F5F4;
+  background: #F3F4F6;
   flex-shrink: 0;
 }
 
@@ -259,7 +259,7 @@ function onReachBottom() {
   width: 96rpx;
   height: 96rpx;
   border-radius: 12rpx;
-  background: #F3F5F4;
+  background: #F3F4F6;
   flex-shrink: 0;
 }
 
@@ -270,7 +270,7 @@ function onReachBottom() {
 
 .product-name {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   font-weight: 500;
   display: block;
   margin-bottom: 4rpx;
@@ -293,7 +293,7 @@ function onReachBottom() {
 
 .user-name {
   font-size: 26rpx;
-  color: #1F2937;
+  color: #111827;
   font-weight: 500;
   display: block;
   margin-bottom: 4rpx;
@@ -301,13 +301,13 @@ function onReachBottom() {
 
 .review-time {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #4B5563;
   flex-shrink: 0;
 }
 
 .review-content {
   font-size: 28rpx;
-  color: #1F2937;
+  color: #111827;
   line-height: 1.6;
   display: block;
   margin-bottom: 16rpx;
@@ -324,24 +324,24 @@ function onReachBottom() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F4F6F5;
+  background: #F5F5F5;
 }
 
 .review-reply {
-  background: #F4F6F5;
+  background: #F5F5F5;
   border-radius: 12rpx;
   padding: 16rpx;
 }
 
 .reply-label {
   font-size: 24rpx;
-  color: #15803D;
+  color: #00B578;
   font-weight: 600;
 }
 
 .reply-content {
   font-size: 26rpx;
-  color: #6B7280;
+  color: #4B5563;
   line-height: 1.5;
 }
 
