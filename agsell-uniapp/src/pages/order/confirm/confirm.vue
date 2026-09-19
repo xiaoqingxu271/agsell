@@ -61,7 +61,7 @@
           <text class="price-value">¥{{ freight }}</text>
         </view>
         <view v-if="discount > 0" class="price-row">
-          <text class="price-label">优惠</text>
+          <text class="price-label">{{ selectedCoupon?.couponName || '优惠' }}</text>
           <text class="price-value discount">-¥{{ discount }}</text>
         </view>
         <view class="divider"></view>

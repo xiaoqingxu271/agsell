@@ -67,7 +67,7 @@
           <text class="amount-value">¥{{ orderDetail?.freight || '0.00' }}</text>
         </view>
         <view v-if="Number(orderDetail?.discount) > 0" class="amount-row">
-          <text class="amount-label">优惠</text>
+          <text class="amount-label">{{ orderDetail?.couponName || '优惠' }}</text>
           <text class="amount-value discount">-¥{{ orderDetail?.discount }}</text>
         </view>
         <view class="amount-divider"></view>
