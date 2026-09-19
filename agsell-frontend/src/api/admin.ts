@@ -31,6 +31,8 @@ import type {
   ProductionRecordVO,
   SeckillActivityVO,
   SeckillActivityRequest,
+  CouponVO,
+  CouponRequest,
   ProductSpecDTO,
   ProductDetailVO,
   SearchHotWord,
@@ -315,6 +317,33 @@ export function deleteSeckill(id: number) {
 /** 秒杀活动上下架 */
 export function updateSeckillStatus(id: number, status: number) {
   return request.put<null>(`/admin/seckill/${id}/status?status=${status}`)
+}
+
+// ─── 优惠券 ─────────────────────────────────────────────────────────────────
+
+/** 券模板分页 */
+export function pageCoupon(params: { pageNum?: number; pageSize?: number; keyword?: string; status?: number }) {
+  return request.get<Page<CouponVO>>('/admin/coupon/page', { params })
+}
+
+/** 创建券模板 */
+export function createCoupon(data: CouponRequest) {
+  return request.post<{ id: number }>('/admin/coupon', data)
+}
+
+/** 编辑券模板 */
+export function updateCoupon(id: number, data: CouponRequest) {
+  return request.put<null>(`/admin/coupon/${id}`, data)
+}
+
+/** 删除券模板 */
+export function deleteCoupon(id: number) {
+  return request.delete<null>(`/admin/coupon/${id}`)
+}
+
+/** 券模板上下架 */
+export function updateCouponStatus(id: number, status: number) {
+  return request.put<null>(`/admin/coupon/${id}/status?status=${status}`)
 }
 
 // ─── 搜索热词 ─────────────────────────────────────────────────────────────────

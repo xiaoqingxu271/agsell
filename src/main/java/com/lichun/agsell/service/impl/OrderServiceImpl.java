@@ -51,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
     private final SysUserMapper userMapper;
     private final com.lichun.agsell.service.SeckillService seckillService;
     private final com.lichun.agsell.service.SysConfigService sysConfigService;
+    private final com.lichun.agsell.service.CouponService couponService;
 
     /** 待付款订单超时分钟数（与 OrderTimeoutScheduler 共用配置 order.timeout-minutes） */
     @Value("${order.timeout-minutes:30}")
@@ -165,15 +166,23 @@ public class OrderServiceImpl implements OrderService {
         // 4. 计算运费（读取系统配置：满额包邮阈值、默认运费）
         BigDecimal freight = computeFreight(totalAmount);
 
-        // 5. 生成订单
+        // 4.1 优惠券核销（下单即占用：校验归属/门槛/商品范围/有效期 + 原子核销；普通订单未选券返回 0）
         String orderNo = generateOrderNo();
+        java.util.List<Long> orderProductIds = orderItems.stream()
+                .map(OrderItem::getProductId).distinct().toList();
+        com.lichun.agsell.model.vo.CouponVerifyVO couponVerify =
+                couponService.verifyCoupon(request.getCouponId(), userId, totalAmount, orderProductIds, false, orderNo);
+
+        // 5. 生成订单
         Order order = new Order();
         order.setOrderNo(orderNo);
         order.setUserId(userId);
         order.setTotalAmount(totalAmount);
         order.setFreight(freight);
-        order.setDiscount(BigDecimal.ZERO);
-        order.setPayAmount(totalAmount.add(freight));
+        order.setDiscount(couponVerify.getDiscount());
+        order.setCouponId(couponVerify.getUserCouponId());
+        order.setCouponName(couponVerify.getCouponName());
+        order.setPayAmount(totalAmount.add(freight).subtract(couponVerify.getDiscount()));
         order.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode()); // 待付款
         order.setAddressId(request.getAddressId());
         order.setReceiver(address.getReceiver());
@@ -197,7 +206,7 @@ public class OrderServiceImpl implements OrderService {
         // 8. 返回订单信息
         OrderCreateVO vo = new OrderCreateVO();
         vo.setOrderNo(orderNo);
-        vo.setPayAmount(totalAmount.add(freight));
+        vo.setPayAmount(totalAmount.add(freight).subtract(couponVerify.getDiscount()));
         vo.setTotalAmount(totalAmount);
         vo.setStatus(OrderStatusEnum.PENDING_PAYMENT.getCode());
         vo.setCreateTime(order.getCreateTime());
@@ -295,6 +304,7 @@ public class OrderServiceImpl implements OrderService {
         vo.setPayAmount(order.getPayAmount());
         vo.setFreight(order.getFreight());
         vo.setDiscount(order.getDiscount());
+        vo.setCouponName(order.getCouponName());
         vo.setStatus(order.getStatus());
         vo.setStatusText(OrderStatusEnum.textOf(order.getStatus()));
         vo.setReceiver(order.getReceiver());
@@ -352,6 +362,10 @@ public class OrderServiceImpl implements OrderService {
         // 秒杀订单：释放 Redis 抢购名额（幂等，回补库存 + 清除用户标记）
         if (order.getSeckillActivityId() != null) {
             seckillService.releaseSeckillQuota(order.getSeckillActivityId(), order.getUserId());
+        }
+        // 优惠券订单：回退用户券（幂等，仅匹配原核销订单号）
+        if (order.getCouponId() != null) {
+            couponService.refundCoupon(order.getCouponId(), order.getOrderNo());
         }
     }
 
@@ -411,6 +425,10 @@ public class OrderServiceImpl implements OrderService {
                 // 3. 秒杀订单：释放 Redis 抢购名额（幂等）
                 if (order.getSeckillActivityId() != null) {
                     seckillService.releaseSeckillQuota(order.getSeckillActivityId(), order.getUserId());
+                }
+                // 4. 优惠券订单：回退用户券（幂等，仅匹配原核销订单号）
+                if (order.getCouponId() != null) {
+                    couponService.refundCoupon(order.getCouponId(), order.getOrderNo());
                 }
             }
         }

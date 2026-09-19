@@ -27,6 +27,9 @@ public class OrderCreateRequest implements Serializable {
     /** 买家备注 */
     private String remark;
 
+    /** 用户优惠券ID（user_coupon.id，不使用优惠券时为空；服务端核验归属/门槛/有效期） */
+    private Long couponId;
+
     /**
      * 订单明细（立即购买时使用）
      * 注意：价格、小计、商品名称、图片、规格名称等均以服务端数据库为准，

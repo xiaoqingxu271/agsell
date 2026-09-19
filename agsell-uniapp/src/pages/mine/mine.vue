@@ -46,6 +46,16 @@
 
     <!-- 功能菜单 -->
     <view class="menu-section card">
+      <view class="menu-item" @click="goToCouponCenter" role="button">
+        <view class="menu-icon menu-icon-coupon">券</view>
+        <text class="menu-text">领券中心</text>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      </view>
+      <view class="menu-item" @click="goToMyCoupons" role="button">
+        <view class="menu-icon menu-icon-coupon my">包</view>
+        <text class="menu-text">我的券包</text>
+        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      </view>
       <view class="menu-item" @click="goToAddress" role="button">
         <image class="menu-icon" src="/static/icon-menu-address.png" mode="aspectFit" alt="收货地址" />
         <text class="menu-text">收货地址</text>
@@ -190,6 +200,14 @@ async function onLogin() {
 
 function onOrderTabTap(status) {
   uni.navigateTo({ url: `/pages/order/list/list?status=${status}` })
+}
+
+function goToCouponCenter() {
+  uni.navigateTo({ url: '/pages/coupon/center' })
+}
+
+function goToMyCoupons() {
+  uni.navigateTo({ url: '/pages/coupon/my' })
 }
 
 function goToAddress() {
@@ -458,6 +476,23 @@ async function onChooseAvatar() {
   height: 40rpx;
   margin-right: 20rpx;
   flex-shrink: 0;
+}
+
+.menu-icon-coupon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F59E0B, #B45309);
+  color: #FFFFFF;
+  font-size: 26rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon-coupon.my {
+  background: linear-gradient(135deg, #00B578, #0E9F6E);
 }
 
 .menu-icon-qr {

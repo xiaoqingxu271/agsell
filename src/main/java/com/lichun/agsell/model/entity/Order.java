@@ -75,6 +75,12 @@ public class Order implements Serializable {
     /** 秒杀活动ID（非秒杀订单为NULL；配合唯一索引 uk_user_seckill 实现一人一单） */
     private Long seckillActivityId;
 
+    /** 用户优惠券ID（user_coupon.id，非优惠订单为NULL） */
+    private Long couponId;
+
+    /** 优惠券名称（快照，券模板删除后仍可展示） */
+    private String couponName;
+
     /** 取消原因 */
     private String cancelReason;
 

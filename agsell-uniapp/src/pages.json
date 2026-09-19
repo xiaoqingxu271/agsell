@@ -17,6 +17,8 @@
     { "path": "pages/trace/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/seckill/list", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/seckill/detail", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/coupon/center", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/coupon/my", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/mine/mine", "type": "page" },
     { "path": "pages/mine/address", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/ai-chat/chat", "type": "page", "style": { "navigationStyle": "custom" } },

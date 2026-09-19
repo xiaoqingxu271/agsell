@@ -42,7 +42,18 @@ public enum ErrorCode {
     SECKILL_NOT_STARTED(50010, "秒杀尚未开始"),
     SECKILL_ENDED(50011, "秒杀已结束"),
     SECKILL_SOLD_OUT(50012, "手慢了，商品已被抢光"),
-    SECKILL_REPEAT(50013, "您已参与过该秒杀，请勿重复购买");
+    SECKILL_REPEAT(50013, "您已参与过该秒杀，请勿重复购买"),
+    // 优惠券相关
+    COUPON_NOT_FOUND(50020, "优惠券不存在或已下架"),
+    COUPON_RECEIVE_END(50021, "优惠券已停止领取"),
+    COUPON_SOLD_OUT(50022, "手慢了，优惠券已被领完"),
+    COUPON_RECEIVE_REPEAT(50023, "您已领取过该优惠券"),
+    COUPON_INVALID(50024, "优惠券不可用或已过期"),
+    COUPON_THRESHOLD_NOT_MET(50025, "未达到优惠券使用门槛"),
+    COUPON_SECKILL_FORBIDDEN(50026, "秒杀订单不可使用优惠券"),
+    COUPON_SCOPE_NOT_MET(50027, "该优惠券仅限指定商品使用"),
+    COUPON_DISCOUNT_INVALID(50028, "折扣券折扣率必须在 0~1 之间"),
+    COUPON_PRODUCT_EMPTY(50029, "品类券至少选择一个适用商品");
 
     /**
      * 状态码

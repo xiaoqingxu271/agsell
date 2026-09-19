@@ -92,6 +92,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         meta: { title: '秒杀管理' },
       },
       {
+        path: 'coupon',
+        name: 'AdminCoupon',
+        component: () => import('@/views/admin/list/CouponListView.vue'),
+        meta: { title: '优惠券管理' },
+      },
+      {
         path: 'hot-word',
         name: 'AdminHotWord',
         component: () => import('@/views/admin/list/HotWordListView.vue'),

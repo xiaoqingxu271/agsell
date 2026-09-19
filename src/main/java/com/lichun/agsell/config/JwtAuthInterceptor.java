@@ -54,6 +54,8 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             // 秒杀活动浏览接口（无需登录；下单 /api/seckill/order 需登录）
             "/api/seckill/list",
             "/api/seckill/detail",
+            // 领券中心浏览接口（无需登录；领取/我的券包/可用券需登录）
+            "/api/coupon/list",
             // 系统配置公开读取（小程序端）
             "/api/system/config",
             // Swagger/Knife4j 文档
@@ -72,6 +74,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/admin/after-sales",
             "/api/admin/trace",
             "/api/admin/seckill",
+            "/api/admin/coupon",
             "/api/admin/hot-word"
     };
 
@@ -94,9 +97,11 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             uri = uri.substring(0, queryStart);
         }
 
-        // 白名单直接放行
+        // 白名单直接放行（但做"可选登录"：带了有效用户 token 时仍解析并设置上下文，
+        // 供领券中心 received 标记等匿名可浏览接口使用；无 token/游客保持匿名）
         for (String path : WHITE_LIST) {
             if (uri.equals(path) || uri.startsWith(path + "/")) {
+                fillUserContextIfPresent(request);
                 log.debug("URI {} matches whitelist path {}", uri, path);
                 return true;
             }
@@ -155,6 +160,32 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             throw e;
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+    }
+
+    /**
+     * 白名单接口的"可选登录"：若请求携带了有效用户 token，则解析并设置用户上下文；
+     * 游客（无 token / 无效 token / 管理端 token）保持匿名，不抛错。
+     */
+    private void fillUserContextIfPresent(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return;
+        }
+        String token = authHeader.substring(7);
+        try {
+            var claims = jwtUtils.parseToken(token);
+            String type = claims.get("type", String.class);
+            if ("admin".equals(type)) {
+                return;
+            }
+            Long userId = Long.valueOf(claims.getSubject());
+            String jti = claims.get("jti", String.class);
+            if (redisTokenService.validateUserToken(userId, token, jti)) {
+                BaseContext.setCurrentId(userId, jti);
+            }
+        } catch (Exception ignored) {
+            // 无效/过期 token 按游客处理
         }
     }
 

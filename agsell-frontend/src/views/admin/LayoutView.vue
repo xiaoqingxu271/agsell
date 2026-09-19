@@ -15,6 +15,7 @@ import {
   Picture,
   Aim,
   Timer,
+  Ticket,
   RefreshLeft,
   Search,
   Setting,
@@ -34,8 +35,8 @@ const initial = computed(() => displayName.value.trim().charAt(0) || '管')
 
 // ── 角色 → 可见模块（对应 系统管理模块开发文档 §3.2 权限矩阵，与后端拦截器口径一致）──
 const roleModules: Record<string, string[]> = {
-  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'hotWord', 'system'],
-  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'hotWord'],
+  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'system'],
+  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord'],
   OPERATOR: ['dashboard', 'categories', 'products', 'orders'],
 }
 const currentRole = computed(() => adminStore.adminInfo?.role ?? '')
@@ -124,7 +125,7 @@ async function handleLogout() {
         </el-menu-item-group>
 
         <!-- 商品：卖什么 + 怎么卖 -->
-        <el-menu-item-group v-if="canAccess('products') || canAccess('categories') || canAccess('seckill') || canAccess('traceability')">
+        <el-menu-item-group v-if="canAccess('products') || canAccess('categories') || canAccess('seckill') || canAccess('coupon') || canAccess('traceability')">
           <template #title><span v-show="!isCollapse" class="nav-group-title">商品</span></template>
           <el-menu-item v-if="canAccess('products')" index="/admin/products">
             <el-icon><Goods /></el-icon>
@@ -137,6 +138,10 @@ async function handleLogout() {
           <el-menu-item v-if="canAccess('seckill')" index="/admin/seckill">
             <el-icon><Timer /></el-icon>
             <span>秒杀管理</span>
+          </el-menu-item>
+          <el-menu-item v-if="canAccess('coupon')" index="/admin/coupon">
+            <el-icon><Ticket /></el-icon>
+            <span>优惠券管理</span>
           </el-menu-item>
           <el-menu-item v-if="canAccess('traceability')" index="/admin/traceability">
             <el-icon><Aim /></el-icon>

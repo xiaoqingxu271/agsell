@@ -427,6 +427,45 @@ export interface SeckillActivityRequest {
   status?: number
 }
 
+// ─── 优惠券相关类型 ─────────────────────────────────────────────────────────
+
+export interface CouponVO {
+  id: number
+  couponName: string
+  couponType: number
+  threshold: string
+  amount: string
+  discount: string | null
+  maxDiscount: string | null
+  productIds: number[] | null
+  totalCount: number
+  receivedCount: number
+  perUserLimit: number
+  validDays: number
+  startTime: string | null
+  endTime: string | null
+  status: number
+  sort: number
+  createTime: string
+}
+
+export interface CouponRequest {
+  couponName?: string
+  couponType?: number
+  threshold?: number
+  amount?: number
+  discount?: number | null
+  maxDiscount?: number | null
+  productIds?: number[]
+  totalCount?: number
+  perUserLimit?: number
+  validDays?: number
+  startTime?: string | null
+  endTime?: string | null
+  sort?: number
+  status?: number
+}
+
 // ─── 搜索热词 ────────────────────────────────────────────────────────────────
 
 export interface SearchHotWord {

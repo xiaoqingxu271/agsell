@@ -29,6 +29,9 @@ public class OrderDetailVO implements Serializable {
 
     private BigDecimal discount;
 
+    /** 优惠券名称（快照；非优惠订单为 null） */
+    private String couponName;
+
     /** 订单状态 */
     private Integer status;
 
