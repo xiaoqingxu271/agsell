@@ -16,4 +16,11 @@ public @interface OperationLog {
 
     /** 操作动作，如：新增 / 编辑 / 删除 / 重置密码 / 发货 */
     String action();
+
+    /**
+     * 操作内容模板（中文可读），支持 SpEL 引用方法参数，如：
+     * "新增了「#request.couponName」优惠券"
+     * 留空则降级为拼接方法参数（兼容旧接口）。
+     */
+    String content() default "";
 }

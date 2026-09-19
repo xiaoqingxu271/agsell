@@ -43,7 +43,8 @@ public class AdminProductController {
 
     @Operation(summary = "更新商品状态（上架/下架）")
     @PutMapping("/{id}/status")
-    @OperationLog(module = "商品管理", action = "商品上下架")
+    @OperationLog(module = "商品管理", action = "商品上下架",
+            content = "商品 #{#id} 已#{#status == 1 ? '上架' : '下架'}")
     public BaseResponse<Void> updateProductStatus(@PathVariable Long id,
                                                    @RequestParam Integer status) {
         productService.updateProductStatus(id, status);

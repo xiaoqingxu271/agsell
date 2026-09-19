@@ -40,7 +40,8 @@ public class AdminOrderController {
 
     @Operation(summary = "发货")
     @PostMapping("/{orderNo}/ship")
-    @OperationLog(module = "订单管理", action = "订单发货")
+    @OperationLog(module = "订单管理", action = "订单发货",
+            content = "订单 #{#orderNo} 已发货，物流 #{#request.logType} #{#request.logNo}")
     public BaseResponse<Void> shipOrder(@PathVariable String orderNo,
                                          @RequestBody OrderShipRequest request) {
         adminOrderService.shipOrder(orderNo, request);

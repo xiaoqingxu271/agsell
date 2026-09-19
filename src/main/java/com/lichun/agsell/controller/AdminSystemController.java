@@ -45,7 +45,8 @@ public class AdminSystemController {
 
     @Operation(summary = "新增管理员")
     @PostMapping("/admin")
-    @OperationLog(module = "管理员管理", action = "新增管理员")
+    @OperationLog(module = "管理员管理", action = "新增管理员",
+            content = "新增了管理员「#{#request.username}」")
     public BaseResponse<Void> createAdmin(@RequestBody AdminCreateRequest request) {
         adminSystemService.createAdmin(request);
         return ResultUtils.success(null);
@@ -53,7 +54,8 @@ public class AdminSystemController {
 
     @Operation(summary = "编辑管理员")
     @PutMapping("/admin/{id}")
-    @OperationLog(module = "管理员管理", action = "编辑管理员")
+    @OperationLog(module = "管理员管理", action = "编辑管理员",
+            content = "编辑了管理员 #{#id}")
     public BaseResponse<Void> updateAdmin(@PathVariable Long id, @RequestBody AdminUpdateRequest request) {
         adminSystemService.updateAdmin(id, request);
         return ResultUtils.success(null);
@@ -61,7 +63,8 @@ public class AdminSystemController {
 
     @Operation(summary = "重置密码")
     @PutMapping("/admin/{id}/password")
-    @OperationLog(module = "管理员管理", action = "重置密码")
+    @OperationLog(module = "管理员管理", action = "重置密码",
+            content = "重置了管理员 #{#id} 的密码")
     public BaseResponse<Void> resetPassword(@PathVariable Long id, @RequestBody AdminPasswordResetRequest request) {
         adminSystemService.resetPassword(id, request);
         return ResultUtils.success(null);
@@ -69,7 +72,8 @@ public class AdminSystemController {
 
     @Operation(summary = "启用/禁用管理员")
     @PutMapping("/admin/{id}/status")
-    @OperationLog(module = "管理员管理", action = "启停管理员")
+    @OperationLog(module = "管理员管理", action = "启停管理员",
+            content = "管理员 #{#id} 已#{#status == 1 ? '启用' : '禁用'}")
     public BaseResponse<Void> updateStatus(@PathVariable Long id, @RequestParam int status) {
         adminSystemService.updateStatus(id, status);
         return ResultUtils.success(null);
@@ -77,7 +81,8 @@ public class AdminSystemController {
 
     @Operation(summary = "删除管理员")
     @DeleteMapping("/admin/{id}")
-    @OperationLog(module = "管理员管理", action = "删除管理员")
+    @OperationLog(module = "管理员管理", action = "删除管理员",
+            content = "删除了管理员 #{#id}")
     public BaseResponse<Void> deleteAdmin(@PathVariable Long id) {
         adminSystemService.deleteAdmin(id);
         return ResultUtils.success(null);
@@ -93,7 +98,8 @@ public class AdminSystemController {
 
     @Operation(summary = "更新系统配置")
     @PutMapping("/config")
-    @OperationLog(module = "系统配置", action = "更新配置")
+    @OperationLog(module = "系统配置", action = "更新配置",
+            content = "更新了系统配置（共 #{#request.items.size()} 项）")
     public BaseResponse<Void> updateConfigs(@RequestBody ConfigUpdateRequest request) {
         sysConfigService.updateConfigs(request);
         return ResultUtils.success(null);
