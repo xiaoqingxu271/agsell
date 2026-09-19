@@ -416,3 +416,8 @@ export function updateConfigs(data: ConfigUpdateRequest) {
 export function listSysLogs(params: { pageSize?: number; module?: string; adminName?: string; pageNum?: number; cursorTime?: string; cursorId?: number }) {
   return request.get<SysLogPageVO>('/admin/system/log/list', { params })
 }
+
+/** 通知中心：铃铛待办汇总 */
+export function noticeSummary() {
+  return request.get<{ pendingShipCount: number; lowStockCount: number; pendingAfterSalesCount: number; total: number }>('/admin/notice/summary')
+}

@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
-import { adminLogout } from '@/api/admin'
+import { adminLogout, noticeSummary } from '@/api/admin'
 import { ElMessageBox } from 'element-plus'
 import {
   DataAnalysis,
@@ -58,6 +58,41 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   mq.removeEventListener('change', syncCollapse)
+})
+
+// ── 通知中心（铃铛）──
+const noticeVisible = ref(false)
+const noticeWrapRef = ref<HTMLElement | null>(null)
+const notice = ref({ pendingShipCount: 0, lowStockCount: 0, pendingAfterSalesCount: 0, total: 0 })
+
+async function loadNotice() {
+  try {
+    notice.value = await noticeSummary()
+  } catch { /* 静默失败，不影响主流程 */ }
+}
+
+function toggleNotice() {
+  noticeVisible.value = !noticeVisible.value
+}
+
+function goNotice(path: string) {
+  noticeVisible.value = false
+  router.push(path)
+}
+
+function onDocClick(e: MouseEvent) {
+  if (noticeVisible.value && noticeWrapRef.value && !noticeWrapRef.value.contains(e.target as Node)) {
+    noticeVisible.value = false
+  }
+}
+
+onMounted(() => {
+  loadNotice()
+  setInterval(loadNotice, 30000) // 30 秒轮询
+  document.addEventListener('click', onDocClick)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onDocClick)
 })
 
 async function handleLogout() {
@@ -209,10 +244,27 @@ async function handleLogout() {
           <span class="breadcrumb">首页 / <span class="breadcrumb-current">{{ $route.meta.title || '管理后台' }}</span></span>
         </div>
         <div class="header-right">
-          <button class="icon-btn" type="button" aria-label="通知">
-            <el-icon :size="18" aria-hidden="true"><Bell /></el-icon>
-            <span class="dot" aria-hidden="true"></span>
-          </button>
+          <div class="notice-wrap" ref="noticeWrapRef">
+            <button class="icon-btn" type="button" aria-label="通知" @click="toggleNotice">
+              <el-icon :size="18" aria-hidden="true"><Bell /></el-icon>
+              <span v-if="notice.total > 0" class="dot" aria-hidden="true">{{ notice.total > 99 ? '99+' : notice.total }}</span>
+            </button>
+            <div v-if="noticeVisible" class="notice-panel">
+              <div class="notice-title">待办事项</div>
+              <div class="notice-item" @click="goNotice('/admin/orders')">
+                <span>待发货订单</span>
+                <span class="notice-num">{{ notice.pendingShipCount }} 笔</span>
+              </div>
+              <div class="notice-item" @click="goNotice('/admin/products')">
+                <span>低库存商品</span>
+                <span class="notice-num">{{ notice.lowStockCount }} 件</span>
+              </div>
+              <div class="notice-item" @click="goNotice('/admin/after-sales')">
+                <span>待处理售后</span>
+                <span class="notice-num">{{ notice.pendingAfterSalesCount }} 笔</span>
+              </div>
+            </div>
+          </div>
           <!-- 管理员用户卡（原侧栏底部用户卡，移至顶栏右上角） -->
           <div class="header-user" :title="displayName">
             <span class="admin-avatar" aria-hidden="true">{{ initial }}</span>
@@ -604,13 +656,62 @@ async function handleLogout() {
 
 .dot {
   position: absolute;
-  top: 8px;
-  right: 9px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  top: 6px;
+  right: 6px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
   background: #DC2626;
+  color: #fff;
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
   border: 1.5px solid #fff;
+  box-sizing: border-box;
+}
+
+.notice-wrap {
+  position: relative;
+}
+
+.notice-panel {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: 240px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  padding: 8px 0;
+  z-index: 1000;
+}
+
+.notice-title {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A1B1C;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.notice-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #4B5563;
+  cursor: pointer;
+}
+
+.notice-item:hover {
+  background: #F6F8F7;
+}
+
+.notice-num {
+  color: #DC2626;
+  font-weight: 600;
 }
 
 /* ── 内容区 ── */
