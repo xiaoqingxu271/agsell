@@ -19,7 +19,18 @@
           mode="aspectFill"
         />
         <view class="bubble" :class="msg.role === 'user' ? 'bubble-user' : 'bubble-ai'">
-          <text class="bubble-text" user-select>{{ msg.content }}</text>
+          <!-- 流式阶段提示（业务查询中：正在查询订单…） -->
+          <view v-if="msg.streaming && msg.stage" class="stage-hint">
+            <text class="stage-text">{{ msg.stage }}</text>
+          </view>
+          <!-- 流式回复：首 token 前打字动画，之后逐字渲染 + 闪烁光标 -->
+          <view v-if="msg.streaming && !msg.content" class="typing-dots">
+            <view class="dot"></view>
+            <view class="dot"></view>
+            <view class="dot"></view>
+          </view>
+          <text v-else class="bubble-text" user-select>{{ msg.content }}</text>
+          <text v-if="msg.streaming && msg.content" class="stream-cursor">▍</text>
 
           <!-- 问题③：客服回答后的下一轮询问小贴士 -->
           <view v-if="msg.role === 'ai' && msg.suggestions && msg.suggestions.length" class="suggest-wrap">
@@ -40,16 +51,6 @@
           :src="userAvatar"
           mode="aspectFill"
         />
-      </view>
-
-      <!-- 输入中 -->
-      <view v-if="sending" class="msg-row row-ai">
-        <image class="avatar avatar-ai" src="/static/icon-service-avatar.png" mode="aspectFill" />
-        <view class="bubble bubble-ai typing">
-          <view class="dot"></view>
-          <view class="dot"></view>
-          <view class="dot"></view>
-        </view>
       </view>
 
       <!-- 滚动锚点 -->
@@ -78,7 +79,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../components/NavBar/NavBar.vue'
-import { sendAiChat } from '../../api/ai'
+import { sendAiChatStream } from '../../api/ai'
 import { isLoggedIn } from '../../utils/request'
 
 const messages = ref([])
@@ -93,6 +94,14 @@ const quickQuestions = [
   '我的订单现在是什么状态？',
   '我申请过退款吗？结果怎么样？'
 ]
+
+// 流式阶段提示文案（与 Python 侧 stage 事件对应）
+const STAGE_LABELS = {
+  faq_retrieve: '正在翻阅知识库…',
+  order_query: '正在查询订单…',
+  logistics_query: '正在查询物流…',
+  after_sales_query: '正在查询售后进度…'
+}
 
 // 问题①：用户头像取自登录 userInfo（wxLogin 时写入 { userId, nickname, avatar, phone }），未登录用默认头像
 const userAvatar = computed(() => {
@@ -150,24 +159,56 @@ async function onSend() {
   pushMessage('user', text)
 
   sending.value = true
+  // 预插入 AI 气泡：首 token 前显示打字动画，token 到达后逐字渲染
+  messages.value.push({ role: 'ai', content: '', suggestions: null, streaming: true, stage: '' })
+  const msg = messages.value[messages.value.length - 1]
+
   try {
-    const res = await sendAiChat(sessionId.value, text)
-    if (res.code === 0 && res.data?.reply) {
-      // 问题③：透传服务端按意图生成的下轮建议问题
-      pushMessage('ai', res.data.reply, res.data.suggestions)
-    } else {
-      pushMessage('ai', '抱歉，服务开小差了，请稍后再试。')
-    }
+    await sendAiChatStream(sessionId.value, text, {
+      onToken: (t) => {
+        msg.stage = ''
+        msg.content += t
+        scrollToBottom()
+      },
+      onStatus: (s) => {
+        msg.stage = (s && STAGE_LABELS[s.stage]) || ''
+        scrollToBottom()
+      },
+      onDone: (d) => {
+        msg.streaming = false
+        msg.stage = ''
+        // 兜底：流正常收尾但无内容（不应发生，防御性处理）
+        msg.content = (msg.content || '').trim() || '抱歉，服务开小差了，请稍后再试。'
+        if (d && d.suggestions && d.suggestions.length) {
+          msg.suggestions = d.suggestions
+        }
+        scrollToBottom()
+      },
+      onError: (e) => {
+        // 上游 error 事件：展示服务端文案；气泡已有内容时保留已生成的部分
+        msg.streaming = false
+        msg.stage = ''
+        if (!msg.content) {
+          msg.content = (e && e.message) || '抱歉，服务开小差了，请稍后再试。'
+        }
+        scrollToBottom()
+      }
+    })
   } catch (e) {
-    console.warn('AI 客服请求失败', e)
-    // Token 失效等业务失败：提示重新登录；网络失败：友好提示
-    if (e?.code === 40100 || e?.code === 10001) {
-      pushMessage('ai', '登录状态已失效，请重新登录后再试。')
-    } else {
-      pushMessage('ai', '网络异常，请检查网络后重试。')
+    console.warn('AI 客服流式请求失败', e)
+    // 传输失败 / 业务失败（token 失效 40100 等）
+    msg.streaming = false
+    msg.stage = ''
+    if (!msg.content) {
+      if (e?.code === 40100 || e?.code === 10001) {
+        msg.content = '登录状态已失效，请重新登录后再试。'
+      } else {
+        msg.content = '网络异常，请检查网络后重试。'
+      }
     }
   } finally {
     sending.value = false
+    scrollToBottom()
   }
 }
 </script>
@@ -269,12 +310,22 @@ async function onSend() {
   color: #00B578;
 }
 
-/* 输入中动画 */
-.typing {
+/* 流式阶段提示（业务查询中） */
+.stage-hint {
+  margin-bottom: 12rpx;
+}
+
+.stage-text {
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+/* 流式首 token 前的打字动画（在 AI 气泡内） */
+.typing-dots {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  padding: 24rpx;
+  padding: 8rpx 0;
 }
 
 .dot {
@@ -296,6 +347,17 @@ async function onSend() {
 @keyframes blink {
   0%, 80%, 100% { opacity: 0.3; }
   40% { opacity: 1; }
+}
+
+/* 流式输出光标 */
+.stream-cursor {
+  color: #00B578;
+  animation: cursor-blink 0.8s step-end infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 /* 滚动锚点 */
