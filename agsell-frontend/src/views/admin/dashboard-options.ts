@@ -27,22 +27,6 @@ const brandBarStyle = {
   borderRadius: [6, 6, 0, 0] as [number, number, number, number],
 }
 
-/** 丰收金柱状渐变（销售额） */
-const goldBarStyle = {
-  color: {
-    type: 'linear' as const,
-    x: 0,
-    y: 0,
-    x2: 0,
-    y2: 1,
-    colorStops: [
-      { offset: 0, color: '#F59E0B' },
-      { offset: 1, color: '#D97706' },
-    ],
-  },
-  borderRadius: [6, 6, 0, 0] as [number, number, number, number],
-}
-
 /** 统一 tooltip 深色质感（墨绿黑） */
 const tooltipStyle = {
   backgroundColor: 'rgba(16, 35, 26, 0.92)',

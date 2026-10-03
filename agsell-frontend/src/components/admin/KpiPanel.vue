@@ -101,7 +101,7 @@ function sparkPath(points: number[]): string {
     <!-- 指标区 -->
     <div class="kpi-body" :class="{ 'with-main': !!main }">
       <div
-        v-for="(it, idx) in items"
+        v-for="it in items"
         :key="it.label"
         class="kpi-item"
         :class="{ 'is-card': !!main }"

@@ -232,7 +232,7 @@ async function handleFormSubmit() {
 
     const validSpecs = specs.value.filter(s => s.specName?.trim())
     // 并行上传所有规格图片
-    const finalSpecs = await Promise.all(validSpecs.map(async (spec, i) => {
+    const finalSpecs = await Promise.all(validSpecs.map(async spec => {
       let image = spec.image || ''
       const fileIdx = specs.value.indexOf(spec)
       if (pendingSpecFiles.value[fileIdx]) {

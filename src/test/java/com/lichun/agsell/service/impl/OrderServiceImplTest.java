@@ -39,7 +39,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -64,6 +66,10 @@ class OrderServiceImplTest {
     private SysUserMapper userMapper;
     @Mock
     private com.lichun.agsell.service.SeckillService seckillService;
+    @Mock
+    private com.lichun.agsell.service.SysConfigService sysConfigService;
+    @Mock
+    private com.lichun.agsell.service.CouponService couponService;
 
     @InjectMocks
     private OrderServiceImpl orderService;
@@ -120,6 +126,14 @@ class OrderServiceImplTest {
         return spec;
     }
 
+    /** 未使用优惠券：verifyCoupon 返回 0 折扣（默认构造 discount 为 null，需显式置 0） */
+    private void stubCouponUnused() {
+        com.lichun.agsell.model.vo.CouponVerifyVO couponVO = new com.lichun.agsell.model.vo.CouponVerifyVO();
+        couponVO.setDiscount(BigDecimal.ZERO);
+        when(couponService.verifyCoupon(any(), any(), any(), any(), anyBoolean(), any()))
+                .thenReturn(couponVO);
+    }
+
     /** 立即购买请求：前端伪造低价与商品名，验证服务端忽略 */
     private OrderCreateRequest buyNowRequest(Long productId, Long specId, Integer quantity) {
         OrderCreateRequest req = new OrderCreateRequest();
@@ -149,9 +163,11 @@ class OrderServiceImplTest {
         when(productMapper.selectById(1L)).thenReturn(product);
         when(productSpecMapper.selectById(2L)).thenReturn(spec);
         when(orderMapper.insert(any(Order.class))).thenReturn(1);
+        // 运费配置：阈值/默认运费均为 0（免运费）
+        when(sysConfigService.getConfigOrDefault(anyString(), anyString())).thenReturn("0");
+        stubCouponUnused();
 
         OrderCreateVO vo = orderService.createOrder(buyNowRequest(1L, 2L, 2));
-
         ArgumentCaptor<List<OrderItem>> captor = ArgumentCaptor.forClass(List.class);
         verify(orderItemMapper).insert(captor.capture());
         OrderItem item = captor.getValue().get(0);
@@ -177,6 +193,8 @@ class OrderServiceImplTest {
         when(addressMapper.selectById(100L)).thenReturn(mockAddress(USER_ID));
         when(productMapper.selectById(1L)).thenReturn(product);
         when(orderMapper.insert(any(Order.class))).thenReturn(1);
+        when(sysConfigService.getConfigOrDefault(anyString(), anyString())).thenReturn("0");
+        stubCouponUnused();
 
         orderService.createOrder(buyNowRequest(1L, null, 3));
 
@@ -274,6 +292,8 @@ class OrderServiceImplTest {
         when(productMapper.selectById(1L)).thenReturn(product);
         when(productSpecMapper.selectById(2L)).thenReturn(spec);
         when(orderMapper.insert(any(Order.class))).thenReturn(1);
+        when(sysConfigService.getConfigOrDefault(anyString(), anyString())).thenReturn("0");
+        stubCouponUnused();
 
         OrderCreateRequest req = new OrderCreateRequest();
         req.setAddressId(100L);
@@ -303,6 +323,8 @@ class OrderServiceImplTest {
             o.setCreateTime(LocalDateTime.now().minusMinutes(5));
             return 1;
         });
+        when(sysConfigService.getConfigOrDefault(anyString(), anyString())).thenReturn("0");
+        stubCouponUnused();
 
         OrderCreateVO vo = orderService.createOrder(buyNowRequest(1L, 2L, 2));
 

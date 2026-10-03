@@ -81,7 +81,7 @@ const form = ref<CouponForm>({
 const productOptions = ref<ProductListItemVO[]>([])
 async function loadProducts() {
   try {
-    const res = await listProducts({ pageNum: 1, pageSize: 200, status: 1 } as any)
+    const res = await listProducts({ pageNum: 1, pageSize: 200, status: 1 })
     productOptions.value = res.records || []
   } catch { /* ignore */ }
 }

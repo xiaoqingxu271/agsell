@@ -37,6 +37,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -60,6 +61,8 @@ class SeckillServiceImplTest {
     private SysUserAddressMapper addressMapper;
     @Mock
     private SeckillRedisService seckillRedisService;
+    @Mock
+    private com.lichun.agsell.service.SysConfigService sysConfigService;
 
     @InjectMocks
     private SeckillServiceImpl seckillService;
@@ -143,6 +146,8 @@ class SeckillServiceImplTest {
             inv.getArgument(0, Order.class).setId(999L);
             return 1;
         }).when(orderMapper).insert(any(Order.class));
+        // 运费配置：阈值/默认运费均为 0（免运费）
+        when(sysConfigService.getConfigOrDefault(anyString(), anyString())).thenReturn("0");
 
         OrderCreateVO vo = seckillService.createSeckillOrder(buildOrderRequest());
 
@@ -237,6 +242,7 @@ class SeckillServiceImplTest {
         when(addressMapper.selectById(10L)).thenReturn(mockAddress());
         doThrow(new DuplicateKeyException("uk_user_seckill"))
                 .when(orderMapper).insert(any(Order.class));
+        when(sysConfigService.getConfigOrDefault(anyString(), anyString())).thenReturn("0");
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> seckillService.createSeckillOrder(buildOrderRequest()));
@@ -254,6 +260,7 @@ class SeckillServiceImplTest {
         when(productMapper.selectById(1001L)).thenReturn(mockProduct());
         when(addressMapper.selectById(10L)).thenReturn(mockAddress());
         doThrow(new RuntimeException("db down")).when(orderMapper).insert(any(Order.class));
+        when(sysConfigService.getConfigOrDefault(anyString(), anyString())).thenReturn("0");
 
         assertThrows(RuntimeException.class,
                 () -> seckillService.createSeckillOrder(buildOrderRequest()));

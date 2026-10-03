@@ -1,0 +1,252 @@
+# agsell 持续集成（CI）
+# 触发：任意分支的 push / pull_request；仅改文档时不跑
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - "**/*.md"
+      - "doc/**"
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "doc/**"
+
+# 同一分支新推送时取消上一次还在跑的流水线，省额度
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ============================================================
+  # 后端：Spring Boot 4.1 / Java 21 / Maven
+  # 默认 local profile（application-local.yaml）连本机 MySQL + Redis，
+  # 因此用 service container 起 MySQL 8.4 与 Redis 7
+  # ============================================================
+  backend:
+    name: Backend (Java 21)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: agsell
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven # 自动缓存 ~/.m2 依赖
+
+      # 按 docker/initdb.sh 的顺序初始化表结构
+      - name: Initialize database schema
+        run: |
+          for f in \
+            create_table \
+            product_module \
+            order_module \
+            after_sales_module \
+            review_banner_module \
+            seckill_module \
+            coupon_module \
+            search_module \
+            system_module \
+            traceability_module; do
+            mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell < "sql/${f}.sql"
+          done
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
+            < sql/migration/coupon_type_extension.sql
+
+      # application-local.yaml 在 .gitignore 中、不进仓库，
+      # 而提交的 application.yaml 全是占位符，因此 CI 现场生成一个 ci profile
+      - name: Create CI profile
+        run: |
+          cat > src/main/resources/application-ci.yaml <<'EOF'
+          server:
+            port: 8080
+            servlet:
+              context-path: /api
+          spring:
+            datasource:
+              url: jdbc:mysql://127.0.0.1:3306/agsell?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+              driver-class-name: com.mysql.cj.jdbc.Driver
+              username: root
+              password: root
+            data:
+              redis:
+                host: 127.0.0.1
+                port: 6379
+                password: ""
+                database: 0
+                timeout: 60s
+          # 测试用固定密钥（HS512 要求 >= 64 字节），非真实密钥
+          jwt:
+            expiration: 86400000
+            secret: ci-test-secret-ci-test-secret-ci-test-secret-ci-test-secret-ci-test-secret-ci-test-secret-0001
+            token-header: Authorization
+            token-prefix: Bearer
+          # 第三方配置测试中不会真正调用，给占位值避免占位符解析失败
+          wechat:
+            miniapp:
+              appid: ci-dummy-appid
+              secret: ci-dummy-secret
+              code2session_url: https://api.weixin.qq.com/sns/jscode2session
+          aliyun:
+            oss:
+              endpoint: oss-cn-beijing.aliyuncs.com
+              access-key-id: ci-dummy-key-id
+              access-key-secret: ci-dummy-key-secret
+              bucket-name: agsell-ci
+              url-prefix: ""
+              max-file-size: 10
+              image-max-file-size: 5
+              allowed-image-types: jpg,png
+              allowed-video-types: mp4
+              allowed-other-types: pdf,zip
+          mybatis-plus:
+            global-config:
+              db-config:
+                logic-delete-field: deleted
+                logic-delete-value: 1
+                logic-not-delete-value: 0
+          EOF
+
+      # verify：跑单元测试 + SpringBootTest（contextLoads、admin 登录冒烟）
+      # 注1：CouponConcurrencyIT / SeckillConcurrencyIT / AfterSalesFlowIntegrationTest
+      #      依赖本地种子数据或高并发环境，CI 全新数据库不满足，故排除；
+      #      要纳入 CI 需让测试在 @BeforeEach 自建数据
+      # 注2：用环境变量 SPRING_PROFILES_ACTIVE 激活 ci profile
+      #      （surefire fork 的 JVM 不继承命令行 -D 的 spring 属性）
+      - name: Build and test with Maven
+        env:
+          SPRING_PROFILES_ACTIVE: ci
+        run: >
+          ./mvnw -B verify
+          -Dtest='!AfterSalesFlowIntegrationTest,!CouponConcurrencyIT,!SeckillConcurrencyIT'
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-surefire-reports
+          path: target/surefire-reports
+          retention-days: 7
+
+  # ============================================================
+  # 管理后台前端：Vue 3 + Vite + TypeScript
+  # ============================================================
+  frontend:
+    name: Frontend (Vue 3)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agsell-frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # package.json engines: ^22.18.0 || >=24.12.0，取 22 LTS 最新版
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: agsell-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 不带 --fix：只检查不改动，问题直接让 CI 失败
+      - name: Lint (oxlint)
+        run: npx oxlint . --deny-warnings
+
+      - name: Lint (eslint)
+        run: npx eslint .
+
+      # npm run build 内含 vue-tsc 类型检查（type-check）
+      - name: Type-check and build
+        run: npm run build
+
+  # ============================================================
+  # 移动端：uni-app（先校验 H5 构建；微信小程序构建可按需开启）
+  # ============================================================
+  uniapp:
+    name: UniApp (H5 build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agsell-uniapp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: agsell-uniapp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build H5
+        run: npm run build:h5
+
+      # 如需同时校验微信小程序产物，取消下面注释（CLI 构建不需要微信开发者工具）
+      # - name: Build WeChat MiniProgram
+      #   run: npm run build:mp-weixin
+
+  # ============================================================
+  # AI 服务：Python 3.14 / FastAPI / pytest
+  # 测试全部 stub，不依赖网络与 AGNES_API_KEY
+  # ============================================================
+  ai-service:
+    name: AI Service (Python 3.14)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-service
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: ai-service/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        run: python -m pytest tests -v

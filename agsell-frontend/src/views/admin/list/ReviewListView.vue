@@ -66,7 +66,7 @@ const replyTarget = ref<ReviewListItemVO | null>(null)
 function openReply(row: ReviewListItemVO) {
   replyTarget.value = row
   replyId.value = row.id
-  replyForm.value = { replyContent: row.replied ? (row as any).replyContent ?? '' : '' }
+  replyForm.value = { replyContent: row.replied ? row.replyContent ?? '' : '' }
   replyVisible.value = true
 }
 

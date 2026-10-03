@@ -3,10 +3,11 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listAllBanners, createBanner, updateBanner, deleteBanner } from '@/api/admin'
 import { uploadFile } from '@/api/upload'
+import type { Banner } from '@/types'
 import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
-const list = ref<any[]>([])
+const list = ref<Banner[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
@@ -62,7 +63,7 @@ function openAdd() {
   dialogVisible.value = true
 }
 
-function openEdit(row: any) {
+function openEdit(row: Banner) {
   dialogTitle.value = '编辑轮播图'
   form.value = { id: row.id, title: row.title, image: row.image, link: row.link ?? '', sort: row.sort, status: row.status }
   pendingBannerFile.value = null
@@ -115,7 +116,7 @@ async function handleSubmit() {
   }
 }
 
-async function handleDelete(row: any) {
+async function handleDelete(row: Banner) {
   await ElMessageBox.confirm(`确认删除轮播图「${row.title}」？`, '提示', { type: 'warning' })
   try {
     await deleteBanner(row.id!)
@@ -126,9 +127,9 @@ async function handleDelete(row: any) {
   }
 }
 
-async function handleStatusChange(row: any, status: number) {
+async function handleStatusChange(row: Banner, status: number) {
   try {
-    await updateBanner(row.id, { ...row, status })
+    await updateBanner(row.id!, { ...row, status })
     row.status = status
     ElMessage.success(status === 1 ? '已启用' : '已禁用')
   } catch {
@@ -178,7 +179,7 @@ onMounted(fetchList)
               active-text="启用"
               inactive-text="禁用"
               active-color="#15803D"
-              @change="(val: unknown) => handleStatusChange(row, val ? 1 : 0)"
+              @change="(val: unknown) => handleStatusChange(row as Banner, val ? 1 : 0)"
             />
           </template>
         </el-table-column>
@@ -189,9 +190,9 @@ onMounted(fetchList)
         </el-table-column>
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row)">编辑</el-button>
+            <el-button link type="primary" size="small" class="admin-action-btn" @click="openEdit(row as Banner)">编辑</el-button>
             <el-divider direction="vertical" class="admin-action-divider" />
-            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="danger" size="small" class="admin-action-btn" @click="handleDelete(row as Banner)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

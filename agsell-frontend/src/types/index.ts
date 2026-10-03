@@ -385,7 +385,17 @@ export interface TraceabilityCreateRequest {
   certificationUrls?: string[]
 }
 
-export interface TraceabilityUpdateRequest extends TraceabilityCreateRequest {}
+export type TraceabilityUpdateRequest = TraceabilityCreateRequest
+
+/** 轮播图（管理端） */
+export type Banner = {
+  id?: number
+  title: string
+  image: string
+  link?: string
+  sort: number
+  status: number
+}
 
 export interface TraceabilityCreateResultVO {
   id: number

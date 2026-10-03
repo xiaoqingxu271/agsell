@@ -33,7 +33,7 @@ import type {
   SeckillActivityRequest,
   CouponVO,
   CouponRequest,
-  ProductSpecDTO,
+  Banner,
   ProductDetailVO,
   SearchHotWord,
   SearchHotWordRequest,
@@ -159,16 +159,16 @@ export function shipOrder(orderNo: string, data: OrderShipRequest) {
 
 /** 轮播图列表（管理端） */
 export function listAllBanners() {
-  return request.get<any[]>('/admin/banner/list')
+  return request.get<Banner[]>('/admin/banner/list')
 }
 
 /** 新增轮播图 */
-export function createBanner(data: any) {
+export function createBanner(data: Banner) {
   return request.post<null>('/admin/banner', data)
 }
 
 /** 更新轮播图 */
-export function updateBanner(id: number, data: any) {
+export function updateBanner(id: number, data: Partial<Banner>) {
   return request.put<null>(`/admin/banner/${id}`, data)
 }
 
