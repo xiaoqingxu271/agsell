@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>商品管理 - AgSell Admin v4</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'PingFang SC','HarmonyOS Sans SC','Microsoft YaHei','Segoe UI',sans-serif; -webkit-font-smoothing:antialiased; }
+  .canvas { width:1440px; height:900px; background:#F6F8F7; display:flex; overflow:hidden; position:relative; }
+  .aside { width:236px; background:#FFFFFF; border-right:1px solid #E7ECE9; display:flex; flex-direction:column; flex-shrink:0; }
+  .logo { height:64px; display:flex; align-items:center; gap:10px; padding:0 20px; border-bottom:1px solid #F0F3F1; }
+  .logo-badge { width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#15803D,#34C77B); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(21,128,61,0.25); }
+  .logo-txt { font-size:15px; font-weight:700; color:#10231A; } .logo-txt small { display:block; font-size:10px; color:#8A9A91; font-weight:500; letter-spacing:0.06em; }
+  .nav { flex:1; padding:10px 12px; overflow:hidden; }
+  .nav-group { font-size:11px; font-weight:600; color:#A8B4AC; letter-spacing:0.1em; padding:14px 10px 6px; }
+  .nav-item { display:flex; align-items:center; gap:11px; height:40px; padding:0 12px; border-radius:9px; font-size:13.5px; color:#5B6B63; position:relative; cursor:pointer; margin-bottom:2px; }
+  .nav-item:hover { background:#F2F6F3; color:#10231A; }
+  .nav-item .ic { color:#8A9A91; display:flex; }
+  .nav-item.active { background:#EAF6EF; color:#15803D; font-weight:600; }
+  .nav-item.active .ic { color:#15803D; }
+  .nav-item.active::before { content:''; position:absolute; left:-12px; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:0 3px 3px 0; background:#16A34A; }
+  .nav-item .badge { margin-left:auto; font-size:11px; font-weight:600; background:#FEE9E9; color:#B91C1C; border-radius:999px; padding:1px 7px; }
+  .nav-item .badge.green { background:#E8F8EF; color:#166534; }
+  .user-card { margin:10px 12px 14px; padding:12px; border-radius:12px; background:#F6F9F7; border:1px solid #EDF1EE; display:flex; align-items:center; gap:10px; }
+  .avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#15803D,#34C77B); color:#fff; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .user-info { flex:1; min-width:0; } .user-name { font-size:13px; font-weight:600; color:#10231A; } .user-role { font-size:11px; color:#8A9A91; margin-top:1px; }
+  .user-more { color:#A8B4AC; display:flex; }
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+  .header { height:64px; background:#FFFFFF; border-bottom:1px solid #E7ECE9; display:flex; align-items:center; padding:0 24px; gap:16px; flex-shrink:0; }
+  .h-burger { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#5B6B63; cursor:pointer; border:none; background:transparent; }
+  .crumb { font-size:13px; color:#8A9A91; } .crumb b { color:#10231A; font-weight:600; }
+  .h-right { margin-left:auto; display:flex; align-items:center; gap:14px; }
+  .search { width:220px; height:36px; border-radius:10px; border:1px solid #DDE4DF; background:#F7F9F8; display:flex; align-items:center; padding:0 12px; gap:8px; color:#8A9A91; }
+  .search input { border:none; outline:none; background:transparent; font-size:13px; color:#10231A; width:100%; font-family:inherit; }
+  .search .kbd { font-size:10.5px; color:#A8B4AC; background:#EDF1EE; border-radius:5px; padding:1px 6px; border:1px solid #E0E6E2; }
+  .icon-btn { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#5B6B63; cursor:pointer; position:relative; border:none; background:transparent; }
+  .icon-btn:hover { background:#F2F6F3; color:#15803D; }
+  .dot { position:absolute; top:8px; right:9px; width:7px; height:7px; border-radius:50%; background:#DC2626; border:1.5px solid #fff; }
+  .h-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#15803D,#34C77B); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .content { flex:1; padding:22px 24px 16px; overflow:hidden; }
+  .page-head { display:flex; align-items:flex-end; margin-bottom:14px; }
+  .page-title { font-size:22px; font-weight:700; color:#10231A; }
+  .page-desc { font-size:13px; color:#8A9A91; margin-top:4px; }
+  .page-actions { margin-left:auto; display:flex; gap:10px; }
+  .btn { display:inline-flex; align-items:center; gap:7px; height:34px; padding:0 14px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:inherit; }
+  .btn-primary { background:#15803D; color:#fff; box-shadow:0 4px 12px rgba(21,128,61,0.22); }
+  .btn-primary:hover { background:#166534; }
+  .btn-ghost { background:#fff; border:1px solid #DDE4DF; color:#5B6B63; }
+  .btn-ghost:hover { border-color:#15803D; color:#15803D; background:#F0FBF4; }
+  /* 状态 tab */
+  .tabs { display:flex; gap:4px; margin-bottom:14px; }
+  .tab { padding:7px 16px; border-radius:999px; font-size:13px; color:#5B6B63; cursor:pointer; background:#fff; border:1px solid #E7ECE9; display:flex; align-items:center; gap:7px; }
+  .tab:hover { border-color:#B8D9C6; color:#15803D; }
+  .tab.on { background:#10231A; color:#fff; border-color:#10231A; font-weight:600; }
+  .tab .cnt { font-size:11px; background:#F2F5F3; border-radius:999px; padding:1px 7px; color:#5B6B63; font-variant-numeric:tabular-nums; }
+  .tab.on .cnt { background:rgba(255,255,255,0.18); color:#fff; }
+  .tab .pt { width:7px; height:7px; border-radius:50%; }
+  /* 工具条 */
+  .toolbar { display:flex; align-items:center; gap:10px; margin-bottom:12px; background:#fff; border:1px solid #E7ECE9; border-radius:12px; padding:10px 14px; box-shadow:0 1px 3px rgba(16,24,40,0.04); }
+  .t-input { display:flex; align-items:center; gap:8px; height:34px; border:1px solid #DDE4DF; border-radius:9px; padding:0 12px; color:#8A9A91; background:#fff; width:230px; }
+  .t-input input { border:none; outline:none; font-size:13px; color:#10231A; width:100%; font-family:inherit; background:transparent; }
+  .t-select { display:flex; align-items:center; gap:8px; height:34px; border:1px solid #DDE4DF; border-radius:9px; padding:0 12px; font-size:13px; color:#5B6B63; background:#fff; cursor:pointer; }
+  .t-select:hover { border-color:#15803D; }
+  .toolbar .spacer { flex:1; }
+  .btn-sm { height:32px; padding:0 12px; font-size:12.5px; border-radius:8px; }
+  .btn-text { background:transparent; color:#5B6B63; border:none; display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:12.5px; font-weight:500; font-family:inherit; }
+  .btn-text:hover { color:#15803D; }
+  /* 批量条 */
+  .bulkbar { display:flex; align-items:center; gap:10px; background:#EAF6EF; border:1px solid #CBE9D8; border-radius:10px; padding:8px 14px; margin-bottom:12px; font-size:13px; color:#166534; }
+  .bulkbar b { font-weight:700; }
+  .bulk-actions { margin-left:auto; display:flex; gap:8px; }
+  .bbtn { height:28px; padding:0 12px; border-radius:7px; font-size:12px; font-weight:600; border:none; cursor:pointer; font-family:inherit; background:#fff; color:#166534; border:1px solid #B8D9C6; }
+  .bbtn:hover { background:#15803D; color:#fff; }
+  .bbtn.danger { color:#B91C1C; border-color:#F5C6C6; }
+  .bbtn.danger:hover { background:#DC2626; color:#fff; }
+  /* 表格 */
+  .table-card { background:#fff; border:1px solid #E7ECE9; border-radius:14px; overflow:hidden; box-shadow:0 1px 3px rgba(16,24,40,0.04); }
+  table { width:100%; border-collapse:collapse; }
+  thead th { background:#F7F9F8; font-size:12px; font-weight:600; color:#5B6B63; text-align:left; padding:11px 16px; border-bottom:1px solid #EDF1EE; white-space:nowrap; }
+  tbody td { padding:9px 16px; font-size:13.5px; color:#10231A; border-bottom:1px solid #F3F6F4; vertical-align:middle; }
+  tbody tr { transition:background .12s; }
+  tbody tr:hover { background:#F6FAF7; }
+  tbody tr.hover-demo { background:#F0F9F3; box-shadow:inset 3px 0 0 #15803D; }
+  .cb { width:16px; height:16px; border-radius:5px; border:1.5px solid #C8D3CC; background:#fff; display:inline-block; vertical-align:-3px; }
+  .cb.on { background:#15803D; border-color:#15803D; position:relative; }
+  .cb.on::after { content:''; position:absolute; left:4.5px; top:2px; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); }
+  .p-cell { display:flex; align-items:center; gap:12px; }
+  .p-thumb { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; }
+  .p-name { font-size:13.5px; font-weight:600; color:#10231A; }
+  .p-sub { font-size:11.5px; color:#8A9A91; margin-top:2px; }
+  .price { color:#D97706; font-weight:700; font-variant-numeric:tabular-nums; }
+  .stock { font-variant-numeric:tabular-nums; font-weight:600; }
+  .stock.warn { color:#B91C1C; }
+  .tag { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; }
+  .tag.green { background:#E8F8EF; color:#166534; }
+  .tag.gold { background:#FFF4E0; color:#92400E; }
+  .tag.gray { background:#F1F3F2; color:#5B6B63; }
+  .tag .tdot { width:6px; height:6px; border-radius:50%; }
+  .ops { display:flex; gap:2px; justify-content:flex-end; }
+  .op { font-size:12.5px; color:#5B6B63; border:none; background:transparent; padding:5px 9px; border-radius:7px; cursor:pointer; font-family:inherit; }
+  .op:hover { background:#EAF6EF; color:#15803D; }
+  .op.primary { color:#15803D; font-weight:600; background:#EAF6EF; }
+  .op.danger:hover { background:#FEE9E9; color:#B91C1C; }
+  .op .spin { display:inline-block; width:12px; height:12px; border:2px solid #B8D9C6; border-top-color:#15803D; border-radius:50%; vertical-align:-2px; margin-right:4px; animation:rot .8s linear infinite; }
+  @keyframes rot { to { transform:rotate(360deg); } }
+  /* 分页 */
+  .pager { display:flex; align-items:center; gap:6px; padding:12px 16px; justify-content:flex-end; font-size:13px; color:#5B6B63; }
+  .pager .info { margin-right:auto; font-size:12.5px; color:#8A9A91; }
+  .pg { min-width:30px; height:30px; padding:0 6px; border-radius:8px; border:1px solid #E7ECE9; background:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; color:#5B6B63; cursor:pointer; font-family:inherit; }
+  .pg:hover { border-color:#15803D; color:#15803D; }
+  .pg.on { background:#15803D; color:#fff; border-color:#15803D; font-weight:600; }
+  .pg.dots { border:none; background:transparent; }
+  .marker { position:absolute; font-size:11px; color:#5B6B63; background:#fff; border:1px dashed #B8C9BF; border-radius:8px; padding:5px 10px; z-index:6; box-shadow:0 2px 8px rgba(16,24,40,0.06); }
+  .marker b { color:#15803D; font-weight:600; }
+  .footer-note { position:absolute; right:22px; bottom:10px; font-size:11px; color:#A8B4AC; letter-spacing:0.05em; z-index:5; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <!-- 侧栏 -->
+  <div class="aside">
+    <div class="logo">
+      <div class="logo-badge"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c-2 0-3.4-1.2-3.8-3.4"/><path d="M12 15.2c-2.4 0-4-1.3-4.4-3.8"/><path d="M12 17.6c-2.8 0-4.7-1.4-5-4.2"/><path d="M12 13c2 0 3.4-1.2 3.8-3.4"/><path d="M12 15.2c2.4 0 4-1.3 4.4-3.8"/><path d="M12 17.6c2.8 0 4.7-1.4 5-4.2"/><path d="M12 12.3c-.8-1.1-1.3-2.4-1.3-4 0-.8.2-1.5.5-2.2"/><path d="M12 12.3c.8-1.1 1.3-2.4 1.3-4 0-.8-.2-1.5-.5-2.2"/></svg></div>
+      <div class="logo-txt">农臻 AgSell<small>运营管理后台</small></div>
+    </div>
+    <div class="nav">
+      <div class="nav-group">运营</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-5 4 3 5-7"/></svg></span>数据概览</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></span>订单管理<span class="badge">24</span></div>
+      <div class="nav-item active"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>商品管理<span class="badge green">6</span></div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>用户管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/></svg></span>评价管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg></span>售后管理<span class="badge">5</span></div>
+      <div class="nav-group">内容</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg></span>分类管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span>轮播图管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>产地溯源</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>秒杀管理</div>
+      <div class="nav-group">系统</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>系统管理</div>
+    </div>
+    <div class="user-card">
+      <div class="avatar">陈</div>
+      <div class="user-info"><div class="user-name">陈运营</div><div class="user-role">超级管理员</div></div>
+      <span class="user-more"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+    </div>
+  </div>
+
+  <!-- 主区 -->
+  <div class="main">
+    <div class="header">
+      <button class="h-burger"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <span class="crumb">首页 / <b>商品管理</b></span>
+      <div class="h-right">
+        <div class="search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input placeholder="搜索订单、商品、用户…"><span class="kbd">⌘K</span>
+        </div>
+        <button class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot"></span></button>
+        <div class="h-avatar">陈</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="page-head">
+        <div>
+          <div class="page-title">商品管理</div>
+          <div class="page-desc">管理商品上架、库存与信息维护</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            导出
+          </button>
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            新增商品
+          </button>
+        </div>
+      </div>
+
+      <!-- 状态 tab -->
+      <div class="tabs">
+        <div class="tab on">全部 <span class="cnt">486</span></div>
+        <div class="tab"><span class="pt" style="background:#16A34A"></span>在售 <span class="cnt">428</span></div>
+        <div class="tab"><span class="pt" style="background:#C8D3CC"></span>已下架 <span class="cnt">58</span></div>
+        <div class="tab"><span class="pt" style="background:#F59E0B"></span>库存预警 <span class="cnt">12</span></div>
+      </div>
+
+      <!-- 工具条 -->
+      <div class="toolbar">
+        <div class="t-input">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input placeholder="搜索商品名称、副标题">
+        </div>
+        <div class="t-select">全部分类
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="t-select">全部状态
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <button class="btn btn-primary btn-sm">搜 索</button>
+        <button class="btn btn-ghost btn-sm">重置</button>
+        <div class="spacer"></div>
+        <button class="btn-text">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v5h-5"/></svg>
+          刷新
+        </button>
+      </div>
+
+      <!-- 批量操作条（勾选后浮现） -->
+      <div class="bulkbar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        已选择 <b>2</b> 件商品
+        <div class="bulk-actions">
+          <button class="bbtn">批量上架</button>
+          <button class="bbtn">批量下架</button>
+          <button class="bbtn danger">删除</button>
+        </div>
+      </div>
+
+      <!-- 表格 -->
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px"><span class="cb"></span></th>
+              <th style="width:320px">商品</th>
+              <th style="width:110px">分类</th>
+              <th style="width:120px">价格</th>
+              <th style="width:100px">库存</th>
+              <th style="width:110px">状态</th>
+              <th style="text-align:right">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="cb on"></span></td>
+              <td><div class="p-cell"><div class="p-thumb" style="background:linear-gradient(135deg,#FDE68A,#F59E0B)"><svg width="24" height="24" viewBox="0 0 24 24" fill="#B45309" opacity="0.85"><circle cx="9" cy="15" r="6"/><circle cx="15" cy="14" r="5.5"/><path d="M12 6c-1-4 2-6 5-5-1 3-2 5-5 5z"/></svg></div><div><div class="p-name">有机红富士苹果 5斤装</div><div class="p-sub">新鲜采摘 · 甜脆多汁 · 产地直发</div></div></div></td>
+              <td style="color:#5B6B63">水果</td>
+              <td class="price">¥ 29.90</td>
+              <td class="stock">328</td>
+              <td><span class="tag green"><span class="tdot" style="background:#16A34A"></span>上架中</span></td>
+              <td><div class="ops"><button class="op">编辑</button><button class="op">下架</button><button class="op danger">删除</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="cb on"></span></td>
+              <td><div class="p-cell"><div class="p-thumb" style="background:linear-gradient(135deg,#FEF3E2,#E8C08A)"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 8h16l-1.5 12a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8L4 8z" fill="#C99A5B"/><path d="M8 8V6a4 4 0 0 1 8 0v2" fill="none" stroke="#A97B3F" stroke-width="1.6"/></svg></div><div><div class="p-name">五常大米 10斤装</div><div class="p-sub">稻花香二号 · 当季新米</div></div></div></td>
+              <td style="color:#5B6B63">粮油</td>
+              <td class="price">¥ 79.00</td>
+              <td class="stock">152</td>
+              <td><span class="tag green"><span class="tdot" style="background:#16A34A"></span>上架中</span></td>
+              <td><div class="ops"><button class="op">编辑</button><button class="op">下架</button><button class="op danger">删除</button></div></td>
+            </tr>
+            <tr class="hover-demo">
+              <td><span class="cb"></span></td>
+              <td><div class="p-cell"><div class="p-thumb" style="background:linear-gradient(135deg,#FECACA,#EF4444)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="8" cy="15" r="6" fill="#B91C1C" opacity="0.85"/><circle cx="16" cy="15" r="6" fill="#DC2626" opacity="0.8"/><path d="M12 7c-1-4 2-6 5-5-1 3-2 5-5 5z" fill="#16A34A"/></svg></div><div><div class="p-name">山东大樱桃 2斤装</div><div class="p-sub">顺丰空运 · 果肉饱满</div></div></div></td>
+              <td style="color:#5B6B63">水果</td>
+              <td class="price">¥ 68.00</td>
+              <td class="stock warn">12</td>
+              <td><span class="tag gold"><span class="tdot" style="background:#F59E0B"></span>库存预警</span></td>
+              <td><div class="ops"><button class="op primary">补货</button><button class="op">编辑</button><button class="op danger">删除</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="cb"></span></td>
+              <td><div class="p-cell"><div class="p-thumb" style="background:linear-gradient(135deg,#FEF9C3,#EAB308)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7" fill="#CA8A04" opacity="0.85"/><circle cx="9" cy="10" r="1.6" fill="#FFF"/><circle cx="15" cy="10" r="1.6" fill="#FFF"/></svg></div><div><div class="p-name">云南鲜花饼 6枚装</div><div class="p-sub">现烤现发 · 玫瑰馅料</div></div></div></td>
+              <td style="color:#5B6B63">烘焙</td>
+              <td class="price">¥ 36.80</td>
+              <td class="stock">86</td>
+              <td><span class="tag green"><span class="tdot" style="background:#16A34A"></span>上架中</span></td>
+              <td><div class="ops"><button class="op">编辑</button><button class="op">下架</button><button class="op danger">删除</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="cb"></span></td>
+              <td><div class="p-cell"><div class="p-thumb" style="background:linear-gradient(135deg,#D6D3D1,#78716C)"><svg width="24" height="24" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="7" ry="5" fill="#57534E" opacity="0.8"/><circle cx="12" cy="12" r="5" fill="#A8A29E"/></svg></div><div><div class="p-name">长白山松子 500g</div><div class="p-sub">手剥开口 · 颗粒饱满</div></div></div></td>
+              <td style="color:#5B6B63">坚果</td>
+              <td class="price">¥ 58.00</td>
+              <td class="stock warn">0</td>
+              <td><span class="tag gray"><span class="tdot" style="background:#9CA3AF"></span>已下架</span></td>
+              <td><div class="ops"><button class="op"><span class="spin"></span>下架中</button><button class="op">编辑</button><button class="op danger">删除</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="cb"></span></td>
+              <td><div class="p-cell"><div class="p-thumb" style="background:linear-gradient(135deg,#FDE68A,#F59E0B)"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="7" cy="15" r="6" fill="#D97706" opacity="0.85"/><circle cx="16" cy="14" r="5.5" fill="#F59E0B"/><path d="M12 5c-1-4 2-6 5-5-1 3-2 5-5 5z" fill="#16A34A"/></svg></div><div><div class="p-name">赣南脐橙 10斤装</div><div class="p-sub">产地直发 · 皮薄多汁</div></div></div></td>
+              <td style="color:#5B6B63">水果</td>
+              <td class="price">¥ 42.50</td>
+              <td class="stock">240</td>
+              <td><span class="tag green"><span class="tdot" style="background:#16A34A"></span>上架中</span></td>
+              <td><div class="ops"><button class="op">编辑</button><button class="op">下架</button><button class="op danger">删除</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="cb"></span></td>
+              <td><div class="p-cell"><div class="p-thumb" style="background:linear-gradient(135deg,#EDE7D7,#C9BDA0)"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 18c4-1 6-6 8-12" stroke="#A17B4F" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M7 19c4-1 6-5 7-10" stroke="#B08A5C" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M10 20c3-1 5-4 6-8" stroke="#C49A6A" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div><div><div class="p-name">手工红薯粉条 3斤装</div><div class="p-sub">农家自制 · 久煮不糊</div></div></div></td>
+              <td style="color:#5B6B63">粮油</td>
+              <td class="price">¥ 25.90</td>
+              <td class="stock">64</td>
+              <td><span class="tag green"><span class="tdot" style="background:#16A34A"></span>上架中</span></td>
+              <td><div class="ops"><button class="op">编辑</button><button class="op">下架</button><button class="op danger">删除</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pager">
+          <span class="info">共 486 条 · 每页 10 条</span>
+          <button class="pg">&lt;</button>
+          <button class="pg on">1</button><button class="pg">2</button><button class="pg">3</button><button class="pg">4</button><button class="pg dots">…</button><button class="pg">49</button>
+          <button class="pg">&gt;</button>
+        </div>
+      </div>
+
+      <div class="marker" style="top:238px; left:1045px;"><b>状态 Tab</b> · 带计数快速筛选，预警金色突出</div>
+    </div>
+  </div>
+  <div class="footer-note">AgSell Admin · Design Mockup v4.0 · 商品管理 · 示意数据</div>
+</div>
+</body>
+</html>

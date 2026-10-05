@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>数据概览 - AgSell Admin v4</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'PingFang SC','HarmonyOS Sans SC','Microsoft YaHei','Segoe UI',sans-serif; -webkit-font-smoothing:antialiased; }
+  .canvas { width:1440px; height:1020px; background:#F6F8F7; display:flex; overflow:hidden; }
+  /* ── 侧栏 ── */
+  .aside { width:236px; background:#FFFFFF; border-right:1px solid #E7ECE9; display:flex; flex-direction:column; flex-shrink:0; }
+  .logo { height:64px; display:flex; align-items:center; gap:10px; padding:0 20px; border-bottom:1px solid #F0F3F1; }
+  .logo-badge { width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#15803D,#34C77B); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(21,128,61,0.25); }
+  .logo-txt { font-size:15px; font-weight:700; color:#10231A; }
+  .logo-txt small { display:block; font-size:10px; color:#8A9A91; font-weight:500; letter-spacing:0.06em; }
+  .nav { flex:1; padding:10px 12px; overflow:hidden; }
+  .nav-group { font-size:11px; font-weight:600; color:#A8B4AC; letter-spacing:0.1em; padding:14px 10px 6px; }
+  .nav-item { display:flex; align-items:center; gap:11px; height:40px; padding:0 12px; border-radius:9px; font-size:13.5px; color:#5B6B63; position:relative; cursor:pointer; margin-bottom:2px; transition:background .15s; }
+  .nav-item:hover { background:#F2F6F3; color:#10231A; }
+  .nav-item .ic { color:#8A9A91; display:flex; }
+  .nav-item:hover .ic { color:#22A55A; }
+  .nav-item.active { background:#EAF6EF; color:#15803D; font-weight:600; }
+  .nav-item.active .ic { color:#15803D; }
+  .nav-item.active::before { content:''; position:absolute; left:-12px; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:0 3px 3px 0; background:#16A34A; }
+  .nav-item .badge { margin-left:auto; font-size:11px; font-weight:600; background:#FEE9E9; color:#B91C1C; border-radius:999px; padding:1px 7px; }
+  .nav-item .badge.green { background:#E8F8EF; color:#166534; }
+  .user-card { margin:10px 12px 14px; padding:12px; border-radius:12px; background:#F6F9F7; border:1px solid #EDF1EE; display:flex; align-items:center; gap:10px; }
+  .avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#15803D,#34C77B); color:#fff; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .user-info { flex:1; min-width:0; }
+  .user-name { font-size:13px; font-weight:600; color:#10231A; }
+  .user-role { font-size:11px; color:#8A9A91; margin-top:1px; }
+  .user-more { color:#A8B4AC; display:flex; }
+  /* ── 主区 ── */
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+  .header { height:64px; background:#FFFFFF; border-bottom:1px solid #E7ECE9; display:flex; align-items:center; padding:0 24px; gap:16px; flex-shrink:0; }
+  .h-burger { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#5B6B63; cursor:pointer; border:none; background:transparent; }
+  .h-burger:hover { background:#F2F6F3; color:#15803D; }
+  .crumb { font-size:13px; color:#8A9A91; }
+  .crumb b { color:#10231A; font-weight:600; }
+  .h-right { margin-left:auto; display:flex; align-items:center; gap:14px; }
+  .search { width:220px; height:36px; border-radius:10px; border:1px solid #DDE4DF; background:#F7F9F8; display:flex; align-items:center; padding:0 12px; gap:8px; color:#8A9A91; }
+  .search input { border:none; outline:none; background:transparent; font-size:13px; color:#10231A; width:100%; font-family:inherit; }
+  .search .kbd { font-size:10.5px; color:#A8B4AC; background:#EDF1EE; border-radius:5px; padding:1px 6px; border:1px solid #E0E6E2; }
+  .icon-btn { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#5B6B63; cursor:pointer; position:relative; border:none; background:transparent; }
+  .icon-btn:hover { background:#F2F6F3; color:#15803D; }
+  .dot { position:absolute; top:8px; right:9px; width:7px; height:7px; border-radius:50%; background:#DC2626; border:1.5px solid #fff; }
+  .h-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#15803D,#34C77B); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  /* ── 内容 ── */
+  .content { flex:1; padding:24px 24px 20px; overflow:hidden; }
+  .page-head { display:flex; align-items:flex-end; margin-bottom:20px; }
+  .page-title { font-size:22px; font-weight:700; color:#10231A; letter-spacing:0.01em; }
+  .page-desc { font-size:13px; color:#8A9A91; margin-top:4px; }
+  .page-actions { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .seg { display:flex; background:#EDF1EE; border-radius:9px; padding:3px; }
+  .seg button { border:none; background:transparent; font-size:12.5px; font-weight:500; color:#5B6B63; padding:6px 14px; border-radius:7px; cursor:pointer; font-family:inherit; }
+  .seg button.on { background:#fff; color:#15803D; font-weight:600; box-shadow:0 2px 6px rgba(16,24,40,0.08); }
+  .btn { display:inline-flex; align-items:center; gap:7px; height:34px; padding:0 14px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:inherit; }
+  .btn-primary { background:#15803D; color:#fff; box-shadow:0 4px 12px rgba(21,128,61,0.22); }
+  .btn-primary:hover { background:#166534; box-shadow:0 6px 16px rgba(21,128,61,0.3); }
+  .btn-ghost { background:#fff; border:1px solid #DDE4DF; color:#5B6B63; }
+  .btn-ghost:hover { border-color:#15803D; color:#15803D; background:#F0FBF4; }
+  /* 指标带 */
+  .kpi-row { display:flex; gap:16px; margin-bottom:16px; }
+  .kpi-main { flex:0 0 300px; border-radius:16px; padding:22px 24px; color:#fff; position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#0E3B25 0%,#15803D 62%,#22A55A 100%); box-shadow:0 12px 28px rgba(21,128,61,0.30); }
+  .kpi-main::after { content:''; position:absolute; right:-70px; top:-70px; width:220px; height:220px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.16); box-shadow:0 0 0 26px rgba(255,255,255,0.05), 0 0 0 52px rgba(255,255,255,0.03); }
+  .kpi-main .k-label { font-size:13px; color:rgba(255,255,255,0.75); display:flex; align-items:center; gap:8px; }
+  .kpi-main .k-label .pill { font-size:10.5px; background:rgba(255,255,255,0.16); border-radius:999px; padding:2px 8px; }
+  .kpi-main .k-value { font-size:34px; font-weight:700; margin:10px 0 6px; letter-spacing:-0.01em; font-variant-numeric:tabular-nums; }
+  .kpi-main .k-trend { font-size:12px; color:rgba(255,255,255,0.82); display:flex; align-items:center; gap:8px; }
+  .kpi-main .up { background:rgba(255,255,255,0.18); border-radius:999px; padding:2px 9px; font-weight:600; }
+  .kpi-main .k-spark { position:absolute; right:22px; bottom:18px; opacity:0.9; }
+  .kpi-card { flex:1; background:#fff; border:1px solid #E7ECE9; border-radius:16px; padding:18px 20px; box-shadow:0 1px 3px rgba(16,24,40,0.04); position:relative; transition:box-shadow .2s, transform .2s; }
+  .kpi-card:hover { box-shadow:0 8px 24px rgba(16,24,40,0.08); transform:translateY(-2px); }
+  .kpi-card .k-top { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .k-ic { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+  .k-ic.green { background:#E8F8EF; color:#15803D; }
+  .k-ic.gold { background:#FFF4E0; color:#D97706; }
+  .k-ic.blue { background:#E8F1FB; color:#2563EB; }
+  .k-ic.violet { background:#F1EDFC; color:#7C3AED; }
+  .kpi-card .k-label { font-size:12.5px; color:#5B6B63; }
+  .kpi-card .k-value { font-size:25px; font-weight:700; color:#10231A; font-variant-numeric:tabular-nums; line-height:1.15; }
+  .kpi-card .k-value small { font-size:13px; font-weight:600; color:#8A9A91; margin-left:2px; }
+  .kpi-card .k-trend { margin-top:6px; font-size:12px; color:#8A9A91; display:flex; align-items:center; gap:6px; }
+  .up-badge { color:#15803D; font-weight:600; }
+  .down-badge { color:#DC2626; font-weight:600; }
+  /* 中区 */
+  .mid-row { display:flex; gap:16px; margin-bottom:16px; }
+  .panel { background:#fff; border:1px solid #E7ECE9; border-radius:16px; box-shadow:0 1px 3px rgba(16,24,40,0.04); }
+  .panel-head { display:flex; align-items:center; padding:18px 22px 0; }
+  .panel-title { font-size:15px; font-weight:700; color:#10231A; }
+  .panel-sub { font-size:12px; color:#8A9A91; margin-top:2px; }
+  .panel-legend { margin-left:auto; display:flex; gap:16px; font-size:12px; color:#5B6B63; }
+  .legend-dot { display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:6px; vertical-align:0; }
+  .trend-panel { flex:0 0 calc(66.66% - 8px); }
+  .todo-panel { flex:1; }
+  .chart-wrap { padding:14px 22px 18px; }
+  .todo-list { padding:12px 12px 16px; }
+  .todo-item { display:flex; align-items:center; gap:12px; padding:12px 10px; border-radius:11px; cursor:pointer; transition:background .15s; }
+  .todo-item:hover { background:#F6F9F7; }
+  .todo-item + .todo-item { border-top:1px solid #F3F6F4; }
+  .t-ic { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .t-info { flex:1; }
+  .t-name { font-size:13px; font-weight:600; color:#10231A; }
+  .t-desc { font-size:11.5px; color:#8A9A91; margin-top:2px; }
+  .t-num { font-size:17px; font-weight:700; color:#10231A; font-variant-numeric:tabular-nums; }
+  .t-btn { font-size:12px; font-weight:600; color:#15803D; background:#EAF6EF; border:none; border-radius:7px; padding:6px 12px; cursor:pointer; font-family:inherit; }
+  .t-btn:hover { background:#DDF3E6; }
+  /* 次图区 */
+  .sub-row { display:flex; gap:16px; }
+  .sub-panel { flex:1; background:#fff; border:1px solid #E7ECE9; border-radius:16px; box-shadow:0 1px 3px rgba(16,24,40,0.04); }
+  .sub-body { padding:10px 20px 16px; display:flex; align-items:center; gap:8px; }
+  .donut-wrap { width:118px; height:118px; flex-shrink:0; }
+  .donut-info { flex:1; }
+  .d-row { display:flex; align-items:center; justify-content:space-between; font-size:12px; padding:5px 0; }
+  .d-row .d-name { display:flex; align-items:center; gap:7px; color:#5B6B63; }
+  .d-row .d-val { font-weight:600; color:#10231A; font-variant-numeric:tabular-nums; }
+  .d-dot { width:8px; height:8px; border-radius:3px; }
+  .marker { position:absolute; font-size:11px; color:#5B6B63; background:#fff; border:1px dashed #B8C9BF; border-radius:8px; padding:5px 10px; z-index:6; box-shadow:0 2px 8px rgba(16,24,40,0.06); }
+  .marker b { color:#15803D; font-weight:600; }
+  .footer-note { position:absolute; right:22px; bottom:12px; font-size:11px; color:#A8B4AC; letter-spacing:0.05em; z-index:5; }
+</style>
+</head>
+<body>
+<div class="canvas" style="position:relative">
+
+  <!-- 侧栏 -->
+  <div class="aside">
+    <div class="logo">
+      <div class="logo-badge"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c-2 0-3.4-1.2-3.8-3.4"/><path d="M12 15.2c-2.4 0-4-1.3-4.4-3.8"/><path d="M12 17.6c-2.8 0-4.7-1.4-5-4.2"/><path d="M12 13c2 0 3.4-1.2 3.8-3.4"/><path d="M12 15.2c2.4 0 4-1.3 4.4-3.8"/><path d="M12 17.6c2.8 0 4.7-1.4 5-4.2"/><path d="M12 12.3c-.8-1.1-1.3-2.4-1.3-4 0-.8.2-1.5.5-2.2"/><path d="M12 12.3c.8-1.1 1.3-2.4 1.3-4 0-.8-.2-1.5-.5-2.2"/></svg></div>
+      <div class="logo-txt">农臻 AgSell<small>运营管理后台</small></div>
+    </div>
+    <div class="nav">
+      <div class="nav-group">运营</div>
+      <div class="nav-item active"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-5 4 3 5-7"/></svg></span>数据概览</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></span>订单管理<span class="badge">24</span></div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>商品管理<span class="badge green">6</span></div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>用户管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/></svg></span>评价管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg></span>售后管理<span class="badge">5</span></div>
+      <div class="nav-group">内容</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg></span>分类管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span>轮播图管理</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>产地溯源</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>秒杀管理</div>
+      <div class="nav-group">系统</div>
+      <div class="nav-item"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>系统管理</div>
+    </div>
+    <div class="user-card">
+      <div class="avatar">陈</div>
+      <div class="user-info"><div class="user-name">陈运营</div><div class="user-role">超级管理员</div></div>
+      <span class="user-more"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+    </div>
+  </div>
+
+  <!-- 主区 -->
+  <div class="main">
+    <!-- 顶栏 -->
+    <div class="header">
+      <button class="h-burger"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <span class="crumb">首页 / <b>数据概览</b></span>
+      <div class="h-right">
+        <div class="search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input placeholder="搜索订单、商品、用户…">
+          <span class="kbd">⌘K</span>
+        </div>
+        <button class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot"></span></button>
+        <button class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+        <div class="h-avatar">陈</div>
+      </div>
+    </div>
+
+    <!-- 内容 -->
+    <div class="content">
+      <div class="page-head">
+        <div>
+          <div class="page-title">数据概览</div>
+          <div class="page-desc">平台核心运营指标与业务趋势 · 数据每 10 分钟自动刷新</div>
+        </div>
+        <div class="page-actions">
+          <div class="seg">
+            <button class="on">近 7 天</button>
+            <button>近 30 天</button>
+          </div>
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v5h-5"/></svg>
+            刷新
+          </button>
+        </div>
+      </div>
+
+      <!-- 指标带 -->
+      <div class="kpi-row">
+        <div class="kpi-main">
+          <div class="k-label">今日销售总额 <span class="pill">实时</span></div>
+          <div class="k-value">¥ 128,430.50</div>
+          <div class="k-trend">较昨日 <span class="up">↑ 8.2%</span>&nbsp;· 订单 326 笔</div>
+          <svg class="k-spark" width="96" height="34" viewBox="0 0 96 34" fill="none">
+            <path d="M2 28 L16 24 L30 26 L44 18 L58 20 L72 12 L86 14 L94 6" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M2 28 L16 24 L30 26 L44 18 L58 20 L72 12 L86 14 L94 6 V34 H2 Z" fill="url(#sparkg)"/>
+            <defs><linearGradient id="sparkg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,0.28)"/><stop offset="1" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>
+          </svg>
+        </div>
+        <div class="kpi-card">
+          <div class="k-top"><div class="k-ic green"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 20V10M12 20V10"/><path d="M5 20h14"/><path d="M12 20V10"/><path d="M5 14l7-9 7 9"/></svg></div><span class="k-label">今日新增用户</span></div>
+          <div class="k-value">126<small>人</small></div>
+          <div class="k-trend"><span class="up-badge">↑ 12.5%</span>较昨日</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-top"><div class="k-ic blue"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="k-label">今日活跃用户</span></div>
+          <div class="k-value">1,028<small>人</small></div>
+          <div class="k-trend"><span class="up-badge">↑ 3.1%</span>较昨日</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-top"><div class="k-ic violet"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></div><span class="k-label">订单总数</span></div>
+          <div class="k-value">3,286<small>单</small></div>
+          <div class="k-trend"><span class="up-badge">↑ 5.8%</span>较上周同期</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-top"><div class="k-ic gold"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><span class="k-label">在售商品</span></div>
+          <div class="k-value">428<small>件</small></div>
+          <div class="k-trend"><span class="down-badge">↓ 6 件</span>库存预警</div>
+        </div>
+      </div>
+
+      <!-- 中区：趋势 + 待办 -->
+      <div class="mid-row">
+        <div class="panel trend-panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">销售与订单趋势</div>
+              <div class="panel-sub">近 7 天销售额（万元）与订单量</div>
+            </div>
+            <div class="panel-legend">
+              <span><span class="legend-dot" style="background:#15803D"></span>销售额</span>
+              <span><span class="legend-dot" style="background:#F59E0B"></span>订单量</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <svg width="742" height="216" viewBox="0 0 742 216" fill="none">
+              <!-- 网格 -->
+              <g stroke="#EFF3F0">
+                <line x1="34" y1="30" x2="716" y2="30"/><line x1="34" y1="76" x2="716" y2="76"/>
+                <line x1="34" y1="122" x2="716" y2="122"/><line x1="34" y1="168" x2="716" y2="168"/>
+              </g>
+              <!-- Y 轴文字 -->
+              <g fill="#A8B4AC" font-size="10.5" font-family="inherit">
+                <text x="0" y="33">20万</text><text x="0" y="79">15万</text>
+                <text x="4" y="125">10万</text><text x="4" y="171">5万</text><text x="4" y="203">0</text>
+              </g>
+              <!-- 柱子 -->
+              <g>
+                <rect x="44"  y="96"  width="40" height="72" rx="5" fill="#15803D" opacity="0.82"/>
+                <rect x="140" y="72"  width="40" height="96" rx="5" fill="#15803D" opacity="0.82"/>
+                <rect x="236" y="84"  width="40" height="84" rx="5" fill="#15803D" opacity="0.82"/>
+                <rect x="332" y="52"  width="40" height="116" rx="5" fill="#22A55A"/>
+                <rect x="428" y="60"  width="40" height="108" rx="5" fill="#22A55A"/>
+                <rect x="524" y="34"  width="40" height="134" rx="5" fill="#22A55A"/>
+                <rect x="620" y="22"  width="40" height="146" rx="5" fill="#34C77B"/>
+              </g>
+              <!-- 柱顶数值 -->
+              <g fill="#10231A" font-size="10.5" font-weight="600" font-family="inherit" text-anchor="middle">
+                <text x="64" y="89">8.2</text><text x="160" y="65">9.6</text><text x="256" y="77">8.8</text>
+                <text x="352" y="45">11.2</text><text x="448" y="53">10.4</text><text x="544" y="27">12.8</text><text x="660" y="15">14.3</text>
+              </g>
+              <!-- 订单量折线 -->
+              <g fill="none">
+                <path d="M64 138 L160 128 L256 135 L352 106 L448 113 L544 90 L660 76" stroke="#F59E0B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <g fill="#F59E0B">
+                <circle cx="64" cy="138" r="4" stroke="#fff" stroke-width="2"/>
+                <circle cx="160" cy="128" r="4" stroke="#fff" stroke-width="2"/>
+                <circle cx="256" cy="135" r="4" stroke="#fff" stroke-width="2"/>
+                <circle cx="352" cy="106" r="4.5" stroke="#fff" stroke-width="2"/>
+                <circle cx="448" cy="113" r="4.5" stroke="#fff" stroke-width="2"/>
+                <circle cx="544" cy="90" r="4.5" stroke="#fff" stroke-width="2"/>
+                <circle cx="660" cy="76" r="5" stroke="#fff" stroke-width="2.5"/>
+              </g>
+              <g fill="#8A9A91" font-size="11" font-family="inherit" text-anchor="middle">
+                <text x="64" y="202">09/12</text><text x="160" y="202">09/13</text><text x="256" y="202">09/14</text>
+                <text x="352" y="202">09/15</text><text x="448" y="202">09/16</text><text x="544" y="202">09/17</text><text x="660" y="202">09/18</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 待办 -->
+        <div class="panel todo-panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">经营待办</div>
+              <div class="panel-sub">需要及时处理的业务事项</div>
+            </div>
+          </div>
+          <div class="todo-list">
+            <div class="todo-item">
+              <div class="t-ic" style="background:#FFF4E0;color:#D97706"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></div>
+              <div class="t-info"><div class="t-name">待发货订单</div><div class="t-desc">最久已等待 3 小时</div></div>
+              <div class="t-num">214</div>
+              <button class="t-btn">去处理</button>
+            </div>
+            <div class="todo-item">
+              <div class="t-ic" style="background:#E8F1FB;color:#2563EB"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/></svg></div>
+              <div class="t-info"><div class="t-name">待审核评价</div><div class="t-desc">含 6 条低分评价</div></div>
+              <div class="t-num">38</div>
+              <button class="t-btn">去处理</button>
+            </div>
+            <div class="todo-item">
+              <div class="t-ic" style="background:#FEE9E9;color:#DC2626"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+              <div class="t-info"><div class="t-name">库存预警商品</div><div class="t-desc">低于安全库存线</div></div>
+              <div class="t-num">12</div>
+              <button class="t-btn">去处理</button>
+            </div>
+            <div class="todo-item">
+              <div class="t-ic" style="background:#F1EDFC;color:#7C3AED"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg></div>
+              <div class="t-info"><div class="t-name">售后待处理</div><div class="t-desc">2 笔退款申请超 24h</div></div>
+              <div class="t-num">5</div>
+              <button class="t-btn">去处理</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 次图区 2×2 -->
+      <div class="sub-row">
+        <div class="sub-panel">
+          <div class="panel-head"><div><div class="panel-title">用户构成</div><div class="panel-sub">正常 / 禁用用户占比</div></div></div>
+          <div class="sub-body">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 120 120" width="118" height="118">
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#F0F3F1" stroke-width="14"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#15803D" stroke-width="14" stroke-dasharray="244 264" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#F59E0B" stroke-width="14" stroke-dasharray="20 264" stroke-dashoffset="-244" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <text x="60" y="56" text-anchor="middle" font-size="19" font-weight="700" fill="#10231A" font-family="inherit">8,642</text>
+                <text x="60" y="72" text-anchor="middle" font-size="10" fill="#8A9A91" font-family="inherit">用户总数</text>
+              </svg>
+            </div>
+            <div class="donut-info">
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#15803D"></span>正常用户</span><span class="d-val">8,558 · 99.0%</span></div>
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#F59E0B"></span>禁用用户</span><span class="d-val">84 · 1.0%</span></div>
+              <div class="d-row" style="color:#8A9A91;font-size:11px">hover 环形显示明细</div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-panel">
+          <div class="panel-head"><div><div class="panel-title">订单状态构成</div><div class="panel-sub">各状态订单占比</div></div></div>
+          <div class="sub-body">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 120 120" width="118" height="118">
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#F0F3F1" stroke-width="14"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#16A34A" stroke-width="14" stroke-dasharray="120 264" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#34C77B" stroke-width="14" stroke-dasharray="70 264" stroke-dashoffset="-120" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#F59E0B" stroke-width="14" stroke-dasharray="40 264" stroke-dashoffset="-190" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#E5E7EB" stroke-width="14" stroke-dasharray="34 264" stroke-dashoffset="-230" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <text x="60" y="56" text-anchor="middle" font-size="19" font-weight="700" fill="#10231A" font-family="inherit">3,286</text>
+                <text x="60" y="72" text-anchor="middle" font-size="10" fill="#8A9A91" font-family="inherit">订单总数</text>
+              </svg>
+            </div>
+            <div class="donut-info">
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#16A34A"></span>已完成</span><span class="d-val">1,492</span></div>
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#34C77B"></span>待发货</span><span class="d-val">871</span></div>
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#F59E0B"></span>待付款</span><span class="d-val">498</span></div>
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#E5E7EB"></span>其他</span><span class="d-val">425</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-row" style="margin-top:16px">
+        <div class="sub-panel">
+          <div class="panel-head"><div><div class="panel-title">商品在售情况</div><div class="panel-sub">在售 / 下架 / 库存预警</div></div></div>
+          <div class="sub-body" style="padding:16px 22px 18px">
+            <svg width="330" height="92" viewBox="0 0 330 92" fill="none">
+              <g font-size="11" fill="#8A9A91" font-family="inherit">
+                <text x="0" y="16">在售</text><text x="0" y="52">下架</text><text x="0" y="88">预警</text>
+              </g>
+              <rect x="40" y="4" width="180" height="16" rx="8" fill="#15803D"/>
+              <rect x="40" y="40" width="46" height="16" rx="8" fill="#E5E7EB"/>
+              <rect x="40" y="76" width="22" height="16" rx="8" fill="#F59E0B"/>
+              <g font-size="11" font-weight="600" fill="#10231A" font-family="inherit">
+                <text x="228" y="16">428 件</text><text x="94" y="52">58 件</text><text x="70" y="88">12 件</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="sub-panel">
+          <div class="panel-head"><div><div class="panel-title">今日活跃占比</div><div class="panel-sub">今日活跃 / 未活跃用户</div></div></div>
+          <div class="sub-body">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 120 120" width="118" height="118">
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#F0F3F1" stroke-width="14"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#22A55A" stroke-width="14" stroke-dasharray="196 264" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#C8D3CC" stroke-width="14" stroke-dasharray="68 264" stroke-dashoffset="-196" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <text x="60" y="56" text-anchor="middle" font-size="19" font-weight="700" fill="#10231A" font-family="inherit">11.9%</text>
+                <text x="60" y="72" text-anchor="middle" font-size="10" fill="#8A9A91" font-family="inherit">活跃率</text>
+              </svg>
+            </div>
+            <div class="donut-info">
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#22A55A"></span>今日活跃</span><span class="d-val">1,028</span></div>
+              <div class="d-row"><span class="d-name"><span class="d-dot" style="background:#C8D3CC"></span>未活跃</span><span class="d-val">7,614</span></div>
+              <div class="d-row" style="color:#8A9A91;font-size:11px">活跃定义：当日有登录/下单</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="marker" style="top:150px; left:430px;"><b>时间范围</b> · 分段控件即时切换趋势数据</div>
+    </div>
+  </div>
+  <div class="footer-note">AgSell Admin · Design Mockup v4.0 · 数据概览 · 示意数据</div>
+</div>
+</body>
+</html>

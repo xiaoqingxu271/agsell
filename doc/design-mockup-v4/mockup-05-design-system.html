@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>设计规范总览 - AgSell Admin v4</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'PingFang SC','HarmonyOS Sans SC','Microsoft YaHei','Segoe UI',sans-serif; -webkit-font-smoothing:antialiased; }
+  .canvas { width:1440px; height:900px; background:#F6F8F7; position:relative; padding:26px 30px 20px; overflow:hidden; }
+  .head { display:flex; align-items:flex-end; margin-bottom:20px; }
+  .head .logo-badge { width:42px; height:42px; border-radius:13px; background:linear-gradient(135deg,#15803D,#34C77B); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(21,128,61,0.25); margin-right:14px; }
+  .head-title { font-size:23px; font-weight:800; color:#10231A; letter-spacing:0.01em; }
+  .head-sub { font-size:12.5px; color:#8A9A91; margin-top:3px; }
+  .head-tag { margin-left:auto; display:flex; gap:8px; }
+  .htag { font-size:12px; font-weight:600; color:#166534; background:#E8F8EF; border:1px solid #CBE9D8; border-radius:999px; padding:5px 14px; }
+  .cols { display:flex; gap:18px; }
+  .col { flex:1; background:#fff; border:1px solid #E7ECE9; border-radius:16px; padding:18px 20px; box-shadow:0 1px 3px rgba(16,24,40,0.04); }
+  .col-head { display:flex; align-items:center; gap:9px; margin-bottom:16px; }
+  .col-ic { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; }
+  .col-title { font-size:15px; font-weight:700; color:#10231A; }
+  .col-en { font-size:10.5px; color:#A8B4AC; letter-spacing:0.08em; margin-top:1px; }
+  .sec-title { font-size:11.5px; font-weight:700; color:#5B6B63; letter-spacing:0.06em; margin:14px 0 9px; padding-top:12px; border-top:1px dashed #EDF1EE; }
+  .sec-title:first-child { margin-top:0; padding-top:0; border-top:none; }
+  /* 布局 */
+  .frame-demo { border-radius:10px; overflow:hidden; border:1px solid #E0E6E2; }
+  .frame-top { height:26px; background:#F7F9F8; border-bottom:1px solid #EDF1EE; display:flex; align-items:center; padding:0 10px; font-size:9.5px; color:#8A9A91; }
+  .frame-body { display:flex; height:104px; }
+  .frame-side { width:56px; background:#fff; border-right:1px solid #EDF1EE; padding:6px 5px; }
+  .frame-side i { display:block; height:9px; border-radius:4px; margin-bottom:5px; }
+  .frame-side i.on { background:#EAF6EF; outline:1px solid #B8D9C6; }
+  .frame-side i.off { background:#F2F5F3; }
+  .frame-main { flex:1; padding:8px; display:flex; gap:6px; }
+  .frame-main .big { flex:0 0 52%; background:linear-gradient(135deg,#0E3B25,#22A55A); border-radius:7px; }
+  .frame-main .col4 { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .frame-main .col4 i { flex:1; background:#F2F5F3; border-radius:6px; }
+  .frame-main .col4 i:nth-child(1) { background:#E8F8EF; }
+  .legend-row { display:flex; gap:14px; margin-top:9px; font-size:11px; color:#5B6B63; }
+  .legend-row span { display:flex; align-items:center; gap:5px; }
+  .sw { width:10px; height:10px; border-radius:3px; }
+  .type-stack { margin-top:8px; }
+  .type-row { display:flex; align-items:center; gap:10px; padding:5px 0; }
+  .type-row .tname { width:88px; font-size:11px; color:#8A9A91; flex-shrink:0; }
+  .type-row .tsample { color:#10231A; flex-shrink:0; }
+  .type-row .tmeta { margin-left:auto; font-size:10.5px; color:#A8B4AC; }
+  .spaces { display:flex; gap:7px; align-items:flex-end; margin-top:8px; }
+  .sp { flex:1; text-align:center; }
+  .sp .bar { margin:0 auto 4px; background:linear-gradient(180deg,#34C77B,#15803D); border-radius:3px; }
+  .sp span { font-size:10px; color:#8A9A91; }
+  /* 配色 */
+  .swatches { display:flex; gap:6px; flex-wrap:wrap; }
+  .swatch { width:calc(14.28% - 6px); min-width:40px; text-align:center; }
+  .swatch .c { height:34px; border-radius:8px; margin-bottom:4px; border:1px solid rgba(0,0,0,0.04); }
+  .swatch span { font-size:10px; color:#8A9A91; }
+  .swatch b { display:block; font-size:10px; color:#10231A; font-weight:600; }
+  .semantic-row { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .semi { flex:1; min-width:70px; }
+  .semi .shead { font-size:10.5px; color:#8A9A91; margin-bottom:5px; text-align:center; }
+  .semi .chip { height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; }
+  .neutral-strip { display:flex; height:26px; border-radius:8px; overflow:hidden; border:1px solid #EDF1EE; margin-top:6px; }
+  .neutral-strip i { flex:1; }
+  .neutral-labels { display:flex; margin-top:4px; font-size:9.5px; color:#A8B4AC; }
+  .neutral-labels span { flex:1; text-align:center; }
+  /* 交互 */
+  .btn-states { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
+  .bs { text-align:center; }
+  .bs .lbl { font-size:10.5px; color:#8A9A91; margin-top:6px; }
+  .demo-btn { height:32px; padding:0 16px; border-radius:9px; font-size:12.5px; font-weight:600; display:flex; align-items:center; justify-content:center; font-family:inherit; }
+  .db-default { background:#15803D; color:#fff; box-shadow:0 4px 10px rgba(21,128,61,0.22); }
+  .db-hover { background:#166534; color:#fff; box-shadow:0 6px 14px rgba(21,128,61,0.3); transform:translateY(-1px); }
+  .db-active { background:#14532D; color:#fff; }
+  .db-disabled { background:#E2E8E4; color:#A8B4AC; }
+  .tag-states { display:flex; gap:8px; flex-wrap:wrap; }
+  .demo-tag { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; padding:4px 11px; border-radius:999px; }
+  .skeleton { margin-top:6px; }
+  .sk-row { display:flex; gap:10px; padding:7px 0; align-items:center; }
+  .sk-thumb { width:30px; height:30px; border-radius:8px; background:linear-gradient(90deg,#F0F3F1 25%,#FAFCFA 50%,#F0F3F1 75%); background-size:200% 100%; animation:shimmer 1.2s infinite; }
+  .sk-line { height:10px; border-radius:5px; background:linear-gradient(90deg,#F0F3F1 25%,#FAFCFA 50%,#F0F3F1 75%); background-size:200% 100%; animation:shimmer 1.2s infinite; }
+  @keyframes shimmer { to { background-position:-200% 0; } }
+  .toasts { display:flex; flex-direction:column; gap:7px; }
+  .toast { display:flex; align-items:center; gap:9px; font-size:12px; padding:9px 13px; border-radius:10px; font-weight:500; }
+  .toast.success { background:#E8F8EF; border:1px solid #CBE9D8; color:#166534; }
+  .toast.warn { background:#FFF4E0; border:1px solid #F3D9A4; color:#92400E; }
+  .toast.error { background:#FEE9E9; border:1px solid #F5C6C6; color:#991B1B; }
+  .toast i { width:16px; height:16px; border-radius:50%; color:#fff; font-style:normal; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .timing { display:flex; align-items:flex-end; gap:16px; margin-top:8px; }
+  .tbar { text-align:center; }
+  .tbar .bar { width:34px; border-radius:6px 6px 2px 2px; margin:0 auto 4px; background:linear-gradient(180deg,#34C77B,#15803D); }
+  .tbar span { font-size:10px; color:#8A9A91; }
+  .tbar b { display:block; font-size:11px; color:#10231A; }
+  .footer-note { position:absolute; right:30px; bottom:12px; font-size:11px; color:#A8B4AC; letter-spacing:0.05em; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="head">
+    <div class="logo-badge"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c-2 0-3.4-1.2-3.8-3.4"/><path d="M12 15.2c-2.4 0-4-1.3-4.4-3.8"/><path d="M12 17.6c-2.8 0-4.7-1.4-5-4.2"/><path d="M12 13c2 0 3.4-1.2 3.8-3.4"/><path d="M12 15.2c2.4 0 4-1.3 4.4-3.8"/><path d="M12 17.6c2.8 0 4.7-1.4 5-4.2"/><path d="M12 12.3c-.8-1.1-1.3-2.4-1.3-4 0-.8.2-1.5.5-2.2"/><path d="M12 12.3c.8-1.1 1.3-2.4 1.3-4 0-.8-.2-1.5-.5-2.2"/></svg></div>
+    <div>
+      <div class="head-title">AgSell Admin · 设计系统 v4.0</div>
+      <div class="head-sub">布局 × 配色 × 交互 三维度升级规范 · 对比 v3.0 的核心变更一览</div>
+    </div>
+    <div class="head-tag">
+      <span class="htag">布局 · 层次感</span>
+      <span class="htag">配色 · 青翠绿 × 丰收金</span>
+      <span class="htag">交互 · 及时反馈</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <!-- 布局 -->
+    <div class="col">
+      <div class="col-head">
+        <div class="col-ic" style="background:#E8F1FB;color:#2563EB"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="2"/><rect x="14" y="3" width="7" height="8" rx="2"/><rect x="14" y="15" width="7" height="6" rx="2"/></svg></div>
+        <div><div class="col-title">布局 Layout</div><div class="col-en">LAYERED · FOCUSED</div></div>
+      </div>
+
+      <div class="sec-title">整体框架</div>
+      <div class="frame-demo">
+        <div class="frame-top">顶栏 64px · 白底 · 全局搜索 / 通知</div>
+        <div class="frame-body">
+          <div class="frame-side">
+            <i class="off"></i><i class="on"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i>
+          </div>
+          <div class="frame-main">
+            <div class="big"></div>
+            <div class="col4"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="legend-row">
+        <span><span class="sw" style="background:#FFFFFF;border:1px solid #DDE4DF"></span>侧栏 236px 白底</span>
+        <span><span class="sw" style="background:#EAF6EF;border:1px solid #B8D9C6"></span>激活菜单</span>
+        <span><span class="sw" style="background:linear-gradient(135deg,#0E3B25,#22A55A)"></span>主卡突出</span>
+        <span><span class="sw" style="background:#F2F5F3"></span>等权次卡</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#5B6B63;line-height:1.6">主卡制指标带 · 主次分明的图表区（趋势主图宽幅 + 构成图 2×2）· 菜单分组导航 · 内容区 24px 网格留白</div>
+
+      <div class="sec-title">排版层级</div>
+      <div class="type-stack">
+        <div class="type-row"><span class="tname">页面标题</span><span class="tsample" style="font-size:22px;font-weight:700">数据概览</span><span class="tmeta">22 / 700 · 墨绿黑</span></div>
+        <div class="type-row"><span class="tname">卡片标题</span><span class="tsample" style="font-size:15px;font-weight:700">销售与订单趋势</span><span class="tmeta">15 / 700</span></div>
+        <div class="type-row"><span class="tname">正文</span><span class="tsample" style="font-size:13.5px">有机红富士苹果 5斤装</span><span class="tmeta">13.5 / 400</span></div>
+        <div class="type-row"><span class="tname">辅助</span><span class="tsample" style="font-size:12px;color:#8A9A91">数据每 10 分钟自动刷新</span><span class="tmeta">12 / 400 · 灰绿</span></div>
+      </div>
+
+      <div class="sec-title">间距系统（4px 网格）</div>
+      <div class="spaces">
+        <div class="sp"><div class="bar" style="width:18px;height:4px"></div><span>4</span></div>
+        <div class="sp"><div class="bar" style="width:18px;height:8px"></div><span>8</span></div>
+        <div class="sp"><div class="bar" style="width:18px;height:12px"></div><span>12</span></div>
+        <div class="sp"><div class="bar" style="width:18px;height:16px"></div><span>16</span></div>
+        <div class="sp"><div class="bar" style="width:18px;height:24px"></div><span>24</span></div>
+        <div class="sp"><div class="bar" style="width:18px;height:32px"></div><span>32</span></div>
+      </div>
+    </div>
+
+    <!-- 配色 -->
+    <div class="col">
+      <div class="col-head">
+        <div class="col-ic" style="background:#E8F8EF;color:#15803D"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2C7 6 4 10 4 14a8 8 0 0 0 16 0c0-1-2-4-8-12z"/></svg></div>
+        <div><div class="col-title">配色 Color</div><div class="col-en">BRAND GREEN × HARVEST GOLD</div></div>
+      </div>
+
+      <div class="sec-title">品牌绿阶 · 青翠绿</div>
+      <div class="swatches">
+        <div class="swatch"><div class="c" style="background:#10231A"></div><b>#10231A</b><span>墨绿黑 · 主文字</span></div>
+        <div class="swatch"><div class="c" style="background:#14532D"></div><b>#14532D</b><span>active</span></div>
+        <div class="swatch"><div class="c" style="background:#166534"></div><b>#166534</b><span>hover</span></div>
+        <div class="swatch"><div class="c" style="background:#15803D"></div><b>#15803D</b><span>主色</span></div>
+        <div class="swatch"><div class="c" style="background:#22A55A"></div><b>#22A55A</b><span>亮部</span></div>
+        <div class="swatch"><div class="c" style="background:#34C77B"></div><b>#34C77B</b><span>成功</span></div>
+        <div class="swatch"><div class="c" style="background:#EAF6EF"></div><b>#EAF6EF</b><span>激活底</span></div>
+      </div>
+
+      <div class="sec-title">丰收金 · 金额 / 评分强调</div>
+      <div class="swatches" style="margin-bottom:4px">
+        <div class="swatch"><div class="c" style="background:#92400E"></div><b>#92400E</b><span>文字</span></div>
+        <div class="swatch"><div class="c" style="background:#D97706"></div><b>#D97706</b><span>金额</span></div>
+        <div class="swatch"><div class="c" style="background:#F59E0B"></div><b>#F59E0B</b><span>亮部</span></div>
+        <div class="swatch"><div class="c" style="background:#FFF4E0"></div><b>#FFF4E0</b><span>标签底</span></div>
+      </div>
+
+      <div class="sec-title">中性层 · 高级底</div>
+      <div class="neutral-strip">
+        <i style="background:#F6F8F7"></i><i style="background:#F7F9F8"></i><i style="background:#F2F5F3"></i><i style="background:#E7ECE9"></i><i style="background:#DDE4DF"></i><i style="background:#FFFFFF"></i>
+      </div>
+      <div class="neutral-labels"><span>页面底</span><span>表头</span><span>悬浮底</span><span>描边</span><span>控件边</span><span>卡片</span></div>
+
+      <div class="sec-title">语义色 · 浅底深字双通道</div>
+      <div class="semantic-row">
+        <div class="semi"><div class="shead">成功</div><div class="chip" style="background:#E8F8EF;color:#166534">上架 · 完成</div></div>
+        <div class="semi"><div class="shead">警告</div><div class="chip" style="background:#FFF4E0;color:#92400E">待付款 · 预警</div></div>
+        <div class="semi"><div class="shead">危险</div><div class="chip" style="background:#FEE9E9;color:#991B1B">禁用 · 售后</div></div>
+        <div class="semi"><div class="shead">信息</div><div class="chip" style="background:#F1F3F2;color:#5B6B63">已下架 · 中性</div></div>
+      </div>
+      <div style="margin-top:9px;font-size:11px;color:#5B6B63;line-height:1.6">原则：中性底 95% + 品牌绿 4% + 丰收金 1%。绿色只做关键时刻的点睛，不再大面积铺陈；金额/评分一律金色，图表与界面同色板。</div>
+    </div>
+
+    <!-- 交互 -->
+    <div class="col">
+      <div class="col-head">
+        <div class="col-ic" style="background:#FFF4E0;color:#D97706"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div><div class="col-title">交互 Feedback</div><div class="col-en">150–250ms · EASE-OUT</div></div>
+      </div>
+
+      <div class="sec-title">按钮状态</div>
+      <div class="btn-states">
+        <div class="bs"><div class="demo-btn db-default">默认</div><div class="lbl">#15803D</div></div>
+        <div class="bs"><div class="demo-btn db-hover">Hover 抬升</div><div class="lbl">上移 1px + 阴影</div></div>
+        <div class="bs"><div class="demo-btn db-active">按下</div><div class="lbl">#14532D</div></div>
+        <div class="bs"><div class="demo-btn db-disabled">禁用</div><div class="lbl">不可点</div></div>
+      </div>
+
+      <div class="sec-title">状态标签</div>
+      <div class="tag-states">
+        <span class="demo-tag" style="background:#E8F8EF;color:#166534"><i style="width:6px;height:6px;border-radius:50%;background:#16A34A;display:inline-block"></i>上架中</span>
+        <span class="demo-tag" style="background:#FFF4E0;color:#92400E"><i style="width:6px;height:6px;border-radius:50%;background:#F59E0B;display:inline-block"></i>库存预警</span>
+        <span class="demo-tag" style="background:#FEE9E9;color:#991B1B"><i style="width:6px;height:6px;border-radius:50%;background:#DC2626;display:inline-block"></i>售后中</span>
+        <span class="demo-tag" style="background:#F1F3F2;color:#5B6B63"><i style="width:6px;height:6px;border-radius:50%;background:#9CA3AF;display:inline-block"></i>已下架</span>
+      </div>
+
+      <div class="sec-title">加载反馈 · 骨架屏</div>
+      <div class="skeleton">
+        <div class="sk-row"><div class="sk-thumb"></div><div class="sk-line" style="width:34%"></div><div class="sk-line" style="width:14%"></div><div class="sk-line" style="width:18%;margin-left:auto"></div></div>
+        <div class="sk-row"><div class="sk-thumb"></div><div class="sk-line" style="width:30%"></div><div class="sk-line" style="width:12%"></div><div class="sk-line" style="width:16%;margin-left:auto"></div></div>
+        <div class="sk-row"><div class="sk-thumb"></div><div class="sk-line" style="width:36%"></div><div class="sk-line" style="width:10%"></div><div class="sk-line" style="width:20%;margin-left:auto"></div></div>
+      </div>
+
+      <div class="sec-title">操作反馈 · Toast 三态</div>
+      <div class="toasts">
+        <div class="toast success"><i style="background:#16A34A">✓</i>商品已上架 · 操作成功</div>
+        <div class="toast warn"><i style="background:#D97706">!</i>库存低于安全线，请及时补货</div>
+        <div class="toast error"><i style="background:#DC2626">×</i>删除失败，请稍后重试</div>
+      </div>
+
+      <div class="sec-title">动效节奏</div>
+      <div class="timing">
+        <div class="tbar"><div class="bar" style="height:16px"></div><b>150ms</b><span>hover / 按压</span></div>
+        <div class="tbar"><div class="bar" style="height:26px"></div><b>200ms</b><span>显隐 / 折叠</span></div>
+        <div class="tbar"><div class="bar" style="height:36px"></div><b>250ms</b><span>弹窗 / 浮层</span></div>
+      </div>
+      <div style="margin-top:9px;font-size:11px;color:#5B6B63;line-height:1.6">全部 ease-out，无弹跳无空转动画；<code style="background:#F2F5F3;padding:1px 6px;border-radius:5px;font-size:10.5px">prefers-reduced-motion</code> 时降级为 0ms。</div>
+    </div>
+  </div>
+
+  <div class="footer-note">AgSell Admin · Design System v4.0 · 高保真设计稿配套规范 · 示意数据</div>
+</div>
+</body>
+</html>
