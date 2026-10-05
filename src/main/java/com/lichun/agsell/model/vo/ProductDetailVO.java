@@ -69,6 +69,9 @@ public class ProductDetailVO implements Serializable {
     /** 溯源产地（省+市+区县拼接，用于商品编辑回显） */
     private String traceOrigin;
 
+    /** 口碑摘要（好评率/情感分布/好评关键词，基于评价情感分析聚合；无分析数据时 total=0） */
+    private ReviewSummaryVO reviewSummary;
+
     private LocalDateTime createTime;
 
     @Data

@@ -159,6 +159,7 @@ public class ReviewServiceImpl implements ReviewService {
         vo.setProductId(review.getProductId());
         vo.setUserId(review.getUserId());
         vo.setRating(review.getRating());
+        vo.setSentimentLabel(review.getSentimentLabel());
         vo.setContent(review.getContent());
         vo.setIsAnonymous(review.getIsAnonymous());
         vo.setReplyContent(review.getReplyContent());

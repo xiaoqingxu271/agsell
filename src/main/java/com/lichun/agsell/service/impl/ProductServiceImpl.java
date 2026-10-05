@@ -22,6 +22,7 @@ import com.lichun.agsell.model.entity.TraceabilityInfo;
 import com.lichun.agsell.model.vo.ProductDetailVO;
 import com.lichun.agsell.model.vo.ProductListItemVO;
 import com.lichun.agsell.service.ProductService;
+import com.lichun.agsell.service.ReviewSentimentService;
 import com.lichun.agsell.utils.ThrowUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductCategoryMapper categoryMapper;
     private final OrderItemMapper orderItemMapper;
     private final TraceabilityInfoMapper traceabilityInfoMapper;
+    private final ReviewSentimentService reviewSentimentService;
 
     @Override
     public Page<ProductListItemVO> listProducts(ProductQueryRequest request) {
@@ -165,6 +167,9 @@ public class ProductServiceImpl implements ProductService {
         } else {
             vo.setHasTrace(false);
         }
+
+        // 口碑摘要：好评率/情感分布/好评关键词（评价情感分析聚合）
+        vo.setReviewSummary(reviewSentimentService.getProductReviewSummary(id));
         return vo;
     }
 

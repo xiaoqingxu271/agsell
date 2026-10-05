@@ -4,20 +4,23 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.model.dto.ReplyRequest;
 import com.lichun.agsell.model.vo.ReviewListItemVO;
+import com.lichun.agsell.model.vo.ReviewSentimentSyncVO;
 import com.lichun.agsell.service.AdminReviewService;
+import com.lichun.agsell.service.ReviewSentimentService;
 import com.lichun.agsell.utils.ResultUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "管理端-评价管理", description = "评价列表、回复、删除")
+@Tag(name = "管理端-评价管理", description = "评价列表、回复、删除、口碑分析")
 @RestController
 @RequestMapping("/admin/review")
 @RequiredArgsConstructor
 public class AdminReviewController {
 
     private final AdminReviewService adminReviewService;
+    private final ReviewSentimentService reviewSentimentService;
 
     @Operation(summary = "评价列表")
     @GetMapping("/list")
@@ -42,5 +45,12 @@ public class AdminReviewController {
     public BaseResponse<Void> deleteReview(@PathVariable Long id) {
         adminReviewService.deleteReview(id);
         return ResultUtils.success(null);
+    }
+
+    @Operation(summary = "口碑分析同步", description = "拉取未分析评价调用 AI 服务批量分析并回写（每次最多 100 条）")
+    @PostMapping("/sentiment/sync")
+    public BaseResponse<ReviewSentimentSyncVO> syncSentiment(
+            @RequestParam(required = false) Long productId) {
+        return ResultUtils.success(reviewSentimentService.syncSentiment(productId));
     }
 }

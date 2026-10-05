@@ -28,30 +28,19 @@ from langchain_openai import ChatOpenAI
 
 from app.agent.graph import build_graph
 from app.api.admin_kb import router as admin_kb_router
+from app.api.sentiment import router as sentiment_router
 from app.config import settings
 from app.db import SessionLocal
 from app.rag.retriever import Retriever
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
 from app.schemas.chat import ChatRequest, ChatResponse, HealthResponse
+from app.security import check_service_key as _check_service_key
 
 logger = logging.getLogger("agsell.ai")
 
 # 全局 checkpointer：lifespan 中初始化（SqliteSaver / RedisSaver / None→MemorySaver）
 _checkpointer = None
-
-
-def _check_service_key(x_internal_key: str | None) -> None:
-    """服务间鉴权：Java 主系统转发 /v1/chat 时携带 X-Internal-Key。
-
-    ALLOW_ANON_CHAT=1 可放行（仅本地调试用），默认关闭。
-    """
-    import os
-
-    if os.environ.get("ALLOW_ANON_CHAT", "0") == "1":
-        return
-    if not x_internal_key or x_internal_key != settings.JAVA_INTERNAL_KEY:
-        raise HTTPException(status_code=401, detail="无效的服务密钥")
 
 
 @asynccontextmanager
@@ -133,6 +122,7 @@ def get_graph():
 
 
 app.include_router(admin_kb_router, prefix="/v1")
+app.include_router(sentiment_router, prefix="/v1")
 
 
 @app.get("/health", response_model=HealthResponse)

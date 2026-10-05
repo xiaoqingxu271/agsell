@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -31,6 +32,15 @@ public class Review implements Serializable {
 
     /** 评分 1-5 */
     private Integer rating;
+
+    /** 情感标签 1=好评 0=中评 -1=差评（NULL=未分析，由 AI 服务批量分析回写） */
+    private Integer sentimentLabel;
+
+    /** 情感得分 0~1，越大越正面 */
+    private BigDecimal sentimentScore;
+
+    /** 情感关键词（逗号分隔，最多5个） */
+    private String sentimentKeywords;
 
     /** 评价内容 */
     private String content;
