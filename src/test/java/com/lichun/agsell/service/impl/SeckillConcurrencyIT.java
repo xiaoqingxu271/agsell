@@ -9,6 +9,7 @@ import com.lichun.agsell.model.vo.OrderCreateVO;
 import com.lichun.agsell.service.RedisTokenService;
 import com.lichun.agsell.service.SeckillRedisService;
 import com.lichun.agsell.service.SeckillService;
+import com.lichun.agsell.service.SysConfigService;
 import com.lichun.agsell.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,9 +60,11 @@ class SeckillConcurrencyIT {
     private JwtUtils jwtUtils;
     @Autowired
     private RedisTokenService redisTokenService;
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Test
-    @DisplayName("100 并发抢 50 库存：恰好 50 单成功 + 50 单售罄 + 一人一单 + 金额=秒杀价，并输出 QPS")
+    @DisplayName("100 并发抢 50 库存：恰好 50 单成功 + 50 单售罄 + 一人一单 + 金额=秒杀价+运费，并输出 QPS")
     void concurrent_100users_vs_50stock() throws Exception {
         // 1. 清理历史测试数据（幂等）
         cleanupTestData(PRODUCT_ID);
@@ -110,9 +113,10 @@ class SeckillConcurrencyIT {
                             orderRequest.setAddressId(addressId);
                             OrderCreateVO vo = seckillService.createSeckillOrder(orderRequest);
                             successCount.incrementAndGet();
-                            // 金额校验
-                            if (vo.getPayAmount().compareTo(SECKILL_PRICE) != 0) {
-                                errors.add("金额异常: " + vo.getPayAmount());
+                            // 金额校验：秒杀价 + 运费（与主服务 computeFreight 同口径）
+                            BigDecimal expected = SECKILL_PRICE.add(expectedFreight(SECKILL_PRICE));
+                            if (vo.getPayAmount().compareTo(expected) != 0) {
+                                errors.add("金额异常: " + vo.getPayAmount() + " 期望: " + expected);
                             }
                         } catch (BusinessException ex) {
                             if (ex.getCode() == ErrorCode.SECKILL_SOLD_OUT.getCode()) {
@@ -178,6 +182,119 @@ class SeckillConcurrencyIT {
             System.out.println("============================================================");
         } finally {
             // 清理测试活动与订单数据
+            cleanupTestData(PRODUCT_ID);
+            seckillRedisService.deleteSnapshot(activityId);
+        }
+    }
+
+    @Test
+    @DisplayName("500 并发抢 180 库存：放大档压测，验证高并发下防超卖与吞吐衰减")
+    void concurrent_500users_vs_200stock() throws Exception {
+        final int users = 500;
+        final int stock = 180; // 商品（有机西兰花）库存 199，秒杀库存须不超过商品库存
+        cleanupTestData(PRODUCT_ID);
+
+        SeckillActivityRequest request = new SeckillActivityRequest();
+        request.setProductId(PRODUCT_ID);
+        request.setSeckillPrice(SECKILL_PRICE);
+        request.setSeckillStock(stock);
+        request.setSeckillLimit(1);
+        request.setStartTime(LocalDateTime.now().minusMinutes(1));
+        request.setEndTime(LocalDateTime.now().plusHours(1));
+        request.setSort(0);
+        request.setStatus(1);
+        Long activityId = seckillService.createActivity(request);
+        String activityCode = queryActivityCode(activityId);
+
+        try {
+            List<Long> userIds = createTestUsers(users);
+            java.util.Map<Long, Long> addressIdMap = createTestAddresses(userIds);
+
+            ExecutorService pool = Executors.newFixedThreadPool(users);
+            CountDownLatch startLatch = new CountDownLatch(1);
+            CountDownLatch doneLatch = new CountDownLatch(users);
+            AtomicInteger successCount = new AtomicInteger(0);
+            AtomicInteger soldOutCount = new AtomicInteger(0);
+            AtomicInteger repeatCount = new AtomicInteger(0);
+            AtomicInteger otherErrorCount = new AtomicInteger(0);
+            List<Long> latencies = java.util.Collections.synchronizedList(new ArrayList<>());
+            List<String> errors = java.util.Collections.synchronizedList(new ArrayList<>());
+
+            for (int i = 0; i < users; i++) {
+                final Long uid = userIds.get(i);
+                final Long addressId = addressIdMap.get(uid);
+                pool.submit(() -> {
+                    try {
+                        startLatch.await();
+                        long t0 = System.nanoTime();
+                        BaseContext.setCurrentId(uid, "seckill-it-500");
+                        try {
+                            SeckillOrderRequest orderRequest = new SeckillOrderRequest();
+                            orderRequest.setActivityCode(activityCode);
+                            orderRequest.setAddressId(addressId);
+                            seckillService.createSeckillOrder(orderRequest);
+                            successCount.incrementAndGet();
+                        } catch (BusinessException ex) {
+                            if (ex.getCode() == ErrorCode.SECKILL_SOLD_OUT.getCode()) {
+                                soldOutCount.incrementAndGet();
+                            } else if (ex.getCode() == ErrorCode.SECKILL_REPEAT.getCode()) {
+                                repeatCount.incrementAndGet();
+                            } else {
+                                otherErrorCount.incrementAndGet();
+                                errors.add("业务异常:" + ex.getCode() + " " + ex.getMessage());
+                            }
+                        } catch (Exception ex) {
+                            otherErrorCount.incrementAndGet();
+                            errors.add("系统异常:" + ex.getMessage());
+                        } finally {
+                            latencies.add((System.nanoTime() - t0) / 1_000_000);
+                            BaseContext.removeCurrentId();
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        doneLatch.countDown();
+                    }
+                });
+            }
+            long wallStart = System.currentTimeMillis();
+            startLatch.countDown();
+            boolean finished = doneLatch.await(300, TimeUnit.SECONDS);
+            long wallElapsed = System.currentTimeMillis() - wallStart;
+            pool.shutdown();
+
+            assertTrue(finished, "500 并发压测 300 秒内未完成");
+            Integer remaining = seckillRedisService.getRemainingStock(activityId);
+            Integer orderCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM `order` WHERE seckill_activity_id = ?",
+                    Integer.class, activityId);
+            Integer distinctUsers = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(DISTINCT user_id) FROM `order` WHERE seckill_activity_id = ?",
+                    Integer.class, activityId);
+
+            assertEquals(stock, successCount.get(), "成功订单数应恰好等于秒杀库存");
+            assertEquals(users - stock, soldOutCount.get(), "其余请求应全部售罄");
+            assertEquals(0, repeatCount.get(), "不同用户不应出现重复标记");
+            assertEquals(0, otherErrorCount.get(), "不应出现系统异常");
+            assertEquals(0, remaining, "Redis 剩余库存应为 0");
+            assertEquals(stock, orderCount, "DB 秒杀订单数应为库存数");
+            assertEquals(stock, distinctUsers, "一人一单：成功订单用户数应等于库存数");
+            assertTrue(errors.isEmpty(), "校验异常: " + errors.stream().limit(5).toList());
+
+            List<Long> sorted = latencies.stream().sorted().toList();
+            double wallSeconds = wallElapsed / 1000.0;
+            long p95 = sorted.get((int) Math.ceil(sorted.size() * 0.95) - 1);
+            System.out.println("============================================================");
+            System.out.println("[SeckillConcurrencyIT] 500 并发抢 180 库存压测结果");
+            System.out.println("  总请求数: " + users);
+            System.out.println("  成功订单: " + successCount.get() + "（防超卖校验通过）");
+            System.out.println("  售罄拒绝: " + soldOutCount.get());
+            System.out.println("  墙钟总耗时: " + wallElapsed + " ms");
+            System.out.println("  接口 QPS: " + String.format("%.2f", users / wallSeconds));
+            System.out.println("  平均单请求耗时: " + String.format("%.1f", sorted.stream().mapToLong(Long::longValue).average().orElse(0)) + " ms");
+            System.out.println("  P95 单请求耗时: " + p95 + " ms");
+            System.out.println("============================================================");
+        } finally {
             cleanupTestData(PRODUCT_ID);
             seckillRedisService.deleteSnapshot(activityId);
         }
@@ -283,6 +400,16 @@ class SeckillConcurrencyIT {
     private String queryActivityCode(Long activityId) {
         return jdbcTemplate.queryForObject(
                 "SELECT activity_code FROM seckill_activity WHERE id = ?", String.class, activityId);
+    }
+
+    /** 与 SeckillServiceImpl#computeFreight 同口径：金额 ≥ 包邮阈值（阈值>0）免运费，否则默认运费 */
+    private BigDecimal expectedFreight(BigDecimal amount) {
+        BigDecimal threshold = new BigDecimal(sysConfigService.getConfigOrDefault("free_shipping_threshold", "0"));
+        BigDecimal defaultFreight = new BigDecimal(sysConfigService.getConfigOrDefault("default_freight", "0"));
+        if (threshold.signum() > 0 && amount.compareTo(threshold) >= 0) {
+            return BigDecimal.ZERO;
+        }
+        return defaultFreight;
     }
 
     private void cleanupTestData(long productId) {

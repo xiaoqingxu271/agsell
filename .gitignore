@@ -34,8 +34,7 @@ build/
 
 ### VS Code ###
 .vscode/
-/doc/  
-*.log  
+*.log
 .verify/
 
 # 环境变量（含密钥，禁止提交）

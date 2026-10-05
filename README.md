@@ -110,6 +110,18 @@ uvicorn app.main:app --port 8000 --reload
 cd ai-service && .venv/Scripts/python -m pytest tests -q
 ```
 
+### 量化实验（论文数据）
+
+四项核心指标的实测数据与结论见 [doc/量化实验报告.md](doc/量化实验报告.md)：
+
+```bash
+# 秒杀压测（100/500 并发 + HTTP 层，防超卖与 QPS，需本地 MySQL/Redis）
+./mvnw test "-Dtest=SeckillConcurrencyIT#concurrent_100users_vs_50stock+concurrent_500users_vs_200stock" -DfailIfNoTests=false
+
+# 意图识别准确率 / RAG 命中率 / AI 流式延迟（脚本在 ai-service/scripts/eval_*.py）
+cd ai-service && .venv/Scripts/python scripts/eval_intent.py --mode keyword
+```
+
 ## 目录结构
 
 ```

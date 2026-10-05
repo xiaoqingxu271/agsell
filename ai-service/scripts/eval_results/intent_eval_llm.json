@@ -1,0 +1,148 @@
+{
+  "mode": "llm",
+  "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset.json",
+  "total": 93,
+  "accuracy": 0.8495,
+  "per_intent": {
+    "after_sales": {
+      "total": 15,
+      "correct": 12,
+      "recall": 0.8
+    },
+    "faq": {
+      "total": 20,
+      "correct": 19,
+      "recall": 0.95
+    },
+    "human": {
+      "total": 14,
+      "correct": 9,
+      "recall": 0.6429
+    },
+    "logistics": {
+      "total": 15,
+      "correct": 13,
+      "recall": 0.8667
+    },
+    "order": {
+      "total": 15,
+      "correct": 15,
+      "recall": 1.0
+    },
+    "smalltalk": {
+      "total": 14,
+      "correct": 11,
+      "recall": 0.7857
+    }
+  },
+  "confusion": [
+    {
+      "truth": "faq",
+      "pred": "order",
+      "count": 1
+    },
+    {
+      "truth": "logistics",
+      "pred": "faq",
+      "count": 2
+    },
+    {
+      "truth": "after_sales",
+      "pred": "logistics",
+      "count": 1
+    },
+    {
+      "truth": "after_sales",
+      "pred": "faq",
+      "count": 2
+    },
+    {
+      "truth": "smalltalk",
+      "pred": "faq",
+      "count": 3
+    },
+    {
+      "truth": "human",
+      "pred": "faq",
+      "count": 4
+    },
+    {
+      "truth": "human",
+      "pred": "after_sales",
+      "count": 1
+    }
+  ],
+  "misclassified": [
+    {
+      "q": "待付款的订单怎么取消",
+      "truth": "faq",
+      "pred": "order"
+    },
+    {
+      "q": "我的包裹怎么还在派送",
+      "truth": "logistics",
+      "pred": "faq"
+    },
+    {
+      "q": "什么时候能送到",
+      "truth": "logistics",
+      "pred": "faq"
+    },
+    {
+      "q": "帮我看看我的退款审核到哪一步",
+      "truth": "after_sales",
+      "pred": "logistics"
+    },
+    {
+      "q": "换货的那单处理好了吗",
+      "truth": "after_sales",
+      "pred": "faq"
+    },
+    {
+      "q": "赔偿金额什么时候给我",
+      "truth": "after_sales",
+      "pred": "faq"
+    },
+    {
+      "q": "你叫什么名字",
+      "truth": "smalltalk",
+      "pred": "faq"
+    },
+    {
+      "q": "麻烦你了",
+      "truth": "smalltalk",
+      "pred": "faq"
+    },
+    {
+      "q": "好的，知道了",
+      "truth": "smalltalk",
+      "pred": "faq"
+    },
+    {
+      "q": "叫你们领导来",
+      "truth": "human",
+      "pred": "faq"
+    },
+    {
+      "q": "我要找真人客服",
+      "truth": "human",
+      "pred": "faq"
+    },
+    {
+      "q": "吃了你们的坏果拉肚子了，你们要负责任",
+      "truth": "human",
+      "pred": "after_sales"
+    },
+    {
+      "q": "帮我转接人工客服",
+      "truth": "human",
+      "pred": "faq"
+    },
+    {
+      "q": "你们服务太差了，我要给媒体爆料",
+      "truth": "human",
+      "pred": "faq"
+    }
+  ],
+  "order_no_accuracy": 1.0
+}
