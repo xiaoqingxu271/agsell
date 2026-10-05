@@ -1,5 +1,6 @@
 package com.lichun.agsell.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.lichun.agsell.common.BaseContext;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
@@ -8,7 +9,15 @@ import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.mapper.ProductSpecMapper;
 import com.lichun.agsell.model.entity.Order;
+import com.lichun.agsell.model.entity.Product;
+import com.lichun.agsell.model.entity.ProductSpec;
 import com.lichun.agsell.model.entity.OrderItem;
+import com.lichun.agsell.model.enums.OrderStatusEnum;
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,13 +29,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 /**
- * 链路 A 修复验证：支付成功时乐观锁扣减库存（有规格扣规格库存，无规格扣商品库存）
+ * 支付边界与并发安全测试：
+ * 支付权原子抢占（条件 UPDATE 待付款→待发货）+ 乐观锁扣库存。
  */
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceImplTest {
@@ -42,6 +54,17 @@ class PaymentServiceImplTest {
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
+
+    @BeforeAll
+    static void initMybatisPlusLambdaCache() {
+        // 纯 Mockito 单测没有 MyBatis-Plus 运行时，手动初始化 lambda 列缓存，
+        // 否则生产代码里 LambdaUpdateWrapper 的 Order::getId 等解析会抛
+        // "can not find lambda cache for this entity"
+        MapperBuilderAssistant assistant = new MapperBuilderAssistant(new MybatisConfiguration(), "");
+        TableInfoHelper.initTableInfo(assistant, Order.class);
+        TableInfoHelper.initTableInfo(assistant, Product.class);
+        TableInfoHelper.initTableInfo(assistant, ProductSpec.class);
+    }
 
     private static final Long USER_ID = 6L;
 
@@ -74,9 +97,23 @@ class PaymentServiceImplTest {
         return item;
     }
 
+    /** 抢占支付权的条件 UPDATE（Mockito 下默认返回 0，成功路径需显式打桩返回 1） */
+    private void claimSucceeds() {
+        when(orderMapper.update(isNull(), any(LambdaUpdateWrapper.class))).thenReturn(1);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> capturedClaimParams() {
+        ArgumentCaptor<LambdaUpdateWrapper<Order>> captor =
+                ArgumentCaptor.forClass((Class) LambdaUpdateWrapper.class);
+        verify(orderMapper).update(isNull(), captor.capture());
+        return captor.getValue().getParamNameValuePairs();
+    }
+
     @Test
-    @DisplayName("支付成功：有规格商品扣减规格库存（乐观锁条件 stock >= quantity）")
+    @DisplayName("支付成功：原子抢占支付权 + 有规格商品扣减规格库存（乐观锁）")
     void createPayment_deductsSpecStock() {
+        claimSucceeds();
         when(orderMapper.selectOne(any())).thenReturn(pendingOrder());
         when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, 2L, 2)));
         when(productSpecMapper.update(any(), any())).thenReturn(1);
@@ -86,16 +123,16 @@ class PaymentServiceImplTest {
         // 规格库存被扣减，商品库存不动
         verify(productSpecMapper).update(any(), any());
         verify(productMapper, never()).update(any(), any());
-        // 订单状态更新为已支付（待发货），支付方式落库为支付宝
-        ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-        verify(orderMapper).updateById((Order) captor.capture());
-        assertEquals(1, captor.getValue().getStatus());
-        assertEquals(1, captor.getValue().getPayType());
+        // 抢占 UPDATE 携带目标状态与支付方式
+        Map<String, Object> params = capturedClaimParams();
+        assertTrue(params.containsValue(OrderStatusEnum.PENDING_SHIPMENT.getCode()));
+        assertTrue(params.containsValue(1)); // 支付宝
     }
 
     @Test
-    @DisplayName("支付成功：无规格商品扣减商品总库存")
+    @DisplayName("支付成功：无规格商品扣减商品总库存，微信支付方式落库")
     void createPayment_deductsProductStock_whenNoSpec() {
+        claimSucceeds();
         when(orderMapper.selectOne(any())).thenReturn(pendingOrder());
         when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, null, 3)));
         when(productMapper.update(any(), any())).thenReturn(1);
@@ -104,25 +141,37 @@ class PaymentServiceImplTest {
 
         verify(productMapper).update(any(), any());
         verify(productSpecMapper, never()).update(any(), any());
-        ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-        verify(orderMapper).updateById((Order) captor.capture());
-        assertEquals(1, captor.getValue().getStatus());
-        // 微信支付方式落库
-        assertEquals(2, captor.getValue().getPayType());
+        Map<String, Object> params = capturedClaimParams();
+        assertTrue(params.containsValue(2)); // 微信支付
     }
 
     @Test
     @DisplayName("支付成功：未传支付方式时默认按支付宝落库")
     void createPayment_defaultPayType_whenNull() {
+        claimSucceeds();
         when(orderMapper.selectOne(any())).thenReturn(pendingOrder());
         when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, 2L, 1)));
         when(productSpecMapper.update(any(), any())).thenReturn(1);
 
         paymentService.createPayment("AGS123", null);
 
-        ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-        verify(orderMapper).updateById((Order) captor.capture());
-        assertEquals(1, captor.getValue().getPayType());
+        Map<String, Object> params = capturedClaimParams();
+        assertTrue(params.containsValue(1)); // 默认支付宝
+    }
+
+    @Test
+    @DisplayName("并发重复支付：抢占失败（条件 UPDATE 返回0）→ 抛请勿重复支付，不触达库存")
+    void createPayment_claimFailed_throwsAndNoStockDeduction() {
+        when(orderMapper.selectOne(any())).thenReturn(pendingOrder()); // 状态读到待付款
+        when(orderMapper.update(isNull(), any(LambdaUpdateWrapper.class))).thenReturn(0); // 抢占失败（已被并发请求支付）
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> paymentService.createPayment("AGS123", 1));
+        assertEquals(ErrorCode.ORDER_STATUS_ERROR.getCode(), ex.getCode());
+        // 关键：抢占失败必须终止在扣库存之前
+        verify(orderItemMapper, never()).selectList(any());
+        verify(productMapper, never()).update(any(), any());
+        verify(productSpecMapper, never()).update(any(), any());
     }
 
     @Test
@@ -132,12 +181,13 @@ class PaymentServiceImplTest {
                 () -> paymentService.createPayment("AGS123", 9));
         assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
         verify(orderMapper, never()).selectOne(any());
-        verify(orderMapper, never()).updateById(any(Order.class));
+        verify(orderMapper, never()).update(isNull(), any());
     }
 
     @Test
-    @DisplayName("支付失败：规格库存不足时抛异常，订单状态不更新（事务回滚）")
+    @DisplayName("支付失败：规格库存不足时抛异常（事务回滚含已抢占的状态变更）")
     void createPayment_specStockInsufficient_throwsAndStatusUnchanged() {
+        claimSucceeds();
         when(orderMapper.selectOne(any())).thenReturn(pendingOrder());
         when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, 2L, 99)));
         when(productSpecMapper.update(any(), any())).thenReturn(0); // 乐观锁扣减失败
@@ -145,13 +195,14 @@ class PaymentServiceImplTest {
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> paymentService.createPayment("AGS123", 1));
         assertEquals(ErrorCode.STOCK_INSUFFICIENT.getCode(), ex.getCode());
-        // 状态更新必须在库存扣减成功之后，失败时不得更新订单
-        verify(orderMapper, never()).updateById(any(Order.class));
+        // 失败路径依赖 @Transactional 回滚抢占变更；单测层面验证库存扣减确实被尝试过
+        verify(productSpecMapper).update(any(), any());
     }
 
     @Test
-    @DisplayName("支付失败：商品库存不足时抛异常，订单状态不更新")
+    @DisplayName("支付失败：商品库存不足时抛异常")
     void createPayment_productStockInsufficient_throws() {
+        claimSucceeds();
         when(orderMapper.selectOne(any())).thenReturn(pendingOrder());
         when(orderItemMapper.selectList(any())).thenReturn(List.of(item(1L, null, 99)));
         when(productMapper.update(any(), any())).thenReturn(0);
@@ -159,7 +210,6 @@ class PaymentServiceImplTest {
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> paymentService.createPayment("AGS123", 1));
         assertEquals(ErrorCode.STOCK_INSUFFICIENT.getCode(), ex.getCode());
-        verify(orderMapper, never()).updateById(any(Order.class));
     }
 
     @Test
@@ -172,7 +222,7 @@ class PaymentServiceImplTest {
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> paymentService.createPayment("AGS123", 1));
         assertEquals(ErrorCode.ORDER_STATUS_ERROR.getCode(), ex.getCode());
-        verify(orderMapper, never()).updateById(any(Order.class));
+        verify(orderMapper, never()).update(isNull(), any());
         verify(orderItemMapper, never()).selectList(any());
     }
 

@@ -35,9 +35,9 @@ public class SmsCodeServiceImpl implements SmsCodeService {
 
     @Override
     public void sendCode(String phone) {
-        // 1. 手机号格式校验
-        if (phone == null || phone.isBlank()) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "手机号不能为空");
+        // 1. 手机号格式校验（大陆手机号：1 开头第二位 3-9，共 11 位）
+        if (phone == null || !phone.matches("^1[3-9]\\d{9}$")) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "手机号格式不正确");
         }
         // TODO: 接入真实短信服务（如阿里云短信、腾讯云短信）
         // 开发阶段直接生成6位随机验证码，后端返回给前端

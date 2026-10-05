@@ -4,7 +4,7 @@
 
 | 组成 | 技术栈 | 说明 |
 |---|---|---|
-| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，32 个接口控制器，20 张业务表 |
+| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，32 个接口控制器，22 张数据表 |
 | 管理后台 | Vue 3 · Element Plus · Pinia · ECharts · Vite | 商品/订单/用户/营销/系统 15 个页面 |
 | 用户端 | uni-app（H5 + 微信小程序双端） | 23 个页面，完整购物与售后流程 |
 | AI 智能客服 | FastAPI · LangGraph · RAG（ChromaDB + bge-small-zh）· OpenAI 兼容 LLM | 独立 Python 服务，SSE 流式回复 + 评价情感分析 |
@@ -105,10 +105,10 @@ uvicorn app.main:app --port 8000 --reload
 ## 测试
 
 ```bash
-# 后端：单元 + 并发集成测试（秒杀/优惠券超卖场景、售后全流程），共 27 个测试类
+# 后端：单元 + 并发集成测试（秒杀/优惠券超卖/支付并发防重复、售后全流程、短信/评价边界），共 29 个测试类 226+ 用例
 ./mvnw test
 
-# AI 服务：图路由 / RAG / 会话记忆 / SSE 流式接口
+# AI 服务：图路由 / RAG / 会话记忆 / SSE 流式接口 / 情感分析
 cd ai-service && .venv/Scripts/python -m pytest tests -q
 ```
 

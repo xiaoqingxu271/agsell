@@ -225,4 +225,45 @@ class ReviewServiceImplTest {
         assertEquals("https://img.example.com/orange.jpg", vo.getProductImage());
         assertEquals("5斤装", vo.getSpecName());
     }
+
+    // ==================== 边界：评分与内容长度 ====================
+
+    @Test
+    @DisplayName("边界：评分为 0 / 6 被拒绝（仅允许 1~5）")
+    void ratingOutOfBoundsFails() {
+        ReviewCreateRequest low = buildRequest(1L);
+        low.setRating(0);
+        BusinessException e1 = assertThrows(BusinessException.class, () -> reviewService.createReview(low));
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), e1.getCode());
+
+        ReviewCreateRequest high = buildRequest(1L);
+        high.setRating(6);
+        BusinessException e2 = assertThrows(BusinessException.class, () -> reviewService.createReview(high));
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), e2.getCode());
+
+        verify(reviewMapper, never()).insert(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("边界：内容 501 字符拒绝，500/499 字符放行")
+    void contentLengthBoundary() {
+        ReviewCreateRequest over = buildRequest(1L);
+        over.setContent("好".repeat(501));
+        BusinessException e = assertThrows(BusinessException.class, () -> reviewService.createReview(over));
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), e.getCode());
+
+        // 500 字符（含边界值）应通过校验并正常落库
+        when(orderMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(buildOrder(3));
+        when(orderItemMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(buildItem(1L, 10L)));
+        when(reviewMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(0L);
+        ReviewCreateRequest exact = buildRequest(1L);
+        exact.setContent("好".repeat(500));
+        assertDoesNotThrow(() -> reviewService.createReview(exact));
+
+        // 499 字符同样放行
+        when(reviewMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(0L);
+        ReviewCreateRequest under = buildRequest(1L);
+        under.setContent("好".repeat(499));
+        assertDoesNotThrow(() -> reviewService.createReview(under));
+    }
 }
