@@ -39,3 +39,6 @@ build/
 
 # 环境变量（含密钥，禁止提交）
 .env
+
+# CI 本地调试生成的 profile（CI 会在自己的环境里重新生成）
+application-ci.yaml
