@@ -49,15 +49,15 @@ CREATE TABLE `banner` (
 -- ------------------------------------------------------------
 -- 测试数据：轮播图
 -- ------------------------------------------------------------
-INSERT INTO `banner` (`title`, `image`, `link`, `sort`, `status`) VALUES
-('当季新鲜水果', 'https://example.com/banner1.jpg', '/product/list?categoryId=1', 100, 1),
-('有机蔬菜特惠', 'https://example.com/banner2.jpg', '/product/list?categoryId=2', 90, 1),
-('特产农产品', 'https://example.com/banner3.jpg', '/product/list?categoryId=6', 80, 1);
+INSERT INTO `banner` (`id`, `title`, `image`, `link`, `sort`, `status`) VALUES
+(2096479314092356001, '当季新鲜水果', 'https://example.com/banner1.jpg', '/product/list?categoryId=1', 100, 1),
+(2096479314092356002, '有机蔬菜特惠', 'https://example.com/banner2.jpg', '/product/list?categoryId=2', 90, 1),
+(2096479314092356003, '特产农产品', 'https://example.com/banner3.jpg', '/product/list?categoryId=6', 80, 1);
 
 -- ------------------------------------------------------------
 -- 测试数据：评价（基于已完成订单）
 -- ------------------------------------------------------------
-INSERT INTO `review` (`order_id`, `product_id`, `user_id`, `rating`, `content`, `images`, `is_anonymous`, `reply_content`, `reply_time`) VALUES
-(1, 1, 6, 5, '非常好吃的脐橙，新鲜多汁！', '["https://example.com/review1.jpg"]', 0, '感谢您的认可，我们会继续努力！', '2026-08-25 12:00:00'),
-(1, 2, 6, 4, '蔬菜很新鲜，包装也很好', NULL, 0, NULL, NULL),
-(2094607056121999361, 1, 2092484161002274817, 5, '回购多次了，品质稳定', NULL, 1, NULL, NULL);
+INSERT INTO `review` (`id`, `order_id`, `product_id`, `user_id`, `rating`, `content`, `images`, `is_anonymous`, `reply_content`, `reply_time`) VALUES
+(2096479314092356101, 1, 1, 6, 5, '非常好吃的脐橙，新鲜多汁！', '["https://example.com/review1.jpg"]', 0, '感谢您的认可，我们会继续努力！', '2026-08-25 12:00:00'),
+(2096479314092356102, 1, 2, 6, 4, '蔬菜很新鲜，包装也很好', NULL, 0, NULL, NULL),
+(2096479314092356103, 2094607056121999361, 1, 2092484161002274817, 5, '回购多次了，品质稳定', NULL, 1, NULL, NULL);
