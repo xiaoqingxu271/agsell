@@ -6,14 +6,18 @@ import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.AfterSalesMapper;
 import com.lichun.agsell.mapper.OrderItemMapper;
 import com.lichun.agsell.mapper.OrderMapper;
+import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.model.dto.AiInternalQueryRequest;
+import com.lichun.agsell.model.dto.AiProductSearchRequest;
 import com.lichun.agsell.model.entity.AfterSales;
 import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
+import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.AiAfterSalesVO;
 import com.lichun.agsell.model.vo.AiOrderDetailVO;
 import com.lichun.agsell.model.vo.AiOrderVO;
+import com.lichun.agsell.model.vo.AiProductVO;
 import com.lichun.agsell.utils.ResultUtils;
 import com.lichun.agsell.utils.ThrowUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,6 +67,7 @@ public class AiInternalController {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final AfterSalesMapper afterSalesMapper;
+    private final ProductMapper productMapper;
 
     @Operation(summary = "我的订单列表（最近5条）")
     @PostMapping("/order/list")
@@ -167,6 +172,38 @@ public class AiInternalController {
             vo.setHandleTime(a.getHandleTime());
             result.add(vo);
         }
+        return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "智能导购商品搜索（按关键词/价格区间，默认销量降序）")
+    @PostMapping("/product/search")
+    public BaseResponse<List<AiProductVO>> productSearch(@RequestBody AiProductSearchRequest req) {
+        int limit = req.getLimit() == null ? 6 : Math.min(Math.max(req.getLimit(), 1), 10);
+
+        List<Product> products = productMapper.selectList(new LambdaQueryWrapper<Product>()
+                .eq(Product::getStatus, 1)  // 仅在售商品
+                .and(req.getKeyword() != null && !req.getKeyword().isBlank(),
+                        w -> w.like(Product::getName, req.getKeyword())
+                                .or()
+                                .like(Product::getSubtitle, req.getKeyword()))
+                .ge(req.getMinPrice() != null, Product::getPrice, req.getMinPrice())
+                .le(req.getMaxPrice() != null, Product::getPrice, req.getMaxPrice())
+                .orderByDesc(Product::getSales)
+                .last("LIMIT " + limit));
+
+        List<AiProductVO> result = products.stream().map(p -> {
+            AiProductVO vo = new AiProductVO();
+            vo.setId(p.getId());
+            vo.setName(p.getName());
+            vo.setSubtitle(p.getSubtitle());
+            vo.setPrice(p.getPrice());
+            vo.setOriginalPrice(p.getOriginalPrice());
+            vo.setSales(p.getSales());
+            vo.setOrigin(p.getOrigin());
+            vo.setHarvestDate(p.getHarvestDate());
+            vo.setMainImage(p.getMainImage());
+            return vo;
+        }).toList();
         return ResultUtils.success(result);
     }
 

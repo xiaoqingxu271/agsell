@@ -1,6 +1,6 @@
 """意图识别：LLM 分类 + 关键词兜底
 
-意图标签：faq / order / logistics / after_sales / smalltalk / human
+意图标签：faq / order / logistics / after_sales / smalltalk / human / recommend
 """
 import json
 import re
@@ -8,7 +8,7 @@ import re
 from langchain_core.messages import SystemMessage
 from langchain_core.messages.base import BaseMessage
 
-INTENT_LABELS = ("faq", "order", "logistics", "after_sales", "smalltalk", "human")
+INTENT_LABELS = ("faq", "order", "logistics", "after_sales", "smalltalk", "human", "recommend")
 
 _INTENT_PROMPT = """你是电商客服的意图识别器。只输出一个 JSON 对象，不要输出任何其他内容。
 
@@ -19,6 +19,7 @@ _INTENT_PROMPT = """你是电商客服的意图识别器。只输出一个 JSON 
 - after_sales：查询售后/退款进度（如"退款到哪了""售后处理得怎么样"）
 - smalltalk：寒暄、打招呼、闲聊（如"你好""谢谢"）
 - human：需要人工处理（投诉、情绪激烈、要求赔偿、涉及账号隐私或复杂纠纷）
+- recommend：想让我推荐/挑选商品（如"有什么水果推荐""帮我挑个礼物""买点什么好""50元以内有什么"）
 
 输出格式：{"intent": "<标签>", "order_no": "<消息中提到的订单号，没有则为 null>"}
 只输出 JSON。"""
@@ -28,6 +29,7 @@ _KEYWORD_RULES = [
     (("logistics",), ("物流", "发货", "快递", "配送", "到哪", "运单", "签收")),
     (("after_sales",), ("退款", "售后", "退货", "退换", "仅退款", "坏果", "理赔")),
     (("order",), ("订单", "下单", "买过", "购买记录", "待发货", "待收货", "确认收货")),
+    (("recommend",), ("推荐", "帮我挑", "帮我选", "买点什么", "买什么", "哪个好", "特价", "热销")),
     (("smalltalk",), ("你好", "您好", "hi", "hello", "谢谢", "再见", "在吗")),
 ]
 

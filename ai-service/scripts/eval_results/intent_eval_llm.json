@@ -1,50 +1,55 @@
 {
   "mode": "llm",
   "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset.json",
-  "total": 93,
-  "accuracy": 0.8495,
+  "total": 103,
+  "accuracy": 0.8641,
   "per_intent": {
     "after_sales": {
-      "total": 15,
-      "correct": 12,
-      "recall": 0.8
-    },
-    "faq": {
-      "total": 20,
-      "correct": 19,
-      "recall": 0.95
-    },
-    "human": {
-      "total": 14,
-      "correct": 9,
-      "recall": 0.6429
-    },
-    "logistics": {
       "total": 15,
       "correct": 13,
       "recall": 0.8667
     },
+    "faq": {
+      "total": 20,
+      "correct": 20,
+      "recall": 1.0
+    },
+    "human": {
+      "total": 14,
+      "correct": 12,
+      "recall": 0.8571
+    },
+    "logistics": {
+      "total": 15,
+      "correct": 14,
+      "recall": 0.9333
+    },
     "order": {
       "total": 15,
-      "correct": 15,
-      "recall": 1.0
+      "correct": 14,
+      "recall": 0.9333
+    },
+    "recommend": {
+      "total": 10,
+      "correct": 7,
+      "recall": 0.7
     },
     "smalltalk": {
       "total": 14,
-      "correct": 11,
-      "recall": 0.7857
+      "correct": 9,
+      "recall": 0.6429
     }
   },
   "confusion": [
     {
-      "truth": "faq",
-      "pred": "order",
+      "truth": "order",
+      "pred": "faq",
       "count": 1
     },
     {
       "truth": "logistics",
-      "pred": "faq",
-      "count": 2
+      "pred": "order",
+      "count": 1
     },
     {
       "truth": "after_sales",
@@ -54,39 +59,34 @@
     {
       "truth": "after_sales",
       "pred": "faq",
-      "count": 2
+      "count": 1
     },
     {
       "truth": "smalltalk",
       "pred": "faq",
-      "count": 3
+      "count": 5
     },
     {
       "truth": "human",
       "pred": "faq",
-      "count": 4
+      "count": 2
     },
     {
-      "truth": "human",
-      "pred": "after_sales",
-      "count": 1
+      "truth": "recommend",
+      "pred": "faq",
+      "count": 3
     }
   ],
   "misclassified": [
     {
-      "q": "待付款的订单怎么取消",
-      "truth": "faq",
+      "q": "我下的那单蜂蜜是什么状态",
+      "truth": "order",
+      "pred": "faq"
+    },
+    {
+      "q": "我买的米怎么还显示未发货",
+      "truth": "logistics",
       "pred": "order"
-    },
-    {
-      "q": "我的包裹怎么还在派送",
-      "truth": "logistics",
-      "pred": "faq"
-    },
-    {
-      "q": "什么时候能送到",
-      "truth": "logistics",
-      "pred": "faq"
     },
     {
       "q": "帮我看看我的退款审核到哪一步",
@@ -95,11 +95,6 @@
     },
     {
       "q": "换货的那单处理好了吗",
-      "truth": "after_sales",
-      "pred": "faq"
-    },
-    {
-      "q": "赔偿金额什么时候给我",
       "truth": "after_sales",
       "pred": "faq"
     },
@@ -119,6 +114,16 @@
       "pred": "faq"
     },
     {
+      "q": "辛苦啦",
+      "truth": "smalltalk",
+      "pred": "faq"
+    },
+    {
+      "q": "今天心情不错",
+      "truth": "smalltalk",
+      "pred": "faq"
+    },
+    {
       "q": "叫你们领导来",
       "truth": "human",
       "pred": "faq"
@@ -129,18 +134,18 @@
       "pred": "faq"
     },
     {
-      "q": "吃了你们的坏果拉肚子了，你们要负责任",
-      "truth": "human",
-      "pred": "after_sales"
-    },
-    {
-      "q": "帮我转接人工客服",
-      "truth": "human",
+      "q": "哪种茶叶比较好",
+      "truth": "recommend",
       "pred": "faq"
     },
     {
-      "q": "你们服务太差了，我要给媒体爆料",
-      "truth": "human",
+      "q": "销量最高的商品是哪些",
+      "truth": "recommend",
+      "pred": "faq"
+    },
+    {
+      "q": "有没有便宜又好吃的水果",
+      "truth": "recommend",
       "pred": "faq"
     }
   ],

@@ -64,7 +64,7 @@ def evaluate(predictions: list[tuple[str, str | None]], cases: list[dict]) -> di
 
 def print_report(mode: str, result: dict, latencies_ms: list[float], order_no_acc: float):
     print(f"\n## 意图识别评估报告（mode={mode}）\n")
-    print(f"- 测试集规模：{result['total']} 条（6 类意图）")
+    print(f"- 测试集规模：{result['total']} 条（{len(result['per_intent'])} 类意图）")
     print(f"- **总体准确率：{result['accuracy']:.1%}**")
     if latencies_ms:
         lat_sorted = sorted(latencies_ms)

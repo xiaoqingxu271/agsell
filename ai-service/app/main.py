@@ -175,7 +175,7 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
 _STREAMING_NODES = ("generate", "smalltalk")
 
 # 业务查询节点 → 前端阶段提示（如"正在查询订单…"）
-_STAGE_EVENTS = ("faq_retrieve", "order_query", "logistics_query", "after_sales_query")
+_STAGE_EVENTS = ("faq_retrieve", "order_query", "logistics_query", "after_sales_query", "recommend_query")
 
 
 def _sse(event: str, data: dict) -> str:

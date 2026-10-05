@@ -1,8 +1,8 @@
 {
   "mode": "keyword",
   "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset.json",
-  "total": 93,
-  "accuracy": 0.7527,
+  "total": 103,
+  "accuracy": 0.7379,
   "per_intent": {
     "after_sales": {
       "total": 15,
@@ -28,6 +28,11 @@
       "total": 15,
       "correct": 14,
       "recall": 0.9333
+    },
+    "recommend": {
+      "total": 10,
+      "correct": 6,
+      "recall": 0.6
     },
     "smalltalk": {
       "total": 14,
@@ -80,6 +85,11 @@
       "truth": "human",
       "pred": "after_sales",
       "count": 1
+    },
+    {
+      "truth": "recommend",
+      "pred": "faq",
+      "count": 4
     }
   ],
   "misclassified": [
@@ -196,6 +206,26 @@
     {
       "q": "你们服务太差了，我要给媒体爆料",
       "truth": "human",
+      "pred": "faq"
+    },
+    {
+      "q": "50 元以内有什么好物",
+      "truth": "recommend",
+      "pred": "faq"
+    },
+    {
+      "q": "哪种茶叶比较好",
+      "truth": "recommend",
+      "pred": "faq"
+    },
+    {
+      "q": "销量最高的商品是哪些",
+      "truth": "recommend",
+      "pred": "faq"
+    },
+    {
+      "q": "有没有便宜又好吃的水果",
+      "truth": "recommend",
       "pred": "faq"
     }
   ],

@@ -1,10 +1,11 @@
-"""LangGraph 图构建（阶段三 + 阶段四）
+"""LangGraph 图构建（阶段三 + 阶段四 + 阶段六）
 
 START → intent → 条件路由：
   faq        → faq_retrieve → generate → END
   order      → order_query → generate → END
   logistics  → logistics_query → generate → END
   after_sales→ after_sales_query → generate → END
+  recommend  → recommend_query → generate → END（智能导购）
   smalltalk  → smalltalk → END
   human      → human_fallback → END
 
@@ -22,6 +23,7 @@ from app.agent.nodes import (
     make_intent_node,
     make_logistics_query_node,
     make_order_query_node,
+    make_recommend_node,
     make_smalltalk_node,
     route_by_intent,
 )
@@ -42,6 +44,7 @@ def build_graph(llm, retriever=None, java_api_module=None, checkpointer=_DEFAULT
     builder.add_node("order_query", make_order_query_node(java_api_module))
     builder.add_node("logistics_query", make_logistics_query_node(java_api_module))
     builder.add_node("after_sales_query", make_after_sales_query_node(java_api_module))
+    builder.add_node("recommend_query", make_recommend_node(java_api_module, llm))
     builder.add_node("generate", make_generate_node(llm))
     builder.add_node("smalltalk", make_smalltalk_node(llm))
     builder.add_node("human_fallback", make_human_fallback_node())
@@ -52,6 +55,7 @@ def build_graph(llm, retriever=None, java_api_module=None, checkpointer=_DEFAULT
     builder.add_edge("order_query", "generate")
     builder.add_edge("logistics_query", "generate")
     builder.add_edge("after_sales_query", "generate")
+    builder.add_edge("recommend_query", "generate")
     builder.add_edge("generate", END)
     builder.add_edge("smalltalk", END)
     builder.add_edge("human_fallback", END)

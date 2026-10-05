@@ -98,6 +98,17 @@
     {"q": "太过分了，给我个说法，不然投诉到市场监管局", "intent": "human"},
     {"q": "帮我转接人工客服", "intent": "human"},
     {"q": "我要举报售假", "intent": "human"},
-    {"q": "你们服务太差了，我要给媒体爆料", "intent": "human"}
+    {"q": "你们服务太差了，我要给媒体爆料", "intent": "human"},
+
+    {"q": "有什么水果推荐", "intent": "recommend"},
+    {"q": "帮我挑个礼物送长辈", "intent": "recommend"},
+    {"q": "50 元以内有什么好物", "intent": "recommend"},
+    {"q": "不知道买点什么，推荐一下", "intent": "recommend"},
+    {"q": "哪种茶叶比较好", "intent": "recommend"},
+    {"q": "最近有什么特价商品", "intent": "recommend"},
+    {"q": "销量最高的商品是哪些", "intent": "recommend"},
+    {"q": "帮我选一款适合自己吃的大米", "intent": "recommend"},
+    {"q": "第一次买，不知道买什么好", "intent": "recommend"},
+    {"q": "有没有便宜又好吃的水果", "intent": "recommend"}
   ]
 }

@@ -4,6 +4,7 @@
 - POST /api/ai/internal/order/list        {userId, status?}  → 最近订单列表
 - POST /api/ai/internal/order/detail      {userId, orderNo}  → 订单详情+物流（校验归属）
 - POST /api/ai/internal/after-sales/list  {userId, status?}  → 最近售后列表
+- POST /api/ai/internal/product/search    {keyword?, minPrice?, maxPrice?, limit?} → 导购商品列表
 统一响应：{code: 0, data: ..., message: "ok"}，code != 0 视为失败。
 """
 import json
@@ -64,6 +65,24 @@ def query_logistics(user_id: int, order_no: str) -> dict:
 def query_after_sales(user_id: int, status: int | None = None) -> list[dict]:
     """查询用户最近售后/退款记录"""
     data = _post("/ai/internal/after-sales/list", {"userId": user_id, "status": status})
+    return data or []
+
+
+def search_products(
+    keyword: str | None = None,
+    min_price: float | None = None,
+    max_price: float | None = None,
+    limit: int = 6,
+) -> list[dict]:
+    """智能导购商品搜索（无需登录态；无 keyword 时按销量降序返回热销商品）"""
+    payload: dict = {"limit": limit}
+    if keyword:
+        payload["keyword"] = keyword
+    if min_price is not None:
+        payload["minPrice"] = min_price
+    if max_price is not None:
+        payload["maxPrice"] = max_price
+    data = _post("/ai/internal/product/search", payload)
     return data or []
 
 
