@@ -13,3 +13,5 @@ mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MY
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/traceability_module.sql
 # 优惠券二期：折扣券/品类券（加 discount/max_discount 列 + coupon_product 表）
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/coupon_type_extension.sql
+# 评价情感分析：review 表加情感标签/得分/关键词三列（口碑摘要依赖，缺列会导致评价接口 SQL 报错）
+mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/review_sentiment.sql

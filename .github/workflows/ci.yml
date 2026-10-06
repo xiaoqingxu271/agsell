@@ -81,6 +81,7 @@ jobs:
           done
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
             < sql/migration/coupon_type_extension.sql
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \n            < sql/migration/review_sentiment.sql
 
       # application-local.yaml 在 .gitignore 中、不进仓库，
       # 而提交的 application.yaml 全是占位符，因此 CI 现场生成一个 ci profile
