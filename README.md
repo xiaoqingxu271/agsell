@@ -1,5 +1,7 @@
 # agsell — 农产品/特产电商销售系统
 
+[![CI](https://github.com/xiaoqingxu271/agsell/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/xiaoqingxu271/agsell/actions/workflows/ci.yml)
+
 一套**三端一体**的农产品电商平台毕业设计项目：产地直供 + 全链路溯源 + AI 智能客服，打通"浏览 → 下单 → 支付 → 履约 → 售后"完整购物闭环。
 
 | 组成 | 技术栈 | 说明 |
