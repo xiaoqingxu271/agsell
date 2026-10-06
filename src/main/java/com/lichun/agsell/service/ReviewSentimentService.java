@@ -24,4 +24,9 @@ public interface ReviewSentimentService {
      * 商品口碑摘要聚合（商品详情页展示）
      */
     ReviewSummaryVO getProductReviewSummary(Long productId);
+
+    /**
+     * 全局口碑统计（管理端仪表盘饼图）：聚合全部已分析评价的情感分布与好评关键词
+     */
+    ReviewSummaryVO getGlobalSentimentStats();
 }

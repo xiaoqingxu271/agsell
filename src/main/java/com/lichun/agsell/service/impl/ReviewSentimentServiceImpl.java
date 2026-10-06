@@ -66,8 +66,15 @@ public class ReviewSentimentServiceImpl implements ReviewSentimentService {
     @Override
     public ReviewSummaryVO getProductReviewSummary(Long productId) {
         List<Review> reviews = reviewMapper.selectList(new LambdaQueryWrapper<Review>()
-                .select(Review::getSentimentLabel, Review::getSentimentKeywords)
+                .select(Review::getId, Review::getSentimentLabel, Review::getSentimentKeywords)
                 .eq(Review::getProductId, productId));
+        return ReviewSummaryVO.of(reviews);
+    }
+
+    @Override
+    public ReviewSummaryVO getGlobalSentimentStats() {
+        List<Review> reviews = reviewMapper.selectList(new LambdaQueryWrapper<Review>()
+                .select(Review::getId, Review::getSentimentLabel, Review::getSentimentKeywords));
         return ReviewSummaryVO.of(reviews);
     }
 

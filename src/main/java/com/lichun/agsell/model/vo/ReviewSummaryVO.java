@@ -56,6 +56,9 @@ public class ReviewSummaryVO implements Serializable {
 
         Map<String, Integer> keywordCount = new HashMap<>();
         for (Review r : reviews) {
+            if (r == null) {
+                continue;  // select 投影列全 NULL 时 MyBatis 会映射为 null 元素，防御性跳过
+            }
             Integer label = r.getSentimentLabel();
             if (label == null) {
                 continue;  // 未分析的不计入

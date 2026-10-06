@@ -90,6 +90,15 @@
           <view class="section-title">用户评价</view>
           <text class="review-more" @click="onViewReviews">查看全部评价</text>
         </view>
+        <view v-if="reviewSummary && reviewSummary.total > 0" class="review-summary">
+          <view class="summary-rate">
+            <text class="rate-num">{{ reviewSummary.positiveRate }}</text>
+            <text class="rate-unit">% 好评</text>
+          </view>
+          <view class="summary-keywords">
+            <text v-for="kw in reviewSummary.topKeywords" :key="kw" class="keyword-chip">{{ kw }}</text>
+          </view>
+        </view>
         <view v-if="reviews.length > 0" class="review-list">
           <view v-for="r in reviews.slice(0, 2)" :key="r.id" class="review-card-item">
             <view class="review-user-row">
@@ -139,6 +148,8 @@ const specs = ref([])
 const selectedSpec = ref(null)
 const quantity = ref(1)
 const reviews = ref([])
+// 口碑摘要（好评率 + 好评关键词，来自评价情感分析聚合）
+const reviewSummary = ref(null)
 const relatedProducts = ref([])
 
 const allImages = computed(() => {
@@ -177,6 +188,7 @@ async function loadProductDetail(id) {
     const res = await getProductDetail(id)
     if (res.code === 0 && res.data) {
       product.value = res.data
+      reviewSummary.value = res.data.reviewSummary || null
       if (res.data.images) {
         images.value = Array.isArray(res.data.images) ? res.data.images : []
       }
@@ -717,5 +729,44 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 
 .btn-buy {
   background: #00B578;
+}
+
+/* 口碑摘要条（好评率 + 关键词标签） */
+.review-summary {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin: 16rpx 0;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, #F0FAF3, #FFFFFF);
+  border-radius: 16rpx;
+}
+.summary-rate {
+  display: flex;
+  align-items: baseline;
+  flex-shrink: 0;
+}
+.rate-num {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #15803D;
+}
+.rate-unit {
+  font-size: 22rpx;
+  color: #15803D;
+  margin-left: 6rpx;
+}
+.summary-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+.keyword-chip {
+  font-size: 22rpx;
+  color: #15803D;
+  background: #FFFFFF;
+  border: 1rpx solid #B7DCC4;
+  border-radius: 999rpx;
+  padding: 4rpx 18rpx;
 }
 </style>

@@ -310,3 +310,23 @@ export function emptyTrendOption(): EChartsOption {
     series: [],
   }
 }
+
+/** 评价口碑分布（好评/中评/差评 环形图，来自评价情感分析聚合） */
+export function buildSentimentPieOption(stats: {
+  total: number
+  positiveCount: number
+  neutralCount: number
+  negativeCount: number
+} | null): EChartsOption {
+  const s = stats ?? { total: 0, positiveCount: 0, neutralCount: 0, negativeCount: 0 }
+  const pct = s.total > 0 ? `${((s.positiveCount / s.total) * 100).toFixed(1)}%` : '0%'
+  return buildDonutOption({
+    centerText: pct,
+    centerSub: '好评率',
+    items: [
+      { name: '好评', value: s.positiveCount, color: '#34C77B' },
+      { name: '中评', value: s.neutralCount, color: '#F59E0B' },
+      { name: '差评', value: s.negativeCount, color: '#DC2626' },
+    ],
+  })
+}

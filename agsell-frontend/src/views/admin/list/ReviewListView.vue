@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { listReviews, replyReview, deleteReview } from '@/api/admin'
+import { listReviews, replyReview, deleteReview, syncSentiment } from '@/api/admin'
 import type { ReviewListItemVO, ReplyRequest } from '@/types'
 import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
+const syncing = ref(false)
 const reviewList = ref<ReviewListItemVO[]>([])
 const total = ref(0)
 const page = ref(1)
@@ -28,6 +29,18 @@ async function fetchList() {
     // interceptor handles error
   } finally {
     loading.value = false
+  }
+}
+
+/** 触发口碑分析：拉取未分析评价调用 AI 服务批量分析 */
+async function handleSyncSentiment() {
+  syncing.value = true
+  try {
+    const res = await syncSentiment()
+    ElMessage.success(`口碑分析完成：本次分析 ${res.analyzedCount} 条，剩余 ${res.remainingCount} 条未分析`)
+    await fetchList()
+  } finally {
+    syncing.value = false
   }
 }
 
@@ -127,6 +140,7 @@ onMounted(fetchList)
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="handleSearch">搜索</el-button>
+          <el-button :loading="syncing" @click="handleSyncSentiment">口碑分析</el-button>
           <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
@@ -150,6 +164,14 @@ onMounted(fetchList)
         <el-table-column label="评分" width="160" align="center">
           <template #default="{ row }">
             <span class="admin-rating">{{ ratingStars(row.rating) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="口碑" width="90" align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.sentimentLabel === 1" type="success" size="small" class="admin-status-tag">好评</el-tag>
+            <el-tag v-else-if="row.sentimentLabel === 0" type="warning" size="small" class="admin-status-tag">中评</el-tag>
+            <el-tag v-else-if="row.sentimentLabel === -1" type="danger" size="small" class="admin-status-tag">差评</el-tag>
+            <el-tag v-else type="info" size="small" class="admin-status-tag">未分析</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="评价内容" min-width="160" align="center" show-overflow-tooltip>

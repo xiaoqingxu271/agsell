@@ -3,12 +3,13 @@ import { computed, onMounted, ref } from 'vue'
 import {
   Refresh,
 } from '@element-plus/icons-vue'
-import { getAdminStatistics, getStatisticsTrend } from '@/api/admin'
-import type { AdminStatisticsVO, StatisticsTrendVO } from '@/types'
+import { getAdminStatistics, getStatisticsTrend, getSentimentStats } from '@/api/admin'
+import type { AdminStatisticsVO, SentimentStatsVO, StatisticsTrendVO } from '@/types'
 import BaseChart from '@/components/BaseChart.vue'
 import PageHeader from '@/components/admin/PageHeader.vue'
 import KpiPanel from '@/components/admin/KpiPanel.vue'
 import {
+  buildSentimentPieOption,
   buildUserPieOption,
   buildActivePieOption,
   buildOrderPieOption,
@@ -19,6 +20,7 @@ import {
 } from './dashboard-options'
 
 const stats = ref<AdminStatisticsVO | null>(null)
+const sentiment = ref<SentimentStatsVO | null>(null)
 const trend = ref<StatisticsTrendVO | null>(null)
 const trendDays = ref(7)
 const loading = ref(false)
@@ -27,12 +29,14 @@ const loading = ref(false)
 async function loadAll() {
   loading.value = true
   try {
-    const [s, t] = await Promise.all([
+    const [s, t, se] = await Promise.all([
       getAdminStatistics(),
       getStatisticsTrend(trendDays.value),
+      getSentimentStats(),
     ])
     stats.value = s
     trend.value = t
+    sentiment.value = se
   } finally {
     loading.value = false
   }
@@ -78,6 +82,7 @@ const userTrendOption = computed(() =>
 const salesTrendOption = computed(() =>
   trend.value ? buildSalesTrendOption(trend.value) : emptyTrendOption(),
 )
+const sentimentPieOption = computed(() => buildSentimentPieOption(sentiment.value))
 </script>
 
 <template>
@@ -127,6 +132,49 @@ const salesTrendOption = computed(() =>
     </el-row>
 
     <!-- 构成图区 2x2（两行独立排列，行间留白） -->
+    <!-- 评价口碑分析（情感分析聚合） -->
+    <el-row :gutter="16" class="chart-row">
+      <el-col :xs="24" :md="12">
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">评价口碑分布</div>
+              <div class="chart-sub">基于 AI 情感分析的好评 / 中评 / 差评占比</div>
+            </div>
+          </div>
+          <div class="chart-box">
+            <BaseChart :option="sentimentPieOption" />
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :md="12">
+        <el-card shadow="never" class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">好评关键词</div>
+              <div class="chart-sub">好评评价中的高频关键词 Top5</div>
+            </div>
+          </div>
+          <div class="keyword-panel">
+            <template v-if="sentiment && sentiment.topKeywords.length > 0">
+              <el-tag
+                v-for="kw in sentiment.topKeywords"
+                :key="kw"
+                size="large"
+                effect="plain"
+                class="keyword-tag"
+              >{{ kw }}</el-tag>
+            </template>
+            <el-empty
+              v-else
+              description="暂无口碑数据，请先在「评价管理」执行口碑分析"
+              :image-size="80"
+            />
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
     <el-row :gutter="16" class="chart-row">
       <el-col :xs="24" :md="12">
         <el-card shadow="never" class="chart-card">
@@ -193,6 +241,20 @@ const salesTrendOption = computed(() =>
 }
 
 /* 图表区块间距（行与行之间留白） */
+.keyword-panel {
+  min-height: 220px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.keyword-tag {
+  color: #15803D;
+  border-color: #B7DCC4;
+}
+
 .chart-row {
   margin-bottom: 16px;
 }

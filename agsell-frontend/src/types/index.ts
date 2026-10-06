@@ -216,6 +216,15 @@ export interface ReplyRequest {
   replyContent: string
 }
 
+export interface SentimentStatsVO {
+  total: number
+  positiveCount: number
+  neutralCount: number
+  negativeCount: number
+  positiveRate: number
+  topKeywords: string[]
+}
+
 export interface ReviewListItemVO {
   id: number
   orderId: number
@@ -229,6 +238,9 @@ export interface ReviewListItemVO {
   replied: boolean
   isAnonymous: number
   createTime: string
+
+  /** 情感标签 1=好评 0=中评 -1=差评（NULL=未分析） */
+  sentimentLabel?: number
 }
 
 // ─── 数据统计 ─────────────────────────────────────────────────────────────────

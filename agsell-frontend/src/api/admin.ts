@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 import type {
   AdminInfoVO,
+  SentimentStatsVO,
   AdminLoginRequest,
   AdminLoginVO,
   AdminUserListItemVO,
@@ -420,4 +421,18 @@ export function listSysLogs(params: { pageSize?: number; module?: string; adminN
 /** 通知中心：铃铛待办汇总 */
 export function noticeSummary() {
   return request.get<{ pendingShipCount: number; lowStockCount: number; pendingAfterSalesCount: number; total: number }>('/admin/notice/summary')
+}
+
+/** 口碑分析同步：拉取未分析评价调用 AI 服务批量分析并回写 */
+export function syncSentiment(productId?: number) {
+  return request.post<{ analyzedCount: number; remainingCount: number }>(
+    '/admin/review/sentiment/sync',
+    null,
+    { params: productId ? { productId } : {} },
+  )
+}
+
+/** 全局口碑统计 */
+export function getSentimentStats() {
+  return request.get<SentimentStatsVO>('/admin/review/sentiment/stats')
 }

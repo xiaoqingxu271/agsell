@@ -5,6 +5,7 @@ import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.model.dto.ReplyRequest;
 import com.lichun.agsell.model.vo.ReviewListItemVO;
 import com.lichun.agsell.model.vo.ReviewSentimentSyncVO;
+import com.lichun.agsell.model.vo.ReviewSummaryVO;
 import com.lichun.agsell.service.AdminReviewService;
 import com.lichun.agsell.service.ReviewSentimentService;
 import com.lichun.agsell.utils.ResultUtils;
@@ -52,5 +53,11 @@ public class AdminReviewController {
     public BaseResponse<ReviewSentimentSyncVO> syncSentiment(
             @RequestParam(required = false) Long productId) {
         return ResultUtils.success(reviewSentimentService.syncSentiment(productId));
+    }
+
+    @Operation(summary = "全局口碑统计", description = "聚合全部已分析评价的情感分布与好评关键词（仪表盘饼图数据源）")
+    @GetMapping("/sentiment/stats")
+    public BaseResponse<ReviewSummaryVO> sentimentStats() {
+        return ResultUtils.success(reviewSentimentService.getGlobalSentimentStats());
     }
 }

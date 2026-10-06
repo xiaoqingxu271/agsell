@@ -9,6 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -32,6 +35,12 @@ class ReviewSentimentServiceImplTest {
 
     @InjectMocks
     private ReviewSentimentServiceImpl service;
+
+    @org.junit.jupiter.api.BeforeAll
+    static void initMybatisPlusLambdaCache() {
+        MapperBuilderAssistant assistant = new MapperBuilderAssistant(new MybatisConfiguration(), "");
+        TableInfoHelper.initTableInfo(assistant, Review.class);
+    }
 
     private Review pendingReview(Long id, String content) {
         Review r = new Review();
@@ -88,5 +97,29 @@ class ReviewSentimentServiceImplTest {
         assertEquals(3, vo.getRemainingCount());
         verifyNoInteractions(sentimentClient);
         verify(reviewMapper, never()).updateById(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("全局口碑统计：跨商品聚合全部已分析评价")
+    void globalStatsAggregatesAllReviews() {
+        when(reviewMapper.selectList(any())).thenReturn(List.of(
+                reviewWith(1L, "新鲜,好吃"), reviewWith(2L, "新鲜"),
+                reviewWith(3L, null), reviewWith(4L, "坏果")));
+
+        var vo = service.getGlobalSentimentStats();
+
+        assertEquals(4, vo.getTotal());
+        assertEquals(2, vo.getPositiveCount());
+        assertEquals(1, vo.getNeutralCount());
+        assertEquals(1, vo.getNegativeCount());
+        assertEquals(List.of("新鲜", "好吃"), vo.getTopKeywords());
+    }
+
+    private com.lichun.agsell.model.entity.Review reviewWith(long id, String keywords) {
+        com.lichun.agsell.model.entity.Review r = new com.lichun.agsell.model.entity.Review();
+        r.setId(id);
+        r.setSentimentLabel(keywords == null ? 0 : (keywords.contains("坏") ? -1 : 1));
+        r.setSentimentKeywords(keywords);
+        return r;
     }
 }
