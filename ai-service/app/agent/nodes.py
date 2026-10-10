@@ -14,7 +14,13 @@
 import json
 import re
 
-from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
+from langchain_core.messages import (
+    AIMessage,
+    AnyMessage,
+    HumanMessage,
+    SystemMessage,
+    trim_messages,
+)
 
 from app.agent.intent import classify_intent
 from app.config import settings
@@ -180,6 +186,45 @@ def make_recommend_node(java_api_module=None, llm=None):
     return recommend_query_node
 
 
+# ---------- 多轮历史窗口截断（阶段七）----------
+def _message_char_len(messages) -> int:
+    """字符数计数器，兼容 trim_messages 的两种调用约定：传单条消息，或传整个消息列表。
+
+    中文按字符近似计 token（避免 'approximate' 按空白切词把整句中文算作 1 个 token）。
+    """
+    # trim_messages 可能直接传入消息列表（list 计数器分支）
+    if isinstance(messages, (list, tuple)):
+        return sum(_message_char_len(m) for m in messages)
+    content = getattr(messages, "content", "")
+    if isinstance(content, str):
+        return len(content)
+    if isinstance(content, list):  # 多模态片段 [{'type': 'text', 'text': ...}]
+        return sum(len(part.get("text", "")) for part in content if isinstance(part, dict))
+    return 0
+
+
+def _build_messages(system_prompt: str, history: list, max_chars: int | None = None) -> list:
+    """组装发给 LLM 的消息：system 常驻 + 历史按字符预算保留最近对话。
+
+    - max_chars 默认取 settings.HISTORY_MAX_CHARS，<=0 表示不截断；
+    - strategy="last" 保留最近对话；include_system=True 始终保留系统提示词；
+    - start_on="human" 保证截断后从一条完整 HumanMessage 开始，避免半截轮次。
+    """
+    budget = settings.HISTORY_MAX_CHARS if max_chars is None else max_chars
+    messages: list[AnyMessage] = [SystemMessage(content=system_prompt), *list(history)]
+    if budget and budget > 0:
+        messages = trim_messages(
+            messages,
+            max_tokens=budget,
+            token_counter=_message_char_len,
+            strategy="last",
+            include_system=True,
+            start_on="human",
+            allow_partial=False,
+        )
+    return messages
+
+
 # ---------- 生成 ----------
 def make_generate_node(llm):
     def generate_node(state: dict) -> dict:
@@ -203,8 +248,7 @@ def make_generate_node(llm):
                 platform=settings.PLATFORM_NAME,
                 service_phone=settings.SERVICE_PHONE,
             )
-        messages: list[AnyMessage] = [SystemMessage(content=system_prompt)]
-        messages.extend(state["messages"])
+        messages = _build_messages(system_prompt, state["messages"])
         try:
             response = llm.invoke(messages)
         except Exception as e:  # 阶段五：Agnes 限流/超时/断网 → 降级话术，不白屏
@@ -223,10 +267,9 @@ def make_generate_node(llm):
 # ---------- 闲聊 ----------
 def make_smalltalk_node(llm):
     def smalltalk_node(state: dict) -> dict:
-        messages: list[AnyMessage] = [
-            SystemMessage(content=build_smalltalk_prompt(settings.PLATFORM_NAME))
-        ]
-        messages.extend(state["messages"])
+        messages = _build_messages(
+            build_smalltalk_prompt(settings.PLATFORM_NAME), state["messages"]
+        )
         try:
             response = llm.invoke(messages)
         except Exception as e:  # 阶段五：降级话术

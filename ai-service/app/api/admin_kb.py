@@ -7,8 +7,10 @@
 - PUT  /v1/admin/kb/faqs/{id} 更新 FAQ
 - DELETE /v1/admin/kb/faqs/{id} 删除 FAQ
 
-提示：修改 FAQ 后需调用 POST /index 重建索引才生效。
+提示：新增/修改/删除 FAQ 后自动增量同步向量库；也可随时调用 POST /index 全量重建。
 """
+import logging
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -17,6 +19,8 @@ from app.config import settings
 from app.db import get_session
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
+
+logger = logging.getLogger("agsell.ai.kb")
 
 router = APIRouter(prefix="/admin/kb", tags=["知识库管理"])
 
@@ -102,7 +106,7 @@ def create_faq(body: FaqCreate, session: Session = Depends(get_session), _=Depen
     f = faq_repo.create(
         session, body.question, body.answer, body.category, body.keywords, body.status
     )
-    return {"id": f.id}
+    return {"id": f.id, "indexed": _sync_upsert(f)}
 
 
 @router.put("/faqs/{faq_id}")
@@ -119,17 +123,54 @@ def update_faq(
     )
     if not f:
         raise HTTPException(status_code=404, detail="FAQ 不存在")
-    return {"id": f.id}
+    return {"id": f.id, "indexed": _sync_upsert(f)}
 
 
 @router.delete("/faqs/{faq_id}")
 def delete_faq(faq_id: int, session: Session = Depends(get_session), _=Depends(_check_admin_key)):
     if not faq_repo.delete(session, faq_id):
         raise HTTPException(status_code=404, detail="FAQ 不存在")
-    return {"deleted": True}
+    return {"deleted": True, "deindexed": _sync_delete(faq_id)}
 
 
 def _get_vectorstore() -> VectorStore:
     from app.main import get_vectorstore  # 延迟导入避免循环依赖
 
     return get_vectorstore()
+
+
+def _faq_entry(f) -> dict:
+    return {
+        "id": f.id,
+        "question": f.question,
+        "answer": f.answer,
+        "category": f.category,
+        "keywords": f.keywords or "",
+    }
+
+
+def _sync_upsert(f) -> bool:
+    """新增/修改后增量同步向量库：启用条目 upsert，停用条目从索引删除。
+
+    MySQL 是数据源（source of truth），索引失败不回滚 DB，仅标记 indexed=False，
+    管理员可随后调用 POST /index 全量重建修复。
+    """
+    try:
+        vs = _get_vectorstore()
+        if f.status == 1:
+            vs.upsert(_faq_entry(f))
+        else:
+            vs.delete_ids([f.id])
+        return True
+    except Exception:
+        logger.exception("FAQ id=%s 增量索引同步失败，可调用 POST /v1/admin/kb/index 全量重建", f.id)
+        return False
+
+
+def _sync_delete(faq_id: int) -> bool:
+    try:
+        _get_vectorstore().delete_ids([faq_id])
+        return True
+    except Exception:
+        logger.exception("FAQ id=%s 索引删除失败", faq_id)
+        return False

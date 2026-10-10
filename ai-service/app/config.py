@@ -50,6 +50,10 @@ class Settings(BaseSettings):
     LLM_TIMEOUT: float = 30.0   # 单次 LLM 请求超时（秒）
     LLM_MAX_RETRIES: int = 2    # 429/5xx 自动退避重试次数
 
+    # 阶段七：多轮历史窗口截断（发给 LLM 的对话字符预算，system 常驻、保留最近对话）
+    # 中文按字符近似计 token；0 = 不截断。用于控制长会话的 token 成本与首 token 延迟。
+    HISTORY_MAX_CHARS: int = 3000
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -102,8 +102,9 @@ def test_sqlite_checkpointer_async_api():
                 retriever=StubRetriever(),
                 checkpointer=saver,
             )
+            # 用不被高置信规则前置的 faq 输入（"你好"现会被规则直出为 smalltalk）
             result = await graph.ainvoke(
-                {"messages": [HumanMessage(content="你好")], "userId": 1},
+                {"messages": [HumanMessage(content="运费怎么算")], "userId": 1},
                 config={"configurable": {"thread_id": "async-t1"}},
             )
             assert result["intent"] == "faq"

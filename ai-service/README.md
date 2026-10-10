@@ -34,7 +34,7 @@ uvicorn app.main:app --port 8000
 | POST   | `/v1/admin/kb/index`     | 全量重建索引（MySQL → 向量化 → Chroma）                                                 |
 | GET    | `/v1/admin/kb/faqs`      | FAQ 列表（分页 / 分类）                                                              |
 | POST   | `/v1/admin/kb/faqs`      | 新增 FAQ                                                                       |
-| PUT    | `/v1/admin/kb/faqs/{id}` | 更新 FAQ（改后需重建索引生效）                                                            |
+| PUT    | `/v1/admin/kb/faqs/{id}` | 更新 FAQ（阶段七起自动增量同步索引；置为停用则自动从索引下架）                                                  |
 | DELETE | `/v1/admin/kb/faqs/{id}` | 删除 FAQ                                                                       |
 | GET    | `/docs`                  | Swagger 文档                                                                   |
 
@@ -63,6 +63,10 @@ intent 节点：LLM 意图分类 + 订单号正则 + 关键词兜底
 * **未登录处理**：`userId` 为空时订单 / 物流 / 售后节点返回引导话术（建议登录或拨打客服电话），不走 Java 回调。
 * **FAQ 双路召回**：① Chroma 向量召回（bge-small-zh-v1.5, cosine）② 关键词精确命中（ai_faq.keywords，每个 +0.5 分），合并去重回填答案。
 * **图结构**：`START → intent → 条件路由（6 分支）`（LangGraph 1.2，代码在 `app/agent/`）。
+* **阶段七（低成本加固）**：
+  * **意图三级路由**：高置信硬规则前置（人工强诉求 / 纯寒暄毫秒级直出，**不调 LLM**，省往返、省额度）→ LLM 语义分类（prompt 内置 few-shot 易混示例）→ 关键词兜底；寒暄夹带业务词（如"谢谢，退款到哪了"）不前置，一律交 LLM。规则通道 103 题评测准确率 **73.8% → 96.1%**。
+  * **历史窗口截断**：generate / smalltalk 节点按 `HISTORY_MAX_CHARS`（默认 3000 字符）用 `trim_messages` 保留最近对话，system 常驻、从完整 human 轮次起，控制长会话的 token 成本与首 token 延迟。
+  * **FAQ 增量索引**：新增 / 修改 / 删除经 Chroma `upsert / delete` 自动同步（停用即下架、删除忽略不存在 id），无需每次全量 rebuild；MySQL 仍是数据源，索引失败仅返回 `indexed:false`，可随时 POST `/index` 重建。
 
 ## Java 侧内部接口（阶段三新增）
 
@@ -119,6 +123,7 @@ ai-service/
 | 端到端对话（阶段三，2026-09-18） | ①"我的订单现在是什么状态？"→ 真实 5 笔订单状态汇总；②"订单 AGS2097951729641160704 到哪了？"→ 待发货 + 引导；③"我申请过退款吗？"→ 4 笔已同意 + 1 笔已拒绝明细；④"你好"→ 闲聊回复；⑤未登录查订单/退款 → 引导登录话术；⑥"客服电话是多少？"→ 400-000-0000 |
 | 阶段四联调（2026-09-18） | Java AiChatController + 小程序聊天页全链路 10 用例通过：游客 FAQ 4 问、JWT 登录态订单/售后/物流 3 问、多轮上下文 2 问、空消息边界 1 问（详见 doc 设计文档 §14 联调报告）；uniapp `build:h5` 通过 |
 | 阶段五加固（2026-09-18） | ① 会话记忆持久化 SqliteSaver：**跨重启实测**（"我叫小明"→ 重启 →"我是谁"答"你是小明呀"）+ SQLite 落盘 28 条链；② Agnes 限流退避 max_retries=2 + 降级话术（FailingLLM stub 验证不白屏）；③ pytest **19/19**；④ Dockerfile + docker-compose（python:3.14-slim + redis-stack）；⑤ 安全复查：`/v1/chat` 新增 X-Internal-Key 鉴权（无 Key 401/带 Key 200），密钥不入 git，越权/隐私/Prompt 注入逐项通过 |
+| 阶段七加固（2026-10-10） | ① 意图规则通道（硬规则前置 + 关键词扩充）103 题准确率 **73.8%→96.1%**：smalltalk 50%→100%、human 64%→100%、recommend 60%→100%、logistics 80%→100%、after_sales 73%→100%，人工/寒暄类**零 LLM 调用**、单条≈0ms（剩余 4 条强歧义由 LLM few-shot 覆盖）；② `trim_messages` 历史窗口截断（system 常驻/保留最近/当前问题不丢）；③ Chroma 增量索引 upsert 幂等、delete 忽略不存在 id（fake embedder + 临时目录实测）；④ pytest **50/50**。注：LLM 通道 few-shot 增益需配置 `AGNES_API_KEY` 后跑 `scripts/eval_intent.py --mode llm` 复测 |
 
 ## 阶段规划
 
@@ -129,6 +134,8 @@ ai-service/
 | 三  | 业务工具（httpx 回调 Java 查订单 / 物流 / 售后 + 意图路由） | ✅ 已完成 |
 | 四  | Java 接入（AiChatController）+ 小程序聊天页        | ✅ 已完成 |
 | 五  | 加固（SqliteSaver 持久化 / 重试降级 / Docker / 安全复查） | ✅ 已完成 |
+| 六  | SSE 流式对话 + 智能导购（偏好抽取 → 商品搜索 → 推荐话术） | ✅ 已完成 |
+| 七  | 意图硬规则前置 + few-shot / 历史窗口截断 / FAQ 增量索引（低成本提准降延迟） | ✅ 已完成 |
 
 ## 启动方式
 

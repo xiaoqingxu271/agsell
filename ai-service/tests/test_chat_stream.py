@@ -17,13 +17,19 @@ from langgraph.checkpoint.memory import MemorySaver
 from app.agent.graph import build_graph
 
 INTENT_SMALLTALK = json.dumps({"intent": "smalltalk", "order_no": None}, ensure_ascii=False)
+INTENT_FAQ = json.dumps({"intent": "faq", "order_no": None}, ensure_ascii=False)
 REPLY_TEXT = "您好！很高兴为您服务，请问有什么可以帮您？"
 
 
-def _client(monkeypatch, llm, checkpointer=None):
+class _StubRetriever:
+    def retrieve(self, question, top_k=5):
+        return [{"id": 1, "question": "运费怎么算", "answer": "按重量计费，满额包邮", "score": 0.9}]
+
+
+def _client(monkeypatch, llm, checkpointer=None, retriever=None):
     import app.main as main_mod
 
-    graph = build_graph(llm=llm, checkpointer=checkpointer)
+    graph = build_graph(llm=llm, retriever=retriever or _StubRetriever(), checkpointer=checkpointer)
     monkeypatch.setattr(main_mod, "get_graph", lambda: graph)
     return TestClient(main_mod.app)
 
@@ -58,14 +64,18 @@ def _parse_events(raw: str) -> list[tuple[str, dict]]:
 
 
 def test_stream_tokens_and_done(monkeypatch):
-    """正常路径：意图分类消耗第 1 条消息，闲聊回复逐字下发，done 带建议问题"""
+    """正常路径：意图分类消耗第 1 条 LLM 消息（其 token 必须被过滤），generate 回复逐字下发，done 带建议问题。
+
+    用走 LLM 意图分类的 faq 输入（"运费怎么算"不被高置信规则前置），才能覆盖 intent 节点
+    内部 LLM 输出不泄漏到 token 流的过滤逻辑；纯寒暄输入的意图已由规则前置判定、不调 LLM。
+    """
     llm = GenericFakeChatModel(messages=iter([
-        AIMessage(content=INTENT_SMALLTALK),  # intent 节点（token 必须被过滤）
-        AIMessage(content=REPLY_TEXT),        # smalltalk 节点（token 下发）
+        AIMessage(content=INTENT_FAQ),       # intent 节点（token 必须被过滤）
+        AIMessage(content=REPLY_TEXT),       # generate 节点（token 下发）
     ]))
     client = _client(monkeypatch, llm)
 
-    raw = _read_sse(client, {"sessionId": "t_stream", "message": "你好", "userId": None})
+    raw = _read_sse(client, {"sessionId": "t_stream", "message": "运费怎么算", "userId": None})
     events = _parse_events(raw)
 
     names = [e for e, _ in events]
@@ -78,7 +88,7 @@ def test_stream_tokens_and_done(monkeypatch):
 
     # status 有 intent 阶段事件；done 带建议问题
     intent_status = next(d for e, d in events if e == "status" and d.get("stage") == "intent")
-    assert intent_status["intent"] == "smalltalk"
+    assert intent_status["intent"] == "faq"
     done = next(d for e, d in events if e == "done")
     assert done["sessionId"] == "t_stream"
     assert isinstance(done.get("suggestions"), list) and done["suggestions"]

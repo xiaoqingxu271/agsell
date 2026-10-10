@@ -95,10 +95,14 @@ def main():
     cases = load_testset()
 
     if args.mode == "keyword":
-        from app.agent.intent import _extract_order_no, _keyword_fallback
+        from app.agent.intent import _extract_order_no, _hard_rule, _keyword_fallback
+
+        def rule_predict(q: str) -> str:
+            # 与生产 classify_intent 的规则部分一致：先高置信前置规则（human/纯寒暄），再关键词兜底
+            return _hard_rule(q) or _keyword_fallback(q)
 
         t0 = time.perf_counter()
-        predictions = [(_keyword_fallback(c["q"]), _extract_order_no(c["q"])) for c in cases]
+        predictions = [(rule_predict(c["q"]), _extract_order_no(c["q"])) for c in cases]
         wall_ms = (time.perf_counter() - t0) * 1000
         latencies = [wall_ms / len(cases)] * len(cases)
     else:
