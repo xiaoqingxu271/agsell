@@ -27,6 +27,7 @@ from app.config import settings
 from app.prompts import (
     build_degraded_reply,
     build_human_fallback_reply,
+    build_kb_refusal_reply,
     build_recommend_extract_prompt,
     build_recommend_system_prompt,
     build_smalltalk_prompt,
@@ -243,6 +244,12 @@ def make_generate_node(llm):
                 )
         else:
             context = state.get("faq_context") or []
+            if not context:
+                # 反幻觉闸门：检索零命中/全部低于阈值 → 确定性拒答，不经 LLM、零幻觉、省额度
+                return {
+                    "messages": [AIMessage(content=build_kb_refusal_reply(settings.SERVICE_PHONE))],
+                    "suggestions": _suggestions_for(state),
+                }
             system_prompt = build_system_prompt(
                 context_text=format_context(context),
                 platform=settings.PLATFORM_NAME,

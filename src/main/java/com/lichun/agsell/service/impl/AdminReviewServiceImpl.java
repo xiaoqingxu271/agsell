@@ -12,6 +12,7 @@ import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.Review;
 import com.lichun.agsell.model.entity.SysUser;
+import com.lichun.agsell.model.vo.AiReviewReplyVO;
 import com.lichun.agsell.model.vo.ReviewListItemVO;
 import com.lichun.agsell.service.AdminReviewService;
 import com.lichun.agsell.utils.ThrowUtils;
@@ -35,6 +36,7 @@ public class AdminReviewServiceImpl implements AdminReviewService {
     private final SysUserMapper userMapper;
     private final OrderItemMapper orderItemMapper;
     private final ProductMapper productMapper;
+    private final ReviewReplyClient reviewReplyClient;
 
     @Override
     public Page<ReviewListItemVO> listReviews(int pageNum, int pageSize, Long productId, Integer replied) {
@@ -98,6 +100,7 @@ public class AdminReviewServiceImpl implements AdminReviewService {
         vo.setProductId(review.getProductId());
         vo.setUserId(review.getUserId());
         vo.setRating(review.getRating());
+        vo.setSentimentLabel(review.getSentimentLabel());
         vo.setContent(review.getContent());
         vo.setIsAnonymous(review.getIsAnonymous());
         vo.setReplied(review.getReplyContent() != null);
@@ -146,5 +149,39 @@ public class AdminReviewServiceImpl implements AdminReviewService {
         ThrowUtils.throwIf(review == null, ErrorCode.NOT_FOUND_ERROR, "评价不存在");
 
         reviewMapper.deleteById(id);
+    }
+
+    @Override
+    public AiReviewReplyVO generateAiReply(Long id) {
+        Long adminId = AdminContext.getCurrentAdminId();
+        ThrowUtils.throwIf(adminId == null, ErrorCode.ADMIN_NOT_LOGIN_ERROR);
+
+        Review review = reviewMapper.selectById(id);
+        ThrowUtils.throwIf(review == null, ErrorCode.NOT_FOUND_ERROR, "评价不存在");
+
+        ReviewReplyClient.AiReplyDraft draft = reviewReplyClient.generateReply(review, resolveProductName(review));
+
+        AiReviewReplyVO vo = new AiReviewReplyVO();
+        vo.setReviewId(id);
+        vo.setReply(draft.getReply());
+        vo.setSource(draft.getSource());
+        return vo;
+    }
+
+    /** 商品名优先取订单明细快照，历史数据无快照时回退商品表 */
+    private String resolveProductName(Review review) {
+        if (review.getOrderItemId() != null) {
+            OrderItem item = orderItemMapper.selectById(review.getOrderItemId());
+            if (item != null && item.getProductName() != null) {
+                return item.getProductName();
+            }
+        }
+        if (review.getProductId() != null) {
+            Product product = productMapper.selectById(review.getProductId());
+            if (product != null) {
+                return product.getName();
+            }
+        }
+        return "";
     }
 }

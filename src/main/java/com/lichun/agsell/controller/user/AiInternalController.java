@@ -7,17 +7,20 @@ import com.lichun.agsell.mapper.AfterSalesMapper;
 import com.lichun.agsell.mapper.OrderItemMapper;
 import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.mapper.ProductMapper;
+import com.lichun.agsell.mapper.ReviewMapper;
 import com.lichun.agsell.model.dto.AiInternalQueryRequest;
 import com.lichun.agsell.model.dto.AiProductSearchRequest;
 import com.lichun.agsell.model.entity.AfterSales;
 import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Product;
+import com.lichun.agsell.model.entity.Review;
 import com.lichun.agsell.model.enums.OrderStatusEnum;
 import com.lichun.agsell.model.vo.AiAfterSalesVO;
 import com.lichun.agsell.model.vo.AiOrderDetailVO;
 import com.lichun.agsell.model.vo.AiOrderVO;
 import com.lichun.agsell.model.vo.AiProductVO;
+import com.lichun.agsell.model.vo.ReviewSummaryVO;
 import com.lichun.agsell.utils.ResultUtils;
 import com.lichun.agsell.utils.ThrowUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,6 +71,7 @@ public class AiInternalController {
     private final OrderItemMapper orderItemMapper;
     private final AfterSalesMapper afterSalesMapper;
     private final ProductMapper productMapper;
+    private final ReviewMapper reviewMapper;
 
     @Operation(summary = "我的订单列表（最近5条）")
     @PostMapping("/order/list")
@@ -175,7 +179,7 @@ public class AiInternalController {
         return ResultUtils.success(result);
     }
 
-    @Operation(summary = "智能导购商品搜索（按关键词/价格区间，默认销量降序）")
+    @Operation(summary = "智能导购商品搜索（按关键词/价格区间，默认销量降序，附口碑摘要）")
     @PostMapping("/product/search")
     public BaseResponse<List<AiProductVO>> productSearch(@RequestBody AiProductSearchRequest req) {
         int limit = req.getLimit() == null ? 6 : Math.min(Math.max(req.getLimit(), 1), 10);
@@ -191,6 +195,15 @@ public class AiInternalController {
                 .orderByDesc(Product::getSales)
                 .last("LIMIT " + limit));
 
+        // 口碑聚合：批量拉取候选商品的评价情感结果（只查聚合所需列，未分析的不回传）
+        List<Long> productIds = products.stream().map(Product::getId).toList();
+        Map<Long, List<Review>> reviewsByProduct = productIds.isEmpty() ? Map.of()
+                : reviewMapper.selectList(new LambdaQueryWrapper<Review>()
+                        .in(Review::getProductId, productIds)
+                        .select(Review::getProductId, Review::getSentimentLabel, Review::getSentimentKeywords))
+                .stream()
+                .collect(Collectors.groupingBy(Review::getProductId));
+
         List<AiProductVO> result = products.stream().map(p -> {
             AiProductVO vo = new AiProductVO();
             vo.setId(p.getId());
@@ -202,6 +215,12 @@ public class AiInternalController {
             vo.setOrigin(p.getOrigin());
             vo.setHarvestDate(p.getHarvestDate());
             vo.setMainImage(p.getMainImage());
+            ReviewSummaryVO summary = ReviewSummaryVO.of(reviewsByProduct.get(p.getId()));
+            vo.setReviewCount(summary.getTotal());
+            if (summary.getTotal() > 0) {
+                vo.setPositiveRate(summary.getPositiveRate());
+                vo.setTopKeywords(summary.getTopKeywords());
+            }
             return vo;
         }).toList();
         return ResultUtils.success(result);

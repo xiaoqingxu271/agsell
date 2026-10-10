@@ -3,6 +3,7 @@ package com.lichun.agsell.controller.admin;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.model.dto.ReplyRequest;
+import com.lichun.agsell.model.vo.AiReviewReplyVO;
 import com.lichun.agsell.model.vo.ReviewListItemVO;
 import com.lichun.agsell.model.vo.ReviewSentimentSyncVO;
 import com.lichun.agsell.model.vo.ReviewSummaryVO;
@@ -14,7 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "管理端-评价管理", description = "评价列表、回复、删除、口碑分析")
+@Tag(name = "管理端-评价管理", description = "评价列表、回复、删除、口碑分析、AI 回复草稿")
 @RestController
 @RequestMapping("/admin/review")
 @RequiredArgsConstructor
@@ -39,6 +40,12 @@ public class AdminReviewController {
                                            @RequestBody ReplyRequest request) {
         adminReviewService.replyReview(id, request.getReplyContent());
         return ResultUtils.success(null);
+    }
+
+    @Operation(summary = "AI 生成回复草稿", description = "按口碑标签自适应语气生成回复草稿（好评→感谢、中评→改进、差评→道歉补偿）；不落库，管理员编辑确认后提交")
+    @PostMapping("/{id}/ai-reply")
+    public BaseResponse<AiReviewReplyVO> aiReply(@PathVariable Long id) {
+        return ResultUtils.success(adminReviewService.generateAiReply(id));
     }
 
     @Operation(summary = "删除评价")

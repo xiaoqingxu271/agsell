@@ -18,6 +18,7 @@ import type {
   OrderShipRequest,
   ReviewListItemVO,
   ReplyRequest,
+  AiReviewReplyVO,
   AdminStatisticsVO,
   StatisticsTrendVO,
   AdminAfterSalesListItemVO,
@@ -193,6 +194,11 @@ export function listReviews(params: {
 /** 回复评价 */
 export function replyReview(id: number, data: ReplyRequest) {
   return request.post<null>(`/admin/review/${id}/reply`, data)
+}
+
+/** AI 生成回复草稿：按口碑标签自适应语气，返回后由管理员编辑提交 */
+export function generateAiReply(id: number) {
+  return request.post<AiReviewReplyVO>(`/admin/review/${id}/ai-reply`)
 }
 
 /** 删除评价 */

@@ -202,6 +202,79 @@ def _run_with_api(intent: str, message: str, api) -> dict:
     return graph.invoke({"messages": [HumanMessage(content=message)], "userId": 1})
 
 
+# ---------- 阶段八：知识库未覆盖 → 确定性拒答 ----------
+def test_kb_miss_returns_deterministic_refusal():
+    """检索零命中（阈值拒答后）→ 生成节点不经 LLM 直接返回拒答话术（零幻觉、省额度）"""
+
+    class EmptyRetriever:
+        def retrieve(self, question, top_k=5):
+            return []
+
+    graph = build_graph(
+        llm=make_llm(json.dumps({"intent": "faq", "order_no": None}, ensure_ascii=False)),
+        retriever=EmptyRetriever(),
+        java_api_module=FakeJavaApi(),
+        checkpointer=None,
+    )
+    result = graph.invoke({"messages": [HumanMessage(content="怎么看今天的股市行情")], "userId": 1})
+    reply = result["messages"][-1].content
+    assert "知识库还未覆盖" in reply
+    assert "400-000-0000" in reply
+    assert reply != "faq_generated"  # 未走 LLM 生成路径
+    assert result["suggestions"]  # 拒答后仍给出下一轮建议问题
+
+
+def test_kb_hit_still_uses_llm():
+    """检索有命中 → 正常走 LLM 生成（回归保护）"""
+    result = _run("faq", "客服电话是多少")
+    assert result["messages"][-1].content == "faq_generated"
+
+
+# ---------- A3：导购接入口碑数据 ----------
+def test_recommend_context_carries_reputation_fields():
+    """口碑字段（好评率/评价数/好评关键词）随候选商品进入生成节点上下文"""
+    captured = {}
+
+    class RecordingLLM:
+        def invoke(self, messages):
+            for m in messages:
+                if not isinstance(m, SystemMessage):
+                    continue
+                if "意图识别器" in m.content:
+                    return AIMessage(content='{"intent": "recommend", "order_no": null}')
+                if "偏好抽取器" in m.content:
+                    return AIMessage(content=json.dumps({"keyword": "水果", "maxPrice": 50}, ensure_ascii=False))
+                if "智能导购" in m.content:
+                    captured["ctx"] = m.content
+                    return AIMessage(content="recommend_generated")
+            return AIMessage(content="no_context")
+
+    class ReputationApi(FakeJavaApi):
+        def search_products(self, keyword=None, min_price=None, max_price=None, limit=6):
+            return [{
+                "id": 1, "name": "赣南脐橙", "price": 19.9, "sales": 500, "origin": "江西赣州",
+                "reviewCount": 120, "positiveRate": 98.5, "topKeywords": ["新鲜", "甜"],
+            }]
+
+    graph = build_graph(llm=RecordingLLM(), retriever=StubRetriever(), java_api_module=ReputationApi(), checkpointer=None)
+    result = graph.invoke({"messages": [HumanMessage(content="推荐点水果")], "userId": 1})
+
+    assert result["messages"][-1].content == "recommend_generated"
+    ctx = captured["ctx"]
+    assert '"reviewCount": 120' in ctx
+    assert '"positiveRate": 98.5' in ctx
+    assert "新鲜" in ctx
+
+
+def test_recommend_prompt_has_reputation_rules():
+    """导购 prompt 要求引用真实口碑、禁止编造（反幻觉约束随口碑数据一起引入）"""
+    from app.prompts import RECOMMEND_SYSTEM_PROMPT_TEMPLATE
+
+    assert "positiveRate" in RECOMMEND_SYSTEM_PROMPT_TEMPLATE
+    assert "reviewCount" in RECOMMEND_SYSTEM_PROMPT_TEMPLATE
+    assert "严禁编造或夸大" in RECOMMEND_SYSTEM_PROMPT_TEMPLATE
+
+
 # ---------- 阶段五：降级与重试 ----------
 def test_generate_degraded_when_llm_fails():
     """Agnes 调用失败（限流/超时/断网）→ 生成节点返回降级话术，不抛异常不白屏"""

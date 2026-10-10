@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { listReviews, replyReview, deleteReview, syncSentiment } from '@/api/admin'
+import { listReviews, replyReview, deleteReview, syncSentiment, generateAiReply } from '@/api/admin'
 import type { ReviewListItemVO, ReplyRequest } from '@/types'
 import PageHeader from '@/components/admin/PageHeader.vue'
 
@@ -98,6 +98,24 @@ async function handleReplySubmit() {
     // interceptor handles error
   } finally {
     replyLoading.value = false
+  }
+}
+
+// ── AI 生成回复草稿 ──
+const aiGenerating = ref(false)
+
+/** 调用 AI 服务按口碑标签生成回复草稿，填入输入框供管理员编辑确认 */
+async function handleGenerateAiReply() {
+  if (!replyId.value) return
+  aiGenerating.value = true
+  try {
+    const res = await generateAiReply(replyId.value)
+    replyForm.value.replyContent = res.reply
+    ElMessage.success(res.source === 'llm' ? 'AI 草稿已生成，可编辑后提交' : 'AI 服务暂不可用，已生成模板草稿')
+  } catch {
+    // interceptor handles error
+  } finally {
+    aiGenerating.value = false
   }
 }
 
@@ -234,6 +252,12 @@ onMounted(fetchList)
           <el-descriptions-item label="评分">
             <span class="rating">{{ ratingStars(replyTarget.rating) }}</span>
           </el-descriptions-item>
+          <el-descriptions-item label="口碑">
+            <el-tag v-if="replyTarget.sentimentLabel === 1" type="success" size="small">好评</el-tag>
+            <el-tag v-else-if="replyTarget.sentimentLabel === 0" type="warning" size="small">中评</el-tag>
+            <el-tag v-else-if="replyTarget.sentimentLabel === -1" type="danger" size="small">差评</el-tag>
+            <el-tag v-else type="info" size="small">未分析</el-tag>
+          </el-descriptions-item>
           <el-descriptions-item label="用户">
             {{ replyTarget.userName ?? (replyTarget.isAnonymous === 1 ? '匿名用户' : '-') }}
           </el-descriptions-item>
@@ -256,7 +280,7 @@ onMounted(fetchList)
               v-model="replyForm.replyContent"
               type="textarea"
               :rows="3"
-              placeholder="请输入回复内容"
+              placeholder="请输入回复内容，或点击下方「AI 生成回复」生成草稿"
               maxlength="200"
               show-word-limit
             />
@@ -265,6 +289,15 @@ onMounted(fetchList)
       </template>
       <template #footer>
         <el-button @click="replyVisible = false">关闭</el-button>
+        <el-button
+          v-if="!replyTarget?.replied"
+          :loading="aiGenerating"
+          type="success"
+          plain
+          @click="handleGenerateAiReply"
+        >
+          AI 生成回复
+        </el-button>
         <el-button
           v-if="!replyTarget?.replied"
           type="primary"

@@ -42,8 +42,9 @@ RECOMMEND_SYSTEM_PROMPT_TEMPLATE = """你是「{platform}」的智能导购助�
 1. 只能推荐下方【候选商品】中存在的商品，严禁编造商品、价格或产地；
 2. 挑选 2~3 款最符合用户需求的商品，每款给出简短推荐理由（结合价格、销量、产地、新鲜度）；
 3. 商品信息表述准确：名称、价格、产地必须与候选商品一致，不要输出 JSON 原始结构；
-4. 回答简洁、友好、口语化，最后可以自然地引导用户去小程序搜索或加购；
-5. 若候选商品与用户需求不符或为空，如实说明并建议换个说法（如告知想买的品类和预算），必要时可拨打客服电话 {service_phone}。
+4. 若候选商品带有口碑字段（positiveRate 好评率、topKeywords 好评关键词、reviewCount 评价数），推荐时应优先选择口碑更好的商品，并可在推荐理由中引用真实的好评率和买家好评关键词（如"98% 好评，买家都说'新鲜'"）增强说服力；这些口碑数据必须严格照抄候选商品信息，严禁编造或夸大；reviewCount 为 0 或缺失的商品表示暂无口碑数据，不要虚构其好评情况；
+5. 回答简洁、友好、口语化，最后可以自然地引导用户去小程序搜索或加购；
+6. 若候选商品与用户需求不符或为空，如实说明并建议换个说法（如告知想买的品类和预算），必要时可拨打客服电话 {service_phone}。
 
 【候选商品】
 {context}
@@ -58,6 +59,11 @@ HUMAN_FALLBACK_REPLY = """抱歉给您带来不便，这个问题需要人工客
 
 # 阶段五：Agnes 限流/超时/断网时的降级话术（不白屏）
 DEGRADED_REPLY = """抱歉，AI 服务暂时繁忙（限流或网络波动），没能及时回复您。您可以稍后再试，或直接拨打客服电话 {service_phone} 人工咨询。"""
+
+# 阶段八：知识库未覆盖（检索得分低于阈值/零命中）时的确定性拒答话术。
+# 不再交给 LLM 生成——拒答路径零幻觉，且省一次 LLM 调用（免费额度友好）。
+KB_REFUSAL_REPLY = """抱歉，这个问题我暂时没有准确的资料可以回答（知识库还未覆盖）。
+建议您换个问法（例如运费、退货、订单、秒杀等平台购物问题），或拨打客服电话 {service_phone} 由人工客服为您处理。"""
 
 
 def build_system_prompt(context_text: str, platform: str, service_phone: str) -> str:
@@ -96,6 +102,11 @@ def build_human_fallback_reply(service_phone: str) -> str:
 def build_degraded_reply(service_phone: str, error: str = "") -> str:
     """Agnes 调用失败时的降级话术；error 仅记日志用，不向用户暴露技术细节"""
     return DEGRADED_REPLY.format(service_phone=service_phone)
+
+
+def build_kb_refusal_reply(service_phone: str) -> str:
+    """知识库未覆盖时的确定性拒答（反幻觉闸门的出口话术）"""
+    return KB_REFUSAL_REPLY.format(service_phone=service_phone)
 
 
 def format_context(entries: list[dict]) -> str:

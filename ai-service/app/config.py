@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "BAAI/bge-small-zh-v1.5"
     VECTOR_DB_PATH: str = "data/"
     KB_TOP_K: int = 5
+    # 检索得分阈值（反幻觉闸门）：低于阈值的向量召回不注入上下文，检索为空则走确定性拒答。
+    # 依据量化实验：域内 top-1 相似度均值 0.710、域外仅 0.329，0.5 居中可分。0 = 不启用。
+    KB_SCORE_THRESHOLD: float = 0.5
 
     # 运行时
     LOG_LEVEL: str = "INFO"

@@ -32,6 +32,9 @@ public class ReviewListItemVO implements Serializable {
     /** 评分 */
     private Integer rating;
 
+    /** 口碑标签 1=好评 0=中评 -1=差评（null=未分析） */
+    private Integer sentimentLabel;
+
     /** 评价内容 */
     private String content;
 

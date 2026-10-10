@@ -1,0 +1,88 @@
+{
+  "threshold": 0.5,
+  "out_of_domain": {
+    "queries": 12,
+    "refused": 9,
+    "refusal_rate": 0.75,
+    "detail": [
+      {
+        "q": "今天股市行情怎么样",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.3809
+      },
+      {
+        "q": "推荐一部好看的电影",
+        "refused": false,
+        "returned": 1,
+        "top1_vector_score": 0.2565
+      },
+      {
+        "q": "怎么备考研究生",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.3933
+      },
+      {
+        "q": "附近有什么好吃的火锅店",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.2934
+      },
+      {
+        "q": "帮我写一首诗",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.3221
+      },
+      {
+        "q": "世界杯决赛是哪两队",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.293
+      },
+      {
+        "q": "如何办理护照",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.4146
+      },
+      {
+        "q": "推荐几本小说",
+        "refused": false,
+        "returned": 1,
+        "top1_vector_score": 0.2809
+      },
+      {
+        "q": "现在油价多少",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.4276
+      },
+      {
+        "q": "怎么学好英语",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.3309
+      },
+      {
+        "q": "周杰伦新歌什么时候发",
+        "refused": false,
+        "returned": 1,
+        "top1_vector_score": 0.3368
+      },
+      {
+        "q": "附近的健身房怎么收费",
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.4897
+      }
+    ]
+  },
+  "in_domain": {
+    "queries": 72,
+    "false_refused": 0,
+    "false_refusal_rate": 0.0,
+    "detail": []
+  }
+}

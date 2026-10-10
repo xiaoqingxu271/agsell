@@ -243,6 +243,14 @@ export interface ReviewListItemVO {
   sentimentLabel?: number
 }
 
+export interface AiReviewReplyVO {
+  reviewId: number
+  /** AI 生成的回复草稿（可编辑后再提交） */
+  reply: string
+  /** llm = Agnes 生成；fallback = 规则模板兜底（AI 服务不可用时） */
+  source: string
+}
+
 // ─── 数据统计 ─────────────────────────────────────────────────────────────────
 
 export interface AdminStatisticsVO {

@@ -6,6 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * AI 智能导购推荐商品 VO（紧凑卡片信息，供 LLM 生成推荐话术）
@@ -38,4 +39,13 @@ public class AiProductVO implements Serializable {
     private LocalDate harvestDate;
 
     private String mainImage;
+
+    /** 已分析评价数（口碑证据量，0 表示暂无口碑数据） */
+    private Integer reviewCount;
+
+    /** 好评率（百分比 0~100，基于已分析评价；无评价时为 null） */
+    private BigDecimal positiveRate;
+
+    /** 好评关键词（买家高频好评标签，最多 5 个） */
+    private List<String> topKeywords;
 }
