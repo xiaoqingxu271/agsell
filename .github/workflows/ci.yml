@@ -138,18 +138,15 @@ jobs:
                 logic-not-delete-value: 0
           EOF
 
-      # verify：跑单元测试 + SpringBootTest（contextLoads、admin 登录冒烟）
-      # 注1：CouponConcurrencyIT / SeckillConcurrencyIT / AfterSalesFlowIntegrationTest
-      #      依赖本地种子数据或高并发环境，CI 全新数据库不满足，故排除；
-      #      要纳入 CI 需让测试在 @BeforeEach 自建数据
-      # 注2：用环境变量 SPRING_PROFILES_ACTIVE 激活 ci profile
-      #      （surefire fork 的 JVM 不继承命令行 -D 的 spring 属性）
+      # verify：跑单元测试 + SpringBootTest + 并发集成测试
+      # 三个测试（售后链路/优惠券并发/秒杀并发）均已改为自建数据，
+      # 可在全新空库上运行；放大档 500 并发压测默认跳过（-Dstress.test=true 手动触发）
+      # 用环境变量 SPRING_PROFILES_ACTIVE 激活 ci profile
+      # （surefire fork 的 JVM 不继承命令行 -D 的 spring 属性）
       - name: Build and test with Maven
         env:
           SPRING_PROFILES_ACTIVE: ci
-        run: >
-          ./mvnw -B verify
-          -Dtest='!AfterSalesFlowIntegrationTest,!CouponConcurrencyIT,!SeckillConcurrencyIT'
+        run: ./mvnw -B verify
 
       - name: Upload test reports on failure
         if: failure()
@@ -190,15 +187,19 @@ jobs:
       - name: Lint (eslint)
         run: npx eslint .
 
+      # vitest 单元测试（纯函数：图表 option 构建、区域数据等）
+      - name: Unit tests (vitest)
+        run: npm test
+
       # npm run build 内含 vue-tsc 类型检查（type-check）
       - name: Type-check and build
         run: npm run build
 
   # ============================================================
-  # 移动端：uni-app（先校验 H5 构建；微信小程序构建可按需开启）
+  # 移动端：uni-app（lint + H5 构建 + 微信小程序构建）
   # ============================================================
   uniapp:
-    name: UniApp (H5 build)
+    name: UniApp (H5 + WeChat build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -217,12 +218,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint (oxlint)
+        # uniapp 现存 11 条警告为工具层技术债，先只拦截 error
+        run: npx oxlint src
+
+      # 产物含 index.html + assets + static 同目录（vite outDir 已统一）
       - name: Build H5
         run: npm run build:h5
 
-      # 如需同时校验微信小程序产物，取消下面注释（CLI 构建不需要微信开发者工具）
-      # - name: Build WeChat MiniProgram
-      #   run: npm run build:mp-weixin
+      # CLI 构建不需要微信开发者工具；同时验证小程序端可编译
+      - name: Build WeChat MiniProgram
+        run: npm run build:mp-weixin
 
   # ============================================================
   # AI 服务：Python 3.14 / FastAPI / pytest

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *   申请售后→订单售后处理中(5) → 同意退款（订单已退款6/库存回补/销量回滚）
  *   → 撤销售后（订单恢复原状态）→ 拒绝退款（订单恢复原状态、无库存变动）
  * 全部 @Transactional 自动回滚，不污染数据库、测试间互不影响。
+ * 所需用户/地址/分类/商品均由测试自建（可在全新空库上运行，如 CI）。
  */
 @SpringBootTest
 @Transactional
@@ -52,20 +54,24 @@ class AfterSalesFlowIntegrationTest {
     private AfterSalesMapper afterSalesMapper;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    /** 测试库中真实用户（微信用户） */
-    private static final Long USER_ID = 2095531860995977217L;
-    /** 真实收货地址ID（用户本人） */
-    private static final Long ADDRESS_ID = 2095708653606477826L;
-    /** 真实商品：无规格商品 product 1 */
-    private static final Long PRODUCT_ID = 1L;
+    /** 测试自建的微信用户 */
+    private Long userId;
+    /** 该用户的收货地址 */
+    private Long addressId;
+    /** 自建的无规格商品 */
+    private Long productId;
 
     private int orderSeq = 0;
 
     @BeforeEach
     void setUp() {
-        BaseContext.setCurrentId(USER_ID);
+        BaseContext.setCurrentId(userId = seedUser());
         AdminContext.setCurrentAdmin(1L, "ADMIN");
+        addressId = seedAddress(userId);
+        productId = seedProduct();
     }
 
     @AfterEach
@@ -74,20 +80,49 @@ class AfterSalesFlowIntegrationTest {
         AdminContext.removeCurrentAdmin();
     }
 
+    /** 自建测试用户（标记用户名，@Transactional 回滚，无需清理） */
+    private Long seedUser() {
+        jdbcTemplate.update(
+                "INSERT INTO sys_user (username, password, nickname, status) VALUES (?, ?, ?, 1)",
+                "aftersales_it_user", "pwd", "售后集成测试用户");
+        return jdbcTemplate.queryForObject(
+                "SELECT id FROM sys_user WHERE username = 'aftersales_it_user'", Long.class);
+    }
+
+    private Long seedAddress(Long uid) {
+        jdbcTemplate.update(
+                "INSERT INTO user_address (user_id, receiver, phone, province, city, district, detail, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, 1)",
+                uid, "售后测试", "17395837632", "江苏省", "南京市", "玄武区", "集成测试地址");
+        return jdbcTemplate.queryForObject(
+                "SELECT id FROM user_address WHERE user_id = ? ORDER BY id DESC LIMIT 1", Long.class, uid);
+    }
+
+    private Long seedProduct() {
+        jdbcTemplate.update(
+                "INSERT INTO product_category (name, sort, status) VALUES ('售后测试分类', 999, 1)");
+        Long categoryId = jdbcTemplate.queryForObject(
+                "SELECT id FROM product_category WHERE name = '售后测试分类' LIMIT 1", Long.class);
+        jdbcTemplate.update(
+                "INSERT INTO product (name, category_id, price, stock, sales, status, sort) VALUES (?, ?, ?, ?, ?, 1, 999)",
+                "售后集成测试商品", categoryId, new BigDecimal("19.90"), 100, 50);
+        return jdbcTemplate.queryForObject(
+                "SELECT id FROM product WHERE name = '售后集成测试商品' LIMIT 1", Long.class);
+    }
+
     /**
-     * 自建一笔已完成(3)的测试订单（product 1 ×1，无规格），全部字段由测试控制
+     * 自建一笔已完成(3)的测试订单（自建商品 ×1，无规格），全部字段由测试控制
      */
     private Order createCompletedOrder() {
         orderSeq++;
         Order order = new Order();
         order.setOrderNo("TST" + System.currentTimeMillis() + orderSeq);
-        order.setUserId(USER_ID);
+        order.setUserId(userId);
         order.setTotalAmount(new BigDecimal("19.90"));
         order.setFreight(new BigDecimal("0.00"));
         order.setDiscount(new BigDecimal("0.00"));
         order.setPayAmount(new BigDecimal("19.90"));
         order.setStatus(3);
-        order.setAddressId(ADDRESS_ID);
+        order.setAddressId(addressId);
         order.setReceiver("售后测试");
         order.setPhone("17395837632");
         order.setAddress("南京市集成测试地址");
@@ -96,7 +131,7 @@ class AfterSalesFlowIntegrationTest {
 
         OrderItem item = new OrderItem();
         item.setOrderId(order.getId());
-        item.setProductId(PRODUCT_ID);
+        item.setProductId(productId);
         item.setSpecId(null);
         item.setProductName("测试商品");
         item.setPrice(new BigDecimal("19.90"));
@@ -120,7 +155,7 @@ class AfterSalesFlowIntegrationTest {
     @DisplayName("完整链路A：退货退款→订单售后处理中→同意→订单已退款/库存回补/销量回滚")
     void agreeFlow_restoresStockAndRefunds() {
         Order order = createCompletedOrder();
-        Product productBefore = productMapper.selectById(PRODUCT_ID);
+        Product productBefore = productMapper.selectById(productId);
 
         // 1. 用户申请售后（退货退款 type=2：货物退回商家，库存应回补）
         AfterSalesDetailVO vo = afterSalesService.apply(buildRequest(order.getOrderNo(), 2));
@@ -148,7 +183,7 @@ class AfterSalesFlowIntegrationTest {
         assertEquals("售后同意退款，订单已退款", refunded.getCancelReason());
 
         // 6. 退货退款：无规格商品库存回补 +1；已完成订单销量回滚 -1（GREATEST 保护）
-        Product productAfter = productMapper.selectById(PRODUCT_ID);
+        Product productAfter = productMapper.selectById(productId);
         assertEquals(productBefore.getStock() + 1, productAfter.getStock(), "退货退款库存应回补");
         assertEquals(productBefore.getSales() - 1, productAfter.getSales(), "销量应回滚");
     }
@@ -157,7 +192,7 @@ class AfterSalesFlowIntegrationTest {
     @DisplayName("完整链路A2：仅退款→同意→订单已退款/库存不回补/销量回滚")
     void agreeFlow_refundOnly_doesNotRestock() {
         Order order = createCompletedOrder();
-        Product productBefore = productMapper.selectById(PRODUCT_ID);
+        Product productBefore = productMapper.selectById(productId);
 
         // 1. 用户申请仅退款（type=1：只退钱不退货，货仍在买家手里，库存不得回补）
         AfterSalesDetailVO vo = afterSalesService.apply(buildRequest(order.getOrderNo(), 1));
@@ -173,7 +208,7 @@ class AfterSalesFlowIntegrationTest {
         assertEquals(6, orderMapper.selectById(order.getId()).getStatus());
 
         // 4. 仅退款：库存不回补，销量回滚（退款即交易未完成）
-        Product productAfter = productMapper.selectById(PRODUCT_ID);
+        Product productAfter = productMapper.selectById(productId);
         assertEquals(productBefore.getStock(), productAfter.getStock(), "仅退款库存不应回补");
         assertEquals(productBefore.getSales() - 1, productAfter.getSales(), "销量应回滚");
     }
@@ -198,7 +233,7 @@ class AfterSalesFlowIntegrationTest {
     @DisplayName("完整链路C：拒绝退款→订单恢复原状态，库存销量不变")
     void rejectFlow_restoresOrderStatus() {
         Order order = createCompletedOrder();
-        Product productBefore = productMapper.selectById(PRODUCT_ID);
+        Product productBefore = productMapper.selectById(productId);
 
         // 1. 申请售后
         AfterSalesDetailVO vo = afterSalesService.apply(buildRequest(order.getOrderNo(), 1));
@@ -217,7 +252,7 @@ class AfterSalesFlowIntegrationTest {
         assertEquals("凭证不足，拒绝退款", afterSales.getHandleRemark());
 
         // 4. 库存销量未变动
-        Product productAfter = productMapper.selectById(PRODUCT_ID);
+        Product productAfter = productMapper.selectById(productId);
         assertEquals(productBefore.getStock(), productAfter.getStock());
         assertEquals(productBefore.getSales(), productAfter.getSales());
     }

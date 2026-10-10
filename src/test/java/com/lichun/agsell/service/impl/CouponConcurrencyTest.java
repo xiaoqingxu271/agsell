@@ -29,10 +29,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * 优惠券核心链路高并发集成测试（真实 MySQL + Redis）
  * 场景：100 个不同用户并发领取 1 张总量为 50 的限量券。
  * 预期：恰好 50 张领取成功（防超发），另 50 张返回"已领完"，全程无重复领取。
- * 注意：该测试依赖本地 local 环境（MySQL/Redis），不随全量单测运行（文件名 IT 后缀）。
+ * 注意：该测试依赖本地 local 环境（MySQL/Redis），不随全量单测运行（surefire 默认不识别 IT 后缀，已更名 *Test 纳入 mvnw verify）。
  */
 @SpringBootTest
-class CouponConcurrencyIT {
+class CouponConcurrencyTest {
 
     private static final int USER_COUNT = 100;
     private static final int STOCK = 50;
@@ -141,7 +141,7 @@ class CouponConcurrencyIT {
             double wallSeconds = wallElapsed / 1000.0;
             double avgLatency = (double) totalElapsedMs.get() / USER_COUNT;
             System.out.println("============================================================");
-            System.out.println("[CouponConcurrencyIT] 100 并发领 50 张券压测结果");
+            System.out.println("[CouponConcurrencyTest] 100 并发领 50 张券压测结果");
             System.out.println("  总请求数: " + USER_COUNT);
             System.out.println("  成功领取: " + successCount.get() + "（防超发校验通过）");
             System.out.println("  售罄拒绝: " + soldOutCount.get());

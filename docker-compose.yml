@@ -58,6 +58,9 @@ services:
       ALIYUN_OSS_ACCESS_KEY_SECRET: ${ALIYUN_OSS_ACCESS_KEY_SECRET}
       ALIYUN_OSS_BUCKET_NAME: ${ALIYUN_OSS_BUCKET_NAME}
       AI_SERVICE_BASE_URL: http://ai-service:8000
+      # 生产部署关闭接口文档（/doc.html、/v3/api-docs）
+      SPRINGDOC_ENABLED: "false"
+      KNIFE4J_PRODUCTION: "true"
     depends_on:
       mysql:
         condition: service_healthy

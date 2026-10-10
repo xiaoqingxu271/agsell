@@ -14,7 +14,9 @@ import com.lichun.agsell.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -39,16 +41,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * 秒杀核心链路高并发集成测试（真实 MySQL + Redis）
  * 场景：100 个不同用户并发抢购 1 个库存为 50 的秒杀活动。
  * 预期：恰好 50 笔成功订单（防超卖），另 50 笔返回"已抢光"，全程无重复用户下单。
- * 注意：该测试依赖本地 local 环境（MySQL/Redis），不随全量单测运行（文件名 IT 后缀）。
+ * 注意：该测试依赖本地 local 环境（MySQL/Redis），不随全量单测运行（surefire 默认不识别 IT 后缀，已更名 *Test 纳入 mvnw verify）。
  */
-@SpringBootTest
-class SeckillConcurrencyIT {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class SeckillConcurrencyTest {
 
     private static final int USER_COUNT = 100;
     private static final int STOCK = 50;
-    private static final long PRODUCT_ID = 2096479314092355583L; // 有机西兰花（现价 12.90）
-    private static final long HTTP_PRODUCT_ID = 2096479314092355584L; // 五常大米（现价 68.00）
     private static final BigDecimal SECKILL_PRICE = new BigDecimal("3.90");
+
+    @LocalServerPort
+    private int port;
 
     @Autowired
     private SeckillService seckillService;
@@ -66,12 +69,13 @@ class SeckillConcurrencyIT {
     @Test
     @DisplayName("100 并发抢 50 库存：恰好 50 单成功 + 50 单售罄 + 一人一单 + 金额=秒杀价+运费，并输出 QPS")
     void concurrent_100users_vs_50stock() throws Exception {
-        // 1. 清理历史测试数据（幂等）
-        cleanupTestData(PRODUCT_ID);
+        // 1. 清理历史测试数据（幂等）并自建压测商品
+        cleanupTestData();
+        long productId = seedProduct("seckill_it_库存商品", 500, "12.90");
 
         // 2. 创建秒杀活动（进行中）
         SeckillActivityRequest request = new SeckillActivityRequest();
-        request.setProductId(PRODUCT_ID);
+        request.setProductId(productId);
         request.setSeckillPrice(SECKILL_PRICE);
         request.setSeckillStock(STOCK);
         request.setSeckillLimit(1);
@@ -171,7 +175,7 @@ class SeckillConcurrencyIT {
             double wallSeconds = wallElapsed / 1000.0;
             double avgLatency = (double) totalElapsedMs.get() / USER_COUNT;
             System.out.println("============================================================");
-            System.out.println("[SeckillConcurrencyIT] 100 并发抢 50 库存压测结果");
+            System.out.println("[SeckillConcurrencyTest] 100 并发抢 50 库存压测结果");
             System.out.println("  总请求数: " + USER_COUNT);
             System.out.println("  成功订单: " + successCount.get() + "（防超卖校验通过）");
             System.out.println("  售罄拒绝: " + soldOutCount.get());
@@ -182,20 +186,23 @@ class SeckillConcurrencyIT {
             System.out.println("============================================================");
         } finally {
             // 清理测试活动与订单数据
-            cleanupTestData(PRODUCT_ID);
+            cleanupTestData();
             seckillRedisService.deleteSnapshot(activityId);
         }
     }
 
     @Test
+    // 放大档压测耗时较长，默认跳过；手动全量压测：./mvnw verify -Dstress.test=true
+    @EnabledIfSystemProperty(named = "stress.test", matches = "true")
     @DisplayName("500 并发抢 180 库存：放大档压测，验证高并发下防超卖与吞吐衰减")
     void concurrent_500users_vs_200stock() throws Exception {
         final int users = 500;
-        final int stock = 180; // 商品（有机西兰花）库存 199，秒杀库存须不超过商品库存
-        cleanupTestData(PRODUCT_ID);
+        final int stock = 180; // 秒杀库存须不超过自建商品库存
+        cleanupTestData();
+        long productId = seedProduct("seckill_it_库存商品", 500, "12.90");
 
         SeckillActivityRequest request = new SeckillActivityRequest();
-        request.setProductId(PRODUCT_ID);
+        request.setProductId(productId);
         request.setSeckillPrice(SECKILL_PRICE);
         request.setSeckillStock(stock);
         request.setSeckillLimit(1);
@@ -285,7 +292,7 @@ class SeckillConcurrencyIT {
             double wallSeconds = wallElapsed / 1000.0;
             long p95 = sorted.get((int) Math.ceil(sorted.size() * 0.95) - 1);
             System.out.println("============================================================");
-            System.out.println("[SeckillConcurrencyIT] 500 并发抢 180 库存压测结果");
+            System.out.println("[SeckillConcurrencyTest] 500 并发抢 180 库存压测结果");
             System.out.println("  总请求数: " + users);
             System.out.println("  成功订单: " + successCount.get() + "（防超卖校验通过）");
             System.out.println("  售罄拒绝: " + soldOutCount.get());
@@ -295,7 +302,7 @@ class SeckillConcurrencyIT {
             System.out.println("  P95 单请求耗时: " + p95 + " ms");
             System.out.println("============================================================");
         } finally {
-            cleanupTestData(PRODUCT_ID);
+            cleanupTestData();
             seckillRedisService.deleteSnapshot(activityId);
         }
     }
@@ -303,10 +310,11 @@ class SeckillConcurrencyIT {
     @Test
     @DisplayName("HTTP 层 100 并发抢 50 库存：真实接口吞吐与 QPS")
     void concurrent_http_100users_vs_50stock() throws Exception {
-        // 1. 清理 + 造活动（五常大米 68.00 → 秒杀价 18.80）
-        cleanupTestData(HTTP_PRODUCT_ID);
+        // 1. 清理 + 自建商品 + 造活动（秒杀价 18.80）
+        cleanupTestData();
+        long productId = seedProduct("seckill_it_http商品", 500, "68.00");
         SeckillActivityRequest request = new SeckillActivityRequest();
-        request.setProductId(HTTP_PRODUCT_ID);
+        request.setProductId(productId);
         request.setSeckillPrice(new BigDecimal("18.80"));
         request.setSeckillStock(STOCK);
         request.setSeckillLimit(1);
@@ -347,7 +355,7 @@ class SeckillConcurrencyIT {
                     startLatch.await();
                     String body = "{\"activityCode\":\"" + activityCode + "\",\"addressId\":" + addressId + ",\"remark\":\"\"}";
                     HttpRequest req = HttpRequest.newBuilder()
-                            .uri(URI.create("http://localhost:8080/api/seckill/order"))
+                            .uri(URI.create("http://localhost:" + port + "/api/seckill/order"))
                             .timeout(Duration.ofSeconds(10))
                             .header("Content-Type", "application/json")
                             .header("Authorization", "Bearer " + token)
@@ -384,7 +392,7 @@ class SeckillConcurrencyIT {
 
         double wallSeconds = wallElapsed / 1000.0;
         System.out.println("============================================================");
-        System.out.println("[SeckillConcurrencyIT] HTTP 接口层 100 并发抢 50 库存压测结果");
+        System.out.println("[SeckillConcurrencyTest] HTTP 接口层 100 并发抢 50 库存压测结果");
         System.out.println("  总请求数: " + USER_COUNT);
         System.out.println("  成功订单: " + successCount.get());
         System.out.println("  售罄拒绝: " + soldOutCount.get());
@@ -393,7 +401,7 @@ class SeckillConcurrencyIT {
         System.out.println("============================================================");
 
         // 4. 清理
-        cleanupTestData(HTTP_PRODUCT_ID);
+        cleanupTestData();
         seckillRedisService.deleteSnapshot(activityId);
     }
 
@@ -412,12 +420,27 @@ class SeckillConcurrencyIT {
         return defaultFreight;
     }
 
-    private void cleanupTestData(long productId) {
+    /** 自建压测商品（全新空库可运行）；并发测试未启用 @Transactional，靠 cleanupTestData 清理 */
+    private long seedProduct(String name, int stock, String price) {
+        jdbcTemplate.update(
+                "INSERT INTO product_category (name, sort, status) VALUES ('秒杀集成测试分类', 999, 1)");
+        Long categoryId = jdbcTemplate.queryForObject(
+                "SELECT id FROM product_category WHERE name = '秒杀集成测试分类' LIMIT 1", Long.class);
+        jdbcTemplate.update(
+                "INSERT INTO product (name, category_id, price, stock, sales, status, sort) VALUES (?, ?, ?, ?, 0, 1, 999)",
+                name, categoryId, new BigDecimal(price), stock);
+        return jdbcTemplate.queryForObject(
+                "SELECT id FROM product WHERE name = ? LIMIT 1", Long.class, name);
+    }
+
+    private void cleanupTestData() {
         jdbcTemplate.update("DELETE oi FROM order_item oi JOIN `order` o ON oi.order_id = o.id WHERE o.user_id IN (SELECT id FROM sys_user WHERE username LIKE 'seckill_test_%')");
         jdbcTemplate.update("DELETE FROM `order` WHERE user_id IN (SELECT id FROM sys_user WHERE username LIKE 'seckill_test_%')");
         jdbcTemplate.update("DELETE FROM user_address WHERE user_id IN (SELECT id FROM sys_user WHERE username LIKE 'seckill_test_%')");
         jdbcTemplate.update("DELETE FROM sys_user WHERE username LIKE 'seckill_test_%'");
-        jdbcTemplate.update("DELETE FROM seckill_activity WHERE product_id = ?", productId);
+        jdbcTemplate.update("DELETE FROM seckill_activity WHERE product_id IN (SELECT id FROM (SELECT id FROM product WHERE name LIKE 'seckill_it_%') t)");
+        jdbcTemplate.update("DELETE FROM product WHERE name LIKE 'seckill_it_%'");
+        jdbcTemplate.update("DELETE FROM product_category WHERE name = '秒杀集成测试分类'");
     }
 
     private List<Long> createTestUsers(int count) {

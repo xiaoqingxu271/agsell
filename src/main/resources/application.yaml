@@ -24,7 +24,9 @@ spring:
       timeout: ${redis.timeout}
 
 # springdoc-openapi项目配置
+# 接口文档默认开启（本地开发）；生产/公网部署时通过环境变量关闭
 springdoc:
+  api-docs.enabled: ${SPRINGDOC_ENABLED:true}
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
@@ -32,6 +34,8 @@ springdoc:
 # knife4j的增强配置，不需要增强可以不配
 knife4j:
   enable: true
+  # 生产模式：屏蔽文档资源（docker-compose 部署置 true）
+  production: ${KNIFE4J_PRODUCTION:false}
   setting:
     language: zh_cn
 

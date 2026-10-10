@@ -90,7 +90,9 @@ docker compose exec mysql mysql -uroot -p"$$MYSQL_ROOT_PASSWORD" agsell < /sql/d
 ## 本地开发（不用 Docker）
 
 ```bash
-# 后端（需本地 MySQL/Redis，配置见 application-local.yaml）
+# 后端（需本地 MySQL/Redis）
+# 首次使用：复制 src/main/resources/application-local.yaml.example 为 application-local.yaml，
+# 填入你自己的数据库/微信/OSS 密钥（该文件已被 .gitignore 忽略，不会提交）
 ./mvnw spring-boot:run
 
 # 管理后台
