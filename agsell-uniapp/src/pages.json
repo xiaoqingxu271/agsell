@@ -27,6 +27,9 @@
     { "path": "pages/coupon/my", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/mine/mine", "type": "page" },
     { "path": "pages/mine/address", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/mine/settings", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/mine/profile", "type": "page", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/mine/about", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/ai-chat/chat", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/search/search", "type": "page", "style": { "navigationBarTitleText": "搜索" } }
   ],

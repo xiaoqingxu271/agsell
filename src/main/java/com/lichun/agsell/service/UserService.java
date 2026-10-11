@@ -2,6 +2,7 @@ package com.lichun.agsell.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lichun.agsell.model.dto.UserLoginRequest;
+import com.lichun.agsell.model.dto.UserPhoneBindRequest;
 import com.lichun.agsell.model.dto.UserRegisterRequest;
 import com.lichun.agsell.model.dto.UserUpdateRequest;
 import com.lichun.agsell.model.entity.SysUser;
@@ -26,9 +27,14 @@ public interface UserService extends IService<SysUser> {
     UserInfoVO getUserInfo();
 
     /**
-     * 更新个人信息
+     * 更新个人信息（昵称、头像）
      */
     void updateUserInfo(UserUpdateRequest request);
+
+    /**
+     * 绑定/换绑手机号，需通过短信验证码校验
+     */
+    void bindPhone(UserPhoneBindRequest request);
 
     /**
      * 退出登录（前端清除 token 即可，后端无需额外操作）

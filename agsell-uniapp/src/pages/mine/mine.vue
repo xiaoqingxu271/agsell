@@ -1,20 +1,23 @@
 ﻿<template>
   <view class="mine-page">
     <!-- 头部：白底，不用大面积色块 -->
-    <view v-if="isUserLoggedIn" class="mhd" @click="onChooseAvatar">
-      <image v-if="userInfo?.avatar" class="mhd-av" :src="userInfo.avatar" mode="aspectFill" lazy-load />
-      <view v-else class="mhd-av mhd-av--ph">
+    <view v-if="isUserLoggedIn" class="mhd">
+      <image v-if="userInfo?.avatar" class="mhd-av" :src="userInfo.avatar" mode="aspectFill" lazy-load @click="onChooseAvatar" />
+      <view v-else class="mhd-av mhd-av--ph" @click="onChooseAvatar">
         <wd-icon name="user" size="52rpx" custom-class="mhd-av-ic" />
       </view>
-      <view class="mhd-info">
-        <text class="mhd-name">{{ userInfo?.nickname || '微信用户' }}</text>
+      <view class="mhd-info" @click="goToProfile" role="button" aria-label="编辑资料">
+        <view class="mhd-name-row">
+          <text class="mhd-name">{{ userInfo?.nickname || '微信用户' }}</text>
+          <wd-icon name="edit" size="26rpx" custom-class="mhd-edit-ic" />
+        </view>
         <text class="mhd-sub">{{ userInfo?.phone || '点击完善个人资料' }}</text>
       </view>
-      <view class="mhd-qr" @click.stop="onScanTrace" role="button" aria-label="扫码溯源">
+      <view class="mhd-qr" @click="onScanTrace" role="button" aria-label="扫码溯源">
         <wd-icon name="scan" size="34rpx" custom-class="mhd-qr-ic" />
         <text class="mhd-qr-t">扫码</text>
       </view>
-      <view class="mhd-qr mhd-qr--gap" @click.stop="goToAbout" role="button" aria-label="设置">
+      <view class="mhd-qr mhd-qr--gap" @click="goToSettings" role="button" aria-label="设置">
         <wd-icon name="setting" size="34rpx" custom-class="mhd-qr-ic" />
         <text class="mhd-qr-t">设置</text>
       </view>
@@ -183,7 +186,7 @@ import { getAfterSalesList } from '../../api/afterSales'
 import { wxLogin, isLoggedIn, request } from '../../utils/request'
 import { uploadMiniImage } from '../../utils/upload'
 
-const userInfo = ref(null)
+const userInfo = ref(isLoggedIn() ? uni.getStorageSync('userInfo') || null : null)
 const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
 const assetCounts = ref({ coupon: 0, review: 0, address: 0, afterSales: 0 })
 const isUserLoggedIn = ref(isLoggedIn())
@@ -380,8 +383,16 @@ function onScanTrace() {
   })
 }
 
+function goToProfile() {
+  uni.navigateTo({ url: '/pages/mine/profile' })
+}
+
+function goToSettings() {
+  uni.navigateTo({ url: '/pages/mine/settings' })
+}
+
 function goToAbout() {
-  uni.showToast({ title: `${platformName.value} v1.0`, icon: 'none' })
+  uni.navigateTo({ url: '/pages/mine/about' })
 }
 
 async function onLogout() {
@@ -445,13 +456,31 @@ async function onChooseAvatar() {
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  transition: opacity 150ms ease-out;
+}
+
+.mhd-info:active {
+  opacity: 0.75;
+}
+
+.mhd-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
 }
 
 .mhd-name {
-  display: block;
   font-size: 32rpx;
   font-weight: 600;
   color: $uni-text-color;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+:deep(.mhd-edit-ic) {
+  color: $uni-text-color-placeholder;
+  flex-shrink: 0;
 }
 
 .mhd-sub {
@@ -489,6 +518,11 @@ async function onChooseAvatar() {
   background: $uni-bg-color-img;
   border: 2rpx solid $uni-border-color;
   flex-shrink: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.mhd-av:active {
+  opacity: 0.75;
 }
 
 .mhd-av--ph {

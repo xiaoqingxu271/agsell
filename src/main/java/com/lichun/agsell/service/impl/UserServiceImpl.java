@@ -11,6 +11,7 @@ import com.lichun.agsell.service.WechatService;
 import com.lichun.agsell.utils.ThrowUtils;
 import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.dto.UserLoginRequest;
+import com.lichun.agsell.model.dto.UserPhoneBindRequest;
 import com.lichun.agsell.model.dto.UserRegisterRequest;
 import com.lichun.agsell.model.dto.UserUpdateRequest;
 import com.lichun.agsell.model.entity.SysUser;
@@ -167,29 +168,49 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         SysUser user = getById(userId);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
 
-        // 昵称长度校验
-        ThrowUtils.throwIf(request.getNickname() != null && request.getNickname().length() > 20,
-                ErrorCode.PARAMS_ERROR, "昵称长度不能超过20个字符");
-
-        // 如果修改了手机号，检查是否已被其他用户注册
-        if (request.getPhone() != null && !request.getPhone().equals(user.getUsername())) {
-            ThrowUtils.throwIf(!isMobile(request.getPhone()),
-                    ErrorCode.PARAMS_ERROR, "手机号格式不正确");
-            long count = lambdaQuery()
-                    .eq(SysUser::getUsername, request.getPhone())
-                    .count();
-            ThrowUtils.throwIf(count > 0, ErrorCode.PHONE_ALREADY_EXISTS, "该手机号已被注册");
-            user.setUsername(request.getPhone());
+        // 手机号不在此接口变更：只能经 POST /user/phone/bind 走短信验证码
+        String nickname = request.getNickname();
+        if (nickname != null) {
+            nickname = nickname.trim();
+            ThrowUtils.throwIf(nickname.length() < 2 || nickname.length() > 20,
+                    ErrorCode.PARAMS_ERROR, "昵称长度需为 2-20 个字符");
         }
 
         SysUser update = new SysUser();
         update.setId(userId);
-        update.setNickname(request.getNickname());
+        update.setNickname(nickname);
         update.setAvatar(request.getAvatar());
-        if (request.getPhone() != null) {
-            update.setPhone(request.getPhone());
-        }
         updateById(update);
+    }
+
+    @Override
+    @Transactional
+    public void bindPhone(UserPhoneBindRequest request) {
+        Long userId = BaseContext.getCurrentId();
+        ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR);
+
+        SysUser user = getById(userId);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+
+        String phone = request.getPhone();
+        ThrowUtils.throwIf(!isMobile(phone), ErrorCode.PARAMS_ERROR, "手机号格式不正确");
+        ThrowUtils.throwIf(StrUtil.isBlank(request.getCode()), ErrorCode.PARAMS_ERROR, "验证码不能为空");
+        ThrowUtils.throwIf(!smsCodeService.verifyCode(phone, request.getCode()),
+                ErrorCode.SMS_CODE_INVALID, "验证码错误或已过期");
+        ThrowUtils.throwIf(phone.equals(user.getPhone()), ErrorCode.PHONE_ALREADY_EXISTS, "该手机号已绑定");
+
+        // 手机号同时是注册账号的用户名，任一身份被占用都不允许再绑到别的账号
+        long occupied = lambdaQuery()
+                .ne(SysUser::getId, userId)
+                .and(wrapper -> wrapper.eq(SysUser::getPhone, phone).or().eq(SysUser::getUsername, phone))
+                .count();
+        ThrowUtils.throwIf(occupied > 0, ErrorCode.PHONE_ALREADY_EXISTS, "该手机号已被其他账号使用");
+
+        SysUser update = new SysUser();
+        update.setId(userId);
+        update.setPhone(phone);
+        updateById(update);
+        log.info("[BindPhone] 用户绑定手机号成功, userId={}", userId);
     }
 
     @Override

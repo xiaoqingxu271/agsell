@@ -61,3 +61,7 @@ trace:
 ai-service:
   base-url: http://127.0.0.1:8000 # Python AI 服务地址
   internal-key: 换成与ai-service/.env一致的内部密钥
+
+# 短信验证码配置
+sms:
+  echo-code: true # 本地未接入短信通道，验证码随 /api/sms/send 响应回传，便于小程序端自动填充

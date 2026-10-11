@@ -2,6 +2,7 @@ package com.lichun.agsell.controller.user;
 
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.model.dto.UserLoginRequest;
+import com.lichun.agsell.model.dto.UserPhoneBindRequest;
 import com.lichun.agsell.model.dto.UserRegisterRequest;
 import com.lichun.agsell.model.dto.UserUpdateRequest;
 import com.lichun.agsell.model.vo.UserInfoVO;
@@ -43,6 +44,13 @@ public class UserController {
     @PutMapping("/info")
     public BaseResponse<Void> updateUserInfo(@RequestBody UserUpdateRequest request) {
         userService.updateUserInfo(request);
+        return ResultUtils.success(null);
+    }
+
+    @Operation(summary = "绑定/换绑手机号", description = "需先调用 POST /sms/send 获取验证码")
+    @PostMapping("/phone/bind")
+    public BaseResponse<Void> bindPhone(@RequestBody UserPhoneBindRequest request) {
+        userService.bindPhone(request);
         return ResultUtils.success(null);
     }
 

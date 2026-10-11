@@ -61,6 +61,12 @@ wechat:
     secret: ${wechat.miniapp.secret}
     code2session_url: https://api.weixin.qq.com/sns/jscode2session
 
+# 短信验证码配置
+sms:
+  # 是否把验证码随 /api/sms/send 响应返回前端（短信通道未接入时的开发/演示便利）
+  # 默认关闭，仅本地 profile 打开；生产环境切勿设置 SMS_ECHO_CODE=true
+  echo-code: ${SMS_ECHO_CODE:false}
+
 # 日志配置
 logging:
   level:

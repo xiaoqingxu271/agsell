@@ -27,6 +27,11 @@ export function sendSmsCode(phone) {
   return request('POST', '/sms/send', null, { params: { phone } })
 }
 
+/** 绑定/换绑手机号（需先获取验证码） */
+export function bindPhone(phone, code) {
+  return request('POST', '/user/phone/bind', { phone, code })
+}
+
 /** 获取地址列表 */
 export function getAddressList() {
   return request('GET', '/user/address/list')
@@ -58,6 +63,7 @@ export default {
   updateUserInfo,
   logout,
   sendSmsCode,
+  bindPhone,
   getAddressList,
   addAddress,
   updateAddress,
