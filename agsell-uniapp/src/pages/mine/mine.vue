@@ -11,7 +11,7 @@
           <text class="mhd-name">{{ userInfo?.nickname || '微信用户' }}</text>
           <wd-icon name="edit" size="26rpx" custom-class="mhd-edit-ic" />
         </view>
-        <text class="mhd-sub">{{ userInfo?.phone || '点击完善个人资料' }}</text>
+        <text class="mhd-sub">{{ phoneText }}</text>
       </view>
       <view class="mhd-qr" @click="onScanTrace" role="button" aria-label="扫码溯源">
         <wd-icon name="scan" size="34rpx" custom-class="mhd-qr-ic" />
@@ -176,7 +176,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { onShow, onUnload } from '@dcloudio/uni-app'
 import { getUserInfo, updateUserInfo, logout, getAddressList } from '../../api/user'
 import { getOrderList } from '../../api/order'
@@ -192,6 +192,12 @@ const assetCounts = ref({ coupon: 0, review: 0, address: 0, afterSales: 0 })
 const isUserLoggedIn = ref(isLoggedIn())
 const servicePhone = ref('')
 const platformName = ref('农产品商城')
+
+const phoneText = computed(() => {
+  const p = userInfo.value?.phone
+  if (!p) return '点击完善个人资料'
+  return p.length === 11 ? `${p.slice(0, 3)}****${p.slice(7)}` : p
+})
 
 const orderTabs = [
   { label: '待付款', status: 0, icon: 'money-circle', count: 0 },

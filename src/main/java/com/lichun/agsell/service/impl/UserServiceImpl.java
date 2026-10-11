@@ -195,9 +195,10 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         String phone = request.getPhone();
         ThrowUtils.throwIf(!isMobile(phone), ErrorCode.PARAMS_ERROR, "手机号格式不正确");
         ThrowUtils.throwIf(StrUtil.isBlank(request.getCode()), ErrorCode.PARAMS_ERROR, "验证码不能为空");
+        // 先拦重复号码，避免无谓地消耗掉一条验证码
+        ThrowUtils.throwIf(phone.equals(user.getPhone()), ErrorCode.PHONE_ALREADY_EXISTS, "该手机号已绑定");
         ThrowUtils.throwIf(!smsCodeService.verifyCode(phone, request.getCode()),
                 ErrorCode.SMS_CODE_INVALID, "验证码错误或已过期");
-        ThrowUtils.throwIf(phone.equals(user.getPhone()), ErrorCode.PHONE_ALREADY_EXISTS, "该手机号已绑定");
 
         // 手机号同时是注册账号的用户名，任一身份被占用都不允许再绑到别的账号
         long occupied = lambdaQuery()
