@@ -1,0 +1,332 @@
+{
+  "meta": {
+    "icon_prefix": "fluent-emoji-flat",
+    "icon_size": 160,
+    "photo_size": 800,
+    "note": "商品图来自 Pexels（Pexels License，可免费商用无需署名）；分类图标来自 Iconify fluent-emoji-flat（MIT）"
+  },
+  "categories": [
+    {
+      "id": 1001,
+      "name": "水果",
+      "parent_id": 0,
+      "sort": 100,
+      "icon": "watermelon"
+    },
+    {
+      "id": 1101,
+      "name": "柑橘类",
+      "parent_id": 1001,
+      "sort": 10,
+      "icon": "tangerine"
+    },
+    {
+      "id": 1102,
+      "name": "浆果类",
+      "parent_id": 1001,
+      "sort": 9,
+      "icon": "blueberries"
+    },
+    {
+      "id": 1103,
+      "name": "热带水果",
+      "parent_id": 1001,
+      "sort": 8,
+      "icon": "mango"
+    }
+  ],
+  "products": [
+    {
+      "id": 20001,
+      "name": "赣南脐橙 新鲜当季",
+      "subtitle": "产地直发 坏果包赔",
+      "category_id": 1101,
+      "price": 39.9,
+      "original_price": 59.9,
+      "stock": 500,
+      "sales": 1280,
+      "origin": "江西赣州",
+      "harvest_date": "2026-09-08",
+      "shelf_life": "30天",
+      "storage": "常温避光",
+      "photos": [
+        28947260,
+        18886927,
+        40078530
+      ],
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 39.9,
+          "stock": 300
+        },
+        {
+          "name": "10斤装",
+          "price": 69.9,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20002,
+      "name": "武鸣沃柑 薄皮蜜柑",
+      "subtitle": "皮薄多汁 甜度高",
+      "category_id": 1101,
+      "price": 25.9,
+      "original_price": 35.9,
+      "stock": 400,
+      "sales": 640,
+      "origin": "广西南宁",
+      "harvest_date": "2026-09-15",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "photos": [
+        15487465,
+        12901232,
+        4552444
+      ],
+      "specs": [
+        {
+          "name": "3斤装",
+          "price": 25.9,
+          "stock": 250
+        }
+      ]
+    },
+    {
+      "id": 20003,
+      "name": "丹东红颜草莓",
+      "subtitle": "冷链直发 头茬鲜果",
+      "category_id": 1102,
+      "price": 49.9,
+      "original_price": 69.9,
+      "stock": 200,
+      "sales": 512,
+      "origin": "辽宁丹东",
+      "harvest_date": "2026-09-20",
+      "shelf_life": "5天",
+      "storage": "冷藏保存",
+      "photos": [
+        15976177,
+        35515954
+      ],
+      "specs": [
+        {
+          "name": "盒装 500g",
+          "price": 49.9,
+          "stock": 120
+        },
+        {
+          "name": "箱装 1000g",
+          "price": 89.9,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20004,
+      "name": "云南高山蓝莓",
+      "subtitle": "大果带白霜 现摘现发",
+      "category_id": 1102,
+      "price": 59.9,
+      "original_price": 79.9,
+      "stock": 180,
+      "sales": 421,
+      "origin": "云南昆明",
+      "harvest_date": "2026-09-18",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "photos": [
+        2539177,
+        172073,
+        70862
+      ],
+      "specs": [
+        {
+          "name": "125g×4盒",
+          "price": 59.9,
+          "stock": 180
+        }
+      ]
+    },
+    {
+      "id": 20005,
+      "name": "海南贵妃芒",
+      "subtitle": "树上熟 核小肉厚",
+      "category_id": 1103,
+      "price": 32.9,
+      "original_price": 45.9,
+      "stock": 300,
+      "sales": 733,
+      "origin": "海南三亚",
+      "harvest_date": "2026-09-10",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "photos": [
+        16724963,
+        2294471,
+        4023132
+      ],
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 32.9,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "id": 20006,
+      "name": "广西小米蕉",
+      "subtitle": "自然成熟 甜糯无涩",
+      "category_id": 1103,
+      "price": 15.9,
+      "original_price": 22.9,
+      "stock": 450,
+      "sales": 980,
+      "origin": "广西崇左",
+      "harvest_date": "2026-09-22",
+      "shelf_life": "7天",
+      "storage": "常温悬挂",
+      "photos": [
+        61127,
+        17772689,
+        34454658
+      ],
+      "specs": [
+        {
+          "name": "3斤装",
+          "price": 15.9,
+          "stock": 450
+        }
+      ]
+    }
+  ],
+  "banners": [
+    {
+      "id": 22001,
+      "title": "赣南脐橙 产地直发",
+      "link": "/pages/product/detail?id=20001",
+      "sort": 100,
+      "photo": 28947260
+    },
+    {
+      "id": 22002,
+      "title": "丹东草莓 冷链尝鲜",
+      "link": "/pages/product/detail?id=20003",
+      "sort": 90,
+      "photo": 35515954
+    },
+    {
+      "id": 22003,
+      "title": "海南贵妃芒 树上熟",
+      "link": "/pages/product/detail?id=20005",
+      "sort": 80,
+      "photo": 16724963
+    }
+  ],
+  "demo": {
+    "reviews": [
+      {
+        "product_id": 20001,
+        "rating": 5,
+        "content": "非常好吃的脐橙，新鲜多汁！",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "新鲜,好吃,多汁,好"
+      },
+      {
+        "product_id": 20001,
+        "rating": 5,
+        "content": "回购多次了，品质稳定，个头均匀皮薄。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "回购"
+      },
+      {
+        "product_id": 20001,
+        "rating": 2,
+        "content": "有两三个偏酸，其他都还好，希望改进分拣。",
+        "label": -1,
+        "score": 0.0,
+        "keywords": "偏酸"
+      },
+      {
+        "product_id": 20003,
+        "rating": 5,
+        "content": "草莓很新鲜，包装用心，一颗没压坏。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "新鲜,用心"
+      },
+      {
+        "product_id": 20005,
+        "rating": 5,
+        "content": "贵妃芒核小肉厚，很甜，物流也快。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "好吃,甜,快"
+      }
+    ],
+    "traceability": [
+      {
+        "id": 2097480000000002001,
+        "product_id": 20001,
+        "batch_no": "B202609110001",
+        "farmer_name": "信丰脐橙种植合作社",
+        "farmer_phone": "13800000000",
+        "origin_province": "江西省",
+        "origin_city": "赣州市",
+        "origin_district": "信丰县",
+        "planting_date": "2026-03-10",
+        "harvest_date": "2026-09-08",
+        "quality_check_result": "农残检测合格",
+        "pesticide_test": "GB 2763全项合格",
+        "certification_type": "GEOGRAPHICAL",
+        "records": [
+          {
+            "type": "SEEDING",
+            "date": "2026-03-10",
+            "content": "完成幼苗定植，株距 3m，覆盖地膜保温",
+            "operator": "李四"
+          },
+          {
+            "type": "FERTILIZING",
+            "date": "2026-05-20",
+            "content": "施用腐熟有机肥，补充磷钾元素",
+            "operator": "李四"
+          },
+          {
+            "type": "WATERING",
+            "date": "2026-06-15",
+            "content": "伏旱期滴灌补水两次",
+            "operator": "李四"
+          },
+          {
+            "type": "PEST_CONTROL",
+            "date": "2026-07-10",
+            "content": "释放捕食螨生物防治，未使用化学农药",
+            "operator": "李四"
+          },
+          {
+            "type": "HARVEST",
+            "date": "2026-09-08",
+            "content": "人工采摘，糖度抽检 12.8，分拣装箱",
+            "operator": "李四"
+          }
+        ]
+      }
+    ],
+    "seckill": [
+      {
+        "id": 2097480000000003001,
+        "activity_code": "DEMOSK20261001",
+        "product_id": 20006,
+        "seckill_price": 9.9,
+        "seckill_stock": 50,
+        "seckill_limit": 1,
+        "sort": 50
+      }
+    ]
+  }
+}

@@ -62,8 +62,14 @@ docker compose up -d --build
 docker compose exec ai-service python scripts/init_faq.py --index
 ```
 
-# 4. （可选）导入答辩演示数据：13 条口碑评价（情感预填）/ 溯源档案与生产记录 /
-#    进行中的秒杀活动 / 演示用户——全部幂等，可重复执行
+# 4. （可选）导入商品域全量演示数据：10 个一级 / 42 个二级分类（Iconify 图标）、
+#    202 个商品（Pexels 实拍图 + 规格 + 详情图）、5 张轮播图，以及绑定这些商品的评价 /
+#    溯源档案 + 生产记录 / 秒杀活动。图片走阿里云 OSS 公共读 URL，脚本由
+#    tools/seed-catalog（采集→上传→生成）产出，会先清空商品域及其依赖表
+mysql -h 127.0.0.1 -P 3307 -uroot -p agsell < sql/seed_catalog.sql
+docker compose exec mysql mysql -uroot -p"$$MYSQL_ROOT_PASSWORD" agsell < /sql/seed_catalog.sql
+
+# 5. （可选）导入演示用户 13800138000 与收货地址（评价的展示主体；幂等，可重复执行）
 mysql -h 127.0.0.1 -P 3307 -uroot -p agsell < sql/demo_data.sql
 docker compose exec mysql mysql -uroot -p"$$MYSQL_ROOT_PASSWORD" agsell < /sql/demo_data.sql
 

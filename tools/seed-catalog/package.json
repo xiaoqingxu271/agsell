@@ -1,0 +1,9 @@
+{
+  "name": "agsell-seed-catalog-tools",
+  "private": true,
+  "type": "module",
+  "description": "种子素材构建辅助：Iconify SVG 栅格化",
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}

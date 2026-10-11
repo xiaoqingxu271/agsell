@@ -1,0 +1,7303 @@
+{
+  "meta": {
+    "icon_prefix": "fluent-emoji-flat",
+    "icon_size": 160,
+    "photo_size": 800
+  },
+  "categories": [
+    {
+      "id": 1001,
+      "name": "水果",
+      "parent_id": 0,
+      "sort": 100,
+      "icon": "watermelon"
+    },
+    {
+      "id": 1002,
+      "name": "蔬菜",
+      "parent_id": 0,
+      "sort": 90,
+      "icon": "broccoli"
+    },
+    {
+      "id": 1003,
+      "name": "粮油米面",
+      "parent_id": 0,
+      "sort": 80,
+      "icon": "sheaf-of-rice"
+    },
+    {
+      "id": 1004,
+      "name": "肉禽蛋奶",
+      "parent_id": 0,
+      "sort": 70,
+      "icon": "cut-of-meat"
+    },
+    {
+      "id": 1005,
+      "name": "水产海鲜",
+      "parent_id": 0,
+      "sort": 60,
+      "icon": "fish"
+    },
+    {
+      "id": 1006,
+      "name": "菌菇山珍",
+      "parent_id": 0,
+      "sort": 50,
+      "icon": "mushroom"
+    },
+    {
+      "id": 1007,
+      "name": "干果零食",
+      "parent_id": 0,
+      "sort": 40,
+      "icon": "peanuts"
+    },
+    {
+      "id": 1008,
+      "name": "茶饮冲调",
+      "parent_id": 0,
+      "sort": 30,
+      "icon": "teapot"
+    },
+    {
+      "id": 1009,
+      "name": "调味酱料",
+      "parent_id": 0,
+      "sort": 20,
+      "icon": "salt"
+    },
+    {
+      "id": 1010,
+      "name": "农家特产",
+      "parent_id": 0,
+      "sort": 10,
+      "icon": "basket"
+    },
+    {
+      "id": 1101,
+      "name": "柑橘类",
+      "parent_id": 1001,
+      "sort": 10,
+      "icon": "tangerine"
+    },
+    {
+      "id": 1102,
+      "name": "浆果类",
+      "parent_id": 1001,
+      "sort": 9,
+      "icon": "strawberry"
+    },
+    {
+      "id": 1103,
+      "name": "热带水果",
+      "parent_id": 1001,
+      "sort": 8,
+      "icon": "mango"
+    },
+    {
+      "id": 1104,
+      "name": "仁果核果",
+      "parent_id": 1001,
+      "sort": 7,
+      "icon": "red-apple"
+    },
+    {
+      "id": 1105,
+      "name": "瓜果类",
+      "parent_id": 1001,
+      "sort": 6,
+      "icon": "melon"
+    },
+    {
+      "id": 1111,
+      "name": "叶菜类",
+      "parent_id": 1002,
+      "sort": 10,
+      "icon": "leafy-green"
+    },
+    {
+      "id": 1112,
+      "name": "根茎类",
+      "parent_id": 1002,
+      "sort": 9,
+      "icon": "carrot"
+    },
+    {
+      "id": 1113,
+      "name": "茄果类",
+      "parent_id": 1002,
+      "sort": 8,
+      "icon": "tomato"
+    },
+    {
+      "id": 1114,
+      "name": "鲜食豆谷",
+      "parent_id": 1002,
+      "sort": 7,
+      "icon": "beans"
+    },
+    {
+      "id": 1115,
+      "name": "葱蒜类",
+      "parent_id": 1002,
+      "sort": 6,
+      "icon": "onion"
+    },
+    {
+      "id": 1121,
+      "name": "大米",
+      "parent_id": 1003,
+      "sort": 10,
+      "icon": "cooked-rice"
+    },
+    {
+      "id": 1122,
+      "name": "杂粮",
+      "parent_id": 1003,
+      "sort": 9,
+      "icon": "bowl-with-spoon"
+    },
+    {
+      "id": 1123,
+      "name": "面粉挂面",
+      "parent_id": 1003,
+      "sort": 8,
+      "icon": "spaghetti"
+    },
+    {
+      "id": 1124,
+      "name": "食用油",
+      "parent_id": 1003,
+      "sort": 7,
+      "icon": "oil-drum"
+    },
+    {
+      "id": 1131,
+      "name": "猪肉",
+      "parent_id": 1004,
+      "sort": 10,
+      "icon": "pig-face"
+    },
+    {
+      "id": 1132,
+      "name": "牛羊肉",
+      "parent_id": 1004,
+      "sort": 9,
+      "icon": "meat-on-bone"
+    },
+    {
+      "id": 1133,
+      "name": "禽类",
+      "parent_id": 1004,
+      "sort": 8,
+      "icon": "poultry-leg"
+    },
+    {
+      "id": 1134,
+      "name": "蛋类",
+      "parent_id": 1004,
+      "sort": 7,
+      "icon": "egg"
+    },
+    {
+      "id": 1135,
+      "name": "奶制品",
+      "parent_id": 1004,
+      "sort": 6,
+      "icon": "glass-of-milk"
+    },
+    {
+      "id": 1141,
+      "name": "淡水鱼虾",
+      "parent_id": 1005,
+      "sort": 10,
+      "icon": "shrimp"
+    },
+    {
+      "id": 1142,
+      "name": "海鱼",
+      "parent_id": 1005,
+      "sort": 9,
+      "icon": "tropical-fish"
+    },
+    {
+      "id": 1143,
+      "name": "虾蟹",
+      "parent_id": 1005,
+      "sort": 8,
+      "icon": "crab"
+    },
+    {
+      "id": 1144,
+      "name": "贝类",
+      "parent_id": 1005,
+      "sort": 7,
+      "icon": "oyster"
+    },
+    {
+      "id": 1151,
+      "name": "鲜菇",
+      "parent_id": 1006,
+      "sort": 10,
+      "icon": "brown-mushroom"
+    },
+    {
+      "id": 1152,
+      "name": "干制菌菇",
+      "parent_id": 1006,
+      "sort": 9,
+      "icon": "mushroom"
+    },
+    {
+      "id": 1153,
+      "name": "竹笋",
+      "parent_id": 1006,
+      "sort": 8,
+      "icon": "seedling"
+    },
+    {
+      "id": 1154,
+      "name": "山珍干货",
+      "parent_id": 1006,
+      "sort": 7,
+      "icon": "chestnut"
+    },
+    {
+      "id": 1161,
+      "name": "坚果炒货",
+      "parent_id": 1007,
+      "sort": 10,
+      "icon": "coconut"
+    },
+    {
+      "id": 1162,
+      "name": "蜜饯果干",
+      "parent_id": 1007,
+      "sort": 9,
+      "icon": "grapes"
+    },
+    {
+      "id": 1163,
+      "name": "粗粮零食",
+      "parent_id": 1007,
+      "sort": 8,
+      "icon": "rice-cracker"
+    },
+    {
+      "id": 1171,
+      "name": "绿茶红茶",
+      "parent_id": 1008,
+      "sort": 10,
+      "icon": "teacup-without-handle"
+    },
+    {
+      "id": 1172,
+      "name": "乌龙普洱",
+      "parent_id": 1008,
+      "sort": 9,
+      "icon": "hot-beverage"
+    },
+    {
+      "id": 1173,
+      "name": "花草茶",
+      "parent_id": 1008,
+      "sort": 8,
+      "icon": "herb"
+    },
+    {
+      "id": 1174,
+      "name": "蜂蜜冲调",
+      "parent_id": 1008,
+      "sort": 7,
+      "icon": "bubble-tea"
+    },
+    {
+      "id": 1181,
+      "name": "香辛料",
+      "parent_id": 1009,
+      "sort": 10,
+      "icon": "hot-pepper"
+    },
+    {
+      "id": 1182,
+      "name": "基础调味",
+      "parent_id": 1009,
+      "sort": 9,
+      "icon": "jar"
+    },
+    {
+      "id": 1183,
+      "name": "酱料",
+      "parent_id": 1009,
+      "sort": 8,
+      "icon": "honey-pot"
+    },
+    {
+      "id": 1184,
+      "name": "腌菜泡菜",
+      "parent_id": 1009,
+      "sort": 7,
+      "icon": "canned-food"
+    },
+    {
+      "id": 1191,
+      "name": "腊味火腿",
+      "parent_id": 1010,
+      "sort": 10,
+      "icon": "bacon"
+    },
+    {
+      "id": 1192,
+      "name": "豆制品",
+      "parent_id": 1010,
+      "sort": 9,
+      "icon": "beans"
+    },
+    {
+      "id": 1193,
+      "name": "粉条干货",
+      "parent_id": 1010,
+      "sort": 8,
+      "icon": "steaming-bowl"
+    },
+    {
+      "id": 1194,
+      "name": "滋补特产",
+      "parent_id": 1010,
+      "sort": 7,
+      "icon": "lotus"
+    }
+  ],
+  "products": [
+    {
+      "id": 20001,
+      "name": "赣南脐橙 新鲜当季",
+      "subtitle": "产地直发 坏果包赔",
+      "category_id": 1101,
+      "price": 39.9,
+      "original_price": 50.7,
+      "stock": 240,
+      "sales": 1042,
+      "origin": "江西赣州",
+      "harvest_date": "2026-09-07",
+      "shelf_life": "30天",
+      "storage": "常温避光",
+      "sort": 90,
+      "photos": [
+        1271406,
+        28947260,
+        5472362
+      ],
+      "kw": "navel oranges whole",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 39.9,
+          "stock": 150
+        },
+        {
+          "name": "9斤装",
+          "price": 72.6,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20002,
+      "name": "武鸣沃柑 薄皮蜜柑",
+      "subtitle": "产地直发 现摘现发",
+      "category_id": 1101,
+      "price": 25.9,
+      "original_price": 35.5,
+      "stock": 500,
+      "sales": 1298,
+      "origin": "广西南宁",
+      "harvest_date": "2026-08-09",
+      "shelf_life": "30天",
+      "storage": "常温避光",
+      "sort": 80,
+      "photos": [
+        5472362,
+        40078530,
+        35057804
+      ],
+      "kw": "mandarin oranges pile",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 25.9,
+          "stock": 320
+        },
+        {
+          "name": "9斤装",
+          "price": 44.0,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20003,
+      "name": "秭归夏橙 现摘直发",
+      "subtitle": "产地直发 现摘现发",
+      "category_id": 1101,
+      "price": 29.9,
+      "original_price": 37.4,
+      "stock": 180,
+      "sales": 368,
+      "origin": "湖北宜昌",
+      "harvest_date": "2026-09-09",
+      "shelf_life": "30天",
+      "storage": "常温避光",
+      "sort": 70,
+      "photos": [
+        35469937,
+        2171374,
+        33707783
+      ],
+      "kw": "orange fruit tree fresh",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 29.9,
+          "stock": 120
+        },
+        {
+          "name": "9斤装",
+          "price": 54.4,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20004,
+      "name": "福建琯溪蜜柚 三红肉",
+      "subtitle": "产地直发 现摘现发",
+      "category_id": 1101,
+      "price": 32.9,
+      "original_price": 46.4,
+      "stock": 240,
+      "sales": 93,
+      "origin": "福建漳州",
+      "harvest_date": "2026-08-19",
+      "shelf_life": "30天",
+      "storage": "常温避光",
+      "sort": 60,
+      "photos": [
+        37124825,
+        30284999,
+        7870468
+      ],
+      "kw": "red pomelo cut",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 32.9,
+          "stock": 150
+        },
+        {
+          "name": "9斤装",
+          "price": 63.2,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20005,
+      "name": "象山红美人 柑橘",
+      "subtitle": "产地直发 现摘现发",
+      "category_id": 1101,
+      "price": 68.0,
+      "original_price": 93.2,
+      "stock": 500,
+      "sales": 473,
+      "origin": "浙江宁波",
+      "harvest_date": "2026-08-15",
+      "shelf_life": "30天",
+      "storage": "常温避光",
+      "sort": 50,
+      "photos": [
+        5978636,
+        12901232,
+        7218937
+      ],
+      "kw": "citrus fruit peeled fresh",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 68.0,
+          "stock": 150
+        },
+        {
+          "name": "9斤装",
+          "price": 132.6,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20006,
+      "name": "丹东红颜草莓",
+      "subtitle": "冷链直发 头茬鲜果",
+      "category_id": 1102,
+      "price": 49.9,
+      "original_price": 64.4,
+      "stock": 180,
+      "sales": 1471,
+      "origin": "辽宁丹东",
+      "harvest_date": "2026-08-26",
+      "shelf_life": "5天",
+      "storage": "冷藏保存",
+      "sort": 90,
+      "photos": [
+        35515954,
+        8730092,
+        1660029
+      ],
+      "kw": "fresh strawberries bowl",
+      "specs": [
+        {
+          "name": "盒装 500g",
+          "price": 49.9,
+          "stock": 120
+        },
+        {
+          "name": "箱装 1000g",
+          "price": 95.3,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20007,
+      "name": "云南高山蓝莓",
+      "subtitle": "大果带白霜 现摘现发",
+      "category_id": 1102,
+      "price": 59.9,
+      "original_price": 82.1,
+      "stock": 240,
+      "sales": 650,
+      "origin": "云南昆明",
+      "harvest_date": "2026-09-04",
+      "shelf_life": "5天",
+      "storage": "冷藏保存",
+      "sort": 80,
+      "photos": [
+        798282,
+        1395958,
+        7674658
+      ],
+      "kw": "blueberries close up",
+      "specs": [
+        {
+          "name": "盒装 500g",
+          "price": 59.9,
+          "stock": 80
+        },
+        {
+          "name": "箱装 1000g",
+          "price": 116.8,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20008,
+      "name": "烟台大樱桃 美早",
+      "subtitle": "冷链锁鲜 坏果包赔",
+      "category_id": 1102,
+      "price": 88.0,
+      "original_price": 117.0,
+      "stock": 120,
+      "sales": 1166,
+      "origin": "山东烟台",
+      "harvest_date": "2026-08-27",
+      "shelf_life": "5天",
+      "storage": "冷藏保存",
+      "sort": 70,
+      "photos": [
+        38247579,
+        18653766,
+        35170015
+      ],
+      "kw": "ripe cherries bunch",
+      "specs": [
+        {
+          "name": "盒装 500g",
+          "price": 88.0,
+          "stock": 200
+        },
+        {
+          "name": "箱装 1000g",
+          "price": 169.0,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20009,
+      "name": "延边树莓 红树梅",
+      "subtitle": "冷链锁鲜 坏果包赔",
+      "category_id": 1102,
+      "price": 46.0,
+      "original_price": 63.9,
+      "stock": 180,
+      "sales": 783,
+      "origin": "吉林延边",
+      "harvest_date": "2026-08-21",
+      "shelf_life": "5天",
+      "storage": "冷藏保存",
+      "sort": 60,
+      "photos": [
+        17647647,
+        17647635,
+        35515954
+      ],
+      "kw": "red raspberries",
+      "specs": [
+        {
+          "name": "盒装 500g",
+          "price": 46.0,
+          "stock": 80
+        },
+        {
+          "name": "箱装 1000g",
+          "price": 85.6,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20010,
+      "name": "桑葚 现摘紫果",
+      "subtitle": "冷链锁鲜 坏果包赔",
+      "category_id": 1102,
+      "price": 36.0,
+      "original_price": 55.1,
+      "stock": 180,
+      "sales": 1374,
+      "origin": "广东中山",
+      "harvest_date": "2026-08-26",
+      "shelf_life": "5天",
+      "storage": "冷藏保存",
+      "sort": 50,
+      "photos": [
+        31867785,
+        36942712,
+        3233277
+      ],
+      "kw": "black mulberries",
+      "specs": [
+        {
+          "name": "盒装 500g",
+          "price": 36.0,
+          "stock": 150
+        },
+        {
+          "name": "箱装 1000g",
+          "price": 63.7,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20011,
+      "name": "黑莓 新鲜果",
+      "subtitle": "冷链锁鲜 坏果包赔",
+      "category_id": 1102,
+      "price": 42.0,
+      "original_price": 63.0,
+      "stock": 240,
+      "sales": 267,
+      "origin": "贵州六盘水",
+      "harvest_date": "2026-09-01",
+      "shelf_life": "5天",
+      "storage": "冷藏保存",
+      "sort": 40,
+      "photos": [
+        33654176,
+        39433219,
+        28882149
+      ],
+      "kw": "blackberries fresh",
+      "specs": [
+        {
+          "name": "盒装 500g",
+          "price": 42.0,
+          "stock": 320
+        },
+        {
+          "name": "箱装 1000g",
+          "price": 75.2,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20012,
+      "name": "海南贵妃芒",
+      "subtitle": "树上熟 核小肉厚",
+      "category_id": 1103,
+      "price": 32.9,
+      "original_price": 43.4,
+      "stock": 420,
+      "sales": 703,
+      "origin": "海南三亚",
+      "harvest_date": "2026-08-11",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 90,
+      "photos": [
+        28939331,
+        16248751,
+        7414300
+      ],
+      "kw": "ripe yellow mangoes",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 32.9,
+          "stock": 260
+        },
+        {
+          "name": "9斤装",
+          "price": 58.9,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20013,
+      "name": "广西小米蕉",
+      "subtitle": "自然成熟 甜糯无涩",
+      "category_id": 1103,
+      "price": 15.9,
+      "original_price": 24.2,
+      "stock": 420,
+      "sales": 614,
+      "origin": "广西崇左",
+      "harvest_date": "2026-09-09",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 80,
+      "photos": [
+        4114143,
+        30875875,
+        28939331
+      ],
+      "kw": "ripe bananas bunch",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 15.9,
+          "stock": 260
+        },
+        {
+          "name": "9斤装",
+          "price": 30.7,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20014,
+      "name": "泰国金枕头榴莲",
+      "subtitle": "果园直供 甜度高",
+      "category_id": 1103,
+      "price": 168.0,
+      "original_price": 263.8,
+      "stock": 420,
+      "sales": 894,
+      "origin": "海南乐东进口",
+      "harvest_date": "2026-09-20",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 70,
+      "photos": [
+        31745836,
+        4277656,
+        17910529
+      ],
+      "kw": "durian fruit opened",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 168.0,
+          "stock": 120
+        },
+        {
+          "name": "9斤装",
+          "price": 310.8,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20015,
+      "name": "徐闻菠萝",
+      "subtitle": "果园直供 甜度高",
+      "category_id": 1103,
+      "price": 22.9,
+      "original_price": 33.0,
+      "stock": 500,
+      "sales": 75,
+      "origin": "广东湛江",
+      "harvest_date": "2026-09-15",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 60,
+      "photos": [
+        7194791,
+        137132,
+        174665
+      ],
+      "kw": "pineapple whole fresh",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 22.9,
+          "stock": 150
+        },
+        {
+          "name": "9斤装",
+          "price": 44.2,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20016,
+      "name": "红心火龙果",
+      "subtitle": "果园直供 甜度高",
+      "category_id": 1103,
+      "price": 29.9,
+      "original_price": 46.0,
+      "stock": 300,
+      "sales": 819,
+      "origin": "广西南宁",
+      "harvest_date": "2026-08-31",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 50,
+      "photos": [
+        30741632,
+        5945775,
+        33692883
+      ],
+      "kw": "red dragon fruit cut",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 29.9,
+          "stock": 200
+        },
+        {
+          "name": "9斤装",
+          "price": 51.7,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20017,
+      "name": "攀枝花凯特芒",
+      "subtitle": "果园直供 甜度高",
+      "category_id": 1103,
+      "price": 39.9,
+      "original_price": 53.9,
+      "stock": 420,
+      "sales": 91,
+      "origin": "四川攀枝花",
+      "harvest_date": "2026-08-07",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 40,
+      "photos": [
+        1165502,
+        16724963,
+        8523860
+      ],
+      "kw": "mango sliced plate",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 39.9,
+          "stock": 200
+        },
+        {
+          "name": "9斤装",
+          "price": 75.4,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20018,
+      "name": "海南椰子 现摘",
+      "subtitle": "果园直供 甜度高",
+      "category_id": 1103,
+      "price": 26.0,
+      "original_price": 36.9,
+      "stock": 300,
+      "sales": 1255,
+      "origin": "海南文昌",
+      "harvest_date": "2026-09-10",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 30,
+      "photos": [
+        7882899,
+        12625491,
+        34629889
+      ],
+      "kw": "fresh coconuts",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 26.0,
+          "stock": 260
+        },
+        {
+          "name": "9斤装",
+          "price": 49.4,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20019,
+      "name": "三亚莲雾",
+      "subtitle": "果园直供 甜度高",
+      "category_id": 1103,
+      "price": 45.0,
+      "original_price": 58.1,
+      "stock": 420,
+      "sales": 960,
+      "origin": "海南三亚",
+      "harvest_date": "2026-09-07",
+      "shelf_life": "10天",
+      "storage": "常温催熟",
+      "sort": 20,
+      "photos": [
+        446459,
+        12016242,
+        28939331
+      ],
+      "kw": "wax apples fruit",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 45.0,
+          "stock": 260
+        },
+        {
+          "name": "9斤装",
+          "price": 80.5,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20020,
+      "name": "烟台红富士苹果",
+      "subtitle": "脆甜多汁 果径80+",
+      "category_id": 1104,
+      "price": 34.9,
+      "original_price": 51.0,
+      "stock": 500,
+      "sales": 490,
+      "origin": "山东烟台",
+      "harvest_date": "2026-08-27",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "sort": 90,
+      "photos": [
+        39835819,
+        209439,
+        89434
+      ],
+      "kw": "red apples stack",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 34.9,
+          "stock": 260
+        },
+        {
+          "name": "9斤装",
+          "price": 61.8,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20021,
+      "name": "陕西洛川红富士",
+      "subtitle": "脆甜多汁 果径均匀",
+      "category_id": 1104,
+      "price": 36.9,
+      "original_price": 59.0,
+      "stock": 240,
+      "sales": 119,
+      "origin": "陕西延安",
+      "harvest_date": "2026-08-26",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "sort": 80,
+      "photos": [
+        35155442,
+        34026569,
+        5529540
+      ],
+      "kw": "apples orchard fresh",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 36.9,
+          "stock": 320
+        },
+        {
+          "name": "9斤装",
+          "price": 71.2,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20022,
+      "name": "赵县雪梨",
+      "subtitle": "脆甜多汁 果径均匀",
+      "category_id": 1104,
+      "price": 24.9,
+      "original_price": 31.4,
+      "stock": 500,
+      "sales": 694,
+      "origin": "河北石家庄",
+      "harvest_date": "2026-08-20",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "sort": 70,
+      "photos": [
+        5945906,
+        12336382,
+        13721001
+      ],
+      "kw": "pear fruit white",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 24.9,
+          "stock": 320
+        },
+        {
+          "name": "9斤装",
+          "price": 42.3,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20023,
+      "name": "砀山酥梨",
+      "subtitle": "脆甜多汁 果径均匀",
+      "category_id": 1104,
+      "price": 21.9,
+      "original_price": 30.0,
+      "stock": 420,
+      "sales": 1216,
+      "origin": "安徽宿州",
+      "harvest_date": "2026-08-27",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "sort": 60,
+      "photos": [
+        10024753,
+        18121315,
+        6316701
+      ],
+      "kw": "china pear fruit",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 21.9,
+          "stock": 150
+        },
+        {
+          "name": "9斤装",
+          "price": 42.5,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20024,
+      "name": "库尔勒香梨",
+      "subtitle": "脆甜多汁 果径均匀",
+      "category_id": 1104,
+      "price": 39.9,
+      "original_price": 51.9,
+      "stock": 300,
+      "sales": 1597,
+      "origin": "新疆巴州",
+      "harvest_date": "2026-09-06",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "sort": 50,
+      "photos": [
+        12486499,
+        2095571,
+        7667669
+      ],
+      "kw": "green pear fruit",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 39.9,
+          "stock": 200
+        },
+        {
+          "name": "9斤装",
+          "price": 76.6,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20025,
+      "name": "奉化水蜜桃",
+      "subtitle": "脆甜多汁 果径均匀",
+      "category_id": 1104,
+      "price": 58.0,
+      "original_price": 92.8,
+      "stock": 420,
+      "sales": 375,
+      "origin": "浙江宁波",
+      "harvest_date": "2026-09-15",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "sort": 40,
+      "photos": [
+        9899222,
+        40078527,
+        10424828
+      ],
+      "kw": "ripe peach fruit",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 58.0,
+          "stock": 150
+        },
+        {
+          "name": "9斤装",
+          "price": 100.9,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20026,
+      "name": "阳山水蜜桃",
+      "subtitle": "脆甜多汁 果径均匀",
+      "category_id": 1104,
+      "price": 66.0,
+      "original_price": 100.3,
+      "stock": 120,
+      "sales": 1046,
+      "origin": "江苏无锡",
+      "harvest_date": "2026-09-12",
+      "shelf_life": "20天",
+      "storage": "冷藏保存",
+      "sort": 30,
+      "photos": [
+        18515152,
+        9799882,
+        10424828
+      ],
+      "kw": "peach close up fresh",
+      "specs": [
+        {
+          "name": "5斤装",
+          "price": 66.0,
+          "stock": 320
+        },
+        {
+          "name": "9斤装",
+          "price": 127.4,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20027,
+      "name": "宁夏硒砂瓜",
+      "subtitle": "当季鲜果 沙甜爽口",
+      "category_id": 1105,
+      "price": 26.9,
+      "original_price": 37.1,
+      "stock": 500,
+      "sales": 1077,
+      "origin": "宁夏中卫",
+      "harvest_date": "2026-09-08",
+      "shelf_life": "15天",
+      "storage": "常温避光",
+      "sort": 90,
+      "photos": [
+        8371548,
+        1029594,
+        37157760
+      ],
+      "kw": "watermelon sliced red",
+      "specs": [
+        {
+          "name": "单果 5斤",
+          "price": 26.9,
+          "stock": 320
+        },
+        {
+          "name": "双果 10斤",
+          "price": 52.5,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20028,
+      "name": "北京大兴西瓜",
+      "subtitle": "当季鲜果 沙甜爽口",
+      "category_id": 1105,
+      "price": 32.0,
+      "original_price": 45.1,
+      "stock": 180,
+      "sales": 1545,
+      "origin": "北京大兴",
+      "harvest_date": "2026-09-05",
+      "shelf_life": "15天",
+      "storage": "常温避光",
+      "sort": 80,
+      "photos": [
+        7284760,
+        1313267,
+        8371548
+      ],
+      "kw": "watermelon whole field",
+      "specs": [
+        {
+          "name": "单果 5斤",
+          "price": 32.0,
+          "stock": 150
+        },
+        {
+          "name": "双果 10斤",
+          "price": 57.0,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20029,
+      "name": "海南哈密瓜",
+      "subtitle": "当季鲜果 沙甜爽口",
+      "category_id": 1105,
+      "price": 45.0,
+      "original_price": 70.2,
+      "stock": 420,
+      "sales": 1309,
+      "origin": "海南东方",
+      "harvest_date": "2026-09-10",
+      "shelf_life": "15天",
+      "storage": "常温避光",
+      "sort": 70,
+      "photos": [
+        9469638,
+        4051437,
+        1327734
+      ],
+      "kw": "cantaloupe melon cut",
+      "specs": [
+        {
+          "name": "单果 5斤",
+          "price": 45.0,
+          "stock": 260
+        },
+        {
+          "name": "双果 10斤",
+          "price": 82.4,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20030,
+      "name": "羊角蜜甜瓜",
+      "subtitle": "当季鲜果 沙甜爽口",
+      "category_id": 1105,
+      "price": 28.0,
+      "original_price": 40.9,
+      "stock": 500,
+      "sales": 590,
+      "origin": "山东潍坊",
+      "harvest_date": "2026-09-06",
+      "shelf_life": "15天",
+      "storage": "常温避光",
+      "sort": 60,
+      "photos": [
+        18075238,
+        2920403,
+        36794063
+      ],
+      "kw": "melon green fresh",
+      "specs": [
+        {
+          "name": "单果 5斤",
+          "price": 28.0,
+          "stock": 80
+        },
+        {
+          "name": "双果 10斤",
+          "price": 48.7,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20031,
+      "name": "有机西兰花 新鲜蔬菜",
+      "subtitle": "无农药残留 基地直供",
+      "category_id": 1111,
+      "price": 12.9,
+      "original_price": 17.3,
+      "stock": 180,
+      "sales": 1239,
+      "origin": "江西赣州",
+      "harvest_date": "2026-09-11",
+      "shelf_life": "5天",
+      "storage": "冷藏保湿",
+      "sort": 90,
+      "photos": [
+        7676910,
+        11333727,
+        12333180
+      ],
+      "kw": "broccoli green fresh",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 12.9,
+          "stock": 260
+        },
+        {
+          "name": "1000g",
+          "price": 22.2,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20032,
+      "name": "云南上海青",
+      "subtitle": "当日采摘 基地直供",
+      "category_id": 1111,
+      "price": 6.9,
+      "original_price": 8.9,
+      "stock": 420,
+      "sales": 1172,
+      "origin": "云南曲靖",
+      "harvest_date": "2026-09-12",
+      "shelf_life": "5天",
+      "storage": "冷藏保湿",
+      "sort": 80,
+      "photos": [
+        6157088,
+        7227069,
+        7225580
+      ],
+      "kw": "bok choy greens",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 6.9,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 12.6,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20033,
+      "name": "本地菠菜",
+      "subtitle": "当日采摘 基地直供",
+      "category_id": 1111,
+      "price": 8.9,
+      "original_price": 14.1,
+      "stock": 240,
+      "sales": 495,
+      "origin": "山东寿光",
+      "harvest_date": "2026-09-21",
+      "shelf_life": "5天",
+      "storage": "冷藏保湿",
+      "sort": 70,
+      "photos": [
+        30801724,
+        19957370,
+        750952
+      ],
+      "kw": "fresh spinach leaves",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 8.9,
+          "stock": 150
+        },
+        {
+          "name": "1000g",
+          "price": 17.3,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20034,
+      "name": "球生菜",
+      "subtitle": "当日采摘 基地直供",
+      "category_id": 1111,
+      "price": 7.9,
+      "original_price": 10.0,
+      "stock": 500,
+      "sales": 663,
+      "origin": "河北张家口",
+      "harvest_date": "2026-08-19",
+      "shelf_life": "5天",
+      "storage": "冷藏保湿",
+      "sort": 60,
+      "photos": [
+        18441983,
+        16583941,
+        11733071
+      ],
+      "kw": "lettuce head green",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 7.9,
+          "stock": 150
+        },
+        {
+          "name": "1000g",
+          "price": 15.1,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20035,
+      "name": "油麦菜",
+      "subtitle": "当日采摘 基地直供",
+      "category_id": 1111,
+      "price": 6.5,
+      "original_price": 8.8,
+      "stock": 420,
+      "sales": 1155,
+      "origin": "广东广州",
+      "harvest_date": "2026-08-28",
+      "shelf_life": "5天",
+      "storage": "冷藏保湿",
+      "sort": 50,
+      "photos": [
+        34757650,
+        10269715,
+        1543796
+      ],
+      "kw": "romaine lettuce leaves",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 6.5,
+          "stock": 200
+        },
+        {
+          "name": "1000g",
+          "price": 12.1,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20036,
+      "name": "大白菜",
+      "subtitle": "当日采摘 基地直供",
+      "category_id": 1111,
+      "price": 9.9,
+      "original_price": 14.2,
+      "stock": 420,
+      "sales": 789,
+      "origin": "河南周口",
+      "harvest_date": "2026-09-21",
+      "shelf_life": "5天",
+      "storage": "冷藏保湿",
+      "sort": 40,
+      "photos": [
+        35702607,
+        16275972,
+        18473570
+      ],
+      "kw": "chinese cabbage",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 9.9,
+          "stock": 320
+        },
+        {
+          "name": "1000g",
+          "price": 17.8,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20037,
+      "name": "娃娃菜 三包",
+      "subtitle": "当日采摘 基地直供",
+      "category_id": 1111,
+      "price": 11.9,
+      "original_price": 17.6,
+      "stock": 500,
+      "sales": 1153,
+      "origin": "甘肃兰州",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "5天",
+      "storage": "冷藏保湿",
+      "sort": 30,
+      "photos": [
+        7225580,
+        37113938,
+        6157088
+      ],
+      "kw": "baby napa cabbage",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 11.9,
+          "stock": 120
+        },
+        {
+          "name": "1000g",
+          "price": 21.5,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20038,
+      "name": "黄心土豆",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 9.9,
+      "original_price": 13.5,
+      "stock": 300,
+      "sales": 1515,
+      "origin": "甘肃定西",
+      "harvest_date": "2026-08-24",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 90,
+      "photos": [
+        39029991,
+        7288781,
+        11633655
+      ],
+      "kw": "potatoes raw pile",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 9.9,
+          "stock": 200
+        },
+        {
+          "name": "5斤",
+          "price": 18.5,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20039,
+      "name": "铁棍山药",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 25.9,
+      "original_price": 34.2,
+      "stock": 420,
+      "sales": 1015,
+      "origin": "河南焦作",
+      "harvest_date": "2026-08-20",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 80,
+      "photos": [
+        34143558,
+        31820028,
+        14881680
+      ],
+      "kw": "chinese yam root",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 25.9,
+          "stock": 150
+        },
+        {
+          "name": "5斤",
+          "price": 48.2,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20040,
+      "name": "水果胡萝卜",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 12.9,
+      "original_price": 16.4,
+      "stock": 240,
+      "sales": 1175,
+      "origin": "山东寿光",
+      "harvest_date": "2026-09-01",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 70,
+      "photos": [
+        1721073,
+        7418944,
+        7081374
+      ],
+      "kw": "fresh carrots bunch",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 12.9,
+          "stock": 120
+        },
+        {
+          "name": "5斤",
+          "price": 22.6,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20041,
+      "name": "沙地白萝卜",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 8.9,
+      "original_price": 12.0,
+      "stock": 300,
+      "sales": 983,
+      "origin": "湖北武汉",
+      "harvest_date": "2026-08-23",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 60,
+      "photos": [
+        6631955,
+        12008317,
+        19689767
+      ],
+      "kw": "white radish daikon",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 8.9,
+          "stock": 200
+        },
+        {
+          "name": "5斤",
+          "price": 15.9,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20042,
+      "name": "洪湖九孔莲藕",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 18.9,
+      "original_price": 25.1,
+      "stock": 300,
+      "sales": 1256,
+      "origin": "湖北荆州",
+      "harvest_date": "2026-08-09",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 50,
+      "photos": [
+        39452695,
+        7287707,
+        39972535
+      ],
+      "kw": "lotus root fresh",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 18.9,
+          "stock": 200
+        },
+        {
+          "name": "5斤",
+          "price": 33.8,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20043,
+      "name": "烟薯25 蜜薯",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 15.9,
+      "original_price": 21.6,
+      "stock": 420,
+      "sales": 131,
+      "origin": "山东临沂",
+      "harvest_date": "2026-09-04",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 40,
+      "photos": [
+        4617475,
+        10822047,
+        5959859
+      ],
+      "kw": "sweet potatoes orange",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 15.9,
+          "stock": 320
+        },
+        {
+          "name": "5斤",
+          "price": 27.2,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20044,
+      "name": "紫薯",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 13.9,
+      "original_price": 21.5,
+      "stock": 300,
+      "sales": 1052,
+      "origin": "广东湛江",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 30,
+      "photos": [
+        10652321,
+        9956725,
+        30893354
+      ],
+      "kw": "purple sweet potato",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 13.9,
+          "stock": 200
+        },
+        {
+          "name": "5斤",
+          "price": 23.8,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20045,
+      "name": "小黄姜",
+      "subtitle": "沙地种植 粉糯香甜",
+      "category_id": 1112,
+      "price": 10.9,
+      "original_price": 14.4,
+      "stock": 120,
+      "sales": 1208,
+      "origin": "山东莱芜",
+      "harvest_date": "2026-08-07",
+      "shelf_life": "30天",
+      "storage": "阴凉干燥",
+      "sort": 20,
+      "photos": [
+        11369666,
+        37063961,
+        30296687
+      ],
+      "kw": "fresh ginger root",
+      "specs": [
+        {
+          "name": "2.5斤",
+          "price": 10.9,
+          "stock": 260
+        },
+        {
+          "name": "5斤",
+          "price": 20.1,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20046,
+      "name": "普罗旺斯西红柿",
+      "subtitle": "大棚鲜蔬 现摘现发",
+      "category_id": 1113,
+      "price": 16.9,
+      "original_price": 26.0,
+      "stock": 180,
+      "sales": 799,
+      "origin": "山东寿光",
+      "harvest_date": "2026-08-21",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "sort": 90,
+      "photos": [
+        4022089,
+        2742753,
+        2818573
+      ],
+      "kw": "ripe tomatoes vine",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 16.9,
+          "stock": 80
+        },
+        {
+          "name": "2斤",
+          "price": 29.7,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20047,
+      "name": "螺丝椒",
+      "subtitle": "大棚鲜蔬 现摘现发",
+      "category_id": 1113,
+      "price": 9.9,
+      "original_price": 13.7,
+      "stock": 420,
+      "sales": 658,
+      "origin": "河南商丘",
+      "harvest_date": "2026-08-08",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "sort": 80,
+      "photos": [
+        13422250,
+        48840,
+        6156992
+      ],
+      "kw": "green chili peppers",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 9.9,
+          "stock": 120
+        },
+        {
+          "name": "2斤",
+          "price": 19.0,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20048,
+      "name": "紫长茄",
+      "subtitle": "大棚鲜蔬 现摘现发",
+      "category_id": 1113,
+      "price": 8.9,
+      "original_price": 13.3,
+      "stock": 500,
+      "sales": 1545,
+      "origin": "江苏徐州",
+      "harvest_date": "2026-09-08",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "sort": 70,
+      "photos": [
+        10684593,
+        35116491,
+        1340863
+      ],
+      "kw": "eggplant purple fresh",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 8.9,
+          "stock": 150
+        },
+        {
+          "name": "2斤",
+          "price": 17.3,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20049,
+      "name": "密刺黄瓜",
+      "subtitle": "大棚鲜蔬 现摘现发",
+      "category_id": 1113,
+      "price": 7.9,
+      "original_price": 11.5,
+      "stock": 240,
+      "sales": 1219,
+      "origin": "山东潍坊",
+      "harvest_date": "2026-09-20",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "sort": 60,
+      "photos": [
+        3568039,
+        2329440,
+        11621929
+      ],
+      "kw": "cucumbers fresh green",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 7.9,
+          "stock": 200
+        },
+        {
+          "name": "2斤",
+          "price": 14.1,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20050,
+      "name": "肉丝瓜",
+      "subtitle": "大棚鲜蔬 现摘现发",
+      "category_id": 1113,
+      "price": 10.9,
+      "original_price": 16.2,
+      "stock": 420,
+      "sales": 918,
+      "origin": "广东佛山",
+      "harvest_date": "2026-08-29",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "sort": 50,
+      "photos": [
+        35072410,
+        4078074,
+        28975062
+      ],
+      "kw": "luffa gourd vegetable",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 10.9,
+          "stock": 320
+        },
+        {
+          "name": "2斤",
+          "price": 20.1,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20051,
+      "name": "黑皮冬瓜",
+      "subtitle": "大棚鲜蔬 现摘现发",
+      "category_id": 1113,
+      "price": 12.9,
+      "original_price": 20.0,
+      "stock": 180,
+      "sales": 670,
+      "origin": "广西玉林",
+      "harvest_date": "2026-08-12",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "sort": 40,
+      "photos": [
+        38568433,
+        12416149,
+        9764202
+      ],
+      "kw": "wax gourd winter melon",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 12.9,
+          "stock": 120
+        },
+        {
+          "name": "2斤",
+          "price": 23.0,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20052,
+      "name": "圆茄子",
+      "subtitle": "大棚鲜蔬 现摘现发",
+      "category_id": 1113,
+      "price": 8.5,
+      "original_price": 10.7,
+      "stock": 500,
+      "sales": 446,
+      "origin": "河北保定",
+      "harvest_date": "2026-08-21",
+      "shelf_life": "7天",
+      "storage": "冷藏保存",
+      "sort": 30,
+      "photos": [
+        1340856,
+        1340863,
+        10684593
+      ],
+      "kw": "round eggplant",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 8.5,
+          "stock": 80
+        },
+        {
+          "name": "2斤",
+          "price": 15.8,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20053,
+      "name": "带壳毛豆",
+      "subtitle": "鲜嫩饱满 清甜无渣",
+      "category_id": 1114,
+      "price": 9.9,
+      "original_price": 14.3,
+      "stock": 420,
+      "sales": 871,
+      "origin": "江苏宿迁",
+      "harvest_date": "2026-08-11",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 90,
+      "photos": [
+        28460867,
+        3298782,
+        3297805
+      ],
+      "kw": "edamame green pods",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 9.9,
+          "stock": 260
+        },
+        {
+          "name": "1000g",
+          "price": 19.1,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20054,
+      "name": "荷兰豆",
+      "subtitle": "鲜嫩饱满 清甜无渣",
+      "category_id": 1114,
+      "price": 11.9,
+      "original_price": 19.0,
+      "stock": 300,
+      "sales": 332,
+      "origin": "云南昆明",
+      "harvest_date": "2026-08-29",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 80,
+      "photos": [
+        768090,
+        768098,
+        28460867
+      ],
+      "kw": "snow peas pod",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 11.9,
+          "stock": 260
+        },
+        {
+          "name": "1000g",
+          "price": 20.6,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20055,
+      "name": "四季豆",
+      "subtitle": "鲜嫩饱满 清甜无渣",
+      "category_id": 1114,
+      "price": 8.9,
+      "original_price": 11.2,
+      "stock": 120,
+      "sales": 611,
+      "origin": "四川成都",
+      "harvest_date": "2026-08-12",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 70,
+      "photos": [
+        1680585,
+        17374789,
+        5913170
+      ],
+      "kw": "green beans fresh",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 8.9,
+          "stock": 200
+        },
+        {
+          "name": "1000g",
+          "price": 15.3,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20056,
+      "name": "水果玉米 现摘",
+      "subtitle": "鲜嫩饱满 清甜无渣",
+      "category_id": 1114,
+      "price": 15.9,
+      "original_price": 21.6,
+      "stock": 120,
+      "sales": 1578,
+      "origin": "云南西双版纳",
+      "harvest_date": "2026-08-28",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 60,
+      "photos": [
+        1353866,
+        13422457,
+        9362415
+      ],
+      "kw": "sweet corn cobs",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 15.9,
+          "stock": 150
+        },
+        {
+          "name": "1000g",
+          "price": 28.6,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20057,
+      "name": "白不老豆角",
+      "subtitle": "鲜嫩饱满 清甜无渣",
+      "category_id": 1114,
+      "price": 9.5,
+      "original_price": 14.6,
+      "stock": 180,
+      "sales": 622,
+      "origin": "陕西西安",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 50,
+      "photos": [
+        5913170,
+        17374789,
+        768090
+      ],
+      "kw": "white beans vegetable",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 9.5,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 17.0,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20058,
+      "name": "紫皮大蒜",
+      "subtitle": "辛香浓郁 耐储耐运",
+      "category_id": 1115,
+      "price": 12.9,
+      "original_price": 17.0,
+      "stock": 420,
+      "sales": 359,
+      "origin": "山东金乡",
+      "harvest_date": "2026-08-25",
+      "shelf_life": "45天",
+      "storage": "阴凉通风",
+      "sort": 90,
+      "photos": [
+        8618975,
+        8019485,
+        38709101
+      ],
+      "kw": "garlic bulbs purple",
+      "specs": [
+        {
+          "name": "1斤",
+          "price": 12.9,
+          "stock": 200
+        },
+        {
+          "name": "5斤",
+          "price": 22.1,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20059,
+      "name": "圆葱 紫皮",
+      "subtitle": "辛香浓郁 耐储耐运",
+      "category_id": 1115,
+      "price": 7.9,
+      "original_price": 11.8,
+      "stock": 420,
+      "sales": 857,
+      "origin": "内蒙古乌兰察布",
+      "harvest_date": "2026-09-15",
+      "shelf_life": "45天",
+      "storage": "阴凉通风",
+      "sort": 80,
+      "photos": [
+        37434450,
+        7890170,
+        38571504
+      ],
+      "kw": "red onions pile",
+      "specs": [
+        {
+          "name": "1斤",
+          "price": 7.9,
+          "stock": 200
+        },
+        {
+          "name": "5斤",
+          "price": 14.0,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20060,
+      "name": "小香葱",
+      "subtitle": "辛香浓郁 耐储耐运",
+      "category_id": 1115,
+      "price": 4.9,
+      "original_price": 7.0,
+      "stock": 120,
+      "sales": 1373,
+      "origin": "江苏南通",
+      "harvest_date": "2026-08-23",
+      "shelf_life": "45天",
+      "storage": "阴凉通风",
+      "sort": 70,
+      "photos": [
+        16457306,
+        4113893,
+        7251861
+      ],
+      "kw": "spring onions scallion",
+      "specs": [
+        {
+          "name": "1斤",
+          "price": 4.9,
+          "stock": 120
+        },
+        {
+          "name": "5斤",
+          "price": 8.8,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20061,
+      "name": "章丘大葱",
+      "subtitle": "辛香浓郁 耐储耐运",
+      "category_id": 1115,
+      "price": 13.9,
+      "original_price": 21.8,
+      "stock": 180,
+      "sales": 878,
+      "origin": "山东济南",
+      "harvest_date": "2026-08-07",
+      "shelf_life": "45天",
+      "storage": "阴凉通风",
+      "sort": 60,
+      "photos": [
+        37405760,
+        7658786,
+        39960569
+      ],
+      "kw": "leek green onion long",
+      "specs": [
+        {
+          "name": "1斤",
+          "price": 13.9,
+          "stock": 260
+        },
+        {
+          "name": "5斤",
+          "price": 25.3,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20062,
+      "name": "五常大米 东北稻花香",
+      "subtitle": "粒粒晶莹 软糯香甜",
+      "category_id": 1121,
+      "price": 68.0,
+      "original_price": 97.2,
+      "stock": 300,
+      "sales": 1304,
+      "origin": "黑龙江五常",
+      "harvest_date": "2026-09-10",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 90,
+      "photos": [
+        13362298,
+        36346843,
+        13796760
+      ],
+      "kw": "rice grains raw bowl",
+      "specs": [
+        {
+          "name": "5kg装",
+          "price": 68.0,
+          "stock": 120
+        },
+        {
+          "name": "10kg装",
+          "price": 117.0,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20063,
+      "name": "盘锦蟹田大米",
+      "subtitle": "当季新米 轻碾保鲜",
+      "category_id": 1121,
+      "price": 55.0,
+      "original_price": 80.3,
+      "stock": 300,
+      "sales": 1135,
+      "origin": "辽宁盘锦",
+      "harvest_date": "2026-08-21",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 80,
+      "photos": [
+        4110256,
+        15733306,
+        4110251
+      ],
+      "kw": "white rice sack",
+      "specs": [
+        {
+          "name": "5kg装",
+          "price": 55.0,
+          "stock": 320
+        },
+        {
+          "name": "10kg装",
+          "price": 96.8,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20064,
+      "name": "江苏射阳大米",
+      "subtitle": "当季新米 轻碾保鲜",
+      "category_id": 1121,
+      "price": 49.9,
+      "original_price": 63.9,
+      "stock": 240,
+      "sales": 748,
+      "origin": "江苏盐城",
+      "harvest_date": "2026-09-07",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 70,
+      "photos": [
+        31555433,
+        31679154,
+        3737694
+      ],
+      "kw": "rice field harvest",
+      "specs": [
+        {
+          "name": "5kg装",
+          "price": 49.9,
+          "stock": 150
+        },
+        {
+          "name": "10kg装",
+          "price": 90.3,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20065,
+      "name": "丝苗米 南方籼米",
+      "subtitle": "当季新米 轻碾保鲜",
+      "category_id": 1121,
+      "price": 42.0,
+      "original_price": 64.3,
+      "stock": 500,
+      "sales": 103,
+      "origin": "广东广州",
+      "harvest_date": "2026-08-16",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 60,
+      "photos": [
+        8108170,
+        10294598,
+        8108145
+      ],
+      "kw": "basmati rice grains",
+      "specs": [
+        {
+          "name": "5kg装",
+          "price": 42.0,
+          "stock": 260
+        },
+        {
+          "name": "10kg装",
+          "price": 79.0,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20066,
+      "name": "胚芽米 轻碾",
+      "subtitle": "当季新米 轻碾保鲜",
+      "category_id": 1121,
+      "price": 58.0,
+      "original_price": 72.5,
+      "stock": 240,
+      "sales": 784,
+      "origin": "吉林通化",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 50,
+      "photos": [
+        4110256,
+        20407290,
+        36215696
+      ],
+      "kw": "brown rice grains",
+      "specs": [
+        {
+          "name": "5kg装",
+          "price": 58.0,
+          "stock": 260
+        },
+        {
+          "name": "10kg装",
+          "price": 105.6,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20067,
+      "name": "沁州黄小米",
+      "subtitle": "颗粒饱满 农家自种",
+      "category_id": 1122,
+      "price": 26.9,
+      "original_price": 36.9,
+      "stock": 240,
+      "sales": 142,
+      "origin": "山西长治",
+      "harvest_date": "2026-08-29",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 90,
+      "photos": [
+        27959280,
+        30451721,
+        11519186
+      ],
+      "kw": "millet grains yellow",
+      "specs": [
+        {
+          "name": "1kg装",
+          "price": 26.9,
+          "stock": 120
+        },
+        {
+          "name": "2.5kg装",
+          "price": 49.0,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20068,
+      "name": "红小豆",
+      "subtitle": "颗粒饱满 农家自种",
+      "category_id": 1122,
+      "price": 15.9,
+      "original_price": 21.5,
+      "stock": 300,
+      "sales": 1147,
+      "origin": "黑龙江牡丹江",
+      "harvest_date": "2026-08-21",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 80,
+      "photos": [
+        13620783,
+        16122325,
+        27959280
+      ],
+      "kw": "red adzuki beans",
+      "specs": [
+        {
+          "name": "1kg装",
+          "price": 15.9,
+          "stock": 260
+        },
+        {
+          "name": "2.5kg装",
+          "price": 29.6,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20069,
+      "name": "绿小豆",
+      "subtitle": "颗粒饱满 农家自种",
+      "category_id": 1122,
+      "price": 14.9,
+      "original_price": 20.1,
+      "stock": 120,
+      "sales": 1176,
+      "origin": "吉林白城",
+      "harvest_date": "2026-09-13",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 70,
+      "photos": [
+        7420818,
+        7420814,
+        6613054
+      ],
+      "kw": "mung beans green",
+      "specs": [
+        {
+          "name": "1kg装",
+          "price": 14.9,
+          "stock": 120
+        },
+        {
+          "name": "2.5kg装",
+          "price": 26.1,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20070,
+      "name": "黑米",
+      "subtitle": "颗粒饱满 农家自种",
+      "category_id": 1122,
+      "price": 18.9,
+      "original_price": 25.9,
+      "stock": 240,
+      "sales": 637,
+      "origin": "陕西汉中",
+      "harvest_date": "2026-09-19",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 60,
+      "photos": [
+        34567037,
+        6732732,
+        8108049
+      ],
+      "kw": "black rice grains",
+      "specs": [
+        {
+          "name": "1kg装",
+          "price": 18.9,
+          "stock": 200
+        },
+        {
+          "name": "2.5kg装",
+          "price": 35.3,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20071,
+      "name": "燕麦米",
+      "subtitle": "颗粒饱满 农家自种",
+      "category_id": 1122,
+      "price": 22.9,
+      "original_price": 31.6,
+      "stock": 120,
+      "sales": 248,
+      "origin": "内蒙古阴山",
+      "harvest_date": "2026-09-09",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 50,
+      "photos": [
+        11350103,
+        2290078,
+        23428032
+      ],
+      "kw": "oat grains",
+      "specs": [
+        {
+          "name": "1kg装",
+          "price": 22.9,
+          "stock": 320
+        },
+        {
+          "name": "2.5kg装",
+          "price": 41.0,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20072,
+      "name": "高粱米",
+      "subtitle": "颗粒饱满 农家自种",
+      "category_id": 1122,
+      "price": 16.9,
+      "original_price": 21.6,
+      "stock": 240,
+      "sales": 1423,
+      "origin": "辽宁朝阳",
+      "harvest_date": "2026-09-20",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 40,
+      "photos": [
+        18275951,
+        13867829,
+        5500154
+      ],
+      "kw": "sorghum grains",
+      "specs": [
+        {
+          "name": "1kg装",
+          "price": 16.9,
+          "stock": 200
+        },
+        {
+          "name": "2.5kg装",
+          "price": 31.9,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20073,
+      "name": "河套雪花粉",
+      "subtitle": "石磨低速 麦香浓郁",
+      "category_id": 1123,
+      "price": 32.9,
+      "original_price": 50.3,
+      "stock": 240,
+      "sales": 1188,
+      "origin": "内蒙古巴彦淖尔",
+      "harvest_date": "2026-08-09",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 90,
+      "photos": [
+        36617926,
+        5441094,
+        7236402
+      ],
+      "kw": "flour bag wheat",
+      "specs": [
+        {
+          "name": "2.5kg",
+          "price": 32.9,
+          "stock": 200
+        },
+        {
+          "name": "5kg",
+          "price": 60.9,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20074,
+      "name": "中筋面粉 5kg",
+      "subtitle": "石磨低速 麦香浓郁",
+      "category_id": 1123,
+      "price": 27.9,
+      "original_price": 37.9,
+      "stock": 500,
+      "sales": 1385,
+      "origin": "河北石家庄",
+      "harvest_date": "2026-08-27",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 80,
+      "photos": [
+        3893682,
+        5441076,
+        5446836
+      ],
+      "kw": "wheat flour bowl",
+      "specs": [
+        {
+          "name": "2.5kg",
+          "price": 27.9,
+          "stock": 320
+        },
+        {
+          "name": "5kg",
+          "price": 49.4,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20075,
+      "name": "手工空心挂面",
+      "subtitle": "石磨低速 麦香浓郁",
+      "category_id": 1123,
+      "price": 19.9,
+      "original_price": 29.5,
+      "stock": 420,
+      "sales": 240,
+      "origin": "陕西韩城",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 70,
+      "photos": [
+        8963421,
+        34558842,
+        36617926
+      ],
+      "kw": "dried noodles bundle",
+      "specs": [
+        {
+          "name": "2.5kg",
+          "price": 19.9,
+          "stock": 320
+        },
+        {
+          "name": "5kg",
+          "price": 36.2,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20076,
+      "name": "荞麦面",
+      "subtitle": "石磨低速 麦香浓郁",
+      "category_id": 1123,
+      "price": 24.9,
+      "original_price": 34.1,
+      "stock": 420,
+      "sales": 383,
+      "origin": "内蒙古乌兰察布",
+      "harvest_date": "2026-09-10",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 60,
+      "photos": [
+        5907889,
+        5908000,
+        13373178
+      ],
+      "kw": "buckwheat noodles",
+      "specs": [
+        {
+          "name": "2.5kg",
+          "price": 24.9,
+          "stock": 80
+        },
+        {
+          "name": "5kg",
+          "price": 45.6,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20077,
+      "name": "小榨菜籽油 5L",
+      "subtitle": "物理压榨 非转基因",
+      "category_id": 1124,
+      "price": 79.9,
+      "original_price": 127.8,
+      "stock": 300,
+      "sales": 490,
+      "origin": "四川成都",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "18个月",
+      "storage": "避光常温",
+      "sort": 90,
+      "photos": [
+        33904708,
+        145406,
+        12071857
+      ],
+      "kw": "cooking oil bottle rapeseed",
+      "specs": [
+        {
+          "name": "1.8L",
+          "price": 79.9,
+          "stock": 80
+        },
+        {
+          "name": "5L",
+          "price": 155.8,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20078,
+      "name": "胡姬花古法花生油",
+      "subtitle": "物理压榨 非转基因",
+      "category_id": 1124,
+      "price": 128.0,
+      "original_price": 162.6,
+      "stock": 240,
+      "sales": 911,
+      "origin": "山东青岛",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "18个月",
+      "storage": "避光常温",
+      "sort": 80,
+      "photos": [
+        4202955,
+        2112789,
+        33416883
+      ],
+      "kw": "peanut oil bottle",
+      "specs": [
+        {
+          "name": "1.8L",
+          "price": 128.0,
+          "stock": 120
+        },
+        {
+          "name": "5L",
+          "price": 245.8,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20079,
+      "name": "赣南山茶油",
+      "subtitle": "物理压榨 非转基因",
+      "category_id": 1124,
+      "price": 168.0,
+      "original_price": 260.4,
+      "stock": 120,
+      "sales": 417,
+      "origin": "江西赣州",
+      "harvest_date": "2026-08-17",
+      "shelf_life": "18个月",
+      "storage": "避光常温",
+      "sort": 70,
+      "photos": [
+        38667635,
+        17556893,
+        7656594
+      ],
+      "kw": "camellia oil bottle",
+      "specs": [
+        {
+          "name": "1.8L",
+          "price": 168.0,
+          "stock": 200
+        },
+        {
+          "name": "5L",
+          "price": 290.6,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20080,
+      "name": "小磨香油",
+      "subtitle": "物理压榨 非转基因",
+      "category_id": 1124,
+      "price": 29.9,
+      "original_price": 38.3,
+      "stock": 120,
+      "sales": 1099,
+      "origin": "河北崔庙",
+      "harvest_date": "2026-08-30",
+      "shelf_life": "18个月",
+      "storage": "避光常温",
+      "sort": 60,
+      "photos": [
+        3682190,
+        6213754,
+        10059902
+      ],
+      "kw": "sesame oil bottle",
+      "specs": [
+        {
+          "name": "1.8L",
+          "price": 29.9,
+          "stock": 320
+        },
+        {
+          "name": "5L",
+          "price": 56.5,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20081,
+      "name": "玉米胚芽油",
+      "subtitle": "物理压榨 非转基因",
+      "category_id": 1124,
+      "price": 65.0,
+      "original_price": 86.5,
+      "stock": 500,
+      "sales": 166,
+      "origin": "吉林松原",
+      "harvest_date": "2026-09-02",
+      "shelf_life": "18个月",
+      "storage": "避光常温",
+      "sort": 50,
+      "photos": [
+        4282694,
+        34054506,
+        6213754
+      ],
+      "kw": "corn oil bottle",
+      "specs": [
+        {
+          "name": "1.8L",
+          "price": 65.0,
+          "stock": 200
+        },
+        {
+          "name": "5L",
+          "price": 126.1,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20082,
+      "name": "土猪五花肉",
+      "subtitle": "冷鲜排酸 现分割",
+      "category_id": 1131,
+      "price": 32.9,
+      "original_price": 44.7,
+      "stock": 420,
+      "sales": 788,
+      "origin": "江西赣州",
+      "harvest_date": "2026-08-09",
+      "shelf_life": "7天",
+      "storage": "0-4℃冷藏",
+      "sort": 90,
+      "photos": [
+        39185947,
+        8914998,
+        5774148
+      ],
+      "kw": "raw pork belly",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 32.9,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 63.2,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20083,
+      "name": "黑猪里脊",
+      "subtitle": "冷鲜排酸 现分割",
+      "category_id": 1131,
+      "price": 38.0,
+      "original_price": 47.5,
+      "stock": 420,
+      "sales": 937,
+      "origin": "湖南湘潭",
+      "harvest_date": "2026-08-16",
+      "shelf_life": "7天",
+      "storage": "0-4℃冷藏",
+      "sort": 80,
+      "photos": [
+        7333266,
+        7333264,
+        8251005
+      ],
+      "kw": "raw pork loin",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 38.0,
+          "stock": 320
+        },
+        {
+          "name": "1000g",
+          "price": 72.6,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20084,
+      "name": "猪筒骨 熬汤",
+      "subtitle": "冷鲜排酸 现分割",
+      "category_id": 1131,
+      "price": 26.9,
+      "original_price": 34.7,
+      "stock": 300,
+      "sales": 345,
+      "origin": "河南驻马店",
+      "harvest_date": "2026-08-10",
+      "shelf_life": "7天",
+      "storage": "0-4℃冷藏",
+      "sort": 70,
+      "photos": [
+        20579990,
+        20579997,
+        7163989
+      ],
+      "kw": "pork bones soup",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 26.9,
+          "stock": 320
+        },
+        {
+          "name": "1000g",
+          "price": 50.3,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20085,
+      "name": "前腿肉 馅用",
+      "subtitle": "冷鲜排酸 现分割",
+      "category_id": 1131,
+      "price": 28.9,
+      "original_price": 36.1,
+      "stock": 240,
+      "sales": 1161,
+      "origin": "山东临沂",
+      "harvest_date": "2026-08-21",
+      "shelf_life": "7天",
+      "storage": "0-4℃冷藏",
+      "sort": 60,
+      "photos": [
+        7225485,
+        7225724,
+        7225726
+      ],
+      "kw": "minced pork",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 28.9,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 49.7,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20086,
+      "name": "黄牛牛腩块",
+      "subtitle": "草饲散养 冷链直发",
+      "category_id": 1132,
+      "price": 55.9,
+      "original_price": 78.3,
+      "stock": 500,
+      "sales": 1159,
+      "origin": "内蒙古通辽",
+      "harvest_date": "2026-08-31",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 90,
+      "photos": [
+        7368034,
+        4661503,
+        20036097
+      ],
+      "kw": "raw beef brisket",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 55.9,
+          "stock": 150
+        },
+        {
+          "name": "1000g",
+          "price": 99.5,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20087,
+      "name": "金钱腱子",
+      "subtitle": "草饲散养 冷链直发",
+      "category_id": 1132,
+      "price": 68.0,
+      "original_price": 99.3,
+      "stock": 300,
+      "sales": 245,
+      "origin": "宁夏固原",
+      "harvest_date": "2026-09-12",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 80,
+      "photos": [
+        7741801,
+        20036097,
+        7368034
+      ],
+      "kw": "beef shank raw",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 68.0,
+          "stock": 200
+        },
+        {
+          "name": "1000g",
+          "price": 117.6,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20088,
+      "name": "羔羊肉卷",
+      "subtitle": "草饲散养 冷链直发",
+      "category_id": 1132,
+      "price": 59.9,
+      "original_price": 90.4,
+      "stock": 300,
+      "sales": 1199,
+      "origin": "内蒙古锡林郭勒",
+      "harvest_date": "2026-09-02",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 70,
+      "photos": [
+        19199226,
+        31732115,
+        8444107
+      ],
+      "kw": "lamb slices frozen",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 59.9,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 107.2,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20089,
+      "name": "羊排段",
+      "subtitle": "草饲散养 冷链直发",
+      "category_id": 1132,
+      "price": 72.0,
+      "original_price": 101.5,
+      "stock": 240,
+      "sales": 1195,
+      "origin": "新疆阿勒泰",
+      "harvest_date": "2026-09-05",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 60,
+      "photos": [
+        13611849,
+        6281509,
+        28881698
+      ],
+      "kw": "lamb ribs raw",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 72.0,
+          "stock": 200
+        },
+        {
+          "name": "1000g",
+          "price": 126.7,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20090,
+      "name": "三黄鸡 整只",
+      "subtitle": "农家散养 现杀现发",
+      "category_id": 1133,
+      "price": 39.9,
+      "original_price": 57.5,
+      "stock": 120,
+      "sales": 442,
+      "origin": "广东清远",
+      "harvest_date": "2026-08-13",
+      "shelf_life": "5天",
+      "storage": "0-4℃冷藏",
+      "sort": 90,
+      "photos": [
+        10842246,
+        10842249,
+        10842248
+      ],
+      "kw": "whole chicken raw",
+      "specs": [
+        {
+          "name": "整只",
+          "price": 39.9,
+          "stock": 80
+        },
+        {
+          "name": "整只×2",
+          "price": 69.0,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20091,
+      "name": "散养老母鸡",
+      "subtitle": "农家散养 现杀现发",
+      "category_id": 1133,
+      "price": 58.0,
+      "original_price": 77.7,
+      "stock": 180,
+      "sales": 152,
+      "origin": "安徽宿州",
+      "harvest_date": "2026-09-13",
+      "shelf_life": "5天",
+      "storage": "0-4℃冷藏",
+      "sort": 80,
+      "photos": [
+        39185940,
+        10842248,
+        10842249
+      ],
+      "kw": "hen chicken farm",
+      "specs": [
+        {
+          "name": "整只",
+          "price": 58.0,
+          "stock": 120
+        },
+        {
+          "name": "整只×2",
+          "price": 109.0,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20092,
+      "name": "麻鸭 现杀",
+      "subtitle": "农家散养 现杀现发",
+      "category_id": 1133,
+      "price": 46.0,
+      "original_price": 63.9,
+      "stock": 180,
+      "sales": 1271,
+      "origin": "江苏高邮",
+      "harvest_date": "2026-08-11",
+      "shelf_life": "5天",
+      "storage": "0-4℃冷藏",
+      "sort": 70,
+      "photos": [
+        12350418,
+        23024273,
+        39037829
+      ],
+      "kw": "raw duck meat",
+      "specs": [
+        {
+          "name": "整只",
+          "price": 46.0,
+          "stock": 80
+        },
+        {
+          "name": "整只×2",
+          "price": 81.9,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20093,
+      "name": "鸡胸肉 低脂",
+      "subtitle": "农家散养 现杀现发",
+      "category_id": 1133,
+      "price": 29.9,
+      "original_price": 38.3,
+      "stock": 120,
+      "sales": 1118,
+      "origin": "山东潍坊",
+      "harvest_date": "2026-09-07",
+      "shelf_life": "5天",
+      "storage": "0-4℃冷藏",
+      "sort": 60,
+      "photos": [
+        6107733,
+        6107729,
+        33795555
+      ],
+      "kw": "chicken breast raw",
+      "specs": [
+        {
+          "name": "整只",
+          "price": 29.9,
+          "stock": 80
+        },
+        {
+          "name": "整只×2",
+          "price": 55.0,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20094,
+      "name": "鹅腿",
+      "subtitle": "农家散养 现杀现发",
+      "category_id": 1133,
+      "price": 62.0,
+      "original_price": 86.8,
+      "stock": 300,
+      "sales": 1290,
+      "origin": "广东汕头",
+      "harvest_date": "2026-08-22",
+      "shelf_life": "5天",
+      "storage": "0-4℃冷藏",
+      "sort": 50,
+      "photos": [
+        7140318,
+        7140306,
+        7140316
+      ],
+      "kw": "goose leg meat",
+      "specs": [
+        {
+          "name": "整只",
+          "price": 62.0,
+          "stock": 120
+        },
+        {
+          "name": "整只×2",
+          "price": 112.8,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20095,
+      "name": "土鸡蛋 散养柴鸡蛋",
+      "subtitle": "农家散养 营养丰富",
+      "category_id": 1134,
+      "price": 28.0,
+      "original_price": 39.5,
+      "stock": 420,
+      "sales": 561,
+      "origin": "江西赣州",
+      "harvest_date": "2026-08-16",
+      "shelf_life": "15天",
+      "storage": "冷藏保存",
+      "sort": 90,
+      "photos": [
+        2764163,
+        8129730,
+        2223238
+      ],
+      "kw": "brown eggs basket",
+      "specs": [
+        {
+          "name": "20枚",
+          "price": 28.0,
+          "stock": 120
+        },
+        {
+          "name": "40枚",
+          "price": 53.5,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20096,
+      "name": "麻鸭蛋",
+      "subtitle": "当日鲜蛋 破损包赔",
+      "category_id": 1134,
+      "price": 24.0,
+      "original_price": 38.4,
+      "stock": 240,
+      "sales": 1416,
+      "origin": "湖北仙桃",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "15天",
+      "storage": "冷藏保存",
+      "sort": 80,
+      "photos": [
+        28572615,
+        6625216,
+        2764163
+      ],
+      "kw": "duck eggs green",
+      "specs": [
+        {
+          "name": "20枚",
+          "price": 24.0,
+          "stock": 120
+        },
+        {
+          "name": "40枚",
+          "price": 45.4,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20097,
+      "name": "鹌鹑蛋",
+      "subtitle": "当日鲜蛋 破损包赔",
+      "category_id": 1134,
+      "price": 15.9,
+      "original_price": 25.3,
+      "stock": 120,
+      "sales": 446,
+      "origin": "山东临沂",
+      "harvest_date": "2026-09-13",
+      "shelf_life": "15天",
+      "storage": "冷藏保存",
+      "sort": 70,
+      "photos": [
+        4110230,
+        6550681,
+        6951362
+      ],
+      "kw": "quail eggs small",
+      "specs": [
+        {
+          "name": "20枚",
+          "price": 15.9,
+          "stock": 200
+        },
+        {
+          "name": "40枚",
+          "price": 29.9,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20098,
+      "name": "高邮咸鸭蛋",
+      "subtitle": "当日鲜蛋 破损包赔",
+      "category_id": 1134,
+      "price": 33.9,
+      "original_price": 46.4,
+      "stock": 420,
+      "sales": 65,
+      "origin": "江苏扬州",
+      "harvest_date": "2026-08-11",
+      "shelf_life": "15天",
+      "storage": "冷藏保存",
+      "sort": 60,
+      "photos": [
+        6646240,
+        6846030,
+        12311258
+      ],
+      "kw": "salted duck egg cut",
+      "specs": [
+        {
+          "name": "20枚",
+          "price": 33.9,
+          "stock": 120
+        },
+        {
+          "name": "40枚",
+          "price": 62.0,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20099,
+      "name": "摩拉水牛奶",
+      "subtitle": "低温冷链 原生营养",
+      "category_id": 1135,
+      "price": 36.0,
+      "original_price": 46.4,
+      "stock": 240,
+      "sales": 1251,
+      "origin": "广西柳州",
+      "harvest_date": "2026-08-12",
+      "shelf_life": "15天",
+      "storage": "2-6℃冷藏",
+      "sort": 90,
+      "photos": [
+        5946755,
+        36183642,
+        18258533
+      ],
+      "kw": "milk bottle glass",
+      "specs": [
+        {
+          "name": "950ml",
+          "price": 36.0,
+          "stock": 120
+        },
+        {
+          "name": "1900ml",
+          "price": 67.7,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20100,
+      "name": "巴氏鲜牛奶",
+      "subtitle": "低温冷链 原生营养",
+      "category_id": 1135,
+      "price": 18.9,
+      "original_price": 30.1,
+      "stock": 500,
+      "sales": 245,
+      "origin": "河北石家庄",
+      "harvest_date": "2026-08-20",
+      "shelf_life": "15天",
+      "storage": "2-6℃冷藏",
+      "sort": 80,
+      "photos": [
+        5545921,
+        7782392,
+        10800428
+      ],
+      "kw": "fresh milk jug",
+      "specs": [
+        {
+          "name": "950ml",
+          "price": 18.9,
+          "stock": 120
+        },
+        {
+          "name": "1900ml",
+          "price": 34.8,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20101,
+      "name": "手工老酸奶",
+      "subtitle": "低温冷链 原生营养",
+      "category_id": 1135,
+      "price": 22.9,
+      "original_price": 36.4,
+      "stock": 420,
+      "sales": 1377,
+      "origin": "内蒙古呼和浩特",
+      "harvest_date": "2026-09-13",
+      "shelf_life": "15天",
+      "storage": "2-6℃冷藏",
+      "sort": 70,
+      "photos": [
+        10809258,
+        35640236,
+        6851930
+      ],
+      "kw": "yogurt bowl homemade",
+      "specs": [
+        {
+          "name": "950ml",
+          "price": 22.9,
+          "stock": 200
+        },
+        {
+          "name": "1900ml",
+          "price": 41.4,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20102,
+      "name": "现杀草鱼",
+      "subtitle": "活鲜现杀 冰袋发货",
+      "category_id": 1141,
+      "price": 22.9,
+      "original_price": 32.3,
+      "stock": 420,
+      "sales": 1485,
+      "origin": "湖北洪湖",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 90,
+      "photos": [
+        19524032,
+        7330328,
+        5566596
+      ],
+      "kw": "grass carp fish raw",
+      "specs": [
+        {
+          "name": "约1000g",
+          "price": 22.9,
+          "stock": 260
+        },
+        {
+          "name": "约2000g",
+          "price": 40.5,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20103,
+      "name": "土鲫鱼",
+      "subtitle": "活鲜现杀 冰袋发货",
+      "category_id": 1141,
+      "price": 26.9,
+      "original_price": 37.7,
+      "stock": 120,
+      "sales": 573,
+      "origin": "江苏太湖",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 80,
+      "photos": [
+        18402954,
+        3796761,
+        12796774
+      ],
+      "kw": "crucian carp fish",
+      "specs": [
+        {
+          "name": "约1000g",
+          "price": 26.9,
+          "stock": 260
+        },
+        {
+          "name": "约2000g",
+          "price": 46.0,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20104,
+      "name": "鳜鱼 臭鳜鱼原料",
+      "subtitle": "活鲜现杀 冰袋发货",
+      "category_id": 1141,
+      "price": 68.0,
+      "original_price": 93.8,
+      "stock": 180,
+      "sales": 1278,
+      "origin": "安徽黄山",
+      "harvest_date": "2026-08-15",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 70,
+      "photos": [
+        19993441,
+        8352786,
+        14062103
+      ],
+      "kw": "mandarin fish",
+      "specs": [
+        {
+          "name": "约1000g",
+          "price": 68.0,
+          "stock": 320
+        },
+        {
+          "name": "约2000g",
+          "price": 118.3,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20105,
+      "name": "潜江小龙虾",
+      "subtitle": "活鲜现杀 冰袋发货",
+      "category_id": 1141,
+      "price": 59.9,
+      "original_price": 91.6,
+      "stock": 300,
+      "sales": 781,
+      "origin": "湖北潜江",
+      "harvest_date": "2026-08-23",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 60,
+      "photos": [
+        32149288,
+        20802716,
+        32149293
+      ],
+      "kw": "crayfish red cooked",
+      "specs": [
+        {
+          "name": "约1000g",
+          "price": 59.9,
+          "stock": 320
+        },
+        {
+          "name": "约2000g",
+          "price": 107.2,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20106,
+      "name": "宁德大黄鱼",
+      "subtitle": "船冻锁鲜 肉质紧实",
+      "category_id": 1142,
+      "price": 45.9,
+      "original_price": 69.8,
+      "stock": 500,
+      "sales": 1433,
+      "origin": "福建宁德",
+      "harvest_date": "2026-09-19",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 90,
+      "photos": [
+        30254804,
+        30254805,
+        30755537
+      ],
+      "kw": "yellow croaker fish",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 45.9,
+          "stock": 120
+        },
+        {
+          "name": "1000g",
+          "price": 85.4,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20107,
+      "name": "舟山带鱼中段",
+      "subtitle": "船冻锁鲜 肉质紧实",
+      "category_id": 1142,
+      "price": 39.9,
+      "original_price": 53.5,
+      "stock": 420,
+      "sales": 1430,
+      "origin": "浙江舟山",
+      "harvest_date": "2026-08-17",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 80,
+      "photos": [
+        6313500,
+        29145403,
+        6148937
+      ],
+      "kw": "belt fish hairtail",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 39.9,
+          "stock": 260
+        },
+        {
+          "name": "1000g",
+          "price": 75.4,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20108,
+      "name": "青岛鲅鱼",
+      "subtitle": "船冻锁鲜 肉质紧实",
+      "category_id": 1142,
+      "price": 33.9,
+      "original_price": 48.1,
+      "stock": 120,
+      "sales": 1197,
+      "origin": "山东青岛",
+      "harvest_date": "2026-08-28",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 70,
+      "photos": [
+        2602493,
+        19224095,
+        8351650
+      ],
+      "kw": "mackerel fish fresh",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 33.9,
+          "stock": 260
+        },
+        {
+          "name": "1000g",
+          "price": 60.3,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20109,
+      "name": "阿拉斯加鳕鱼",
+      "subtitle": "船冻锁鲜 肉质紧实",
+      "category_id": 1142,
+      "price": 52.0,
+      "original_price": 79.6,
+      "stock": 240,
+      "sales": 794,
+      "origin": "进口冷链",
+      "harvest_date": "2026-09-17",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 60,
+      "photos": [
+        8352008,
+        14062109,
+        10112459
+      ],
+      "kw": "cod fish fillet",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 52.0,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 93.1,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20110,
+      "name": "湛江基围虾",
+      "subtitle": "肥美当季 净重发货",
+      "category_id": 1143,
+      "price": 49.9,
+      "original_price": 74.4,
+      "stock": 120,
+      "sales": 778,
+      "origin": "广东湛江",
+      "harvest_date": "2026-08-29",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 90,
+      "photos": [
+        29159795,
+        5882728,
+        28240622
+      ],
+      "kw": "fresh prawns shrimp",
+      "specs": [
+        {
+          "name": "750g",
+          "price": 49.9,
+          "stock": 200
+        },
+        {
+          "name": "1500g",
+          "price": 90.3,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20111,
+      "name": "南美白虾 冻鲜",
+      "subtitle": "肥美当季 净重发货",
+      "category_id": 1143,
+      "price": 58.0,
+      "original_price": 84.7,
+      "stock": 300,
+      "sales": 881,
+      "origin": "山东日照",
+      "harvest_date": "2026-08-10",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 80,
+      "photos": [
+        16521539,
+        17091518,
+        15883474
+      ],
+      "kw": "white shrimp frozen",
+      "specs": [
+        {
+          "name": "750g",
+          "price": 58.0,
+          "stock": 200
+        },
+        {
+          "name": "1500g",
+          "price": 111.4,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20112,
+      "name": "阳澄湖大闸蟹",
+      "subtitle": "肥美当季 净重发货",
+      "category_id": 1143,
+      "price": 168.0,
+      "original_price": 233.5,
+      "stock": 500,
+      "sales": 444,
+      "origin": "江苏苏州",
+      "harvest_date": "2026-09-21",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 70,
+      "photos": [
+        34618081,
+        34618069,
+        34618079
+      ],
+      "kw": "chinese mitten crab",
+      "specs": [
+        {
+          "name": "750g",
+          "price": 168.0,
+          "stock": 120
+        },
+        {
+          "name": "1500g",
+          "price": 307.4,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20113,
+      "name": "梭子蟹",
+      "subtitle": "肥美当季 净重发货",
+      "category_id": 1143,
+      "price": 66.0,
+      "original_price": 105.6,
+      "stock": 120,
+      "sales": 1475,
+      "origin": "浙江宁波",
+      "harvest_date": "2026-09-02",
+      "shelf_life": "180天",
+      "storage": "-18℃冷冻",
+      "sort": 60,
+      "photos": [
+        2630954,
+        3640445,
+        30337240
+      ],
+      "kw": "swimming crab",
+      "specs": [
+        {
+          "name": "750g",
+          "price": 66.0,
+          "stock": 150
+        },
+        {
+          "name": "1500g",
+          "price": 120.1,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20114,
+      "name": "乳山生蚝",
+      "subtitle": "深水养殖 鲜度可见",
+      "category_id": 1144,
+      "price": 39.9,
+      "original_price": 63.4,
+      "stock": 420,
+      "sales": 289,
+      "origin": "山东威海",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 90,
+      "photos": [
+        10375842,
+        10432749,
+        29143197
+      ],
+      "kw": "oysters on ice",
+      "specs": [
+        {
+          "name": "10只",
+          "price": 39.9,
+          "stock": 80
+        },
+        {
+          "name": "24只",
+          "price": 72.2,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20115,
+      "name": "花蛤 沙蛤",
+      "subtitle": "深水养殖 鲜度可见",
+      "category_id": 1144,
+      "price": 21.9,
+      "original_price": 31.5,
+      "stock": 300,
+      "sales": 1365,
+      "origin": "福建漳州",
+      "harvest_date": "2026-08-29",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 80,
+      "photos": [
+        8352783,
+        34556497,
+        12974407
+      ],
+      "kw": "clams shellfish",
+      "specs": [
+        {
+          "name": "10只",
+          "price": 21.9,
+          "stock": 200
+        },
+        {
+          "name": "24只",
+          "price": 41.0,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20116,
+      "name": "獐子岛扇贝",
+      "subtitle": "深水养殖 鲜度可见",
+      "category_id": 1144,
+      "price": 45.0,
+      "original_price": 60.8,
+      "stock": 120,
+      "sales": 1245,
+      "origin": "辽宁大连",
+      "harvest_date": "2026-08-22",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 70,
+      "photos": [
+        5038753,
+        31682348,
+        4871175
+      ],
+      "kw": "scallop shell",
+      "specs": [
+        {
+          "name": "10只",
+          "price": 45.0,
+          "stock": 260
+        },
+        {
+          "name": "24只",
+          "price": 86.4,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20117,
+      "name": "鲍鱼 鲜货",
+      "subtitle": "深水养殖 鲜度可见",
+      "category_id": 1144,
+      "price": 78.0,
+      "original_price": 113.1,
+      "stock": 180,
+      "sales": 1485,
+      "origin": "福建连江",
+      "harvest_date": "2026-09-15",
+      "shelf_life": "3天",
+      "storage": "冰鲜 0℃",
+      "sort": 60,
+      "photos": [
+        20810985,
+        8352052,
+        27039854
+      ],
+      "kw": "abalone fresh",
+      "specs": [
+        {
+          "name": "10只",
+          "price": 78.0,
+          "stock": 320
+        },
+        {
+          "name": "24只",
+          "price": 149.0,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20118,
+      "name": "庆元香菇 鲜菇",
+      "subtitle": "基地当日采菇",
+      "category_id": 1151,
+      "price": 15.9,
+      "original_price": 20.2,
+      "stock": 420,
+      "sales": 1071,
+      "origin": "浙江丽水",
+      "harvest_date": "2026-08-07",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 90,
+      "photos": [
+        37073592,
+        6205020,
+        129465
+      ],
+      "kw": "fresh shiitake mushrooms",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 15.9,
+          "stock": 120
+        },
+        {
+          "name": "500g",
+          "price": 29.3,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20119,
+      "name": "金针菇",
+      "subtitle": "基地当日采菇",
+      "category_id": 1151,
+      "price": 7.9,
+      "original_price": 10.5,
+      "stock": 300,
+      "sales": 1427,
+      "origin": "江苏灌南",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 80,
+      "photos": [
+        13441977,
+        37073592,
+        6205020
+      ],
+      "kw": "enoki mushrooms",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 7.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 15.0,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20120,
+      "name": "杏鲍菇",
+      "subtitle": "基地当日采菇",
+      "category_id": 1151,
+      "price": 12.9,
+      "original_price": 19.0,
+      "stock": 500,
+      "sales": 1127,
+      "origin": "山东邹城",
+      "harvest_date": "2026-08-21",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 70,
+      "photos": [
+        5569530,
+        5569516,
+        5453799
+      ],
+      "kw": "king oyster mushroom",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 12.9,
+          "stock": 320
+        },
+        {
+          "name": "500g",
+          "price": 23.2,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20121,
+      "name": "双孢白蘑菇",
+      "subtitle": "基地当日采菇",
+      "category_id": 1151,
+      "price": 16.9,
+      "original_price": 21.3,
+      "stock": 240,
+      "sales": 1014,
+      "origin": "福建漳州",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 60,
+      "photos": [
+        34335342,
+        5950411,
+        5848419
+      ],
+      "kw": "white button mushrooms",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 16.9,
+          "stock": 120
+        },
+        {
+          "name": "500g",
+          "price": 31.4,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20122,
+      "name": "平菇",
+      "subtitle": "基地当日采菇",
+      "category_id": 1151,
+      "price": 9.9,
+      "original_price": 14.3,
+      "stock": 500,
+      "sales": 1178,
+      "origin": "河南西峡",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "7天",
+      "storage": "冷藏保湿",
+      "sort": 50,
+      "photos": [
+        16296130,
+        2478421,
+        18086809
+      ],
+      "kw": "oyster mushrooms",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 9.9,
+          "stock": 320
+        },
+        {
+          "name": "500g",
+          "price": 18.9,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20123,
+      "name": "椴木干香菇",
+      "subtitle": "自然晾晒 无硫熏",
+      "category_id": 1152,
+      "price": 39.9,
+      "original_price": 63.0,
+      "stock": 240,
+      "sales": 135,
+      "origin": "湖北随州",
+      "harvest_date": "2026-08-28",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 90,
+      "photos": [
+        5569552,
+        5569535,
+        37271681
+      ],
+      "kw": "dried shiitake mushrooms",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 39.9,
+          "stock": 120
+        },
+        {
+          "name": "250g",
+          "price": 74.2,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20124,
+      "name": "东北黑木耳",
+      "subtitle": "自然晾晒 无硫熏",
+      "category_id": 1152,
+      "price": 29.9,
+      "original_price": 38.6,
+      "stock": 180,
+      "sales": 464,
+      "origin": "黑龙江东宁",
+      "harvest_date": "2026-09-18",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 80,
+      "photos": [
+        37271681,
+        30443170,
+        5569535
+      ],
+      "kw": "dried wood ear fungus",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 29.9,
+          "stock": 320
+        },
+        {
+          "name": "250g",
+          "price": 55.0,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20125,
+      "name": "古田银耳",
+      "subtitle": "自然晾晒 无硫熏",
+      "category_id": 1152,
+      "price": 26.9,
+      "original_price": 36.9,
+      "stock": 120,
+      "sales": 1444,
+      "origin": "福建宁德",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 70,
+      "photos": [
+        3970368,
+        6989864,
+        39268177
+      ],
+      "kw": "white snow fungus",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 26.9,
+          "stock": 260
+        },
+        {
+          "name": "250g",
+          "price": 48.2,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20126,
+      "name": "羊肚菌",
+      "subtitle": "自然晾晒 无硫熏",
+      "category_id": 1152,
+      "price": 128.0,
+      "original_price": 161.3,
+      "stock": 500,
+      "sales": 1479,
+      "origin": "云南香格里拉",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 60,
+      "photos": [
+        22882529,
+        17897630,
+        31937698
+      ],
+      "kw": "morel mushrooms",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 128.0,
+          "stock": 150
+        },
+        {
+          "name": "250g",
+          "price": 233.0,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20127,
+      "name": "干茶树菇",
+      "subtitle": "自然晾晒 无硫熏",
+      "category_id": 1152,
+      "price": 24.9,
+      "original_price": 31.9,
+      "stock": 120,
+      "sales": 882,
+      "origin": "江西广昌",
+      "harvest_date": "2026-08-09",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 50,
+      "photos": [
+        5569550,
+        5569528,
+        39268177
+      ],
+      "kw": "dried tea tree mushroom",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 24.9,
+          "stock": 200
+        },
+        {
+          "name": "250g",
+          "price": 45.8,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20128,
+      "name": "天目山雷笋",
+      "subtitle": "深山现挖 脆嫩无渣",
+      "category_id": 1153,
+      "price": 28.9,
+      "original_price": 42.2,
+      "stock": 500,
+      "sales": 678,
+      "origin": "浙江杭州",
+      "harvest_date": "2026-09-21",
+      "shelf_life": "10天",
+      "storage": "冷藏保存",
+      "sort": 90,
+      "photos": [
+        34027514,
+        20880098,
+        19237163
+      ],
+      "kw": "bamboo shoots fresh",
+      "specs": [
+        {
+          "name": "1000g",
+          "price": 28.9,
+          "stock": 320
+        },
+        {
+          "name": "2500g",
+          "price": 50.0,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20129,
+      "name": "冬笋",
+      "subtitle": "深山现挖 脆嫩无渣",
+      "category_id": 1153,
+      "price": 36.0,
+      "original_price": 55.1,
+      "stock": 120,
+      "sales": 1369,
+      "origin": "江西宜春",
+      "harvest_date": "2026-09-10",
+      "shelf_life": "10天",
+      "storage": "冷藏保存",
+      "sort": 80,
+      "photos": [
+        34027514,
+        36182943,
+        20880098
+      ],
+      "kw": "winter bamboo shoot",
+      "specs": [
+        {
+          "name": "1000g",
+          "price": 36.0,
+          "stock": 320
+        },
+        {
+          "name": "2500g",
+          "price": 66.2,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20130,
+      "name": "笋干 扁尖",
+      "subtitle": "深山现挖 脆嫩无渣",
+      "category_id": 1153,
+      "price": 42.0,
+      "original_price": 58.0,
+      "stock": 500,
+      "sales": 928,
+      "origin": "安徽黄山",
+      "harvest_date": "2026-08-30",
+      "shelf_life": "10天",
+      "storage": "冷藏保存",
+      "sort": 70,
+      "photos": [
+        19237163,
+        19237181,
+        15797950
+      ],
+      "kw": "dried bamboo shoots",
+      "specs": [
+        {
+          "name": "1000g",
+          "price": 42.0,
+          "stock": 120
+        },
+        {
+          "name": "2500g",
+          "price": 74.8,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20131,
+      "name": "手剥笋",
+      "subtitle": "深山现挖 脆嫩无渣",
+      "category_id": 1153,
+      "price": 25.9,
+      "original_price": 41.2,
+      "stock": 300,
+      "sales": 977,
+      "origin": "福建三明",
+      "harvest_date": "2026-08-12",
+      "shelf_life": "10天",
+      "storage": "冷藏保存",
+      "sort": 60,
+      "photos": [
+        19252760,
+        15797950,
+        19237181
+      ],
+      "kw": "pickled bamboo shoots",
+      "specs": [
+        {
+          "name": "1000g",
+          "price": 25.9,
+          "stock": 120
+        },
+        {
+          "name": "2500g",
+          "price": 50.2,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20132,
+      "name": "迁西板栗",
+      "subtitle": "山野原生 手工挑选",
+      "category_id": 1154,
+      "price": 26.9,
+      "original_price": 35.0,
+      "stock": 240,
+      "sales": 259,
+      "origin": "河北唐山",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 90,
+      "photos": [
+        34530033,
+        34217137,
+        38035817
+      ],
+      "kw": "chestnuts raw",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 26.9,
+          "stock": 200
+        },
+        {
+          "name": "1000g",
+          "price": 49.5,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20133,
+      "name": "长白山松子",
+      "subtitle": "山野原生 手工挑选",
+      "category_id": 1154,
+      "price": 68.0,
+      "original_price": 104.0,
+      "stock": 180,
+      "sales": 475,
+      "origin": "吉林白山",
+      "harvest_date": "2026-09-02",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 80,
+      "photos": [
+        35704976,
+        34530033,
+        34217137
+      ],
+      "kw": "pine nuts",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 68.0,
+          "stock": 200
+        },
+        {
+          "name": "1000g",
+          "price": 125.1,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20134,
+      "name": "野生蕨菜干",
+      "subtitle": "山野原生 手工挑选",
+      "category_id": 1154,
+      "price": 22.9,
+      "original_price": 34.1,
+      "stock": 420,
+      "sales": 1109,
+      "origin": "湖南湘西",
+      "harvest_date": "2026-08-16",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 70,
+      "photos": [
+        8266728,
+        16348207,
+        39542493
+      ],
+      "kw": "dried fern vegetable",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 22.9,
+          "stock": 120
+        },
+        {
+          "name": "1000g",
+          "price": 43.1,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20135,
+      "name": "昆仑雪菊",
+      "subtitle": "山野原生 手工挑选",
+      "category_id": 1154,
+      "price": 39.9,
+      "original_price": 61.8,
+      "stock": 300,
+      "sales": 615,
+      "origin": "新疆和田",
+      "harvest_date": "2026-09-15",
+      "shelf_life": "12个月",
+      "storage": "密封干燥",
+      "sort": 60,
+      "photos": [
+        31974819,
+        31974831,
+        29632070
+      ],
+      "kw": "chrysanthemum flowers dried",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 39.9,
+          "stock": 260
+        },
+        {
+          "name": "1000g",
+          "price": 73.8,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20136,
+      "name": "新疆纸皮核桃",
+      "subtitle": "当季新货 原色原味",
+      "category_id": 1161,
+      "price": 39.9,
+      "original_price": 53.1,
+      "stock": 500,
+      "sales": 181,
+      "origin": "新疆阿克苏",
+      "harvest_date": "2026-08-10",
+      "shelf_life": "8个月",
+      "storage": "密封防潮",
+      "sort": 90,
+      "photos": [
+        33814014,
+        38571519,
+        35058438
+      ],
+      "kw": "walnuts in shell",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 39.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 74.6,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20137,
+      "name": "东北松子 手剥",
+      "subtitle": "当季新货 原色原味",
+      "category_id": 1161,
+      "price": 78.0,
+      "original_price": 113.9,
+      "stock": 240,
+      "sales": 1146,
+      "origin": "黑龙江伊春",
+      "harvest_date": "2026-08-10",
+      "shelf_life": "8个月",
+      "storage": "密封防潮",
+      "sort": 80,
+      "photos": [
+        11806634,
+        39042567,
+        38706537
+      ],
+      "kw": "pine nuts shelled",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 78.0,
+          "stock": 320
+        },
+        {
+          "name": "500g",
+          "price": 150.5,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20138,
+      "name": "巴旦木 原味",
+      "subtitle": "当季新货 原色原味",
+      "category_id": 1161,
+      "price": 42.0,
+      "original_price": 53.3,
+      "stock": 300,
+      "sales": 423,
+      "origin": "新疆喀什",
+      "harvest_date": "2026-08-25",
+      "shelf_life": "8个月",
+      "storage": "密封防潮",
+      "sort": 70,
+      "photos": [
+        1013420,
+        35339669,
+        4033322
+      ],
+      "kw": "almonds raw",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 42.0,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 73.9,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20139,
+      "name": "夏威夷果",
+      "subtitle": "当季新货 原色原味",
+      "category_id": 1161,
+      "price": 56.0,
+      "original_price": 87.9,
+      "stock": 300,
+      "sales": 1404,
+      "origin": "云南临沧",
+      "harvest_date": "2026-08-12",
+      "shelf_life": "8个月",
+      "storage": "密封防潮",
+      "sort": 60,
+      "photos": [
+        33793908,
+        8162043,
+        8162041
+      ],
+      "kw": "macadamia nuts",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 56.0,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 96.9,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20140,
+      "name": "临安山核桃",
+      "subtitle": "当季新货 原色原味",
+      "category_id": 1161,
+      "price": 68.0,
+      "original_price": 93.2,
+      "stock": 120,
+      "sales": 1470,
+      "origin": "浙江杭州",
+      "harvest_date": "2026-09-16",
+      "shelf_life": "8个月",
+      "storage": "密封防潮",
+      "sort": 50,
+      "photos": [
+        39543536,
+        17038999,
+        39173140
+      ],
+      "kw": "hickory nuts",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 68.0,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 125.8,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20141,
+      "name": "带壳花生 晒干",
+      "subtitle": "当季新货 原色原味",
+      "category_id": 1161,
+      "price": 15.9,
+      "original_price": 23.5,
+      "stock": 240,
+      "sales": 164,
+      "origin": "河南南阳",
+      "harvest_date": "2026-09-05",
+      "shelf_life": "8个月",
+      "storage": "密封防潮",
+      "sort": 40,
+      "photos": [
+        38571498,
+        35237495,
+        17975577
+      ],
+      "kw": "peanuts in shell",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 15.9,
+          "stock": 120
+        },
+        {
+          "name": "500g",
+          "price": 27.3,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20142,
+      "name": "吐鲁番葡萄干",
+      "subtitle": "自然风干 无添加",
+      "category_id": 1162,
+      "price": 29.9,
+      "original_price": 40.4,
+      "stock": 240,
+      "sales": 287,
+      "origin": "新疆吐鲁番",
+      "harvest_date": "2026-08-15",
+      "shelf_life": "9个月",
+      "storage": "密封阴凉",
+      "sort": 90,
+      "photos": [
+        35166629,
+        30688220,
+        6085951
+      ],
+      "kw": "raisins dried grapes",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 29.9,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 52.9,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20143,
+      "name": "若羌灰枣",
+      "subtitle": "自然风干 无添加",
+      "category_id": 1162,
+      "price": 34.9,
+      "original_price": 49.9,
+      "stock": 180,
+      "sales": 1566,
+      "origin": "新疆巴州",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "9个月",
+      "storage": "密封阴凉",
+      "sort": 80,
+      "photos": [
+        30688212,
+        12625117,
+        15913420
+      ],
+      "kw": "dried jujubes red dates",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 34.9,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 61.8,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20144,
+      "name": "芒果干 无添加",
+      "subtitle": "自然风干 无添加",
+      "category_id": 1162,
+      "price": 26.9,
+      "original_price": 42.2,
+      "stock": 120,
+      "sales": 624,
+      "origin": "广西百色",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "9个月",
+      "storage": "密封阴凉",
+      "sort": 70,
+      "photos": [
+        26604407,
+        4499212,
+        6843737
+      ],
+      "kw": "dried mango slices",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 26.9,
+          "stock": 150
+        },
+        {
+          "name": "500g",
+          "price": 49.8,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20145,
+      "name": "富平柿饼",
+      "subtitle": "自然风干 无添加",
+      "category_id": 1162,
+      "price": 39.9,
+      "original_price": 61.0,
+      "stock": 120,
+      "sales": 1586,
+      "origin": "陕西渭南",
+      "harvest_date": "2026-09-13",
+      "shelf_life": "9个月",
+      "storage": "密封阴凉",
+      "sort": 60,
+      "photos": [
+        10412033,
+        6136410,
+        34344107
+      ],
+      "kw": "dried persimmons",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 39.9,
+          "stock": 120
+        },
+        {
+          "name": "500g",
+          "price": 71.8,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20146,
+      "name": "无花果干",
+      "subtitle": "自然风干 无添加",
+      "category_id": 1162,
+      "price": 45.0,
+      "original_price": 56.2,
+      "stock": 120,
+      "sales": 1470,
+      "origin": "新疆阿图什",
+      "harvest_date": "2026-08-25",
+      "shelf_life": "9个月",
+      "storage": "密封阴凉",
+      "sort": 50,
+      "photos": [
+        38571527,
+        4499221,
+        10112716
+      ],
+      "kw": "dried figs",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 45.0,
+          "stock": 150
+        },
+        {
+          "name": "500g",
+          "price": 86.0,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20147,
+      "name": "山楂片 空心",
+      "subtitle": "自然风干 无添加",
+      "category_id": 1162,
+      "price": 18.9,
+      "original_price": 24.6,
+      "stock": 420,
+      "sales": 766,
+      "origin": "山东青州",
+      "harvest_date": "2026-08-10",
+      "shelf_life": "9个月",
+      "storage": "密封阴凉",
+      "sort": 40,
+      "photos": [
+        39622598,
+        31665651,
+        39622613
+      ],
+      "kw": "dried hawthorn slices",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 18.9,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 33.5,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20148,
+      "name": "倒蒸红薯干",
+      "subtitle": "老灶手工 粗粮本味",
+      "category_id": 1163,
+      "price": 22.9,
+      "original_price": 36.4,
+      "stock": 500,
+      "sales": 839,
+      "origin": "福建连城",
+      "harvest_date": "2026-09-19",
+      "shelf_life": "6个月",
+      "storage": "密封阴凉",
+      "sort": 90,
+      "photos": [
+        16571610,
+        6072032,
+        6072035
+      ],
+      "kw": "dried sweet potato strips",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 22.9,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 39.2,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20149,
+      "name": "手工米饼",
+      "subtitle": "老灶手工 粗粮本味",
+      "category_id": 1163,
+      "price": 19.9,
+      "original_price": 26.7,
+      "stock": 180,
+      "sales": 232,
+      "origin": "江西萍乡",
+      "harvest_date": "2026-08-09",
+      "shelf_life": "6个月",
+      "storage": "密封阴凉",
+      "sort": 80,
+      "photos": [
+        36165606,
+        35213746,
+        37525634
+      ],
+      "kw": "rice cakes crackers",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 19.9,
+          "stock": 120
+        },
+        {
+          "name": "500g",
+          "price": 35.4,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20150,
+      "name": "锅巴 小米",
+      "subtitle": "老灶手工 粗粮本味",
+      "category_id": 1163,
+      "price": 16.9,
+      "original_price": 22.8,
+      "stock": 180,
+      "sales": 359,
+      "origin": "安徽宣城",
+      "harvest_date": "2026-09-09",
+      "shelf_life": "6个月",
+      "storage": "密封阴凉",
+      "sort": 70,
+      "photos": [
+        1359333,
+        37525674,
+        40000467
+      ],
+      "kw": "rice crust snack",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 16.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 29.6,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20151,
+      "name": "芝麻糖",
+      "subtitle": "老灶手工 粗粮本味",
+      "category_id": 1163,
+      "price": 21.9,
+      "original_price": 32.6,
+      "stock": 300,
+      "sales": 1520,
+      "origin": "山东菏泽",
+      "harvest_date": "2026-08-28",
+      "shelf_life": "6个月",
+      "storage": "密封阴凉",
+      "sort": 60,
+      "photos": [
+        5865653,
+        5865648,
+        3752065
+      ],
+      "kw": "sesame seed candy",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 21.9,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 37.7,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20152,
+      "name": "明前西湖龙井",
+      "subtitle": "核心产区 明前采摘",
+      "category_id": 1171,
+      "price": 168.0,
+      "original_price": 267.1,
+      "stock": 420,
+      "sales": 142,
+      "origin": "浙江杭州",
+      "harvest_date": "2026-09-10",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 90,
+      "photos": [
+        5988177,
+        16586298,
+        8952044
+      ],
+      "kw": "green tea leaves dry",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 168.0,
+          "stock": 260
+        },
+        {
+          "name": "100g",
+          "price": 317.5,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20153,
+      "name": "黄山毛峰",
+      "subtitle": "核心产区 明前采摘",
+      "category_id": 1171,
+      "price": 88.0,
+      "original_price": 128.5,
+      "stock": 500,
+      "sales": 899,
+      "origin": "安徽黄山",
+      "harvest_date": "2026-08-11",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 80,
+      "photos": [
+        12338992,
+        814264,
+        6870857
+      ],
+      "kw": "china green tea",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 88.0,
+          "stock": 80
+        },
+        {
+          "name": "100g",
+          "price": 165.4,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20154,
+      "name": "祁门红茶",
+      "subtitle": "核心产区 明前采摘",
+      "category_id": 1171,
+      "price": 98.0,
+      "original_price": 147.0,
+      "stock": 240,
+      "sales": 837,
+      "origin": "安徽黄山",
+      "harvest_date": "2026-09-06",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 70,
+      "photos": [
+        4499907,
+        8952612,
+        14928719
+      ],
+      "kw": "black tea leaves",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 98.0,
+          "stock": 120
+        },
+        {
+          "name": "100g",
+          "price": 175.4,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20155,
+      "name": "信阳毛尖",
+      "subtitle": "核心产区 明前采摘",
+      "category_id": 1171,
+      "price": 79.0,
+      "original_price": 112.2,
+      "stock": 120,
+      "sales": 1378,
+      "origin": "河南信阳",
+      "harvest_date": "2026-08-08",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 60,
+      "photos": [
+        7565514,
+        16762561,
+        10883862
+      ],
+      "kw": "green tea cup brew",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 79.0,
+          "stock": 120
+        },
+        {
+          "name": "100g",
+          "price": 135.1,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20156,
+      "name": "安溪铁观音",
+      "subtitle": "传统工艺 岩骨花香",
+      "category_id": 1172,
+      "price": 118.0,
+      "original_price": 174.6,
+      "stock": 420,
+      "sales": 1058,
+      "origin": "福建泉州",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "24个月",
+      "storage": "避光防潮",
+      "sort": 90,
+      "photos": [
+        6351839,
+        8329252,
+        6545421
+      ],
+      "kw": "oolong tea leaves",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 118.0,
+          "stock": 320
+        },
+        {
+          "name": "饼 357g",
+          "price": 221.8,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20157,
+      "name": "武夷山大红袍",
+      "subtitle": "传统工艺 岩骨花香",
+      "category_id": 1172,
+      "price": 158.0,
+      "original_price": 229.1,
+      "stock": 500,
+      "sales": 594,
+      "origin": "福建南平",
+      "harvest_date": "2026-08-17",
+      "shelf_life": "24个月",
+      "storage": "避光防潮",
+      "sort": 80,
+      "photos": [
+        8330328,
+        16485169,
+        34271013
+      ],
+      "kw": "rock tea oolong",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 158.0,
+          "stock": 200
+        },
+        {
+          "name": "饼 357g",
+          "price": 274.9,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20158,
+      "name": "云南普洱熟茶饼",
+      "subtitle": "传统工艺 岩骨花香",
+      "category_id": 1172,
+      "price": 128.0,
+      "original_price": 198.4,
+      "stock": 180,
+      "sales": 327,
+      "origin": "云南普洱",
+      "harvest_date": "2026-08-30",
+      "shelf_life": "24个月",
+      "storage": "避光防潮",
+      "sort": 70,
+      "photos": [
+        32087716,
+        31956350,
+        27573338
+      ],
+      "kw": "puer tea cake",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 128.0,
+          "stock": 150
+        },
+        {
+          "name": "饼 357g",
+          "price": 243.2,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20159,
+      "name": "福鼎白茶 白牡丹",
+      "subtitle": "传统工艺 岩骨花香",
+      "category_id": 1172,
+      "price": 96.0,
+      "original_price": 142.1,
+      "stock": 420,
+      "sales": 1562,
+      "origin": "福建宁德",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "24个月",
+      "storage": "避光防潮",
+      "sort": 60,
+      "photos": [
+        30832955,
+        30832957,
+        8330310
+      ],
+      "kw": "white tea leaves",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 96.0,
+          "stock": 150
+        },
+        {
+          "name": "饼 357g",
+          "price": 170.9,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20160,
+      "name": "杭白菊 胎菊",
+      "subtitle": "花蕾初开 手工烘干",
+      "category_id": 1173,
+      "price": 32.9,
+      "original_price": 50.7,
+      "stock": 240,
+      "sales": 441,
+      "origin": "浙江桐乡",
+      "harvest_date": "2026-08-19",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 90,
+      "photos": [
+        8115976,
+        6144446,
+        17125141
+      ],
+      "kw": "chamomile flowers tea",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 32.9,
+          "stock": 150
+        },
+        {
+          "name": "100g",
+          "price": 59.9,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20161,
+      "name": "平阴玫瑰花茶",
+      "subtitle": "花蕾初开 手工烘干",
+      "category_id": 1173,
+      "price": 39.9,
+      "original_price": 51.1,
+      "stock": 240,
+      "sales": 812,
+      "origin": "山东济南",
+      "harvest_date": "2026-08-13",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 80,
+      "photos": [
+        28902716,
+        19654616,
+        7037467
+      ],
+      "kw": "dried rose buds",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 39.9,
+          "stock": 80
+        },
+        {
+          "name": "100g",
+          "price": 73.0,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20162,
+      "name": "金银花",
+      "subtitle": "花蕾初开 手工烘干",
+      "category_id": 1173,
+      "price": 36.0,
+      "original_price": 54.7,
+      "stock": 500,
+      "sales": 531,
+      "origin": "山东平邑",
+      "harvest_date": "2026-09-12",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 70,
+      "photos": [
+        37520817,
+        32142610,
+        12365049
+      ],
+      "kw": "honeysuckle flowers dried",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 36.0,
+          "stock": 150
+        },
+        {
+          "name": "100g",
+          "price": 67.0,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20163,
+      "name": "茉莉花茶",
+      "subtitle": "花蕾初开 手工烘干",
+      "category_id": 1173,
+      "price": 58.0,
+      "original_price": 73.7,
+      "stock": 300,
+      "sales": 98,
+      "origin": "广西横州",
+      "harvest_date": "2026-08-29",
+      "shelf_life": "18个月",
+      "storage": "避光防潮",
+      "sort": 60,
+      "photos": [
+        7138780,
+        6875950,
+        11625273
+      ],
+      "kw": "jasmine tea flowers",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 58.0,
+          "stock": 150
+        },
+        {
+          "name": "100g",
+          "price": 108.5,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20164,
+      "name": "洋槐蜂蜜",
+      "subtitle": "波美度足 无添加",
+      "category_id": 1174,
+      "price": 49.9,
+      "original_price": 66.9,
+      "stock": 120,
+      "sales": 221,
+      "origin": "河南三门峡",
+      "harvest_date": "2026-09-03",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 90,
+      "photos": [
+        9575302,
+        29051733,
+        1872886
+      ],
+      "kw": "honey jar golden",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 49.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 90.8,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20165,
+      "name": "枣花蜜",
+      "subtitle": "波美度足 无添加",
+      "category_id": 1174,
+      "price": 42.0,
+      "original_price": 63.8,
+      "stock": 420,
+      "sales": 158,
+      "origin": "山西运城",
+      "harvest_date": "2026-09-16",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 80,
+      "photos": [
+        315420,
+        714522,
+        5662208
+      ],
+      "kw": "honey dipper wooden",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 42.0,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 74.8,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20166,
+      "name": "深山土蜂蜜",
+      "subtitle": "波美度足 无添加",
+      "category_id": 1174,
+      "price": 88.0,
+      "original_price": 137.3,
+      "stock": 120,
+      "sales": 67,
+      "origin": "陕西汉中",
+      "harvest_date": "2026-09-12",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 70,
+      "photos": [
+        32489540,
+        702935,
+        38789737
+      ],
+      "kw": "raw honey comb",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 88.0,
+          "stock": 150
+        },
+        {
+          "name": "500g",
+          "price": 151.4,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20167,
+      "name": "纯藕粉",
+      "subtitle": "波美度足 无添加",
+      "category_id": 1174,
+      "price": 29.9,
+      "original_price": 41.6,
+      "stock": 420,
+      "sales": 676,
+      "origin": "湖北武汉",
+      "harvest_date": "2026-08-20",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 60,
+      "photos": [
+        5441076,
+        16620746,
+        9575302
+      ],
+      "kw": "lotus root starch powder",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 29.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 55.9,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20168,
+      "name": "黑芝麻糊",
+      "subtitle": "波美度足 无添加",
+      "category_id": 1174,
+      "price": 26.9,
+      "original_price": 38.5,
+      "stock": 500,
+      "sales": 1209,
+      "origin": "江西宜春",
+      "harvest_date": "2026-09-17",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 50,
+      "photos": [
+        8951049,
+        9575302,
+        29051733
+      ],
+      "kw": "black sesame powder",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 26.9,
+          "stock": 150
+        },
+        {
+          "name": "500g",
+          "price": 50.3,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20169,
+      "name": "富宁八角",
+      "subtitle": "原产地直采 香气浓",
+      "category_id": 1181,
+      "price": 19.9,
+      "original_price": 24.9,
+      "stock": 420,
+      "sales": 1107,
+      "origin": "云南文山",
+      "harvest_date": "2026-09-18",
+      "shelf_life": "18个月",
+      "storage": "密封防潮",
+      "sort": 90,
+      "photos": [
+        1049728,
+        30705538,
+        6087130
+      ],
+      "kw": "star anise spice",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 19.9,
+          "stock": 200
+        },
+        {
+          "name": "100g",
+          "price": 35.2,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20170,
+      "name": "汉源花椒",
+      "subtitle": "原产地直采 香气浓",
+      "category_id": 1181,
+      "price": 32.9,
+      "original_price": 48.7,
+      "stock": 240,
+      "sales": 1323,
+      "origin": "四川雅安",
+      "harvest_date": "2026-09-07",
+      "shelf_life": "18个月",
+      "storage": "密封防潮",
+      "sort": 80,
+      "photos": [
+        6087130,
+        6823260,
+        6823271
+      ],
+      "kw": "sichuan peppercorns",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 32.9,
+          "stock": 150
+        },
+        {
+          "name": "100g",
+          "price": 59.9,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20171,
+      "name": "线椒干 辣椒段",
+      "subtitle": "原产地直采 香气浓",
+      "category_id": 1181,
+      "price": 15.9,
+      "original_price": 24.3,
+      "stock": 240,
+      "sales": 793,
+      "origin": "新疆塔城",
+      "harvest_date": "2026-08-26",
+      "shelf_life": "18个月",
+      "storage": "密封防潮",
+      "sort": 70,
+      "photos": [
+        31476407,
+        6823258,
+        33440714
+      ],
+      "kw": "dried red chilies",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 15.9,
+          "stock": 120
+        },
+        {
+          "name": "100g",
+          "price": 28.1,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20172,
+      "name": "桂皮 香叶组合",
+      "subtitle": "原产地直采 香气浓",
+      "category_id": 1181,
+      "price": 18.9,
+      "original_price": 29.3,
+      "stock": 420,
+      "sales": 1303,
+      "origin": "广西防城港",
+      "harvest_date": "2026-09-03",
+      "shelf_life": "18个月",
+      "storage": "密封防潮",
+      "sort": 60,
+      "photos": [
+        30004640,
+        678412,
+        29845475
+      ],
+      "kw": "cinnamon sticks spices",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 18.9,
+          "stock": 120
+        },
+        {
+          "name": "100g",
+          "price": 34.2,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20173,
+      "name": "白胡椒粉",
+      "subtitle": "原产地直采 香气浓",
+      "category_id": 1181,
+      "price": 14.9,
+      "original_price": 22.9,
+      "stock": 240,
+      "sales": 1090,
+      "origin": "海南万宁",
+      "harvest_date": "2026-08-07",
+      "shelf_life": "18个月",
+      "storage": "密封防潮",
+      "sort": 50,
+      "photos": [
+        11733646,
+        5078582,
+        5078590
+      ],
+      "kw": "white pepper powder",
+      "specs": [
+        {
+          "name": "50g",
+          "price": 14.9,
+          "stock": 80
+        },
+        {
+          "name": "100g",
+          "price": 26.8,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20174,
+      "name": "土冰糖 黄冰糖",
+      "subtitle": "纯粮酿造 零添加",
+      "category_id": 1182,
+      "price": 18.9,
+      "original_price": 28.9,
+      "stock": 120,
+      "sales": 867,
+      "origin": "云南西双版纳",
+      "harvest_date": "2026-08-27",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 90,
+      "photos": [
+        5988342,
+        2523650,
+        6448545
+      ],
+      "kw": "rock sugar candy",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 18.9,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 34.0,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20175,
+      "name": "古法红糖",
+      "subtitle": "纯粮酿造 零添加",
+      "category_id": 1182,
+      "price": 22.9,
+      "original_price": 34.8,
+      "stock": 240,
+      "sales": 456,
+      "origin": "广西贵港",
+      "harvest_date": "2026-08-30",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 80,
+      "photos": [
+        30282296,
+        11585378,
+        6448545
+      ],
+      "kw": "brown sugar blocks",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 22.9,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 39.2,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20176,
+      "name": "井盐 未加碘",
+      "subtitle": "纯粮酿造 零添加",
+      "category_id": 1182,
+      "price": 9.9,
+      "original_price": 12.5,
+      "stock": 120,
+      "sales": 912,
+      "origin": "四川自贡",
+      "harvest_date": "2026-08-27",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 70,
+      "photos": [
+        3693297,
+        9974508,
+        10636881
+      ],
+      "kw": "salt crystals coarse",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 9.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 18.1,
+          "stock": 120
+        }
+      ]
+    },
+    {
+      "id": 20177,
+      "name": "纯粮酿造醋",
+      "subtitle": "纯粮酿造 零添加",
+      "category_id": 1182,
+      "price": 16.9,
+      "original_price": 23.8,
+      "stock": 300,
+      "sales": 1518,
+      "origin": "山西清徐",
+      "harvest_date": "2026-08-24",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 60,
+      "photos": [
+        18675982,
+        18695289,
+        5988342
+      ],
+      "kw": "vinegar bottle brewing",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 16.9,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 29.7,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20178,
+      "name": "头抽酱油",
+      "subtitle": "纯粮酿造 零添加",
+      "category_id": 1182,
+      "price": 24.9,
+      "original_price": 38.1,
+      "stock": 420,
+      "sales": 286,
+      "origin": "广东佛山",
+      "harvest_date": "2026-09-17",
+      "shelf_life": "24个月",
+      "storage": "常温避光",
+      "sort": 50,
+      "photos": [
+        18742788,
+        2323398,
+        31286790
+      ],
+      "kw": "soy sauce bottle",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 24.9,
+          "stock": 320
+        },
+        {
+          "name": "500g",
+          "price": 47.1,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20179,
+      "name": "郫县豆瓣酱",
+      "subtitle": "老缸发酵 酱香醇厚",
+      "category_id": 1183,
+      "price": 19.9,
+      "original_price": 27.5,
+      "stock": 120,
+      "sales": 1572,
+      "origin": "四川成都",
+      "harvest_date": "2026-08-16",
+      "shelf_life": "12个月",
+      "storage": "常温避光",
+      "sort": 90,
+      "photos": [
+        29305974,
+        20943985,
+        19199221
+      ],
+      "kw": "doubanjiang chili paste",
+      "specs": [
+        {
+          "name": "230g",
+          "price": 19.9,
+          "stock": 120
+        },
+        {
+          "name": "450g",
+          "price": 38.2,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20180,
+      "name": "东北黄豆酱",
+      "subtitle": "老缸发酵 酱香醇厚",
+      "category_id": 1183,
+      "price": 16.9,
+      "original_price": 25.2,
+      "stock": 300,
+      "sales": 570,
+      "origin": "辽宁锦州",
+      "harvest_date": "2026-08-20",
+      "shelf_life": "12个月",
+      "storage": "常温避光",
+      "sort": 80,
+      "photos": [
+        10445962,
+        15881377,
+        29305974
+      ],
+      "kw": "soybean paste jar",
+      "specs": [
+        {
+          "name": "230g",
+          "price": 16.9,
+          "stock": 150
+        },
+        {
+          "name": "450g",
+          "price": 30.1,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20181,
+      "name": "蒜蓉辣酱",
+      "subtitle": "老缸发酵 酱香醇厚",
+      "category_id": 1183,
+      "price": 14.9,
+      "original_price": 23.2,
+      "stock": 300,
+      "sales": 273,
+      "origin": "山东临沂",
+      "harvest_date": "2026-09-06",
+      "shelf_life": "12个月",
+      "storage": "常温避光",
+      "sort": 70,
+      "photos": [
+        36453286,
+        5379435,
+        16073912
+      ],
+      "kw": "garlic chili sauce",
+      "specs": [
+        {
+          "name": "230g",
+          "price": 14.9,
+          "stock": 120
+        },
+        {
+          "name": "450g",
+          "price": 26.7,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20182,
+      "name": "芝麻酱",
+      "subtitle": "老缸发酵 酱香醇厚",
+      "category_id": 1183,
+      "price": 26.9,
+      "original_price": 41.2,
+      "stock": 500,
+      "sales": 1315,
+      "origin": "河北崔庙",
+      "harvest_date": "2026-09-01",
+      "shelf_life": "12个月",
+      "storage": "常温避光",
+      "sort": 60,
+      "photos": [
+        8130681,
+        8130713,
+        8122131
+      ],
+      "kw": "sesame paste jar",
+      "specs": [
+        {
+          "name": "230g",
+          "price": 26.9,
+          "stock": 260
+        },
+        {
+          "name": "450g",
+          "price": 48.4,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20183,
+      "name": "涪陵榨菜芯",
+      "subtitle": "传统腌渍 爽口下饭",
+      "category_id": 1184,
+      "price": 12.9,
+      "original_price": 20.0,
+      "stock": 420,
+      "sales": 1589,
+      "origin": "重庆涪陵",
+      "harvest_date": "2026-08-17",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 90,
+      "photos": [
+        8599636,
+        9462573,
+        2781540
+      ],
+      "kw": "pickled mustard tuber",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 12.9,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 22.1,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20184,
+      "name": "酸豆角",
+      "subtitle": "传统腌渍 爽口下饭",
+      "category_id": 1184,
+      "price": 13.9,
+      "original_price": 21.1,
+      "stock": 500,
+      "sales": 419,
+      "origin": "湖南长沙",
+      "harvest_date": "2026-08-20",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 80,
+      "photos": [
+        9949171,
+        724298,
+        27588101
+      ],
+      "kw": "pickled green beans",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 13.9,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 25.3,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20185,
+      "name": "萝卜干",
+      "subtitle": "传统腌渍 爽口下饭",
+      "category_id": 1184,
+      "price": 11.9,
+      "original_price": 18.4,
+      "stock": 420,
+      "sales": 161,
+      "origin": "广东潮汕",
+      "harvest_date": "2026-08-07",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 70,
+      "photos": [
+        5988310,
+        5780313,
+        28645473
+      ],
+      "kw": "dried radish pickle",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 11.9,
+          "stock": 320
+        },
+        {
+          "name": "500g",
+          "price": 20.9,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20186,
+      "name": "梅干菜",
+      "subtitle": "传统腌渍 爽口下饭",
+      "category_id": 1184,
+      "price": 17.9,
+      "original_price": 24.5,
+      "stock": 300,
+      "sales": 871,
+      "origin": "浙江绍兴",
+      "harvest_date": "2026-08-23",
+      "shelf_life": "12个月",
+      "storage": "阴凉干燥",
+      "sort": 60,
+      "photos": [
+        6087517,
+        16586224,
+        6087604
+      ],
+      "kw": "dried preserved vegetables",
+      "specs": [
+        {
+          "name": "200g",
+          "price": 17.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 34.9,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20187,
+      "name": "湘西烟熏腊肉",
+      "subtitle": "传统工艺 手工制作",
+      "category_id": 1191,
+      "price": 58.0,
+      "original_price": 83.5,
+      "stock": 180,
+      "sales": 830,
+      "origin": "湖南湘西",
+      "harvest_date": "2026-09-19",
+      "shelf_life": "180天",
+      "storage": "冷冻保存",
+      "sort": 90,
+      "photos": [
+        13533543,
+        5939414,
+        5237010
+      ],
+      "kw": "chinese cured bacon",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 58.0,
+          "stock": 320
+        },
+        {
+          "name": "1000g",
+          "price": 100.3,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20188,
+      "name": "广式腊肠",
+      "subtitle": "柴火慢熏 老宅风味",
+      "category_id": 1191,
+      "price": 46.0,
+      "original_price": 72.2,
+      "stock": 500,
+      "sales": 143,
+      "origin": "广东东莞",
+      "harvest_date": "2026-08-18",
+      "shelf_life": "180天",
+      "storage": "冷冻保存",
+      "sort": 80,
+      "photos": [
+        11750508,
+        30557313,
+        37256489
+      ],
+      "kw": "chinese sausage cured",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 46.0,
+          "stock": 320
+        },
+        {
+          "name": "1000g",
+          "price": 89.2,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20189,
+      "name": "南宁板鸭",
+      "subtitle": "柴火慢熏 老宅风味",
+      "category_id": 1191,
+      "price": 52.0,
+      "original_price": 71.8,
+      "stock": 300,
+      "sales": 1510,
+      "origin": "广西桂林",
+      "harvest_date": "2026-08-23",
+      "shelf_life": "180天",
+      "storage": "冷冻保存",
+      "sort": 70,
+      "photos": [
+        6645928,
+        24038058,
+        13533543
+      ],
+      "kw": "dried cured duck",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 52.0,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 100.4,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20190,
+      "name": "金华火腿",
+      "subtitle": "柴火慢熏 老宅风味",
+      "category_id": 1191,
+      "price": 128.0,
+      "original_price": 195.8,
+      "stock": 240,
+      "sales": 1214,
+      "origin": "浙江金华",
+      "harvest_date": "2026-09-12",
+      "shelf_life": "180天",
+      "storage": "冷冻保存",
+      "sort": 60,
+      "photos": [
+        4871277,
+        37639098,
+        11315262
+      ],
+      "kw": "jinhua ham cured",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 128.0,
+          "stock": 200
+        },
+        {
+          "name": "1000g",
+          "price": 227.8,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20191,
+      "name": "手工豆腐干",
+      "subtitle": "石磨卤水 手工压制",
+      "category_id": 1192,
+      "price": 18.9,
+      "original_price": 25.3,
+      "stock": 420,
+      "sales": 907,
+      "origin": "安徽八公山",
+      "harvest_date": "2026-08-24",
+      "shelf_life": "30天",
+      "storage": "冷藏保存",
+      "sort": 90,
+      "photos": [
+        4186285,
+        6655415,
+        6805775
+      ],
+      "kw": "dried tofu slices",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 18.9,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 33.6,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20192,
+      "name": "石磨腐竹",
+      "subtitle": "石磨卤水 手工压制",
+      "category_id": 1192,
+      "price": 24.9,
+      "original_price": 31.4,
+      "stock": 500,
+      "sales": 695,
+      "origin": "江西高安",
+      "harvest_date": "2026-09-07",
+      "shelf_life": "30天",
+      "storage": "冷藏保存",
+      "sort": 80,
+      "photos": [
+        8280896,
+        26989083,
+        8280883
+      ],
+      "kw": "dried tofu skin yuba",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 24.9,
+          "stock": 260
+        },
+        {
+          "name": "500g",
+          "price": 42.6,
+          "stock": 260
+        }
+      ]
+    },
+    {
+      "id": 20193,
+      "name": "千张 百叶",
+      "subtitle": "石磨卤水 手工压制",
+      "category_id": 1192,
+      "price": 12.9,
+      "original_price": 20.5,
+      "stock": 420,
+      "sales": 490,
+      "origin": "江苏苏州",
+      "harvest_date": "2026-09-16",
+      "shelf_life": "30天",
+      "storage": "冷藏保存",
+      "sort": 70,
+      "photos": [
+        4518603,
+        7298038,
+        6646202
+      ],
+      "kw": "tofu sheets skin",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 12.9,
+          "stock": 200
+        },
+        {
+          "name": "500g",
+          "price": 23.2,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20194,
+      "name": "油豆皮",
+      "subtitle": "石磨卤水 手工压制",
+      "category_id": 1192,
+      "price": 15.9,
+      "original_price": 21.9,
+      "stock": 240,
+      "sales": 438,
+      "origin": "山东济宁",
+      "harvest_date": "2026-08-14",
+      "shelf_life": "30天",
+      "storage": "冷藏保存",
+      "sort": 60,
+      "photos": [
+        19863293,
+        19863288,
+        10560080
+      ],
+      "kw": "fried tofu skin",
+      "specs": [
+        {
+          "name": "250g",
+          "price": 15.9,
+          "stock": 80
+        },
+        {
+          "name": "500g",
+          "price": 30.1,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20195,
+      "name": "红薯粉条",
+      "subtitle": "无明矾 纯薯制",
+      "category_id": 1193,
+      "price": 19.9,
+      "original_price": 28.9,
+      "stock": 120,
+      "sales": 496,
+      "origin": "河南禹州",
+      "harvest_date": "2026-08-20",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 90,
+      "photos": [
+        14162745,
+        4518698,
+        6037880
+      ],
+      "kw": "sweet potato glass noodles",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 19.9,
+          "stock": 260
+        },
+        {
+          "name": "1000g",
+          "price": 37.4,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20196,
+      "name": "土豆粉条",
+      "subtitle": "无明矾 纯薯制",
+      "category_id": 1193,
+      "price": 17.9,
+      "original_price": 26.8,
+      "stock": 120,
+      "sales": 367,
+      "origin": "内蒙古乌兰察布",
+      "harvest_date": "2026-09-11",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 80,
+      "photos": [
+        4368802,
+        8980451,
+        14162745
+      ],
+      "kw": "potato noodles dry",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 17.9,
+          "stock": 320
+        },
+        {
+          "name": "1000g",
+          "price": 31.3,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20197,
+      "name": "桂林米粉",
+      "subtitle": "无明矾 纯薯制",
+      "category_id": 1193,
+      "price": 21.9,
+      "original_price": 29.8,
+      "stock": 180,
+      "sales": 1372,
+      "origin": "广西桂林",
+      "harvest_date": "2026-09-07",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 70,
+      "photos": [
+        23014601,
+        6287278,
+        1686773
+      ],
+      "kw": "rice noodles dried",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 21.9,
+          "stock": 120
+        },
+        {
+          "name": "1000g",
+          "price": 42.3,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20198,
+      "name": "莜面 燕麦面",
+      "subtitle": "无明矾 纯薯制",
+      "category_id": 1193,
+      "price": 26.9,
+      "original_price": 41.2,
+      "stock": 420,
+      "sales": 145,
+      "origin": "内蒙古阴山",
+      "harvest_date": "2026-09-14",
+      "shelf_life": "18个月",
+      "storage": "阴凉干燥",
+      "sort": 60,
+      "photos": [
+        16620746,
+        6287278,
+        23014601
+      ],
+      "kw": "oat flour noodles",
+      "specs": [
+        {
+          "name": "500g",
+          "price": 26.9,
+          "stock": 80
+        },
+        {
+          "name": "1000g",
+          "price": 46.5,
+          "stock": 320
+        }
+      ]
+    },
+    {
+      "id": 20199,
+      "name": "宁夏枸杞 免洗",
+      "subtitle": "道地药材 手工甄选",
+      "category_id": 1194,
+      "price": 39.9,
+      "original_price": 54.3,
+      "stock": 180,
+      "sales": 1293,
+      "origin": "宁夏中宁",
+      "harvest_date": "2026-09-05",
+      "shelf_life": "12个月",
+      "storage": "密封阴凉",
+      "sort": 90,
+      "photos": [
+        6732733,
+        10323348,
+        10323396
+      ],
+      "kw": "goji berries wolfberry",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 39.9,
+          "stock": 260
+        },
+        {
+          "name": "250g",
+          "price": 69.0,
+          "stock": 150
+        }
+      ]
+    },
+    {
+      "id": 20200,
+      "name": "黄精 九蒸九晒",
+      "subtitle": "道地药材 手工甄选",
+      "category_id": 1194,
+      "price": 88.0,
+      "original_price": 127.6,
+      "stock": 500,
+      "sales": 325,
+      "origin": "安徽九华山",
+      "harvest_date": "2026-08-12",
+      "shelf_life": "12个月",
+      "storage": "密封阴凉",
+      "sort": 80,
+      "photos": [
+        10902685,
+        7115096,
+        6732733
+      ],
+      "kw": "polygonatum dried herb",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 88.0,
+          "stock": 150
+        },
+        {
+          "name": "250g",
+          "price": 161.0,
+          "stock": 80
+        }
+      ]
+    },
+    {
+      "id": 20201,
+      "name": "长白山人参片",
+      "subtitle": "道地药材 手工甄选",
+      "category_id": 1194,
+      "price": 118.0,
+      "original_price": 186.4,
+      "stock": 500,
+      "sales": 346,
+      "origin": "吉林抚松",
+      "harvest_date": "2026-09-11",
+      "shelf_life": "12个月",
+      "storage": "密封阴凉",
+      "sort": 70,
+      "photos": [
+        16122304,
+        16122310,
+        16122316
+      ],
+      "kw": "ginseng root slices",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 118.0,
+          "stock": 120
+        },
+        {
+          "name": "250g",
+          "price": 206.5,
+          "stock": 200
+        }
+      ]
+    },
+    {
+      "id": 20202,
+      "name": "糯米酒 月子酒",
+      "subtitle": "道地药材 手工甄选",
+      "category_id": 1194,
+      "price": 36.0,
+      "original_price": 56.9,
+      "stock": 240,
+      "sales": 613,
+      "origin": "江西赣州",
+      "harvest_date": "2026-09-18",
+      "shelf_life": "12个月",
+      "storage": "密封阴凉",
+      "sort": 60,
+      "photos": [
+        35811667,
+        30078332,
+        33095572
+      ],
+      "kw": "rice wine jar",
+      "specs": [
+        {
+          "name": "100g",
+          "price": 36.0,
+          "stock": 150
+        },
+        {
+          "name": "250g",
+          "price": 68.8,
+          "stock": 150
+        }
+      ]
+    }
+  ],
+  "banners": [
+    {
+      "id": 22001,
+      "title": "赣南脐橙 产地直发",
+      "link": "/pages/product/product?id=20001",
+      "sort": 100,
+      "photo": 28947260
+    },
+    {
+      "id": 22002,
+      "title": "五常新米 轻碾保鲜",
+      "link": "/pages/product/product?id=20062",
+      "sort": 95,
+      "photo": 13362298
+    },
+    {
+      "id": 22003,
+      "title": "海南贵妃芒 树上熟",
+      "link": "/pages/product/product?id=20012",
+      "sort": 90,
+      "photo": 16724963
+    },
+    {
+      "id": 22004,
+      "title": "阳澄湖大闸蟹 开捕",
+      "link": "/pages/product/product?id=20112",
+      "sort": 85,
+      "photo": 34618081
+    },
+    {
+      "id": 22005,
+      "title": "明前龙井 核心产区",
+      "link": "/pages/product/product?id=20152",
+      "sort": 80,
+      "photo": 5988177
+    }
+  ],
+  "demo": {
+    "reviews": [
+      {
+        "product_id": 20001,
+        "rating": 5,
+        "content": "非常好吃的脐橙，新鲜多汁！",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "新鲜,好吃,多汁,好"
+      },
+      {
+        "product_id": 20001,
+        "rating": 5,
+        "content": "回购多次了，个头均匀皮薄，日期新鲜。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "回购,新鲜,均匀"
+      },
+      {
+        "product_id": 20001,
+        "rating": 2,
+        "content": "有两三个偏酸，客服已按坏果赔付。",
+        "label": -1,
+        "score": 0.0,
+        "keywords": "偏酸"
+      },
+      {
+        "product_id": 20006,
+        "rating": 5,
+        "content": "草莓很新鲜，包装用心，一颗没压坏。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "新鲜,用心"
+      },
+      {
+        "product_id": 20006,
+        "rating": 1,
+        "content": "路上耽搁，到手有几颗发霉，失望。",
+        "label": -1,
+        "score": 0.0,
+        "keywords": "发霉,失望"
+      },
+      {
+        "product_id": 20012,
+        "rating": 5,
+        "content": "贵妃芒核小肉厚，很甜，物流也快。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "好吃,甜,快"
+      },
+      {
+        "product_id": 20062,
+        "rating": 5,
+        "content": "五常大米真的很香，煮饭满屋飘香，正宗！",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "正宗,香"
+      },
+      {
+        "product_id": 20062,
+        "rating": 3,
+        "content": "米还行，但外袋有点破损。",
+        "label": -1,
+        "score": 0.3,
+        "keywords": "破损,还行"
+      },
+      {
+        "product_id": 20031,
+        "rating": 5,
+        "content": "西兰花非常新鲜，口感脆嫩，会回购。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "新鲜,回购,脆,嫩"
+      },
+      {
+        "product_id": 20031,
+        "rating": 2,
+        "content": "有几朵发黄，不太新鲜。",
+        "label": -1,
+        "score": 0.0,
+        "keywords": "不新鲜,失望"
+      },
+      {
+        "product_id": 20095,
+        "rating": 5,
+        "content": "土鸡蛋蛋黄颜色深，炒出来很香。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "新鲜,香"
+      },
+      {
+        "product_id": 20187,
+        "rating": 5,
+        "content": "湘西腊肉烟熏味正，就是稍微咸了点。",
+        "label": 1,
+        "score": 1.0,
+        "keywords": "正宗,咸"
+      }
+    ],
+    "traceability": [
+      {
+        "id": 2097480000000002001,
+        "product_id": 20001,
+        "batch_no": "B202609110001",
+        "farmer_name": "信丰脐橙种植合作社",
+        "farmer_phone": "13800000000",
+        "origin_province": "江西省",
+        "origin_city": "赣州市",
+        "origin_district": "信丰县",
+        "planting_date": "2026-03-10",
+        "harvest_date": "2026-09-08",
+        "quality_check_result": "农残检测合格",
+        "pesticide_test": "GB 2763全项合格",
+        "certification_type": "GEOGRAPHICAL",
+        "records": [
+          {
+            "type": "SEEDING",
+            "date": "2026-03-10",
+            "content": "完成幼苗定植，株距 3m，覆盖地膜保温",
+            "operator": "李四"
+          },
+          {
+            "type": "FERTILIZING",
+            "date": "2026-05-20",
+            "content": "施用腐熟有机肥，补充磷钾元素",
+            "operator": "李四"
+          },
+          {
+            "type": "WATERING",
+            "date": "2026-06-15",
+            "content": "伏旱期滴灌补水两次",
+            "operator": "李四"
+          },
+          {
+            "type": "PEST_CONTROL",
+            "date": "2026-07-10",
+            "content": "释放捕食螨生物防治，未使用化学农药",
+            "operator": "李四"
+          },
+          {
+            "type": "HARVEST",
+            "date": "2026-09-08",
+            "content": "人工采摘，糖度抽检 12.8，分拣装箱",
+            "operator": "李四"
+          }
+        ]
+      },
+      {
+        "id": 2097480000000002002,
+        "product_id": 20031,
+        "batch_no": "B202608220001",
+        "farmer_name": "赣州绿源蔬菜种植合作社",
+        "farmer_phone": "13800000001",
+        "origin_province": "江西省",
+        "origin_city": "赣州市",
+        "origin_district": "章贡区",
+        "planting_date": "2026-07-15",
+        "harvest_date": "2026-08-22",
+        "quality_check_result": "农残检测合格",
+        "pesticide_test": "GB 2763全项合格",
+        "certification_type": "ORGANIC",
+        "records": [
+          {
+            "type": "SEEDING",
+            "date": "2026-07-15",
+            "content": "穴盘育苗完成，移栽大田",
+            "operator": "王五"
+          },
+          {
+            "type": "FERTILIZING",
+            "date": "2026-07-30",
+            "content": "追施水溶肥一次",
+            "operator": "王五"
+          },
+          {
+            "type": "WATERING",
+            "date": "2026-08-05",
+            "content": "喷灌补水，保持土壤湿度",
+            "operator": "王五"
+          },
+          {
+            "type": "PEST_CONTROL",
+            "date": "2026-08-12",
+            "content": "物理防虫（粘虫板），无农药施用",
+            "operator": "王五"
+          },
+          {
+            "type": "HARVEST",
+            "date": "2026-08-22",
+            "content": "清晨人工采收，冷链预冷后发货",
+            "operator": "王五"
+          }
+        ]
+      }
+    ],
+    "seckill": [
+      {
+        "id": 2097480000000003001,
+        "activity_code": "DEMOSK20261001",
+        "product_id": 20031,
+        "seckill_price": 3.9,
+        "seckill_stock": 50,
+        "seckill_limit": 1,
+        "sort": 50
+      },
+      {
+        "id": 2097480000000003002,
+        "activity_code": "DEMOSK20261002",
+        "product_id": 20001,
+        "seckill_price": 19.9,
+        "seckill_stock": 80,
+        "seckill_limit": 2,
+        "sort": 45
+      },
+      {
+        "id": 2097480000000003003,
+        "activity_code": "DEMOSK20261003",
+        "product_id": 20062,
+        "seckill_price": 39.9,
+        "seckill_stock": 60,
+        "seckill_limit": 1,
+        "sort": 40
+      }
+    ]
+  }
+}
