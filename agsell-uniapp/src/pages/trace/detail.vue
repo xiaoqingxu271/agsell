@@ -1,6 +1,6 @@
 ﻿<template>
   <view class="trace-page">
-    <NavBar title="溯源档案" @back="uni.navigateBack()" />
+    <NavBar title="溯源档案" background="#00A66A" color="#FFFFFF" :bordered="false" @back="uni.navigateBack()" />
 
     <scroll-view scroll-y class="trace-scroll">
       <!-- 加载中 -->
@@ -17,121 +17,120 @@
 
       <!-- 档案主体 -->
       <template v-else-if="trace">
-        <!-- 商品 + 批次号 -->
-        <view class="card product-card">
-          <view class="product-row">
-            <image
-              class="product-img"
-              :src="trace.productImage || '/static/default-product.png'"
-              mode="aspectFill"
-              lazy-load
-              @click="onPreviewImage(trace.productImage)"
-            />
-            <view class="product-col">
-              <text class="product-name">{{ trace.productName }}</text>
-              <view class="batch-row">
-                <text class="batch-no">{{ trace.batchNo }}</text>
-                <view class="copy-btn" @click="onCopyBatch" role="button" aria-label="复制批次号">复制</view>
-              </view>
+        <!-- 溯源结果头（服务绿大底） -->
+        <view class="trhero">
+          <view class="trhero-top">
+            <text class="trhero-label">溯源码</text>
+            <view v-if="trace.freshness" class="trhero-ok">
+              <wd-icon name="check-circle" size="24rpx" custom-class="trhero-ok-icon" />
+              <text class="trhero-ok-text">{{ trace.freshness.levelText }} · 已核验</text>
+            </view>
+          </view>
+          <text class="trhero-title">{{ trace.productName }}</text>
+          <view class="trhero-code">
+            <text class="trhero-code-no">{{ trace.batchNo }}</text>
+            <text v-if="trace.origin" class="trhero-code-origin"> · {{ trace.origin }}</text>
+          </view>
+        </view>
+
+        <!-- 商品 + 批次号（负边距上提压在 hero 上） -->
+        <view class="trcard">
+          <image
+            class="trcard-img"
+            :src="trace.productImage || '/static/default-product.png'"
+            mode="aspectFill"
+            lazy-load
+            @click="onPreviewImage(trace.productImage)"
+          />
+          <view class="trcard-col">
+            <text class="trcard-name">{{ trace.productName }}</text>
+            <text v-if="trace.freshness" class="trcard-meta">{{ freshnessDesc(trace.freshness) }}</text>
+            <view class="batch-row">
+              <text class="batch-no">{{ trace.batchNo }}</text>
+              <view class="copy-btn" @click="onCopyBatch" role="button" aria-label="复制批次号">复制</view>
             </view>
           </view>
         </view>
 
-        <!-- 新鲜度 -->
-        <view v-if="trace.freshness" class="card freshness-card" :class="'freshness-' + trace.freshness.level">
-          <view class="freshness-left">
-            <text class="freshness-level">{{ trace.freshness.levelText }}</text>
-            <text class="freshness-desc">{{ freshnessDesc(trace.freshness) }}</text>
-          </view>
-          <text class="freshness-days">已采摘 {{ trace.freshness.daysSinceHarvest }} 天</text>
-        </view>
-
-        <!-- 基本信息 -->
-        <view class="card">
-          <view class="section-title">产地与质检</view>
-          <view class="info-grid">
-            <view class="info-item">
-              <text class="info-label">种植户</text>
-              <text class="info-value">{{ trace.farmerName || '-' }}</text>
-            </view>
-            <view class="info-item">
-              <text class="info-label">联系电话</text>
-              <text class="info-value">{{ trace.farmerPhone || '-' }}</text>
-            </view>
-            <view class="info-item">
-              <text class="info-label">产地</text>
-              <text class="info-value">{{ trace.origin || '-' }}</text>
-            </view>
-            <view class="info-item">
-              <text class="info-label">认证类型</text>
-              <text v-if="trace.certificationType" class="cert-tag">{{ trace.certificationTypeText || trace.certificationType }}</text>
-              <text v-else class="info-value">-</text>
-            </view>
-            <view class="info-item">
-              <text class="info-label">种植日期</text>
-              <text class="info-value">{{ trace.plantingDate || '-' }}</text>
-            </view>
-            <view class="info-item">
-              <text class="info-label">采摘日期</text>
-              <text class="info-value">{{ trace.harvestDate || '-' }}</text>
-            </view>
-            <view class="info-item info-item-full">
-              <text class="info-label">质检结果</text>
-              <text class="info-value">{{ trace.qualityCheckResult || '-' }}</text>
-            </view>
-            <view class="info-item info-item-full">
-              <text class="info-label">农残检测</text>
-              <text class="info-value">{{ trace.pesticideTest || '-' }}</text>
-            </view>
-          </view>
-        </view>
-
-        <!-- 认证证书 -->
-        <view v-if="trace.certificationUrls && trace.certificationUrls.length" class="card">
-          <view class="section-title">认证证书</view>
-          <view class="cert-grid">
-            <image
-              v-for="(img, i) in trace.certificationUrls"
-              :key="img"
-              :src="img"
-              mode="aspectFill"
-              lazy-load
-              class="cert-img"
-              @click="onPreviewCert(i)"
-            />
-          </view>
-        </view>
-
-        <!-- 生产记录 -->
-        <view class="card">
-          <view class="section-title">生产记录（{{ trace.productionRecords.length }}）</view>
+        <!-- 生产记录（全链路时间轴） -->
+        <view class="tcard tl-card">
+          <view class="section-title">全链路追溯（{{ trace.productionRecords.length }}）</view>
           <view v-if="trace.productionRecords.length === 0" class="records-empty">暂无生产记录</view>
-          <view v-else class="record-list">
-            <view v-for="(record, idx) in trace.productionRecords" :key="record.id" class="record-item">
-              <view class="record-timeline">
-                <view class="record-dot" :class="{ 'last-dot': idx === trace.productionRecords.length - 1 }" />
-                <view v-if="idx !== trace.productionRecords.length - 1" class="record-line" />
+          <view v-else class="tl">
+            <view
+              v-for="(record, idx) in trace.productionRecords"
+              :key="record.id"
+              class="tl-node"
+              :class="{ 'is-cur': idx === trace.productionRecords.length - 1 }"
+            >
+              <view class="tl-rail">
+                <view class="tl-dot" />
+                <view v-if="idx !== trace.productionRecords.length - 1" class="tl-line" />
               </view>
-              <view class="record-body">
-                <view class="record-head">
-                  <text class="record-type">{{ record.recordTypeText || record.recordType }}</text>
-                  <text class="record-date">{{ record.recordDate }}</text>
+              <view class="tl-body">
+                <view class="tl-head">
+                  <text class="tl-type">{{ record.recordTypeText || record.recordType }}</text>
+                  <text v-if="idx !== trace.productionRecords.length - 1" class="tl-badge">已完成</text>
                 </view>
-                <text class="record-content">{{ record.content }}</text>
-                <view v-if="record.images && record.images.length" class="record-imgs">
+                <text class="tl-content">{{ record.content }}</text>
+                <view v-if="record.images && record.images.length" class="tl-imgs">
                   <image
                     v-for="(img, i) in record.images"
                     :key="img"
                     :src="img"
                     mode="aspectFill"
                     lazy-load
-                    class="record-img"
+                    class="tl-img"
                     @click="onPreviewRecordImgs(record, i)"
                   />
                 </view>
-                <text v-if="record.operator" class="record-operator">操作人：{{ record.operator }}</text>
+                <text class="tl-date">{{ record.recordDate }}{{ record.operator ? ' · ' + record.operator : '' }}</text>
               </view>
             </view>
+          </view>
+        </view>
+
+        <!-- 质检与认证 -->
+        <view class="tcard">
+          <view class="section-title">质检与认证</view>
+          <view v-if="trace.certificationUrls && trace.certificationUrls.length" class="cert-grid">
+            <view v-for="(img, i) in trace.certificationUrls" :key="img" class="cert-card" @click="onPreviewCert(i)" role="button" aria-label="认证证书图片">
+              <image class="cert-img" :src="img" mode="aspectFill" lazy-load />
+            </view>
+          </view>
+          <view v-else class="cert-grid">
+            <view class="cert-card">
+              <view class="cert-ph"><wd-icon name="list" size="60rpx" custom-class="cert-ph-ic" /></view>
+              <text class="cert-nm">农残检测报告</text>
+              <text class="cert-no">{{ trace.pesticideTest || '暂无' }}</text>
+            </view>
+            <view class="cert-card">
+              <view class="cert-ph"><wd-icon name="secured" size="60rpx" custom-class="cert-ph-ic" /></view>
+              <text class="cert-nm">质检结论</text>
+              <text class="cert-no">{{ trace.qualityCheckResult || '暂无' }}</text>
+            </view>
+            <view class="cert-card">
+              <view class="cert-ph"><wd-icon name="goods" size="60rpx" custom-class="cert-ph-ic" /></view>
+              <text class="cert-nm">认证类型</text>
+              <text class="cert-no">{{ trace.certificationTypeText || trace.certificationType || '未认证' }}</text>
+            </view>
+          </view>
+          <view class="info-rows">
+            <view class="info-row"><text class="info-row-k">种植日期</text><text class="info-row-v">{{ trace.plantingDate || '-' }}</text></view>
+            <view class="info-row"><text class="info-row-k">采摘日期</text><text class="info-row-v">{{ trace.harvestDate || '-' }}</text></view>
+          </view>
+        </view>
+
+        <!-- 产地档案 -->
+        <view class="tcard tcard--flush">
+          <view class="trmap">
+            <view class="trmap-pin"><view class="trmap-pin-dot" /></view>
+            <text class="trmap-tip">{{ trace.origin || '产地信息待完善' }}</text>
+          </view>
+          <view class="info-rows">
+            <view class="info-row"><text class="info-row-k">产地</text><text class="info-row-v">{{ trace.origin || '-' }}</text></view>
+            <view class="info-row"><text class="info-row-k">种植户</text><text class="info-row-v">{{ trace.farmerName || '-' }}</text></view>
+            <view class="info-row"><text class="info-row-k">联系电话</text><text class="info-row-v">{{ trace.farmerPhone || '-' }}</text></view>
           </view>
         </view>
 
@@ -212,12 +211,12 @@ function onPreviewRecordImgs(record, index) {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .trace-page {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F5F5F5;
+  background: $uni-bg-color-grey;
 }
 
 .trace-scroll {
@@ -226,6 +225,7 @@ function onPreviewRecordImgs(record, index) {
   padding-bottom: 40rpx;
 }
 
+/* ── 加载 / 空状态 ── */
 .state-wrap {
   display: flex;
   flex-direction: column;
@@ -235,74 +235,138 @@ function onPreviewRecordImgs(record, index) {
 
 .state-icon {
   font-size: 72rpx;
-  color: #D1D5DB;
+  color: $uni-border-color-strong;
   font-weight: 600;
 }
 
 .state-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
+  color: $uni-text-color;
   margin-top: 24rpx;
 }
 
 .state-text {
   font-size: 26rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
   margin-top: 12rpx;
 }
 
-.card {
-  background: #FFFFFF;
-  margin: 24rpx;
-  padding: 24rpx;
-  border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
-  box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
+/* ── 溯源结果头（服务绿大底） ── */
+.trhero {
+  background: linear-gradient(160deg, $uni-color-service, $uni-color-service-dark);
+  padding: 40rpx 28rpx 80rpx;
+  color: $uni-text-color-inverse;
 }
 
-/* ── 商品卡 ── */
-.product-row {
+.trhero-top {
   display: flex;
   align-items: center;
+  gap: 16rpx;
 }
 
-.product-img {
-  width: 128rpx;
-  height: 128rpx;
-  border-radius: 16rpx;
-  background: #F3F4F6;
+.trhero-label {
+  font-size: 24rpx;
+  opacity: 0.85;
+}
+
+.trhero-ok {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 6rpx 18rpx;
+  border-radius: 22rpx;
+}
+
+:deep(.trhero-ok-icon) {
+  color: $uni-text-color-inverse;
+}
+
+.trhero-ok-text {
+  color: $uni-text-color-inverse;
+}
+
+.trhero-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 600;
+  margin-top: 24rpx;
+  line-height: 1.3;
+}
+
+.trhero-code {
+  display: flex;
+  align-items: center;
+  margin-top: 10rpx;
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
+  font-size: 24rpx;
+  opacity: 0.85;
+  letter-spacing: 1rpx;
+}
+
+/* ── 商品卡（负边距上提压在 hero 上） ── */
+.trcard {
+  margin: -60rpx 24rpx 0;
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-lg;
+  padding: 24rpx;
+  display: flex;
+  gap: 20rpx;
+  position: relative;
+}
+
+.trcard-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: $uni-border-radius-sm;
+  background: $uni-bg-color-img;
   flex-shrink: 0;
 }
 
-.product-col {
-  margin-left: 24rpx;
+.trcard-col {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.product-name {
-  display: block;
-  font-size: 32rpx;
+.trcard-name {
+  font-size: 26rpx;
   font-weight: 600;
-  color: #111827;
-  line-height: 1.4;
+  color: $uni-text-color;
+  line-height: 38rpx;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.trcard-meta {
+  font-size: 20rpx;
+  color: $uni-text-color-placeholder;
+  margin-top: 8rpx;
+  line-height: 32rpx;
 }
 
 .batch-row {
   display: flex;
   align-items: center;
   gap: 16rpx;
-  margin-top: 16rpx;
+  margin-top: auto;
+  padding-top: 12rpx;
 }
 
 .batch-no {
-  font-size: 24rpx;
-  color: #4B5563;
-  font-family: Consolas, Menlo, monospace;
+  font-size: 22rpx;
+  color: $uni-text-color-placeholder;
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -312,245 +376,282 @@ function onPreviewRecordImgs(record, index) {
 .copy-btn {
   flex-shrink: 0;
   font-size: 22rpx;
-  color: #00B578;
-  background: #D1FAE5;
-  border-radius: 12rpx;
+  color: $uni-color-service-dark;
+  background: $uni-color-service-50;
+  border-radius: $uni-border-radius-sm;
   padding: 6rpx 18rpx;
 }
 
-.copy-btn:active {
-  background: #D1FAE5;
+/* ── 通用白卡 ── */
+.tcard {
+  background: $uni-bg-color;
+  margin: 16rpx 24rpx 0;
+  padding: 24rpx;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-sm;
 }
 
-/* ── 新鲜度卡（按等级着色） ── */
-.freshness-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20rpx 28rpx;
+.tcard--flush {
+  padding: 0;
+  overflow: hidden;
 }
 
-.freshness-left {
-  display: flex;
-  flex-direction: column;
-  gap: 6rpx;
+.tcard--flush .info-rows {
+  padding: 20rpx 24rpx;
 }
 
-.freshness-level {
-  font-size: 32rpx;
-  font-weight: 700;
+.tl-card {
+  padding: 28rpx 24rpx 12rpx;
 }
 
-.freshness-desc {
-  font-size: 22rpx;
-  color: inherit;
-  opacity: 0.85;
-}
-
-.freshness-days {
-  font-size: 22rpx;
-  color: inherit;
-  opacity: 0.85;
-  flex-shrink: 0;
-  margin-left: 16rpx;
-}
-
-.freshness-FRESH {
-  background: #ECFDF5;
-  border-color: #D1FAE5;
-  color: #00B578;
-}
-
-.freshness-NORMAL {
-  background: #EFF6FF;
-  border-color: #BFDBFE;
-  color: #1D4ED8;
-}
-
-.freshness-FAIR {
-  background: #FFFBEB;
-  border-color: #FDE68A;
-  color: #E63946;
-}
-
-.freshness-STALE {
-  background: #FEF2F2;
-  border-color: #FECACA;
-  color: #B91C1C;
-}
-
-/* ── 信息网格 ── */
 .section-title {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 600;
-  color: #00B578;
+  color: $uni-text-color;
   margin-bottom: 20rpx;
 }
 
-.info-grid {
+/* ── 键值行（产地 / 质检等） ── */
+.info-rows {
+  padding: 4rpx 0;
+}
+
+.info-row {
   display: flex;
-  flex-wrap: wrap;
-}
-
-.info-item {
-  width: 50%;
-  box-sizing: border-box;
-  padding: 12rpx 16rpx 12rpx 0;
-}
-
-.info-item-full {
-  width: 100%;
-}
-
-.info-label {
-  display: block;
   font-size: 22rpx;
-  color: #9CA3AF;
-  margin-bottom: 6rpx;
+  color: $uni-text-color-grey;
+  line-height: 40rpx;
 }
 
-.info-value {
-  font-size: 26rpx;
-  color: #111827;
-  line-height: 1.5;
+.info-row-k {
+  width: 112rpx;
+  flex: none;
+  color: $uni-text-color-placeholder;
+}
+
+.info-row-v {
+  flex: 1;
+  min-width: 0;
   word-break: break-all;
 }
 
-.cert-tag {
-  display: inline-block;
-  font-size: 22rpx;
-  color: #111827;
-  background: #D1FAE5;
-  border-radius: 10rpx;
-  padding: 4rpx 16rpx;
-  line-height: 1.6;
-}
-
-/* ── 认证证书 ── */
+/* ── 质检与认证卡 ── */
 .cert-grid {
   display: flex;
-  flex-wrap: wrap;
   gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.cert-card {
+  flex: 1;
+  min-width: 0;
+  border: 2rpx solid $uni-border-color;
+  border-radius: 12rpx;
+  overflow: hidden;
+  padding-bottom: 12rpx;
+}
+
+.cert-ph {
+  height: 156rpx;
+  background: #FAFBFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.cert-ph-ic) {
+  color: $uni-text-color-disable;
 }
 
 .cert-img {
-  width: 196rpx;
-  height: 196rpx;
-  border-radius: 12rpx;
-  background: #F3F4F6;
-  border: 1rpx solid #E5E7EB;
+  width: 100%;
+  height: 156rpx;
+  display: block;
+  background: $uni-bg-color-img;
 }
 
-/* ── 生产记录时间线 ── */
+.cert-nm {
+  display: block;
+  padding: 12rpx 16rpx 0;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: $uni-text-color;
+}
+
+.cert-no {
+  display: block;
+  padding: 0 16rpx;
+  margin-top: 4rpx;
+  font-size: 18rpx;
+  color: $uni-text-color-placeholder;
+  line-height: 1.4;
+}
+
+/* ── 全链路时间轴 ── */
 .records-empty {
   font-size: 26rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
   padding: 20rpx 0;
 }
 
-.record-list {
+.tl {
   display: flex;
   flex-direction: column;
 }
 
-.record-item {
+.tl-node {
   display: flex;
 }
 
-.record-timeline {
+.tl-rail {
   position: relative;
   width: 32rpx;
   flex-shrink: 0;
 }
 
-.record-dot {
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
-  background: #00B578;
-  margin-top: 10rpx;
+.tl-dot {
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: $uni-border-radius-circle;
+  background: $uni-color-service;
+  margin-top: 6rpx;
+  margin-left: 2rpx;
 }
 
-.record-line {
+.tl-node.is-cur .tl-dot {
+  background: $uni-bg-color;
+  border: 4rpx solid $uni-color-primary;
+  box-shadow: 0 0 0 6rpx $uni-color-primary-50;
+  width: 18rpx;
+  height: 18rpx;
+}
+
+.tl-line {
   position: absolute;
-  left: 7rpx;
+  left: 12rpx;
   top: 30rpx;
   bottom: -4rpx;
   width: 2rpx;
-  background: #D1FAE5;
+  background: $uni-border-color;
 }
 
-.record-dot.last-dot {
-  background: #D1FAE5;
-}
-
-.record-body {
+.tl-body {
   flex: 1;
-  margin-left: 16rpx;
+  margin-left: 20rpx;
   padding-bottom: 32rpx;
   min-width: 0;
 }
 
-.record-item:last-child .record-body {
+.tl-node:last-child .tl-body {
   padding-bottom: 0;
 }
 
-.record-head {
+.tl-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
-.record-type {
+.tl-type {
   font-size: 26rpx;
+  color: $uni-text-color;
+}
+
+.tl-node.is-cur .tl-type {
   font-weight: 600;
-  color: #111827;
-  background: #D1FAE5;
-  border-radius: 10rpx;
-  padding: 4rpx 16rpx;
+  color: $uni-color-primary;
 }
 
-.record-date {
-  font-size: 22rpx;
-  color: #9CA3AF;
-  flex-shrink: 0;
+.tl-badge {
+  font-size: 18rpx;
+  color: $uni-color-service;
+  border: 2rpx solid $uni-color-service-100;
+  border-radius: 4rpx;
+  padding: 0 8rpx;
+  line-height: 26rpx;
 }
 
-.record-content {
+.tl-date {
   display: block;
-  font-size: 26rpx;
-  color: #374151;
-  line-height: 1.7;
-  margin-top: 12rpx;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: $uni-text-color-placeholder;
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
+}
+
+.tl-content {
+  display: block;
+  font-size: 22rpx;
+  color: $uni-text-color-grey;
+  line-height: 32rpx;
+  margin-top: 6rpx;
   word-break: break-all;
 }
 
-.record-imgs {
+.tl-imgs {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
   margin-top: 12rpx;
 }
 
-.record-img {
+.tl-img {
   width: 128rpx;
   height: 128rpx;
-  border-radius: 12rpx;
-  background: #F3F4F6;
+  border-radius: $uni-border-radius-sm;
+  background: $uni-bg-color-img;
 }
 
-.record-operator {
-  display: block;
-  font-size: 22rpx;
-  color: #9CA3AF;
-  margin-top: 10rpx;
+/* ── 产地示意（网格底 + 品牌色定位针） ── */
+.trmap {
+  position: relative;
+  height: 236rpx;
+  background:
+    repeating-linear-gradient(0deg, #EEF1F3, #EEF1F3 2rpx, transparent 2rpx, transparent 44rpx),
+    repeating-linear-gradient(90deg, #EEF1F3, #EEF1F3 2rpx, transparent 2rpx, transparent 44rpx),
+    #F7F8FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trmap-pin {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 52rpx;
+  height: 52rpx;
+  transform: translate(-50%, -100%) rotate(-45deg);
+  background: $uni-color-primary;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 6rpx 16rpx rgba(225, 37, 27, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trmap-pin-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: $uni-bg-color;
+}
+
+.trmap-tip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: $uni-text-color-placeholder;
 }
 
 .footer-tip {
   text-align: center;
   font-size: 22rpx;
-  color: #9CA3AF;
-  margin: 8rpx 24rpx 0;
+  color: $uni-text-color-placeholder;
+  margin: 24rpx 24rpx 0;
 }
 </style>

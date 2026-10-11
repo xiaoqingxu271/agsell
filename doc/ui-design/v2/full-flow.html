@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>山货集市 · 品质电商风 全链路 8 屏 v2</title>
+<style>
+:root{
+  --brand:#E1251B; --brand-deep:#C81E14; --brand-soft:#FDEEEC; --brand-line:#F5C4C0;
+  --accent:#FF9200; --accent-soft:#FFF4E6;
+  --green:#00A66A; --green-soft:#E8F6EF; --green-line:#B9E3D0;
+  --page:#F4F5F7; --card:#FFFFFF; --line:#EDEEF0; --line2:#E3E5E8;
+  --t1:#1A1A1A; --t2:#666A73; --t3:#9AA0A8; --t4:#C9CDD4;
+  --img:#F0F1F3; --imgic:#C7CCD3;
+  --r-s:4px; --r-m:8px; --r-l:12px;
+  --sh:0 1px 2px rgba(20,24,31,.04);
+  --num:"DIN Alternate","Bahnschrift","Helvetica Neue",Arial,sans-serif;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{background:#E9EBEE;font-family:var(--sans);color:var(--t1);padding:40px 32px 64px}
+body.shot{padding:20px;background:#fff}
+body.shot .doc-head,body.shot .unit:not(.on),body.shot .legend{display:none}
+.doc{max-width:1400px;margin:0 auto}
+.doc h1{font-size:22px;font-weight:600}
+.doc h1 em{font-style:normal;color:var(--brand)}
+.doc .sub{margin-top:8px;font-size:13px;line-height:22px;color:#5A5F66;max-width:900px}
+.doc .sub b{color:var(--t1);font-weight:600}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.legend div{border:1px solid var(--line2);background:#fff;border-radius:6px;padding:5px 9px;
+  display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2);font-family:var(--num)}
+.legend i{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.06)}
+.stage{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;margin-top:26px}
+.unit{width:375px}
+.cap{margin-bottom:10px}
+.cap b{font-size:13px;font-weight:600}
+.cap b i{font-style:normal;color:var(--t3);font-family:var(--num);margin-right:6px}
+.cap p{font-size:11px;color:var(--t2);line-height:17px;margin-top:3px}
+
+/* ===== 手机骨架 ===== */
+.phone{width:375px;height:812px;background:var(--page);border-radius:38px;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;
+  box-shadow:0 0 0 10px #17181A,0 0 0 12px #2C2E31,0 24px 60px rgba(20,24,31,.22)}
+.sbar{flex:none;height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  font-size:12px;font-weight:600;font-family:var(--num);background:var(--card)}
+.sbar .r{display:flex;align-items:center;gap:5px}
+.sbar .batt{width:20px;height:10px;border:1px solid var(--t1);border-radius:2px;position:relative}
+.sbar .batt::after{content:"";position:absolute;left:1.5px;top:1.5px;bottom:1.5px;right:6px;background:var(--t1);border-radius:1px}
+.sbar.dk{color:#fff;background:var(--brand)}
+.sbar.dk .batt{border-color:#fff}.sbar.dk .batt::after{background:#fff}
+.sbar.grn{color:#fff;background:#00A66A}
+.sbar.grn .batt{border-color:#fff}.sbar.grn .batt::after{background:#fff}
+.body{flex:1;overflow:hidden;position:relative;background:var(--page)}
+.homi{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:100px;height:4px;border-radius:2px;background:#1A1A1A;opacity:.85}
+
+/* ===== 导航 ===== */
+.nav{flex:none;height:44px;background:var(--card);display:flex;align-items:center;padding:0 12px;position:relative}
+.nav .bk{width:20px;height:20px;color:var(--t1);flex:none}
+.nav .tt{position:absolute;left:50%;transform:translateX(-50%);font-size:16px;font-weight:600}
+.nav .capsule{margin-left:auto;width:62px;height:24px;border:1px solid var(--line2);border-radius:12px;
+  display:flex;align-items:center;justify-content:space-around;font-size:10px;color:var(--t1);background:#fff}
+.nav .rt{margin-left:auto;font-size:12px;color:var(--t2)}
+.nav .sp{width:20px;flex:none}
+.nav.dk{background:var(--brand)}.nav.dk .tt,.nav.dk .bk,.nav.dk .rt{color:#fff}
+.nav.dk .capsule{border-color:rgba(255,255,255,.45);color:#fff;background:rgba(255,255,255,.12)}
+
+/* ===== TabBar ===== */
+.tab{flex:none;height:58px;padding-bottom:9px;background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:flex}
+.tab a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:10px;color:var(--t3);position:relative}
+.tab a svg{width:20px;height:20px}
+.tab a.on{color:var(--brand);font-weight:600}
+.tab .cb{position:absolute;top:3px;right:calc(50% - 18px);min-width:14px;height:14px;padding:0 3px;border-radius:7px;
+  background:var(--brand);color:#fff;font-size:9px;line-height:14px;font-family:var(--num);font-weight:600;text-align:center}
+
+/* ===== 通用原子 ===== */
+.p{color:var(--brand);font-family:var(--num);display:flex;align-items:baseline;gap:2px}
+.p i{font-style:normal;font-size:11px;font-weight:700}
+.p b{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.3px}
+.p s{font-size:11px;color:var(--t3);margin-left:3px}
+.p.lg b{font-size:26px}.p.lg i{font-size:13px}
+.p.sm b{font-size:15px}
+.tags{display:flex;gap:4px;flex-wrap:wrap}
+.tags i{font-style:normal;font-size:9px;line-height:14px;padding:0 4px;border-radius:2px}
+.tg{color:var(--green);border:1px solid var(--green-line)}
+.tr{color:var(--brand);border:1px solid var(--brand-line)}
+.tk{color:var(--t2);border:1px solid var(--line2)}
+.ta{color:#B26A00;border:1px solid #F3D9AE}
+.flag{position:absolute;left:0;top:0;font-size:9px;padding:2px 5px;border-radius:var(--r-s) 0 var(--r-s) 0;
+  background:var(--green);color:#fff;font-weight:500;z-index:2}
+.flag.hot{background:var(--brand)}.flag.orn{background:var(--accent)}
+.ph{background:var(--img);display:flex;align-items:center;justify-content:center;position:relative}
+.ph svg{color:var(--imgic)}
+.btn{height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
+.btn.red{background:var(--brand);color:#fff}
+.btn.orn{background:var(--accent);color:#fff}
+.btn.line{border:1px solid var(--brand);color:var(--brand);background:#fff}
+.btn.gry{border:1px solid var(--line2);color:var(--t2);background:#fff;font-weight:400}
+.btn.sm{height:26px;font-size:11px;border-radius:13px;padding:0 12px;font-weight:500}
+.chk{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--t4);flex:none;display:flex;align-items:center;justify-content:center}
+.chk.on{background:var(--brand);border-color:var(--brand)}
+.chk svg{width:11px;height:11px;color:#fff;display:none}
+.chk.on svg{display:block}
+.stp{display:flex;height:26px;border:1px solid var(--line2);border-radius:4px;overflow:hidden;background:#fff}
+.stp span{width:26px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--t2);background:#F7F8FA}
+.stp span.dis{color:var(--t4)}
+.stp em{font-style:normal;min-width:34px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-family:var(--num);color:var(--t1);border-left:1px solid var(--line2);border-right:1px solid var(--line2)}
+.bar{height:14px;border-radius:7px;background:var(--brand-soft);position:relative;overflow:hidden}
+.bar em{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#FF6F1F,#E1251B);border-radius:7px}
+.bar span{position:absolute;left:0;top:0;bottom:0;padding-left:6px;display:flex;align-items:center;
+  font-size:9px;color:#fff;font-weight:600}
+.chip{height:26px;padding:0 11px;border-radius:13px;background:#F4F5F7;font-size:11px;color:var(--t2);
+  display:flex;align-items:center;gap:3px;flex:none}
+.chip.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.chip svg{width:11px;height:11px}
+.row{display:flex;align-items:center;gap:8px}
+.grow{flex:1;min-width:0}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card{background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh)}
+.sep{height:1px;background:var(--line)}
+.ic{width:18px;height:18px;flex:none}
+
+/* ===== 01 首页 ===== */
+.hd{background:var(--card);padding:6px 12px 10px;display:flex;align-items:center;gap:10px}
+.loc{display:flex;align-items:center;gap:2px;font-size:12px;font-weight:500;flex:none}
+.loc svg{width:13px;height:13px;color:var(--brand)}
+.srch{flex:1;height:32px;background:#F3F4F6;border-radius:16px;display:flex;align-items:center;padding:0 4px 0 10px;gap:6px;border:1px solid #E8E9EC}
+.srch svg{width:14px;height:14px;color:var(--t3);flex:none}
+.srch .ph2{flex:1;font-size:12px;color:var(--t3);white-space:nowrap;overflow:hidden}
+.srch .go{height:24px;padding:0 12px;border-radius:12px;background:var(--brand);color:#fff;font-size:12px;display:flex;align-items:center}
+.cats{background:var(--card);padding:12px 4px 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px 0;
+  border-bottom-left-radius:12px;border-bottom-right-radius:12px}
+.cat{display:flex;flex-direction:column;align-items:center;gap:5px}
+.cat .box{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.cat .box svg{width:20px;height:20px}
+.cat span{font-size:11px;color:var(--t2);line-height:1}
+.cat.on span{color:var(--brand);font-weight:600}
+.c1{background:#FFF1EF}.c1 svg{color:#F04B3E}
+.c2{background:#FFF5E8}.c2 svg{color:#F08A00}
+.c3{background:#EAF7F0}.c3 svg{color:#00A66A}
+.c4{background:#EAF2FD}.c4 svg{color:#2E7CE4}
+.c5{background:#F2EEFB}.c5 svg{color:#7B57D8}
+.c6{background:#E9F6F8}.c6 svg{color:#0E97A8}
+.c7{background:#FDF0F4}.c7 svg{color:#D9497C}
+.c8{background:#F0F4E9}.c8 svg{color:#6E9B28}
+.c9{background:#F4F5F7}.c9 svg{color:#5A6270}
+.c10{background:#FFF5E8}.c10 svg{color:#C8821A}
+.bn{margin:10px 12px 0;height:118px;border-radius:var(--r-m);overflow:hidden;position:relative;
+  background:linear-gradient(100deg,#1C1F24 0%,#3A2220 55%,#7A2A22 100%)}
+.bn .tag2{position:absolute;left:14px;top:14px;font-size:10px;color:#FFD9B0;border:1px solid rgba(255,217,176,.5);padding:2px 6px;letter-spacing:1px}
+.bn h3{position:absolute;left:14px;top:38px;font-size:20px;font-weight:600;color:#fff;letter-spacing:1px}
+.bn p{position:absolute;left:14px;top:68px;font-size:11px;color:rgba(255,255,255,.62)}
+.bn .cta{position:absolute;left:14px;top:90px;font-size:11px;color:#1A1A1A;background:#FFD86B;padding:4px 12px;border-radius:11px;font-weight:600}
+.bn .art{position:absolute;right:16px;top:22px;width:82px;height:82px;opacity:.9}
+.dots{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.dots i{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}
+.dots i.on{width:12px;background:#fff}
+.blk{background:var(--card);margin:10px 12px;border-radius:var(--r-m);padding:12px;box-shadow:var(--sh)}
+.bhd{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.bhd .t{font-size:16px;font-weight:600}
+.bhd .st{font-size:11px;color:var(--t3)}
+.cd{margin-left:auto;display:flex;align-items:center;gap:3px;font-size:11px;color:var(--t2)}
+.cd b{font-family:var(--num);background:#3A3D42;color:#fff;font-size:11px;font-weight:600;padding:1px 3px;border-radius:3px;min-width:16px;text-align:center}
+.sk{display:flex;gap:8px;overflow:hidden}
+.sk .i{width:88px;flex:none}
+.sk .im{width:88px;height:88px;border-radius:6px}
+.sk .im svg{width:44px;height:44px}
+.sk .nm{font-size:11px;color:var(--t2);margin:6px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sk .pr{display:flex;align-items:baseline;gap:3px}
+.sk .pr i{font-style:normal;font-size:10px;color:var(--brand);font-family:var(--num)}
+.sk .pr b{font-family:var(--num);font-size:15px;color:var(--brand);font-weight:700;line-height:1}
+.sk .pr s{font-family:var(--num);font-size:10px;color:var(--t3)}
+.svc{display:flex;background:var(--card);margin:10px 12px;border-radius:var(--r-m);padding:10px 0;box-shadow:var(--sh)}
+.svc div{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--t2);border-right:1px solid var(--line)}
+.svc div:last-child{border-right:none}
+.svc svg{width:13px;height:13px;color:var(--green)}
+.sec-t{display:flex;align-items:center;gap:8px;margin:16px 12px 8px}
+.sec-t i{width:3px;height:14px;background:var(--brand);border-radius:2px}
+.sec-t b{font-size:15px;font-weight:600}
+.sec-t span{font-size:11px;color:var(--t3)}
+.flow{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 16px}
+.pd{background:var(--card);border-radius:var(--r-m);overflow:hidden;box-shadow:var(--sh)}
+.pd .thumb{width:100%;height:152px}
+.pd .thumb svg{width:70px;height:70px}
+.pd .in{padding:8px 9px 10px}
+.pd .nm{font-size:13px;line-height:18px;height:36px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pd .nm u{text-decoration:none;color:var(--brand);font-weight:600}
+.prow{display:flex;align-items:flex-end;justify-content:space-between}
+.add{width:22px;height:22px;border-radius:11px;background:var(--brand);display:flex;align-items:center;justify-content:center}
+.add svg{width:12px;height:12px;color:#fff}
+.sold{font-size:10px;color:var(--t3);font-family:var(--num)}
+
+/* ===== 02 分类 ===== */
+.cwrap{display:flex;height:100%}
+.rail{width:82px;background:#F0F1F3;flex:none;overflow:hidden}
+.rail div{height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:12px;color:var(--t2);position:relative}
+.rail div svg{width:17px;height:17px}
+.rail div.on{background:var(--card);color:var(--brand);font-weight:600;box-shadow:inset 3px 0 0 var(--brand)}
+.cmain{flex:1;background:var(--card);overflow:hidden;display:flex;flex-direction:column}
+.cban{margin:10px;height:62px;border-radius:var(--r-m);background:linear-gradient(100deg,#FFF4F3,#FDEEEC);
+  border:1px solid var(--brand-line);display:flex;align-items:center;padding:0 12px;gap:10px}
+.cban b{font-size:14px;color:var(--brand)}
+.cban p{font-size:10px;color:var(--t2);margin-top:2px}
+.cban svg{width:34px;height:34px;color:var(--brand);opacity:.5;margin-left:auto}
+.cts{display:flex;gap:6px;overflow:hidden;padding:0 10px 10px}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 0;padding:2px 10px 12px}
+.cgrid div{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--t2)}
+.cgrid .im{width:46px;height:46px;border-radius:6px}
+.cgrid .im svg{width:24px;height:24px}
+.clist{padding:0 10px 12px;display:flex;flex-direction:column;gap:10px}
+.li{display:flex;gap:9px}
+.li .thumb{width:78px;height:78px;border-radius:6px;flex:none}
+.li .thumb svg{width:36px;height:36px}
+.li .in{flex:1;min-width:0;display:flex;flex-direction:column}
+.li .nm{font-size:12px;line-height:17px;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.li .sp{font-size:10px;color:var(--t3);margin-top:2px}
+.li .bt{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between}
+.hint{font-size:10px;color:var(--t4);text-align:center;padding:6px 0 12px}
+
+/* ===== 03 商品详情 ===== */
+.hero{width:375px;height:375px}
+.hero svg{width:130px;height:130px}
+.hero .pg{position:absolute;right:12px;bottom:12px;font-size:10px;color:#fff;background:rgba(0,0,0,.35);
+  padding:2px 8px;border-radius:9px;font-family:var(--num)}
+.hero .dots2{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:4px}
+.hero .dots2 i{width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,.18)}
+.hero .dots2 i.on{background:var(--brand);width:5px}
+.pband{background:var(--card);padding:10px 12px 8px}
+.pband .l1{display:flex;align-items:flex-end;justify-content:space-between}
+.pband .sold{font-size:11px;color:var(--t3);padding-bottom:4px}
+.pband .ttl{margin-top:8px;font-size:15px;line-height:22px;font-weight:600}
+.pband .ttl u{text-decoration:none;color:var(--brand);margin-right:4px}
+.pband .sub2{font-size:11px;color:var(--t2);margin-top:4px}
+.pband .tags{margin-top:7px}
+.dline{background:var(--card);padding:0 12px}
+.dline .r{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+.dline .r:last-child{border-bottom:none}
+.dline .lb{color:var(--t3);width:34px;flex:none;line-height:18px}
+.dline .vl{flex:1;color:var(--t1);line-height:18px}
+.dline .vl.g{color:var(--t2)}
+.dline .ar{width:13px;height:13px;color:var(--t4);flex:none;margin-top:2px}
+.specline{display:flex;gap:6px;align-items:center}
+.specline .mini{width:34px;height:34px;border-radius:4px;border:1px solid var(--line2);overflow:hidden}
+.cell{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);font-size:13px}
+.cell svg.l{width:18px;height:18px;color:var(--t2);flex:none}
+.cell .v{margin-left:auto;font-size:12px;color:var(--t3);display:flex;align-items:center;gap:2px}
+.cell .v svg{width:13px;height:13px}
+.grp{background:var(--card);margin-top:8px}
+.grp .h{display:flex;align-items:center;padding:12px 12px 4px;font-size:14px;font-weight:600}
+.grp .h span{margin-left:auto;font-size:11px;color:var(--t3);font-weight:400;display:flex;align-items:center;gap:1px}
+.grp .h span svg{width:12px;height:12px}
+.rev{display:flex;gap:8px;padding:10px 12px 12px}
+.rev .av{width:26px;height:26px;border-radius:50%;background:var(--img);flex:none;display:flex;align-items:center;justify-content:center}
+.rev .av svg{width:14px;height:14px;color:var(--imgic)}
+.rev .tx{font-size:12px;line-height:18px;color:var(--t1)}
+.rev .mt{font-size:10px;color:var(--t3);margin-top:4px}
+.kv{display:flex;padding:0 12px 12px;flex-wrap:wrap}
+.kv div{width:50%;font-size:11px;color:var(--t2);line-height:24px;display:flex;gap:6px}
+.kv div b{color:var(--t1);font-weight:400;width:44px;flex:none;color:var(--t3)}
+.cbar{flex:none;height:58px;padding-bottom:9px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;padding-left:4px;padding-right:8px}
+.cbar .fn{width:48px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:var(--t2)}
+.cbar .fn svg{width:17px;height:17px}
+.cbar .btn{flex:1;margin-left:6px;height:42px;border-radius:21px;font-size:13px}
+
+/* ===== 04 购物车 ===== */
+.promo{margin:8px 12px;background:var(--brand-soft);border-radius:var(--r-m);padding:9px 12px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--brand)}
+.promo svg{width:14px;height:14px}
+.promo b{margin-left:auto;font-weight:600;display:flex;align-items:center;gap:1px}
+.promo b svg{width:12px;height:12px}
+.shop{margin:0 12px 8px;background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh);overflow:hidden}
+.shop .sh{display:flex;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
+.shop .sh .zb{font-size:9px;font-weight:400;background:var(--green);color:#fff;padding:1px 4px;border-radius:2px}
+.shop .sh svg{width:12px;height:12px;color:var(--t4);margin-left:auto}
+.crow{display:flex;gap:9px;padding:12px;align-items:flex-start}
+.crow .thumb{width:78px;height:78px;border-radius:6px;flex:none}
+.crow .thumb svg{width:36px;height:36px}
+.crow .in{flex:1;min-width:0}
+.crow .nm{font-size:12px;line-height:17px;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.crow .spec{margin-top:5px;display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--t2);background:#F4F5F7;border-radius:3px;padding:2px 6px}
+.crow .spec svg{width:8px;height:8px}
+.crow .b1{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
+.crow.off{opacity:.55}
+.crow.off .nm{color:var(--t2)}
+.shop .acts{display:flex;justify-content:flex-end;gap:8px;padding:0 12px 12px}
+.gtotal{background:var(--card);margin:0 12px 8px;border-radius:var(--r-m);padding:10px 12px;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2);box-shadow:var(--sh)}
+.gtotal b{margin-left:auto;font-family:var(--num);font-size:12px;color:var(--t1)}
+.gtotal b u{text-decoration:none;color:var(--brand);font-size:16px;font-weight:700}
+.settle{flex:none;height:58px;padding-bottom:9px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;padding-left:12px;padding-right:10px;gap:8px}
+.settle .all{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t1)}
+.settle .amt{margin-left:auto;text-align:right}
+.settle .amt .l{font-size:10px;color:var(--t2)}
+.settle .amt .v{display:flex;align-items:baseline;justify-content:flex-end;gap:2px}
+.settle .amt .v i{font-style:normal;font-family:var(--num);font-size:11px;color:var(--brand);font-weight:700}
+.settle .amt .v b{font-family:var(--num);font-size:20px;color:var(--brand);font-weight:700;line-height:1}
+.settle .btn{width:104px;height:42px;border-radius:21px}
+
+/* ===== 05 我的 ===== */
+.mhd{background:var(--card);padding:14px 14px 16px;display:flex;align-items:center;gap:12px}
+.mhd .av{width:52px;height:52px;border-radius:50%;background:var(--img);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;flex:none}
+.mhd .av svg{width:26px;height:26px;color:var(--imgic)}
+.mhd .nn{font-size:16px;font-weight:600}
+.mhd .mm{font-size:11px;color:var(--t3);margin-top:4px;display:flex;align-items:center;gap:5px}
+.mhd .mm u{text-decoration:none;color:#B26A00;background:#FFF4E6;border:1px solid #F3D9AE;border-radius:2px;padding:0 4px;font-size:9px}
+.mhd .qr{margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--t3)}
+.mhd .qr svg{width:17px;height:17px;color:var(--t2)}
+.ord{margin:8px 12px;background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh);padding:12px 0 14px}
+.ord .h{display:flex;align-items:center;padding:0 12px 12px;font-size:14px;font-weight:600}
+.ord .h span{margin-left:auto;font-size:11px;color:var(--t3);font-weight:400;display:flex;align-items:center;gap:1px}
+.ord .h span svg{width:12px;height:12px}
+.ord .g{display:grid;grid-template-columns:repeat(5,1fr)}
+.ord .g div{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:var(--t2);position:relative}
+.ord .g svg{width:21px;height:21px;color:var(--t1)}
+.ord .g .cb{position:absolute;top:-4px;right:calc(50% - 20px);min-width:14px;height:14px;padding:0 3px;border-radius:7px;background:var(--brand);color:#fff;font-size:9px;line-height:14px;font-family:var(--num);font-weight:600;text-align:center}
+.ast{margin:0 12px 8px;background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh);display:flex;padding:12px 0}
+.ast div{flex:1;text-align:center;border-right:1px solid var(--line)}
+.ast div:last-child{border-right:none}
+.ast b{display:block;font-family:var(--num);font-size:17px;font-weight:700}
+.ast span{font-size:10px;color:var(--t3)}
+.menu{margin:0 12px 8px;background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh);overflow:hidden}
+.menu .t{font-size:13px;font-weight:600;padding:12px 12px 2px}
+.menu .m{display:flex;align-items:center;gap:10px;padding:12px;font-size:13px;border-bottom:1px solid var(--line)}
+.menu .m:last-child{border-bottom:none}
+.menu .m svg.l{width:18px;height:18px;color:var(--t2)}
+.menu .m .v{margin-left:auto;font-size:11px;color:var(--t3);display:flex;align-items:center;gap:2px}
+.menu .m .v svg{width:12px;height:12px}
+.menu .m .dot{margin-left:auto;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+
+/* ===== 06 溯源 ===== */
+.trhero{background:linear-gradient(160deg,#00A66A,#00805A);padding:58px 14px 40px;color:#fff}
+.trhero .l1{display:flex;align-items:center;gap:8px}
+.trhero .l1 .ok{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;background:rgba(255,255,255,.18);padding:3px 9px;border-radius:11px}
+.trhero .l1 .ok svg{width:12px;height:12px}
+.trhero h3{font-size:17px;font-weight:600;margin-top:12px}
+.trhero .code{font-family:var(--num);font-size:12px;opacity:.85;margin-top:5px;letter-spacing:.5px}
+.trcard{margin:-30px 12px 0;background:var(--card);border-radius:var(--r-m);box-shadow:0 4px 16px rgba(20,24,31,.08);padding:12px;display:flex;gap:10px;position:relative}
+.trcard .thumb{width:60px;height:60px;border-radius:6px;flex:none}
+.trcard .thumb svg{width:28px;height:28px}
+.trcard .nm{font-size:13px;font-weight:600;line-height:19px}
+.trcard .mt{font-size:10px;color:var(--t3);margin-top:4px;line-height:16px}
+.tl{margin:8px 12px;background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh);padding:14px 12px 6px}
+.tl .h{font-size:14px;font-weight:600;margin-bottom:12px}
+.tl .n{display:flex;gap:10px;position:relative;padding-bottom:16px}
+.tl .n::before{content:"";position:absolute;left:5px;top:14px;bottom:-2px;width:1px;background:var(--line2)}
+.tl .n:last-child::before{display:none}
+.tl .n .d{width:11px;height:11px;border-radius:50%;border:2px solid var(--t4);background:#fff;flex:none;margin-top:3px;z-index:1}
+.tl .n.done .d{border-color:var(--green);background:var(--green)}
+.tl .n.cur .d{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px var(--brand-soft)}
+.tl .n .in{flex:1}
+.tl .n .tt{font-size:13px;color:var(--t1);display:flex;align-items:center;gap:6px}
+.tl .n.cur .tt{font-weight:600;color:var(--brand)}
+.tl .n .tt u{text-decoration:none;font-size:9px;color:var(--green);border:1px solid var(--green-line);padding:0 4px;border-radius:2px}
+.tl .n .ds{font-size:11px;color:var(--t2);margin-top:3px;line-height:16px}
+.tl .n .mt{font-size:10px;color:var(--t3);font-family:var(--num);margin-top:2px}
+.cert{margin:8px 12px;background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh);padding:12px}
+.cert .h{font-size:14px;font-weight:600;margin-bottom:10px}
+.cert .g{display:flex;gap:8px}
+.cert .c{flex:1;border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+.cert .c .im{height:78px;background:#FAFBFC;display:flex;align-items:center;justify-content:center}
+.cert .c .im svg{width:30px;height:30px;color:var(--t4)}
+.cert .c .in{padding:6px 8px}
+.cert .c .nm{font-size:11px;font-weight:600}
+.cert .c .no{font-size:9px;color:var(--t3);font-family:var(--num);margin-top:2px}
+.map{margin:8px 12px;background:var(--card);border-radius:var(--r-m);box-shadow:var(--sh);overflow:hidden}
+.map .m{height:118px;background:
+  repeating-linear-gradient(0deg,#EEF1F3,#EEF1F3 1px,transparent 1px,transparent 22px),
+  repeating-linear-gradient(90deg,#EEF1F3,#EEF1F3 1px,transparent 1px,transparent 22px),#F7F8FA;
+  position:relative;display:flex;align-items:center;justify-content:center}
+.map .m svg{width:26px;height:26px;color:var(--brand)}
+.map .m .pin2{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);width:26px;height:26px;
+  background:var(--brand);border-radius:50% 50% 50% 0;rotate:-45deg;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 8px rgba(225,37,27,.4)}
+.map .m .pin2 i{width:8px;height:8px;border-radius:50%;background:#fff}
+.map .in{padding:10px 12px}
+.map .r{display:flex;font-size:11px;color:var(--t2);line-height:20px}
+.map .r b{color:var(--t1);font-weight:400;width:56px;flex:none;color:var(--t3)}
+.chain{margin:8px 12px 14px;background:#1C1F24;border-radius:var(--r-m);padding:12px;color:#fff}
+.chain .h{font-size:12px;display:flex;align-items:center;gap:6px}
+.chain .h svg{width:14px;height:14px;color:#FFD86B}
+.chain .h span{margin-left:auto;font-size:9px;color:#7E858F;font-family:var(--num)}
+.chain .hash{font-family:var(--num);font-size:10px;color:#9DA5B0;line-height:16px;margin-top:8px;word-break:break-all}
+.chain .hash b{color:#4FD08E;font-weight:400}
+
+/* ===== 07 AI 客服 ===== */
+.aibody{background:#F6F7F9;padding:12px;display:flex;flex-direction:column;gap:12px}
+.aime{display:flex;gap:8px;align-items:flex-start}
+.aime.me{flex-direction:row-reverse}
+.aime .av{width:30px;height:30px;border-radius:6px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--brand)}
+.aime .av svg{width:17px;height:17px;color:#fff}
+.aime.me .av{background:var(--img)}
+.aime.me .av svg{color:var(--imgic)}
+.aime .bx{max-width:262px;background:var(--card);border-radius:2px 10px 10px 10px;padding:9px 11px;font-size:13px;line-height:20px;box-shadow:var(--sh)}
+.aime.me .bx{background:#C9E7FF;border-radius:10px 2px 10px 10px}
+.aibx{max-width:262px;display:flex;flex-direction:column;gap:6px}
+.aibx .bx{background:var(--card);border-radius:2px 10px 10px 10px;padding:9px 11px;font-size:13px;line-height:20px;box-shadow:var(--sh)}
+.rec{display:flex;gap:8px;overflow:hidden}
+.rec .i{width:104px;flex:none;background:var(--card);border-radius:6px;overflow:hidden;box-shadow:var(--sh)}
+.rec .im{width:104px;height:80px}
+.rec .im svg{width:38px;height:38px}
+.rec .in{padding:5px 6px 7px}
+.rec .nm{font-size:10px;line-height:14px;height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.rec .p{margin-top:3px}
+.rec .p b{font-size:13px}
+.basis{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t3);padding-left:38px}
+.basis svg{width:11px;height:11px}
+.ask{display:flex;flex-wrap:wrap;gap:6px;padding-left:38px}
+.ask .chip{height:28px;background:var(--card);border:1px solid var(--line2);color:var(--t1);font-size:11px}
+.aibar{flex:none;height:58px;padding-bottom:9px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding-left:10px;padding-right:10px}
+.aibar .in{flex:1;height:34px;background:#F3F4F6;border:1px solid var(--line2);border-radius:17px;display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--t3)}
+.aibar .fn{width:26px;display:flex;align-items:center;justify-content:center;color:var(--t2)}
+.aibar .fn svg{width:21px;height:21px}
+.aibar .send{width:56px;height:30px;border-radius:15px;background:var(--brand);color:#fff;font-size:12px;
+  display:flex;align-items:center;justify-content:center;font-weight:600}
+
+/* ===== 08 秒杀 ===== */
+.snav{background:var(--brand);color:#fff;padding:6px 12px 10px}
+.snav .l{display:flex;align-items:center;gap:10px}
+.snav .bk{width:20px;height:20px;color:#fff}
+.snav .tt{font-size:17px;font-weight:600;letter-spacing:.5px}
+.snav .capsule{margin-left:auto;width:62px;height:22px;border:1px solid rgba(255,255,255,.4);border-radius:11px;
+  display:flex;align-items:center;justify-content:space-around;font-size:10px;background:rgba(255,255,255,.12)}
+.snav .cd{display:flex;align-items:center;gap:5px;font-size:11px;margin-top:10px;opacity:.92}
+.snav .cd b{font-family:var(--num);background:rgba(0,0,0,.28);color:#fff;font-size:12px;font-weight:600;
+  padding:1px 4px;border-radius:3px;min-width:18px;text-align:center}
+.sessions{background:var(--brand);display:flex;padding:0 6px 10px;gap:2px}
+.sessions div{flex:1;text-align:center;padding:8px 0;border-radius:var(--r-m) var(--r-m) 0 0;position:relative}
+.sessions .tm{font-family:var(--num);font-size:15px;font-weight:700;color:rgba(255,255,255,.7);line-height:1}
+.sessions .st{font-size:9px;color:rgba(255,255,255,.6);margin-top:3px}
+.sessions div.on{background:var(--page)}
+.sessions div.on .tm{color:var(--brand)}
+.sessions div.on .st{color:var(--brand)}
+.sessions div.on::after{content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);
+  border:5px solid transparent;border-bottom-color:var(--page)}
+.sessions div.dis .tm{color:rgba(255,255,255,.38)}
+.sflow{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px 16px}
+.scard{background:var(--card);border-radius:var(--r-m);overflow:hidden;box-shadow:var(--sh);padding-bottom:9px}
+.scard .thumb{width:100%;height:130px}
+.scard .thumb svg{width:58px;height:58px}
+.scard .in{padding:8px 9px 0}
+.scard .nm{font-size:12px;line-height:17px;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.scard .p2{display:flex;align-items:baseline;gap:4px;margin-top:6px}
+.scard .p2 i{font-style:normal;font-family:var(--num);font-size:10px;color:var(--brand);font-weight:700}
+.scard .p2 b{font-family:var(--num);font-size:19px;color:var(--brand);font-weight:700;line-height:1}
+.scard .p2 s{font-family:var(--num);font-size:10px;color:var(--t3)}
+.scard .bar{margin-top:7px}
+.scard .go{margin:9px 9px 0;height:30px;border-radius:15px;background:var(--brand);color:#fff;
+  font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:3px}
+.scard .go svg{width:12px;height:12px}
+.scard.lock{opacity:.6}
+.scard.lock .go{background:#fff;border:1px solid var(--brand);color:var(--brand)}
+.scard.sold-out .go{background:#F4F5F7;color:var(--t3)}
+.scard.sold-out .thumb{filter:grayscale(1)}
+.sold-out-tag{position:absolute;inset:0;background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--t2);font-weight:600;letter-spacing:1px}
+
+/* 底部渐隐，暗示可滚动 */
+.body.fade::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34px;
+  background:linear-gradient(transparent,var(--page));pointer-events:none}
+</style>
+</head>
+<body>
+<svg style="display:none">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16H6l1.4-2.3V10a4.6 4.6 0 119.2 0v3.7z"/><path d="M10 19a2 2 0 004 0"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16M4 12h16"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V19a1 1 0 01-1 1h-4v-5h-6v5H5a1 1 0 01-1-1z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h2.2l2.3 10.4h9.7L20 8H6"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c1.2-3.4 3.9-5 7-5s5.8 1.6 7 5"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5c-1.2-1.5-3.2-2-4.7-1.2C5.3 7.4 4.5 10.5 5.6 13.6 6.6 16.4 8.4 20 10.3 20c.8 0 1.2-.5 1.7-.5s.9.5 1.7.5c1.9 0 3.7-3.6 4.7-6.4 1.1-3.1.3-6.2-1.7-7.3-1.5-.8-3.5-.3-4.7 1.2z"/><path d="M12 7.5c0-2 1-3.4 3-4"/></symbol>
+  <symbol id="i-rice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0116 0z"/><path d="M3 13h18v3.5A2.5 2.5 0 0118.5 19h-13A2.5 2.5 0 013 16.5z"/><path d="M9 10.5c.8-.8.8-2 0-2.8M13.5 10c.6-.6.6-1.6 0-2.2"/></symbol>
+  <symbol id="i-egg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c3.6 0 6.5 4.6 6.5 9.2A6.5 6.5 0 015.5 12.2C5.5 7.6 8.4 3 12 3z"/></symbol>
+  <symbol id="i-fish" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4.5 7-6.5 11-6.5 3.5 0 6 2 6.5 6.5-.5 4.5-3 6.5-6.5 6.5-4 0-8-2-11-6.5z"/><path d="M17.5 11h.01"/><path d="M3 12l-1-3.5M3 12l-1 3.5"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h11v7a5.5 5.5 0 01-11 0z"/><path d="M16 9h2a2.2 2.2 0 010 4.4h-2"/><path d="M4 21h13"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13"/><path d="M12 7S10.5 3.5 8.3 4.2C6.6 4.8 7.5 7 12 7zM12 7s1.5-3.5 3.7-2.8C17.4 4.8 16.5 7 12 7z"/></symbol>
+  <symbol id="i-milk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3l2 3v9a1 1 0 01-1 1H8a1 1 0 01-1-1v-9l2-3z"/><path d="M7 12h10"/></symbol>
+  <symbol id="i-pot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16v6a4 4 0 01-4 4H8a4 4 0 01-4-4z"/><path d="M2 11h2M20 11h2M9 6c0-1.5 1-2 1.5-3M14 6c0-1.5 1-2 1.5-3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.6v5.6c0 4.4-2.9 7.7-7 9.2-4.1-1.5-7-4.8-7-9.2V5.6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A1.5 1.5 0 014.5 7h15A1.5 1.5 0 0121 8.5v2a2 2 0 000 3.9v1.1A1.5 1.5 0 0119.5 17h-15A1.5 1.5 0 013 15.5v-1.1a2 2 0 000-3.9z"/><path d="M12 8v2M12 14v2"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8"/><circle cx="6.5" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2L5 13.2h4.6L8.5 22 19 9.8h-4.9z"/></symbol>
+  <symbol id="i-basket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5h18l-1.7 8.2a2.5 2.5 0 01-2.5 2H7.2a2.5 2.5 0 01-2.5-2z"/><path d="M8 9.5L11 3M16 9.5L13 3"/></symbol>
+  <symbol id="i-grain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 12c-3 0-4.5-2-4.5-4.5C10 7.5 12 9.2 12 12zM12 12c3 0 4.5-2 4.5-4.5C14 7.5 12 9.2 12 12zM12 17c-3 0-4.5-2-4.5-4.5C10 12.5 12 14.2 12 17zM12 17c3 0 4.5-2 4.5-4.5C14 12.5 12 14.2 12 17z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5L12 4l8 4.5v7L12 20l-8-4.5z"/><path d="M4 8.5L12 13l8-4.5M12 13v7"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-9.4A4.1 4.1 0 0112 8.4a4.1 4.1 0 017.5 2.2C19.5 15.4 12 20 12 20z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8-5.4 2.8 1-6L3.3 9.9l6-.9z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8.5 7.5L12 4l3.5 3.5"/><path d="M5 13v6h14v-6"/></symbol>
+  <symbol id="i-service" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><path d="M4 13h2.5v6H5.5A1.5 1.5 0 014 17.5zM20 13h-2.5v6h1A1.5 1.5 0 0020 17.5z"/><path d="M17.5 19c0 1.7-2.3 2.8-5.5 2.8"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12.5h5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 014.5 6H18v3"/><path d="M3 8h18v10.5A1.5 1.5 0 0119.5 20h-15A1.5 1.5 0 013 18.5z"/><path d="M17 14h1.5"/></symbol>
+  <symbol id="i-refund" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a8 8 0 1113 6.7"/><path d="M4 5v5h5"/><path d="M12 8.5v4l2.5 1.5"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L20 8l-4-4L4 16z"/><path d="M14.5 5.5l4 4"/></symbol>
+  <symbol id="i-addr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h6"/></symbol>
+  <symbol id="i-set" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 8h9M19 8h1M4 16h4M12 16h8"/><circle cx="16" cy="8" r="2.4"/><circle cx="9.4" cy="16" r="2.4"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h3v3h-3zM20 14v6h-3"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 010-5.7l2-2a4 4 0 015.7 5.7l-1 1"/><path d="M14 10a4 4 0 010 5.7l-2 2A4 4 0 016.3 12l1-1"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 12a6.5 6.5 0 0013 0M12 18.5V21"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-2.5-6z"/><path d="M11.5 14L20 4"/></symbol>
+  <symbol id="i-robot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 4v3M9 12h.01M15 12h.01M9.5 15.5h5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h11M4 17h6"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l1.5-2h7L17 8h4v11H3z"/><circle cx="12" cy="13.5" r="3.2"/></symbol>
+  <symbol id="i-crown" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8l4 3 5-7 5 7 4-3-2 11H5z"/></symbol>
+</svg>
+
+<div class="doc">
+  <div class="doc-head">
+    <h1>山货集市 <em>·</em> 品质电商风 全链路 8 屏 v2</h1>
+    <p class="sub">
+      统一沿用已批准的首页规范：<b>中性灰底 #F4F5F7 + 纯白卡片</b>两层结构，品牌红 <b>#E1251B</b> 只用于价格、CTA、选中态，
+      绿色 <b>#00A66A</b> 专用于服务承诺与溯源，橙色 <b>#FF9200</b> 专用于加入购物车。所有元素落在 4px 栅格上，
+      商品卡定高、价格用等宽数字。首页不放 AI 入口，AI 客服从「我的 → AI 智能客服」进入。
+    </p>
+    <div class="legend">
+      <div><i style="background:#E1251B"></i>brand #E1251B</div>
+      <div><i style="background:#FF9200"></i>cart #FF9200</div>
+      <div><i style="background:#00A66A"></i>green #00A66A</div>
+      <div><i style="background:#FDEEEC;border-color:#F5C4C0"></i>brand-soft</div>
+      <div><i style="background:#F4F5F7"></i>page #F4F5F7</div>
+      <div><i style="background:#fff"></i>card #FFFFFF</div>
+      <div><i style="background:#1A1A1A"></i>text-1 #1A1A1A</div>
+      <div><i style="background:#666A73"></i>text-2 #666A73</div>
+      <div><i style="background:#9AA0A8"></i>text-3 #9AA0A8</div>
+      <div><i style="background:#EDEEF0"></i>line #EDEEF0</div>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <!-- ============ 01 首页 ============ -->
+    <div class="unit" data-i="1">
+      <div class="cap"><b><i>01</i>首页</b><p>定位+扫码搜索 / 10 宫格频道 / 大促 Banner / 秒杀货架 / 服务承诺 / 定高双列推荐流</p></div>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="body fade">
+          <div class="hd">
+            <div class="loc"><svg><use href="#i-pin"/></svg>南昌<svg style="width:10px;height:10px;color:#9AA0A8"><use href="#i-down"/></svg></div>
+            <div class="srch"><svg><use href="#i-scan"/></svg><div class="ph2">赣南脐橙 · 当季新米</div><div class="go">搜索</div></div>
+            <svg class="ic" style="color:var(--t2)"><use href="#i-bell"/></svg>
+          </div>
+          <div class="cats">
+            <div class="cat on"><div class="box c1"><svg><use href="#i-apple"/></svg></div><span>水果蔬菜</span></div>
+            <div class="cat"><div class="box c2"><svg><use href="#i-rice"/></svg></div><span>米面粮油</span></div>
+            <div class="cat"><div class="box c3"><svg><use href="#i-egg"/></svg></div><span>禽蛋肉禽</span></div>
+            <div class="cat"><div class="box c4"><svg><use href="#i-fish"/></svg></div><span>水产海鲜</span></div>
+            <div class="cat"><div class="box c5"><svg><use href="#i-cup"/></svg></div><span>茶酒饮料</span></div>
+            <div class="cat"><div class="box c6"><svg><use href="#i-milk"/></svg></div><span>乳品烘焙</span></div>
+            <div class="cat"><div class="box c7"><svg><use href="#i-gift"/></svg></div><span>零食特产</span></div>
+            <div class="cat"><div class="box c8"><svg><use href="#i-pot"/></svg></div><span>调味速食</span></div>
+            <div class="cat"><div class="box c9"><svg><use href="#i-shield"/></svg></div><span>产地溯源</span></div>
+            <div class="cat"><div class="box c10"><svg><use href="#i-ticket"/></svg></div><span>领券中心</span></div>
+          </div>
+          <div class="bn">
+            <div class="tag2">产地直发</div><h3>秋收尝鲜季</h3><p>全国 8 大产区 · 满 99 减 20</p><div class="cta">立即抢购</div>
+            <svg class="art" style="color:rgba(255,216,107,.85)"><use href="#i-basket"/></svg>
+            <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="blk">
+            <div class="bhd">
+              <svg style="width:15px;height:15px;color:var(--accent);align-self:center"><use href="#i-bolt"/></svg>
+              <span class="t" style="color:var(--brand)">限时秒杀</span>
+              <div class="cd"><b>01</b>:<b>24</b>:<b>38</b></div>
+            </div>
+            <div class="sk">
+              <div class="i"><div class="im ph"><svg><use href="#i-apple"/></svg></div><div class="nm">烟台红富士 5斤</div><div class="pr"><i>¥</i><b>19.9</b><s>39.9</s></div><div class="bar"><em style="width:88%"></em><span>已抢 88%</span></div></div>
+              <div class="i"><div class="im ph"><svg><use href="#i-rice"/></svg></div><div class="nm">五常稻花香 5kg</div><div class="pr"><i>¥</i><b>45.0</b><s>68.0</s></div><div class="bar"><em style="width:76%"></em><span>已抢 76%</span></div></div>
+              <div class="i"><div class="im ph"><svg><use href="#i-egg"/></svg></div><div class="nm">农家土鸡蛋 30枚</div><div class="pr"><i>¥</i><b>22.9</b><s>32.9</s></div><div class="bar"><em style="width:62%"></em><span>已抢 62%</span></div></div>
+              <div class="i"><div class="im ph"><svg><use href="#i-grain"/></svg></div><div class="nm">云南蒙自石榴 6斤</div><div class="pr"><i>¥</i><b>16.9</b><s>29.9</s></div><div class="bar"><em style="width:58%"></em><span>已抢 58%</span></div></div>
+            </div>
+          </div>
+          <div class="svc">
+            <div><svg><use href="#i-shield"/></svg>坏果包赔</div>
+            <div><svg><use href="#i-truck"/></svg>顺丰包邮</div>
+            <div><svg><use href="#i-box"/></svg>产地溯源</div>
+          </div>
+          <div class="sec-t"><i></i><b>为你推荐</b><span>根据你的浏览偏好</span></div>
+          <div class="flow">
+            <div class="pd">
+              <div class="thumb ph"><span class="flag">自营</span><svg><use href="#i-apple"/></svg></div>
+              <div class="in">
+                <div class="nm"><u>产地直发</u> 赣南脐橙 手剥橙 5斤装 果径70-75mm</div>
+                <div class="tags" style="margin:6px 0"><i class="tg">顺丰包邮</i><i class="tr">满99减20</i><i class="tk">坏果包赔</i></div>
+                <div class="prow"><div class="p"><i>¥</i><b>29.9</b><s>45.9</s></div><div class="add"><svg><use href="#i-plus"/></svg></div></div>
+                <div class="sold" style="margin-top:5px">已售 2.3万 · 好评 98%</div>
+              </div>
+            </div>
+            <div class="pd">
+              <div class="thumb ph"><span class="flag hot">当季</span><svg><use href="#i-rice"/></svg></div>
+              <div class="in">
+                <div class="nm"><u>五常核心产区</u> 稻花香2号 新米 10kg 真空装</div>
+                <div class="tags" style="margin:6px 0"><i class="tg">产地溯源</i><i class="tk">24h发货</i></div>
+                <div class="prow"><div class="p"><i>¥</i><b>89.0</b><s>128.0</s></div><div class="add"><svg><use href="#i-plus"/></svg></div></div>
+                <div class="sold" style="margin-top:5px">已售 8900 · 好评 99%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab">
+          <a class="on"><svg><use href="#i-home"/></svg>首页</a>
+          <a><svg><use href="#i-grid"/></svg>分类</a>
+          <a><svg><use href="#i-cart"/></svg>购物车<span class="cb">3</span></a>
+          <a><svg><use href="#i-user"/></svg>我的</a>
+        </div>
+        <div class="homi"></div>
+      </div>
+    </div>
+
+    <!-- ============ 02 分类 ============ -->
+    <div class="unit" data-i="2">
+      <div class="cap"><b><i>02</i>分类</b><p>左侧一级导轨（选中态白底+红条）/ 右侧 Banner + 子类图标网格 + 单列横卡列表</p></div>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="body" style="background:#fff">
+          <div class="hd" style="padding-top:8px">
+            <div class="srch"><svg><use href="#i-search"/></svg><div class="ph2">搜索分类内商品</div></div>
+            <svg class="ic" style="color:var(--t2)"><use href="#i-scan"/></svg>
+          </div>
+          <div class="cwrap">
+            <div class="rail">
+              <div class="on"><svg><use href="#i-apple"/></svg>水果蔬菜</div>
+              <div><svg><use href="#i-rice"/></svg>米面粮油</div>
+              <div><svg><use href="#i-egg"/></svg>禽蛋肉禽</div>
+              <div><svg><use href="#i-fish"/></svg>水产海鲜</div>
+              <div><svg><use href="#i-cup"/></svg>茶酒饮料</div>
+              <div><svg><use href="#i-milk"/></svg>乳品烘焙</div>
+              <div><svg><use href="#i-gift"/></svg>零食特产</div>
+              <div><svg><use href="#i-pot"/></svg>调味速食</div>
+            </div>
+            <div class="cmain">
+              <div class="cban">
+                <div><b>当季鲜果节</b><p>脐橙 / 石榴 / 苹果 全场 2 件 9 折</p></div>
+                <svg><use href="#i-basket"/></svg>
+              </div>
+              <div class="cts">
+                <div class="chip on">综合</div><div class="chip">销量</div><div class="chip">价格<svg><use href="#i-down"/></svg></div><div class="chip">自营</div><div class="chip">当季</div>
+              </div>
+              <div style="padding:0 10px 6px;font-size:12px;font-weight:600;color:var(--t2)">柑橘类</div>
+              <div class="cgrid">
+                <div><div class="im ph"><svg><use href="#i-apple"/></svg></div><span>脐橙</span></div>
+                <div><div class="im ph"><svg><use href="#i-grain"/></svg></div><span>砂糖橘</span></div>
+                <div><div class="im ph"><svg><use href="#i-apple"/></svg></div><span>柚子</span></div>
+                <div><div class="im ph"><svg><use href="#i-gift"/></svg></div><span>柠檬</span></div>
+              </div>
+              <div class="sep"></div>
+              <div class="clist">
+                <div class="li">
+                  <div class="thumb ph"><span class="flag">自营</span><svg><use href="#i-apple"/></svg></div>
+                  <div class="in">
+                    <div class="nm">赣南脐橙 手剥橙 5斤装 果径70-75mm 产地直发</div>
+                    <div class="sp">已选规格 5斤 · 中果</div>
+                    <div class="bt"><div class="p sm"><i>¥</i><b>29.9</b><s>45.9</s></div><div class="add"><svg><use href="#i-plus"/></svg></div></div>
+                  </div>
+                </div>
+                <div class="li">
+                  <div class="thumb ph"><svg><use href="#i-grain"/></svg></div>
+                  <div class="in">
+                    <div class="nm">云南蒙自软籽石榴 6斤 礼盒装 现摘现发</div>
+                    <div class="sp">2 种规格可选 · 3/5/6斤</div>
+                    <div class="bt"><div class="p sm"><i>¥</i><b>19.9</b><s>29.9</s></div><div class="add"><svg><use href="#i-plus"/></svg></div></div>
+                  </div>
+                </div>
+                <div class="li">
+                  <div class="thumb ph"><span class="flag orn">2件9折</span><svg><use href="#i-apple"/></svg></div>
+                  <div class="in">
+                    <div class="nm">陕西洛川红富士苹果 5斤 脆甜冰糖心</div>
+                    <div class="sp">好评 98% · 已售 1.2万</div>
+                    <div class="bt"><div class="p sm"><i>¥</i><b>24.9</b><s>39.9</s></div><div class="add"><svg><use href="#i-plus"/></svg></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="hint">— 以上为「水果蔬菜」全部商品 —</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab">
+          <a><svg><use href="#i-home"/></svg>首页</a>
+          <a class="on"><svg><use href="#i-grid"/></svg>分类</a>
+          <a><svg><use href="#i-cart"/></svg>购物车<span class="cb">3</span></a>
+          <a><svg><use href="#i-user"/></svg>我的</a>
+        </div>
+        <div class="homi"></div>
+      </div>
+    </div>
+
+    <!-- ============ 03 商品详情 ============ -->
+    <div class="unit" data-i="3">
+      <div class="cap"><b><i>03</i>商品详情</b><p>1:1 主图 / 价格带 + 标题 + 券标签 / 规格·配送·服务 / 口碑摘要 / 参数表 / 双按钮操作栏</p></div>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="body fade">
+          <div class="ph hero"><svg><use href="#i-apple"/></svg>
+            <div class="pg">1/5</div>
+            <div class="dots2"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="pband">
+            <div class="l1">
+              <div class="p lg"><i>¥</i><b>29.90</b><s>¥45.90</s></div>
+              <div class="sold">已售 2.3万</div>
+            </div>
+            <div class="ttl"><u>产地直发</u>赣南脐橙 手剥橙 5斤装 单果 70-75mm 现摘现发</div>
+            <div class="sub2">皮薄多汁 · 顺丰冷链 · 坏果包赔 · 30 天质保</div>
+            <div class="tags">
+              <i class="tr">券 满99减20</i><i class="tr">2件9折</i><i class="tg">会员再省2元</i>
+            </div>
+          </div>
+          <div class="dline" style="margin-top:8px">
+            <div class="r"><div class="lb">已选</div><div class="vl">5斤装 中果 70-75mm · 1 件</div><svg class="ar"><use href="#i-right"/></svg></div>
+            <div class="r"><div class="lb">服务</div><div class="vl g">坏果包赔 · 顺丰包邮 · 产地直发 · 7天无理由</div><svg class="ar"><use href="#i-right"/></svg></div>
+            <div class="r"><div class="lb">配送</div><div class="vl g">江西南昌 · 明日达 · 满99免运费</div></div>
+            <div class="r"><div class="lb">参数</div><div class="vl g">产地 江西赣州 · 净含量 2500g · 保质期 15 天</div><svg class="ar"><use href="#i-right"/></svg></div>
+          </div>
+          <div class="grp">
+            <div class="h">商品评价（2.3万）<span>好评 98%<svg><use href="#i-right"/></svg></span></div>
+            <div style="padding:8px 12px 0"><div class="tags"><i class="tg">口感好 1820</i><i class="tg">很新鲜 1264</i><i class="tg">包装好 986</i><i class="tk">偏酸 42</i></div></div>
+            <div class="rev">
+              <div class="av"><svg><use href="#i-user"/></svg></div>
+              <div class="grow">
+                <div class="tx">第三次回购了，个头均匀，剥开汁水很足，比超市甜。包装每个都有网套，没有坏果。</div>
+                <div class="mt">158****2043 · 5斤装 · 2026-09-28</div>
+              </div>
+            </div>
+          </div>
+          <div class="grp" style="margin-bottom:12px">
+            <div class="h">图文详情</div>
+            <div class="ph" style="height:96px;margin:8px 12px 0;border-radius:6px"><svg style="width:40px;height:40px"><use href="#i-camera"/></svg></div>
+            <div class="kv" style="padding-top:10px">
+              <div><b>产地</b>江西 · 赣州信丰</div><div><b>净含量</b>2500g</div>
+              <div><b>果径</b>70-75mm</div><div><b>保质期</b>常温 15 天</div>
+            </div>
+          </div>
+        </div>
+        <div class="cbar">
+          <div class="fn"><svg><use href="#i-service"/></svg>客服</div>
+          <div class="fn"><svg><use href="#i-heart"/></svg>收藏</div>
+          <div class="btn orn">加入购物车</div>
+          <div class="btn red">立即购买</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 04 购物车 ============ -->
+    <div class="unit" data-i="4">
+      <div class="cap"><b><i>04</i>购物车</b><p>凑单提示条 / 按店铺分组 / 规格灰底标签 / 失效组降透明 / 全选 + 合计 + 优惠明细 + 去结算</p></div>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="nav"><svg class="bk"><use href="#i-left"/></svg><div class="tt">购物车(3)</div><div class="rt">管理</div></div>
+        <div class="body fade">
+          <div class="promo"><svg><use href="#i-ticket"/></svg>满 99 减 20，再买 ¥19.10 可减<b>去凑单<svg><use href="#i-right"/></svg></b></div>
+          <div class="shop">
+            <div class="sh"><span class="chk on"><svg><use href="#i-check"/></svg></span><span class="zb">自营</span>山货集市生鲜旗舰店<svg><use href="#i-right"/></svg></div>
+            <div class="crow">
+              <span class="chk on"><svg><use href="#i-check"/></svg></span>
+              <div class="thumb ph"><svg><use href="#i-apple"/></svg></div>
+              <div class="in">
+                <div class="nm">赣南脐橙 手剥橙 5斤装 果径70-75mm 产地直发</div>
+                <div class="spec">5斤装 中果<svg><use href="#i-down"/></svg></div>
+                <div class="tags" style="margin-top:5px"><i class="tg">坏果包赔</i><i class="tk">顺丰包邮</i></div>
+                <div class="b1"><div class="p sm"><i>¥</i><b>29.9</b><s>45.9</s></div>
+                  <div class="stp"><span class="dis"><svg style="width:11px;height:11px"><use href="#i-minus"/></svg></span><em>1</em><span><svg style="width:11px;height:11px"><use href="#i-plus"/></svg></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="sep" style="margin-left:12px"></div>
+            <div class="crow">
+              <span class="chk on"><svg><use href="#i-check"/></svg></span>
+              <div class="thumb ph"><svg><use href="#i-rice"/></svg></div>
+              <div class="in">
+                <div class="nm">五常稻花香2号 新米 5kg 真空装 核心产区</div>
+                <div class="spec">5kg×1袋<svg><use href="#i-down"/></svg></div>
+                <div class="tags" style="margin-top:5px"><i class="tg">产地溯源</i></div>
+                <div class="b1"><div class="p sm"><i>¥</i><b>45.0</b><s>68.0</s></div>
+                  <div class="stp"><span><svg style="width:11px;height:11px"><use href="#i-minus"/></svg></span><em>2</em><span><svg style="width:11px;height:11px"><use href="#i-plus"/></svg></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="shop">
+            <div class="sh"><span class="chk"><svg><use href="#i-check"/></svg></span><span class="zb" style="background:#8A9099">失效</span>已下架 / 售罄商品<svg><use href="#i-right"/></svg></div>
+            <div class="crow off">
+              <span class="chk"><svg><use href="#i-check"/></svg></span>
+              <div class="thumb ph"><svg><use href="#i-egg"/></svg></div>
+              <div class="in">
+                <div class="nm">林间散养土鸡蛋 30枚 可生食级</div>
+                <div class="spec">该商品已售罄</div>
+                <div class="b1"><div class="p sm" style="color:var(--t3)"><i style="color:var(--t3)">¥</i><b style="color:var(--t3)">25.9</b></div>
+                  <div class="row" style="gap:6px"><span class="btn line sm">移入收藏</span><span class="btn gry sm">删除</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="gtotal"><svg style="width:13px;height:13px;color:var(--brand)"><use href="#i-info"/></svg>优惠已选 满99减20<b>共减 <u>¥20.00</u></b></div>
+        </div>
+        <div class="settle">
+          <div class="all"><span class="chk on"><svg><use href="#i-check"/></svg></span>全选</div>
+          <div class="amt"><div class="l">合计（已选 3 件）</div><div class="v"><i>¥</i><b>119.90</b></div></div>
+          <div class="btn red">去结算(3)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 05 我的 ============ -->
+    <div class="unit" data-i="5">
+      <div class="cap"><b><i>05</i>我的</b><p>白底头部（不用大面积色块）/ 订单五宫格带角标 / 资产四列 / 分组列表菜单</p></div>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="body fade">
+          <div class="mhd">
+            <div class="av"><svg><use href="#i-user"/></svg></div>
+            <div>
+              <div class="nn">春山已暮</div>
+              <div class="mm"><u>Lv.3 会员</u>158****2043</div>
+            </div>
+            <div class="qr"><svg><use href="#i-qr"/></svg>我的码</div>
+            <div class="qr" style="margin-left:14px"><svg><use href="#i-set"/></svg>设置</div>
+          </div>
+          <div class="ord">
+            <div class="h">我的订单<span>全部订单<svg><use href="#i-right"/></svg></span></div>
+            <div class="g">
+              <div><svg><use href="#i-wallet"/></svg>待付款<span class="cb">1</span></div>
+              <div><svg><use href="#i-box"/></svg>待发货</div>
+              <div><svg><use href="#i-truck"/></svg>待收货<span class="cb">2</span></div>
+              <div><svg><use href="#i-star"/></svg>待评价</div>
+              <div><svg><use href="#i-refund"/></svg>退款/售后</div>
+            </div>
+          </div>
+          <div class="ast">
+            <div><b>6</b><span>优惠券</span></div>
+            <div><b>2</b><span>红包</span></div>
+            <div><b>1280</b><span>积分</span></div>
+            <div><b>¥30</b><span>余额</span></div>
+          </div>
+          <div class="menu">
+            <div class="t">购物助手</div>
+            <div class="m"><svg class="l"><use href="#i-robot"/></svg>AI 智能客服<span class="v">推荐搭配 · 售后咨询<svg><use href="#i-right"/></svg></span></div>
+            <div class="m"><svg class="l"><use href="#i-shield"/></svg>产地溯源查询<span class="v">扫码溯源码<svg><use href="#i-right"/></svg></span></div>
+            <div class="m"><svg class="l"><use href="#i-bolt"/></svg>限时秒杀<span class="dot"></span></div>
+          </div>
+          <div class="menu">
+            <div class="t">常用工具</div>
+            <div class="m"><svg class="l"><use href="#i-addr"/></svg>收货地址管理<span class="v">3 个地址<svg><use href="#i-right"/></svg></span></div>
+            <div class="m"><svg class="l"><use href="#i-heart"/></svg>我的收藏<span class="v">12<svg><use href="#i-right"/></svg></span></div>
+            <div class="m"><svg class="l"><use href="#i-ticket"/></svg>优惠券 · 红包<span class="v"><svg><use href="#i-right"/></svg></span></div>
+            <div class="m"><svg class="l"><use href="#i-doc"/></svg>发票与报销<span class="v"><svg><use href="#i-right"/></svg></span></div>
+          </div>
+          <div class="menu">
+            <div class="m"><svg class="l"><use href="#i-service"/></svg>帮助与客服<span class="v">400-800-1234<svg><use href="#i-right"/></svg></span></div>
+            <div class="m"><svg class="l"><use href="#i-info"/></svg>关于山货集市<span class="v">v2.4.0<svg><use href="#i-right"/></svg></span></div>
+          </div>
+          <div style="padding:14px 12px 18px"><div class="btn gry" style="height:44px;border-radius:22px">退出登录</div></div>
+        </div>
+        <div class="tab">
+          <a><svg><use href="#i-home"/></svg>首页</a>
+          <a><svg><use href="#i-grid"/></svg>分类</a>
+          <a><svg><use href="#i-cart"/></svg>购物车<span class="cb">3</span></a>
+          <a class="on"><svg><use href="#i-user"/></svg>我的</a>
+        </div>
+        <div class="homi"></div>
+      </div>
+    </div>
+
+    <!-- ============ 06 产地溯源 ============ -->
+    <div class="unit" data-i="6">
+      <div class="cap"><b><i>06</i>产地溯源档案</b><p>墨绿渐变结果头 + 溯源码 / 六节点链路时间轴 / 质检证书 / 产地地图 / 区块链存证哈希</p></div>
+      <div class="phone">
+        <div class="sbar grn"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="nav" style="position:absolute;top:40px;left:0;right:0;z-index:3;background:transparent">
+          <svg class="bk" style="color:#fff"><use href="#i-left"/></svg><div class="tt" style="color:#fff">溯源档案</div>
+          <div class="capsule" style="border-color:rgba(255,255,255,.45);color:#fff;background:rgba(255,255,255,.14)"><span>•••</span><span>◉</span></div>
+        </div>
+        <div class="body fade">
+          <div class="trhero">
+            <div class="l1"><span style="font-size:12px;opacity:.85">溯源码</span><span class="ok"><svg><use href="#i-check"/></svg>溯源成功 · 全链路完整</span></div>
+            <h3>赣南脐橙 · 信丰基地</h3>
+            <div class="code">B20261015000038 · 批次 2026-10-12-A07</div>
+          </div>
+          <div class="trcard">
+            <div class="thumb ph"><svg><use href="#i-apple"/></svg></div>
+            <div>
+              <div class="nm">赣南脐橙 手剥橙 5斤装 果径70-75mm</div>
+              <div class="mt">采收 2026-10-12 · 发货 2026-10-13 · 顺丰冷链<br>全程 4 个环节已上链存证</div>
+            </div>
+          </div>
+          <div class="tl">
+            <div class="h">全链路追溯</div>
+            <div class="n done"><span class="d"></span><div class="in"><div class="tt">种植与农事<u>已记录</u></div><div class="ds">安西家庭农场 · 施肥 3 次 · 化学农药 0 次</div><div class="mt">2026-03-18 起</div></div></div>
+            <div class="n done"><span class="d"></span><div class="in"><div class="tt">采收<u>已完成</u></div><div class="ds">人工分批采收 · 田间预冷</div><div class="mt">2026-10-12 06:20 · 江西赣州信丰</div></div></div>
+            <div class="n done"><span class="d"></span><div class="in"><div class="tt">质检<u>合格</u></div><div class="ds">SGS 农残 62 项 · 可溶性固形物 12.4%</div><div class="mt">2026-10-12 15:40</div></div></div>
+            <div class="n done"><span class="d"></span><div class="in"><div class="tt">分选与包装</div><div class="ds">光电分选按 70-75mm 分级 · 网套 + 纸箱</div><div class="mt">2026-10-12 19:05</div></div></div>
+            <div class="n cur"><span class="d"></span><div class="in"><div class="tt">冷链干线</div><div class="ds">南昌中转仓在途 · 车厢温度 3.8℃</div><div class="mt">2026-10-13 08:30 · 运输中</div></div></div>
+            <div class="n"><span class="d"></span><div class="in"><div class="tt" style="color:var(--t3)">签收</div><div class="ds" style="color:var(--t4)">预计 2026-10-14 送达</div></div></div>
+          </div>
+          <div class="cert">
+            <div class="h">质检与认证</div>
+            <div class="g">
+              <div class="c"><div class="im"><svg><use href="#i-doc"/></svg></div><div class="in"><div class="nm">SGS 农残检测</div><div class="no">No. GZ26-0418-227</div></div></div>
+              <div class="c"><div class="im"><svg><use href="#i-shield"/></svg></div><div class="in"><div class="nm">绿色食品认证</div><div class="no">No. LB-46-2026-1187</div></div></div>
+              <div class="c"><div class="im"><svg><use href="#i-box"/></svg></div><div class="in"><div class="nm">地理标志登记</div><div class="no">AGI03286</div></div></div>
+            </div>
+          </div>
+          <div class="map">
+            <div class="m"><div class="pin2"><i></i></div></div>
+            <div class="in">
+              <div class="r"><b>产地</b>江西省赣州市信丰县安西镇</div>
+              <div class="r"><b>坐标</b><span style="font-family:var(--num)">25.1872°N, 114.9231°E</span></div>
+              <div class="r"><b>农户</b>刘氏家庭农场 · 种植 12 年 · 86 亩</div>
+            </div>
+          </div>
+          <div class="chain">
+            <div class="h"><svg><use href="#i-link"/></svg>区块链存证<span>确认 128 次</span></div>
+            <div class="hash">TXN <b>0x7f3a9c2e8b41d6f0a5c7e9b2d4f6a8c1e3b5d7f9</b><br>上链时间 2026-10-13 08:31:22 · 查看链上详情 ›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 07 AI 智能客服 ============ -->
+    <div class="unit" data-i="7">
+      <div class="cap"><b><i>07</i>AI 智能客服</b><p>商品推荐卡内联在回答里 / 回答下方标注依据来源 / 猜你想问 chips / 底部输入栏</p></div>
+      <div class="phone">
+        <div class="sbar"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="nav"><svg class="bk"><use href="#i-left"/></svg><div class="tt">AI 导购</div>
+          <div class="rt" style="display:flex;align-items:center;gap:4px;color:var(--green)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green);display:block"></i>在线</div>
+        </div>
+        <div class="body fade">
+          <div class="aibody">
+            <div style="text-align:center;font-size:10px;color:var(--t4);padding:2px 0">今天 09:41 · 会话已开始</div>
+            <div class="aime"><div class="av"><svg><use href="#i-robot"/></svg></div>
+              <div class="bx">你好，我是山货集市的 AI 导购。可以帮你挑当季水果、搭配礼盒、查物流和售后。要不要先看看今天到货的？</div></div>
+            <div class="aime me"><div class="av"><svg><use href="#i-user"/></svg></div><div class="bx">想买点橙子送人，预算 100 元以内，要好看一点</div></div>
+            <div class="aime"><div class="av"><svg><use href="#i-robot"/></svg></div>
+              <div class="aibx">
+                <div class="bx">按「送礼 + 100 元内」我优先推荐带礼盒装的赣南脐橙，果径 70-75mm 外观整齐，配 2 件 9 折刚好 <b style="color:var(--brand)">¥53.80</b>：</div>
+                <div class="rec">
+                  <div class="i"><div class="im ph"><span class="flag">自营</span><svg><use href="#i-apple"/></svg></div><div class="in"><div class="nm">赣南脐橙礼盒 5斤</div><div class="p sm"><i>¥</i><b>29.9</b></div></div></div>
+                  <div class="i"><div class="im ph"><svg><use href="#i-grain"/></svg></div><div class="in"><div class="nm">蒙自软籽石榴礼盒</div><div class="p sm"><i>¥</i><b>39.9</b></div></div></div>
+                  <div class="i"><div class="im ph"><svg><use href="#i-rice"/></svg></div><div class="in"><div class="nm">五常大米礼提装</div><div class="p sm"><i>¥</i><b>59.0</b></div></div></div>
+                </div>
+              </div></div>
+            <div class="basis"><svg><use href="#i-info"/></svg>依据：商品知识库 4 条 · 真实评价 128 条 · 当前促销 2 条</div>
+            <div class="aime me"><div class="av"><svg><use href="#i-user"/></svg></div><div class="bx">第二个石榴容易坏吗？</div></div>
+            <div class="aime"><div class="av"><svg><use href="#i-robot"/></svg></div>
+              <div class="bx">近 30 天该商品 <b>1264</b> 条评价里提到「破损」的有 <b style="color:var(--brand)">9</b> 条（0.7%），且都走了坏果包赔。每个石榴有独立泡沫托，建议选顺丰。</div></div>
+            <div class="aime"><div class="av"><svg><use href="#i-robot"/></svg></div>
+              <div class="bx" style="color:var(--t3);font-size:12px">这个问题超出我能确认的范围，我帮你转人工核实一下？</div></div>
+            <div class="ask">
+              <div class="chip">帮我搭配 100 元礼盒</div><div class="chip">今天有什么秒杀</div>
+              <div class="chip">查我的订单</div><div class="chip">坏果怎么赔</div>
+            </div>
+          </div>
+        </div>
+        <div class="aibar">
+          <div class="fn"><svg><use href="#i-mic"/></svg></div>
+          <div class="in">问问 AI 导购，比如「送礼选什么」</div>
+          <div class="fn"><svg><use href="#i-plus"/></svg></div>
+          <div class="send">发送</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 08 限时秒杀 ============ -->
+    <div class="unit" data-i="8">
+      <div class="cap"><b><i>08</i>限时秒杀</b><p>红底场次切换 + 倒计时 / 双列定高卡 / 进度条 + 马上抢 / 未开始降透明可预约 / 已抢光灰显</p></div>
+      <div class="phone">
+        <div class="sbar dk"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+        <div class="body fade">
+          <div class="snav">
+            <div class="l"><svg class="bk"><use href="#i-left"/></svg><div class="tt">限时秒杀</div>
+              <div class="capsule"><span>•••</span><span>◉</span></div></div>
+            <div class="cd">本场剩余<svg style="width:12px;height:12px"><use href="#i-clock"/></svg><b>01</b>:<b>24</b>:<b>38</b></div>
+          </div>
+          <div class="sessions">
+            <div class="dis"><div class="tm">10:00</div><div class="st">已抢光</div></div>
+            <div class="on"><div class="tm">14:00</div><div class="st">抢购中</div></div>
+            <div><div class="tm">20:00</div><div class="st">即将开始</div></div>
+          </div>
+          <div class="flow sflow" style="padding-top:10px">
+            <div class="scard">
+              <div class="thumb ph"><span class="flag hot">直降20</span><svg><use href="#i-apple"/></svg></div>
+              <div class="in"><div class="nm">烟台红富士 5斤 脆甜冰糖心 顺丰</div>
+                <div class="p2"><i>¥</i><b>19.9</b><s>39.9</s></div>
+                <div class="bar"><em style="width:88%"></em><span>已抢 88%</span></div></div>
+              <div class="go"><svg><use href="#i-bolt"/></svg>马上抢</div>
+            </div>
+            <div class="scard">
+              <div class="thumb ph"><span class="flag hot">直降23</span><svg><use href="#i-rice"/></svg></div>
+              <div class="in"><div class="nm">五常稻花香2号 5kg 真空装 新米</div>
+                <div class="p2"><i>¥</i><b>45.0</b><s>68.0</s></div>
+                <div class="bar"><em style="width:76%"></em><span>已抢 76%</span></div></div>
+              <div class="go"><svg><use href="#i-bolt"/></svg>马上抢</div>
+            </div>
+            <div class="scard sold-out">
+              <div class="thumb ph"><svg><use href="#i-egg"/></svg><div class="sold-out-tag">已抢光</div></div>
+              <div class="in"><div class="nm">农家土鸡蛋 30枚 可生食级</div>
+                <div class="p2"><i>¥</i><b>22.9</b><s>32.9</s></div>
+                <div class="bar"><em style="width:100%"></em><span>已抢光</span></div></div>
+              <div class="go">看相似</div>
+            </div>
+            <div class="scard lock">
+              <div class="thumb ph"><svg><use href="#i-grain"/></svg></div>
+              <div class="in"><div class="nm">云南蒙自软籽石榴 6斤 礼盒</div>
+                <div class="p2"><i>¥</i><b>16.9</b><s>29.9</s></div>
+                <div class="bar" style="background:#F0F1F3"><em style="width:0"></em><span style="color:var(--t3);padding-left:0;left:6px">14:00 开抢</span></div></div>
+              <div class="go"><svg><use href="#i-clock"/></svg>提醒我</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ?s=N → 只渲染第 N 屏，用于逐屏高清出图
+(function(){
+  var n=new URLSearchParams(location.search).get('s');
+  if(!n)return;
+  document.body.classList.add('shot');
+  var u=document.querySelector('.unit[data-i="'+n+'"]');
+  if(!u)return;
+  u.classList.add('on');
+  u.style.width='auto';
+  var c=u.querySelector('.cap'); if(c)c.remove();
+})();
+</script>
+</body>
+</html>

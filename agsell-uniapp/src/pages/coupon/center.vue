@@ -94,7 +94,7 @@ async function onReceive(c) {
 <style scoped>
 .coupon-center {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .content {
@@ -109,7 +109,7 @@ async function onReceive(c) {
 }
 
 .empty-text {
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 28rpx;
 }
 
@@ -146,7 +146,7 @@ async function onReceive(c) {
   transform: translateY(-50%);
   width: 28rpx;
   height: 28rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   border-radius: 50%;
 }
 
@@ -174,7 +174,7 @@ async function onReceive(c) {
 .coupon-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -183,7 +183,7 @@ async function onReceive(c) {
 .coupon-info,
 .coupon-stock {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
 }
 
 .coupon-right {
@@ -204,7 +204,7 @@ async function onReceive(c) {
 }
 
 .disabled-btn {
-  background: #D1D5DB;
+  background: #C9CDD4;
   color: #6B7280;
 }
 </style>

@@ -1,143 +1,206 @@
-﻿<template>
+<template>
   <view class="index-page">
-    <!-- 搜索栏 -->
-    <view class="search-bar">
-      <view class="search-input" @click="onSearchTap" role="button" aria-label="搜索商品">
-        <image class="search-icon" src="/static/icon-search.png" mode="aspectFit" alt="搜索" />
-        <text class="search-placeholder">搜索商品</text>
+    <!-- 定位 + 扫码搜索 + 消息（白底头部） -->
+    <view class="hd">
+      <view class="loc" @click="onCityTap" role="button" aria-label="选择城市">
+        <wd-icon name="location" size="26rpx" custom-class="loc-pin" />
+        <text class="loc-city">{{ cityName }}</text>
+        <wd-icon name="chevron-down" size="20rpx" custom-class="loc-arrow" />
+      </view>
+      <view class="srch" @click="onSearchTap" role="button" aria-label="搜索商品">
+        <wd-icon name="scan" size="28rpx" custom-class="srch-scan" />
+        <text class="srch-ph">{{ searchPlaceholder }}</text>
+        <view class="srch-go">搜索</view>
+      </view>
+      <view class="hd-ic" @click="onNotifyTap" role="button" aria-label="消息通知">
+        <wd-icon name="notification" size="36rpx" custom-class="hd-bell" />
       </view>
     </view>
 
-    <!-- 轮播图 -->
-    <swiper v-if="banners.length > 0" class="banner-swiper" indicator-dots autoplay circular interval="5000">
+    <!-- 分类频道宫格（5 列） -->
+    <view v-if="categories.length > 0" class="cats">
+      <view
+        v-for="(cat, idx) in categories"
+        :key="cat.id"
+        class="cat"
+        :class="{ on: idx === 0 }"
+        @click="onCategoryTap(cat)"
+        role="button"
+        :aria-label="cat.name"
+      >
+        <view class="cat-box" :class="`cat-c${(idx % 10) + 1}`">
+          <image v-if="cat.icon" class="cat-img" :src="cat.icon" mode="aspectFill" lazy-load :alt="cat.name" />
+          <text v-else class="cat-char">{{ cat.name[0] }}</text>
+        </view>
+        <text class="cat-name">{{ cat.name }}</text>
+      </view>
+    </view>
+
+    <!-- 大促 Banner -->
+    <swiper
+      v-if="banners.length > 0"
+      class="bn"
+      indicator-dots
+      autoplay
+      circular
+      interval="5000"
+      indicator-color="rgba(255,255,255,0.35)"
+      indicator-active-color="#FFFFFF"
+    >
       <swiper-item v-for="banner in banners" :key="banner.id">
-        <image
-          class="banner-image"
-          :src="banner.image"
-          mode="aspectFill"
-          lazy-load
-          @click="onBannerTap(banner)"
-          :show-menu-by-longpress="false"
-          :alt="banner.title || '轮播图'"
-        />
+        <view class="bn-slide bn-ph" @click="onBannerTap(banner)">
+          <text class="bn-tag">产地直发</text>
+          <text class="bn-title">{{ banner.title || '秋收尝鲜季' }}</text>
+          <text class="bn-sub">全国 8 大产区 · 满 99 减 20</text>
+          <text class="bn-cta">立即抢购</text>
+          <wd-icon name="bags" size="164rpx" custom-class="bn-art" />
+          <image
+            v-if="banner.image"
+            class="bn-image"
+            :src="banner.image"
+            mode="aspectFill"
+            lazy-load
+            :alt="banner.title || '轮播图'"
+          />
+        </view>
       </swiper-item>
     </swiper>
-    <view v-else class="banner-placeholder">
-      <text class="placeholder-text">新鲜水果 · 有机蔬菜 · 当季特产</text>
+    <view v-else-if="!loading" class="bn bn-ph">
+      <text class="bn-tag">产地直发</text>
+      <text class="bn-title">秋收尝鲜季</text>
+      <text class="bn-sub">全国 8 大产区 · 满 99 减 20</text>
+      <text class="bn-cta">立即抢购</text>
+      <wd-icon name="bags" size="164rpx" custom-class="bn-art" />
     </view>
 
-    <!-- 限时秒杀横卡（无进行中/未开始活动时整条隐藏） -->
-    <view v-if="seckillActivities.length > 0" class="seckill-card">
-      <view class="seckill-head">
-        <view class="seckill-title-wrap">
-          <text class="seckill-title">限时秒杀</text>
-          <text class="seckill-sub">超值抢购 · 手慢无</text>
-        </view>
-        <view class="seckill-more" @click="onSeckillMoreTap" role="button" aria-label="查看全部秒杀">
-          <text class="seckill-more-text">更多</text>
-          <text class="seckill-more-arrow">›</text>
+    <!-- 限时秒杀（白底模块 + 倒计时 + 已抢进度） -->
+    <view v-if="seckillActivities.length > 0" class="blk">
+      <view class="bhd" @click="onSeckillMoreTap" role="button" aria-label="查看全部秒杀">
+        <wd-icon name="time" size="30rpx" custom-class="bhd-icon" />
+        <text class="bhd-title">限时秒杀</text>
+        <view v-if="countdownSegments.length" class="cd">
+          <template v-for="(seg, i) in countdownSegments" :key="i">
+            <text v-if="i > 0" class="cd-sep">:</text>
+            <text class="cd-num">{{ seg }}</text>
+          </template>
         </view>
       </view>
-      <scroll-view scroll-x class="seckill-scroll">
-        <view class="seckill-scroll-inner">
+      <scroll-view scroll-x class="sk-scroll">
+        <view class="sk-inner">
           <view
             v-for="act in seckillActivities"
             :key="act.id"
-            class="seckill-item"
+            class="sk-item"
             @click="onSeckillItemTap(act)"
             role="button"
             :aria-label="act.productName"
           >
-            <image class="seckill-img" :src="act.productImage" mode="aspectFill" lazy-load :alt="act.productName" />
-            <view class="seckill-price-row">
-              <text class="seckill-price">¥{{ act.seckillPrice }}</text>
-              <text class="seckill-origin">¥{{ act.productPrice }}</text>
+            <view class="sk-thumb">
+              <image class="sk-img" :src="act.productImage" mode="aspectFill" lazy-load :alt="act.productName" />
+              <text v-if="act.activityStatus === 1" class="sk-ribbon">即将开始</text>
             </view>
-            <view class="seckill-btn" :class="{ 'seckill-btn-disabled': act.activityStatus !== 2 }">
-              {{ act.activityStatus === 1 ? '即将开始' : '立即抢购' }}
+            <text class="sk-name">{{ act.productName }}</text>
+            <view class="sk-price">
+              <text class="p-symbol">¥</text>
+              <text class="p-int">{{ act.seckillPrice }}</text>
+              <text class="p-origin">¥{{ act.productPrice }}</text>
+            </view>
+            <view class="bar">
+              <view class="bar-fill" :style="{ width: `${act.progress || 0}%` }"></view>
+              <text class="bar-txt">已抢{{ act.progress || 0 }}%</text>
             </view>
           </view>
         </view>
       </scroll-view>
     </view>
 
-    <!-- 分类快捷入口 -->
-    <view class="category-grid">
-      <view
-        v-for="cat in categories"
-        :key="cat.id"
-        class="category-item"
-        @click="onCategoryTap(cat)"
-        role="button"
-        :aria-label="cat.name"
-      >
-        <view class="category-icon-wrap">
-          <image v-if="cat.icon" class="category-icon" :src="cat.icon" mode="aspectFill" lazy-load :alt="cat.name" />
-          <text v-else class="category-icon-default">{{ cat.name[0] }}</text>
-        </view>
-        <text class="category-name">{{ cat.name }}</text>
-      </view>
+    <!-- 服务承诺条 -->
+    <view class="svc">
+      <view class="svc-item"><wd-icon name="secured" size="26rpx" custom-class="svc-icon" /><text>坏果包赔</text></view>
+      <view class="svc-item"><wd-icon name="bags" size="26rpx" custom-class="svc-icon" /><text>顺丰包邮</text></view>
+      <view class="svc-item"><wd-icon name="qrcode" size="26rpx" custom-class="svc-icon" /><text>产地溯源</text></view>
     </view>
 
-    <!-- 热销推荐 -->
-    <view class="section">
-      <view class="section-title">
-        <image class="section-icon" src="/static/icon-hot.png" mode="aspectFit" alt="热销" />
-        <text>热销推荐</text>
-      </view>
-      <scroll-view scroll-x class="product-scroll">
-        <view class="product-scroll-inner">
-          <ProductCard
-            v-for="item in hotProducts"
-            :key="item.id"
-            :product="item"
-            @tap="onProductTap"
-          />
-        </view>
-      </scroll-view>
+    <!-- 推荐流（定高双列，与参考稿一致只保留灰字说明） -->
+    <view class="sec-t">
+      <view class="sec-t-bar"></view>
+      <text class="sec-t-title">为你推荐</text>
+      <text class="sec-t-hint">根据你的浏览偏好</text>
     </view>
-
-    <!-- 新品推荐 -->
-    <view class="section">
-      <view class="section-title">
-        <image class="section-icon" src="/static/icon-new.png" mode="aspectFit" alt="新品" />
-        <text>新品推荐</text>
-      </view>
-      <scroll-view scroll-x class="product-scroll">
-        <view class="product-scroll-inner">
-          <ProductCard
-            v-for="item in newProducts"
-            :key="item.id"
-            :product="item"
-            @tap="onProductTap"
-          />
+    <view class="flow">
+      <view v-if="loading && !hotProducts.length" class="flow-skeleton">
+        <view v-for="n in 4" :key="n" class="skeleton-card">
+          <wd-skeleton type="rect" width="100%" height="304rpx" border-radius="16rpx 16rpx 0 0" />
+          <view class="skeleton-lines">
+            <wd-skeleton type="text" width="86%" height="26rpx" />
+            <wd-skeleton type="text" width="52%" height="34rpx" margin-top="14rpx" />
+          </view>
         </view>
-      </scroll-view>
+      </view>
+      <template v-else-if="hotProducts.length">
+        <ProductCard v-for="item in hotProducts" :key="item.id" :product="item" @tap="onProductTap" @add="onQuickAdd" />
+      </template>
+      <view v-else class="flow-empty">
+        <text>暂无推荐商品</text>
+      </view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ProductCard from '../../components/ProductCard/ProductCard.vue'
 import { getBannerList } from '../../api/banner'
-import { getCategoryList, getHotProducts, getNewProducts } from '../../api/product'
+import { getCategoryList, getHotProducts } from '../../api/product'
 import { getSeckillList } from '../../api/seckill'
-import { request } from '../../utils/request'
+import { addToCart, getCartList } from '../../api/cart'
+import { isLoggedIn, wxLogin, request } from '../../utils/request'
 
 const banners = ref([])
 const categories = ref([])
 const hotProducts = ref([])
-const newProducts = ref([])
 const seckillActivities = ref([])
+const loading = ref(true)
+
+/** 首页城市定位（演示环境无定位接口，固定展示产区城市） */
+const cityName = '南昌'
+
+/** 秒杀倒计时：以最近结束的进行中活动为基准，本地每秒递减 */
+const seckillCountdown = ref(null)
+let countdownTimer = null
 
 onMounted(async () => {
   setNavTitle()
-  await loadBanners()
-  await loadSeckill()
-  await loadCategories()
-  await loadHotProducts()
-  await loadNewProducts()
+  try {
+    // 并行加载且互不阻断：某个接口失败时其余模块照常渲染，页面不白屏
+    await Promise.allSettled([
+      loadBanners(),
+      loadSeckill(),
+      loadCategories(),
+      loadHotProducts()
+    ])
+  } finally {
+    loading.value = false
+  }
+  syncCartBadge()
+})
+
+onUnmounted(() => {
+  if (countdownTimer) clearInterval(countdownTimer)
+})
+
+const searchPlaceholder = computed(() => {
+  const name = hotProducts.value[0]?.name
+  return name ? name.slice(0, 12) : '搜索商品'
+})
+
+const countdownSegments = computed(() => {
+  const total = seckillCountdown.value
+  if (total === null || total < 0) return []
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  return [h, m, s].map((n) => String(n).padStart(2, '0'))
 })
 
 /** 首页导航栏展示系统配置的平台名称（管理端可改），失败时保留 pages.json 默认标题 */
@@ -157,7 +220,29 @@ async function setNavTitle() {
 
 async function loadSeckill() {
   const res = await getSeckillList({ filter: 0 })
-  if (res.code === 0) seckillActivities.value = res.data || []
+  if (res.code === 0) {
+    seckillActivities.value = res.data || []
+    startCountdown(seckillActivities.value)
+  }
+}
+
+/** 取进行中最快结束的活动倒计时；没有进行中活动则取最近一场未开始活动 */
+function startCountdown(list) {
+  const running = list.filter((a) => a.activityStatus === 2 && a.countdownSeconds > 0)
+  const upcoming = list.filter((a) => a.activityStatus === 1 && a.countdownSeconds > 0)
+  const target = running.length
+    ? running.reduce((min, a) => (a.countdownSeconds < min.countdownSeconds ? a : min))
+    : upcoming.length
+      ? upcoming.reduce((min, a) => (a.countdownSeconds < min.countdownSeconds ? a : min))
+      : null
+  if (!target) return
+  let remain = target.countdownSeconds
+  seckillCountdown.value = remain
+  countdownTimer = setInterval(() => {
+    remain -= 1
+    seckillCountdown.value = remain > 0 ? remain : null
+    if (remain <= 0) clearInterval(countdownTimer)
+  }, 1000)
 }
 
 async function loadBanners() {
@@ -175,11 +260,6 @@ async function loadCategories() {
 async function loadHotProducts() {
   const res = await getHotProducts(10)
   if (res.code === 0) hotProducts.value = res.data
-}
-
-async function loadNewProducts() {
-  const res = await getNewProducts(10)
-  if (res.code === 0) newProducts.value = res.data
 }
 
 function onCategoryTap(cat) {
@@ -210,6 +290,45 @@ function onSearchTap() {
   uni.navigateTo({ url: '/pages/search/search' })
 }
 
+function onCityTap() {
+  uni.showToast({ title: '演示环境暂不支持切换城市', icon: 'none' })
+}
+
+function onNotifyTap() {
+  uni.showToast({ title: '暂无新消息', icon: 'none' })
+}
+
+/** 商卡右下角红色加购：与详情页加购走同一接口，规格由后端取默认 */
+async function onQuickAdd(product) {
+  if (!isLoggedIn()) {
+    const success = await wxLogin()
+    if (!success) return
+  }
+  const res = await addToCart({ productId: product.id, specId: null, quantity: 1 })
+  if (res.code === 0) {
+    uni.showToast({ title: '已加入购物车', icon: 'success' })
+    syncCartBadge()
+  } else {
+    uni.showToast({ title: res.message || '操作失败', icon: 'none' })
+  }
+}
+
+/** 参考稿购物车 tab 带件数角标 */
+async function syncCartBadge() {
+  if (!isLoggedIn()) return
+  try {
+    const res = await getCartList()
+    const count = (res.data || []).reduce((n, it) => n + (it.quantity || 1), 0)
+    if (count > 0) {
+      uni.setTabBarBadge({ index: 2, text: String(count) })
+    } else {
+      uni.removeTabBarBadge({ index: 2 })
+    }
+  } catch (e) {
+    console.warn('[Index] 购物车角标同步失败', e)
+  }
+}
+
 function onSeckillMoreTap() {
   uni.navigateTo({ url: '/pages/seckill/list' })
 }
@@ -224,294 +343,489 @@ function onSeckillItemTap(act) {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .index-page {
-  background: #F5F5F5;
+  background: $uni-bg-color-grey;
   min-height: 100vh;
-  padding-bottom: 24rpx;
+  padding-bottom: 32rpx;
 }
 
-.search-bar {
-  background: #00B578;
-  padding: 20rpx 24rpx 32rpx;
-}
-
-.search-input {
+/* ===== 搜索头部（白底） ===== */
+.hd {
+  background: $uni-bg-color;
+  padding: 12rpx 24rpx 20rpx;
   display: flex;
   align-items: center;
-  background: #FFFFFF;
-  border-radius: 999rpx;
-  height: 72rpx;
-  padding: 0 24rpx;
-  min-width: 88rpx;
+  gap: 20rpx;
 }
 
-.search-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-right: 12rpx;
-  flex-shrink: 0;
-}
-
-.search-placeholder {
-  font-size: 26rpx;
-  color: #9CA3AF;
-}
-
-.banner-swiper {
-  height: 360rpx;
-  width: calc(100% - 48rpx);
-  margin: -16rpx 24rpx 0;
-  border-radius: 24rpx;
-  overflow: hidden;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
-}
-
-.banner-image {
-  width: 100%;
-  height: 360rpx;
-  background: #F5F5F5;
-  border-radius: 24rpx;
-}
-
-.banner-placeholder {
-  height: 360rpx;
-  width: calc(100% - 48rpx);
-  margin: -16rpx 24rpx 0;
-  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 24rpx;
-}
-
-.placeholder-text {
-  font-size: 32rpx;
-  color: #00B578;
-  font-weight: 600;
-  letter-spacing: 4rpx;
-}
-
-.category-grid {
-  display: flex;
-  flex-wrap: wrap;
-  background: #FFFFFF;
-  margin: 24rpx;
-  padding: 24rpx 0;
-  border-radius: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-}
-
-/* 限时秒杀横卡（红橙系） */
-.seckill-card {
-  margin: 16rpx 24rpx 24rpx;
-  padding: 20rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(135deg, #E63946 0%, #FF6B35 100%);
-  box-shadow: 0 8rpx 24rpx rgba(230, 57, 70, 0.28);
-}
-
-.seckill-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14rpx;
-}
-
-.seckill-title-wrap {
-  display: flex;
-  align-items: baseline;
-  gap: 12rpx;
-}
-
-.seckill-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #FFFFFF;
-}
-
-.seckill-sub {
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.seckill-more {
+.loc {
   display: flex;
   align-items: center;
   gap: 4rpx;
-}
-
-.seckill-more-text {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.seckill-more-arrow {
-  font-size: 30rpx;
-  color: #FFFFFF;
-  line-height: 1;
-}
-
-.seckill-scroll {
-  white-space: nowrap;
-}
-
-.seckill-scroll-inner {
-  display: inline-flex;
-  gap: 16rpx;
-}
-
-.seckill-item {
-  width: 168rpx;
   flex-shrink: 0;
-  background: #FFFFFF;
-  border-radius: 16rpx;
-  padding: 10rpx;
-  box-sizing: border-box;
 }
 
-.seckill-img {
-  width: 148rpx;
-  height: 148rpx;
-  border-radius: 12rpx;
-  background: #F5F5F5;
+.loc-city {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: $uni-text-color;
 }
 
-.seckill-price-row {
+:deep(.loc-pin) {
+  color: $uni-color-primary;
+}
+
+:deep(.loc-arrow) {
+  color: $uni-text-color-placeholder;
+}
+
+.hd-ic {
+  flex-shrink: 0;
   display: flex;
-  align-items: baseline;
-  gap: 8rpx;
-  margin-top: 8rpx;
+  align-items: center;
 }
 
-.seckill-price {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #E63946;
+:deep(.hd-bell) {
+  color: $uni-text-color-grey;
 }
 
-.seckill-origin {
-  font-size: 20rpx;
-  color: #9CA3AF;
-  text-decoration: line-through;
+.srch {
+  flex: 1;
+  min-width: 0;
+  height: 64rpx;
+  background: $uni-bg-color-muted;
+  border: 1rpx solid #E8E9EC;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 8rpx 0 20rpx;
+  gap: 12rpx;
 }
 
-.seckill-btn {
-  margin-top: 8rpx;
+:deep(.srch-scan) {
+  color: $uni-text-color-placeholder;
+  flex-shrink: 0;
+}
+
+.srch-ph {
+  flex: 1;
+  font-size: 24rpx;
+  color: $uni-text-color-placeholder;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.srch-go {
   height: 48rpx;
-  line-height: 48rpx;
-  text-align: center;
-  background: #E63946;
-  color: #FFFFFF;
-  font-size: 22rpx;
-  font-weight: 600;
+  padding: 0 24rpx;
   border-radius: 24rpx;
+  background: $uni-color-primary;
+  color: $uni-text-color-inverse;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
 }
 
-.seckill-btn-disabled {
-  background: #D1D5DB;
+/* ===== 分类宫格 ===== */
+.cats {
+  background: $uni-bg-color;
+  padding: 24rpx 8rpx 32rpx;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  row-gap: 28rpx;
+  border-bottom-left-radius: $uni-border-radius-lg;
+  border-bottom-right-radius: $uni-border-radius-lg;
 }
 
-.category-item {
-  width: 25%;
+.cat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16rpx 0;
-  min-height: 88rpx;
+  gap: 10rpx;
 }
 
-.category-icon-wrap {
-  width: 88rpx;
-  height: 88rpx;
+.cat-box {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-.category-icon {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: #ECFDF5;
+.cat-img {
+  width: 76rpx;
+  height: 76rpx;
 }
 
-.category-icon-default {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: #ECFDF5;
-  color: #00B578;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
+.cat-char {
+  font-size: 36rpx;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.cat-name {
+  font-size: 22rpx;
+  color: $uni-text-color-grey;
+  line-height: 1;
+}
+
+.cat.on .cat-name {
+  color: $uni-color-primary;
   font-weight: 600;
 }
 
-.category-name {
-  font-size: 24rpx;
-  color: #111827;
-  margin-top: 8rpx;
+/* 宫格底色：分类图标按位次循环取色（品质电商风 v5.0） */
+.cat-c1 { background: #FFF1EF; color: #F04B3E; }
+.cat-c2 { background: #FFF5E8; color: #F08A00; }
+.cat-c3 { background: #EAF7F0; color: #00A66A; }
+.cat-c4 { background: #EAF2FD; color: #2E7CE4; }
+.cat-c5 { background: #F2EEFB; color: #7B57D8; }
+.cat-c6 { background: #E9F6F8; color: #0E97A8; }
+.cat-c7 { background: #FDF0F4; color: #D9497C; }
+.cat-c8 { background: #F0F4E9; color: #6E9B28; }
+.cat-c9 { background: $uni-bg-color-muted; color: #5A6270; }
+.cat-c10 { background: #FFF5E8; color: #C8821A; }
+
+/* ===== Banner（深底渐变 + 金色标签/按钮 + 篮子插画） ===== */
+.bn {
+  position: relative;
+  height: 236rpx;
+  width: calc(100% - 48rpx);
+  margin: 20rpx 24rpx 0;
+  border-radius: $uni-border-radius-base;
+  overflow: hidden;
 }
 
-.section {
-  background: #FFFFFF;
-  margin: 24rpx;
+.bn-slide {
+  position: relative;
+  width: 100%;
+  height: 236rpx;
+}
+
+.bn-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 236rpx;
+}
+
+.bn-ph {
+  position: relative;
+  height: 236rpx;
+  background: linear-gradient(100deg, #1C1F24 0%, #3A2220 55%, #7A2A22 100%);
+}
+
+.bn-tag {
+  position: absolute;
+  left: 28rpx;
+  top: 28rpx;
+  font-size: 20rpx;
+  line-height: 28rpx;
+  color: #FFD9B0;
+  border: 2rpx solid rgba(255, 217, 176, 0.5);
+  padding: 0 12rpx;
+  letter-spacing: 2rpx;
+}
+
+.bn-title {
+  position: absolute;
+  left: 28rpx;
+  top: 76rpx;
+  font-size: 40rpx;
+  line-height: 48rpx;
+  font-weight: 600;
+  color: $uni-text-color-inverse;
+  letter-spacing: 2rpx;
+}
+
+.bn-sub {
+  position: absolute;
+  left: 28rpx;
+  top: 136rpx;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.bn-cta {
+  position: absolute;
+  left: 28rpx;
+  top: 180rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: $uni-text-color;
+  background: #FFD86B;
+  padding: 8rpx 24rpx;
+  border-radius: 22rpx;
+}
+
+:deep(.bn-art) {
+  position: absolute;
+  right: 32rpx;
+  top: 44rpx;
+  font-size: 164rpx;
+  width: 164rpx;
+  height: 164rpx;
+  opacity: 0.9;
+  color: rgba(255, 216, 107, 0.85);
+}
+
+/* ===== 限时秒杀 ===== */
+.blk {
+  background: $uni-bg-color;
+  margin: 20rpx 24rpx;
+  border-radius: $uni-border-radius-base;
   padding: 24rpx;
-  border-radius: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  box-shadow: $uni-shadow-sm;
 }
 
-.section-title {
+.bhd {
   display: flex;
-  align-items: center;
-  gap: 8rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #111827;
+  align-items: baseline;
+  gap: 16rpx;
   margin-bottom: 20rpx;
 }
 
-.section-icon {
-  width: 32rpx;
-  height: 32rpx;
+:deep(.bhd-icon) {
+  color: $uni-color-cart;
+  align-self: center;
 }
 
-.product-scroll {
+.bhd-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: $uni-color-primary;
+}
+
+.cd {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 22rpx;
+  color: $uni-text-color-grey;
+}
+
+.cd-num {
+  font-family: $uni-font-family-num;
+  background: #3A3D42;
+  color: $uni-text-color-inverse;
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 2rpx 6rpx;
+  border-radius: 6rpx;
+  min-width: 32rpx;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-sep {
+  font-family: $uni-font-family-num;
+}
+
+.sk-scroll {
   white-space: nowrap;
 }
 
-.product-scroll-inner {
+.sk-inner {
   display: inline-flex;
   gap: 16rpx;
 }
 
-.product-scroll-inner :deep(.product-card) {
-  /* 内容区 = 750 - section 左右margin(48) - section 左右padding(48) = 654rpx；
-     3 张卡片 + 2 个 gap(16rpx) 正好撑满：(654 - 32) / 3 ≈ 207rpx */
-  width: 207rpx;
+.sk-item {
+  width: 176rpx;
   flex-shrink: 0;
 }
 
-.product-scroll-inner :deep(.product-info) {
-  padding: 12rpx;
+.sk-thumb {
+  position: relative;
+  width: 176rpx;
+  height: 176rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: $uni-bg-color-img;
 }
 
-.product-scroll-inner :deep(.product-name) {
-  font-size: 24rpx;
-  line-height: 1.35;
+.sk-img {
+  width: 176rpx;
+  height: 176rpx;
 }
 
-.product-scroll-inner :deep(.price) {
-  font-size: 30rpx;
+.sk-ribbon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 18rpx;
+  line-height: 1;
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx 0 8rpx 0;
+  background: $uni-color-primary;
+  color: $uni-text-color-inverse;
+  font-weight: 500;
 }
 
-.product-scroll-inner :deep(.original-price) {
+.sk-name {
+  display: block;
+  font-size: 22rpx;
+  color: $uni-text-color-grey;
+  margin: 12rpx 0 8rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sk-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8rpx;
+}
+
+.p-symbol {
   font-size: 20rpx;
+  font-weight: 700;
+  color: $uni-color-price;
+  font-style: normal;
 }
 
-.product-scroll-inner :deep(.sales) {
-  display: none;
+.p-int {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: $uni-color-price;
+  line-height: 1;
 }
+
+.p-origin {
+  font-size: 20rpx;
+  color: $uni-text-color-3;
+  text-decoration: line-through;
+  margin-left: 4rpx;
+}
+
+/* 已抢进度条：文案压在渐变填充内 */
+.bar {
+  position: relative;
+  height: 28rpx;
+  border-radius: 14rpx;
+  background: $uni-color-primary-50;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 28rpx;
+  border-radius: 14rpx;
+  background: linear-gradient(90deg, $uni-color-price-light, $uni-color-price);
+}
+
+.bar-txt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding-left: 12rpx;
+  display: flex;
+  align-items: center;
+  font-size: 18rpx;
+  font-weight: 600;
+  color: $uni-text-color-inverse;
+  font-family: $uni-font-family-num;
+}
+
+/* ===== 服务承诺条 ===== */
+.svc {
+  display: flex;
+  background: $uni-bg-color;
+  margin: 20rpx 24rpx;
+  border-radius: $uni-border-radius-base;
+  padding: 20rpx 0;
+  box-shadow: $uni-shadow-sm;
+}
+
+.svc-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  color: $uni-text-color-grey;
+  border-right: 1rpx solid $uni-border-color-divider;
+}
+
+.svc-item:last-child {
+  border-right: none;
+}
+
+:deep(.svc-icon) {
+  color: $uni-color-service;
+}
+
+/* ===== 推荐流 ===== */
+.sec-t {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 32rpx 24rpx 16rpx;
+}
+
+.sec-t-bar {
+  width: 6rpx;
+  height: 28rpx;
+  background: $uni-color-primary;
+  border-radius: 4rpx;
+}
+
+.sec-t-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $uni-text-color;
+}
+
+.sec-t-hint {
+  font-size: 22rpx;
+  color: $uni-text-color-placeholder;
+}
+
+.flow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  padding: 0 24rpx;
+}
+
+.flow-skeleton {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.skeleton-card {
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
+  overflow: hidden;
+}
+
+.skeleton-lines {
+  padding: 16rpx;
+}
+
+.flow-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  padding: 80rpx 0;
+  font-size: 26rpx;
+  color: $uni-text-color-placeholder;
+}
+
+/* 双列卡片由 ProductCard 按参考稿 .pd 规格渲染，此处不再覆写 */
 </style>

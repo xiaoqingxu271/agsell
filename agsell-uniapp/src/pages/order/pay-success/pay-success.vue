@@ -45,7 +45,7 @@ function goHome() {
 <style scoped>
 .pay-success-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,8 +60,8 @@ function goHome() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
-  background: #D1FAE5;
-  border: 6rpx solid rgba(22, 163, 74, 0.18);
+  background: #E8F6EF;
+  border: 6rpx solid rgba(0, 166, 106, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,8 +71,8 @@ function goHome() {
 .checkmark {
   width: 46rpx;
   height: 24rpx;
-  border-left: 8rpx solid #16A34A;
-  border-bottom: 8rpx solid #16A34A;
+  border-left: 8rpx solid #00A66A;
+  border-bottom: 8rpx solid #00A66A;
   border-radius: 2rpx;
   transform: rotate(-45deg);
   margin-top: -6rpx;
@@ -81,14 +81,14 @@ function goHome() {
 .success-title {
   font-size: 40rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
   display: block;
   margin-bottom: 20rpx;
 }
 
 .success-amount {
   font-size: 56rpx;
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
   display: block;
   margin-bottom: 16rpx;
@@ -104,7 +104,7 @@ function goHome() {
 
 .success-hint {
   font-size: 28rpx;
-  color: #4B5563;
+  color: #666A73;
   display: block;
   margin-bottom: 60rpx;
 }
@@ -134,14 +134,14 @@ function goHome() {
 }
 
 .btn-order {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
-  border: 1rpx solid #00B578;
+  border: 1rpx solid #E1251B;
 }
 
 .btn-home {
   background: #FFFFFF;
-  color: #00B578;
-  border: 1rpx solid #00B578;
+  color: #E1251B;
+  border: 1rpx solid #E1251B;
 }
 </style>

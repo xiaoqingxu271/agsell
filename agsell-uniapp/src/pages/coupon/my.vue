@@ -134,13 +134,13 @@ function goUse() {
 <style scoped>
 .coupon-my {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .tab-bar {
   display: flex;
   background: #FFFFFF;
-  border-bottom: 1rpx solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E5E8;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -156,7 +156,7 @@ function goUse() {
 }
 
 .tab-item.active {
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
 }
 
@@ -169,7 +169,7 @@ function goUse() {
   width: 48rpx;
   height: 6rpx;
   border-radius: 3rpx;
-  background: #00B578;
+  background: #E1251B;
 }
 
 .content {
@@ -188,12 +188,12 @@ function goUse() {
 }
 
 .empty-text {
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 28rpx;
 }
 
 .empty-btn {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   font-size: 26rpx;
   padding: 14rpx 48rpx;
@@ -234,7 +234,7 @@ function goUse() {
   transform: translateY(-50%);
   width: 28rpx;
   height: 28rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   border-radius: 50%;
 }
 
@@ -262,7 +262,7 @@ function goUse() {
 .coupon-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -270,7 +270,7 @@ function goUse() {
 
 .coupon-info {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
 }
 
 .coupon-right {
@@ -278,7 +278,7 @@ function goUse() {
 }
 
 .use-btn {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   font-size: 26rpx;
   font-weight: 600;
@@ -291,18 +291,18 @@ function goUse() {
 }
 
 .use-btn.done {
-  background: #E5E7EB;
-  color: #9CA3AF;
+  background: #E3E5E8;
+  color: #9AA0A8;
 }
 
 .load-more {
   text-align: center;
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 24rpx;
   padding: 24rpx 0;
 }
 
 .load-more.no-more {
-  color: #D1D5DB;
+  color: #C9CDD4;
 }
 </style>

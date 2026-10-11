@@ -74,7 +74,7 @@ function handleMaskClick() {
 .title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 .cancel-btn {
   font-size: 28rpx;
@@ -83,7 +83,7 @@ function handleMaskClick() {
 }
 .add-btn {
   font-size: 28rpx;
-  color: #00B578;
+  color: #E1251B;
   font-weight: 500;
   min-width: 88rpx;
   text-align: right;
@@ -100,8 +100,8 @@ function handleMaskClick() {
   border-radius: 16rpx;
 }
 .address-item.selected {
-  background: #ECFDF5;
-  border-color: #00B578;
+  background: #FDEEEC;
+  border-color: #E1251B;
 }
 .address-main {
   display: flex;
@@ -129,7 +129,7 @@ function handleMaskClick() {
   color: #9A3412;
 }
 .tag-success {
-  background: #D1FAE5;
+  background: #F5C4C0;
   color: #166534;
 }
 .address-detail {
@@ -141,7 +141,7 @@ function handleMaskClick() {
 .empty-address {
   text-align: center;
   padding: 60rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 28rpx;
 }
 </style>

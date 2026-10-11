@@ -48,7 +48,7 @@
           class="reason-input"
           v-model="form.reason"
           placeholder="请描述具体问题（选填，最多500字）"
-          placeholder-style="color:#9CA3AF"
+          placeholder-style="color:#9AA0A8"
           maxlength="500"
         />
       </view>
@@ -63,7 +63,7 @@
             type="digit"
             v-model="refundAmountText"
             placeholder="请输入退款金额"
-            placeholder-style="color:#9CA3AF"
+            placeholder-style="color:#9AA0A8"
           />
         </view>
         <view class="amount-hint">可退金额上限 ¥{{ orderDetail?.payAmount || '0.00' }}</view>
@@ -201,7 +201,7 @@ async function onSubmit() {
 <style scoped>
 .apply-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
   display: flex;
   flex-direction: column;
 }
@@ -221,32 +221,32 @@ async function onSubmit() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #00B578;
+  color: #E1251B;
   margin-bottom: 20rpx;
   display: block;
 }
 
 .order-no {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-bottom: 12rpx;
 }
 
 .order-amount {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .order-amount-value {
   font-size: 36rpx;
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
   margin-left: 12rpx;
   font-variant-numeric: tabular-nums;
@@ -261,18 +261,18 @@ async function onSubmit() {
 .option-item {
   padding: 16rpx 28rpx;
   border-radius: 16rpx;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #C9CDD4;
   font-size: 26rpx;
-  color: #111827;
+  color: #1A1A1A;
   min-height: 88rpx;
   line-height: 56rpx;
   box-sizing: border-box;
 }
 
 .option-active {
-  border-color: #00B578;
-  color: #00B578;
-  background: #ECFDF5;
+  border-color: #E1251B;
+  color: #E1251B;
+  background: #FDEEEC;
   font-weight: 600;
 }
 
@@ -285,42 +285,42 @@ async function onSubmit() {
   width: 100%;
   height: 200rpx;
   margin-top: 24rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   border-radius: 12rpx;
-  border: 1rpx solid #D1D5DB;
+  border: 1rpx solid #C9CDD4;
   padding: 20rpx;
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   box-sizing: border-box;
 }
 
 .amount-input-row {
   display: flex;
   align-items: center;
-  background: #F5F5F5;
+  background: #F4F5F7;
   border-radius: 12rpx;
-  border: 1rpx solid #D1D5DB;
+  border: 1rpx solid #C9CDD4;
   padding: 0 24rpx;
   height: 88rpx;
 }
 
 .amount-prefix {
   font-size: 32rpx;
-  color: #111827;
+  color: #1A1A1A;
   margin-right: 12rpx;
 }
 
 .amount-input {
   flex: 1;
   font-size: 32rpx;
-  color: #111827;
+  color: #1A1A1A;
   height: 88rpx;
   line-height: 88rpx;
 }
 
 .amount-hint {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 12rpx;
 }
 
@@ -340,7 +340,7 @@ async function onSubmit() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .image-remove {
@@ -360,7 +360,7 @@ async function onSubmit() {
 .image-add {
   width: 160rpx;
   height: 160rpx;
-  border: 2rpx dashed #D1D5DB;
+  border: 2rpx dashed #C9CDD4;
   border-radius: 12rpx;
   display: flex;
   flex-direction: column;
@@ -380,7 +380,7 @@ async function onSubmit() {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: #4B5563;
+  background: #666A73;
   border-radius: 2rpx;
 }
 
@@ -398,7 +398,7 @@ async function onSubmit() {
 
 .add-text {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 8rpx;
 }
 
@@ -410,12 +410,12 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E5E7EB;
+  border-top: 1rpx solid #E3E5E8;
   z-index: 100;
 }
 
 .submit-btn {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   height: 88rpx;
   line-height: 88rpx;

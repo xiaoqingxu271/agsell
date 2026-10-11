@@ -1,134 +1,201 @@
 <template>
-  <view class="product-card" hover-class="product-card-hover" :hover-stay-time="120" @click="$emit('tap', product)">
-    <view class="product-image-wrap">
+  <view class="pd" hover-class="pd-hover" :hover-stay-time="120" @click="$emit('tap', product)">
+    <view class="thumb">
       <image
-        class="product-image"
-        :src="product.mainImage || '/static/default-product.png'"
+        v-if="product.mainImage"
+        class="thumb-img"
+        :src="product.mainImage"
         mode="aspectFill"
         lazy-load
         :alt="product.name || '商品图片'"
       />
+      <wd-icon v-else name="picture" size="140rpx" custom-class="thumb-ph-ic" />
     </view>
-    <view class="product-info">
-      <text class="product-name">{{ product.name }}</text>
-      <text v-if="product.subtitle" class="product-subtitle">{{ product.subtitle }}</text>
-      <view v-if="product.tags && product.tags.length" class="product-tags">
-        <text v-for="(tag, i) in product.tags.slice(0, 2)" :key="i" class="product-tag">{{ tag }}</text>
+    <view class="in">
+      <text class="nm"><text v-if="product.subtitle" class="nm-pre">{{ product.subtitle }}</text>{{ product.name }}</text>
+      <view v-if="tagList.length" class="tags">
+        <text v-for="(tag, i) in tagList" :key="i" class="tag" :class="tagClass(tag)">{{ tag }}</text>
       </view>
-      <view class="product-footer">
-        <text class="price">¥{{ product.price }}</text>
-        <text v-if="product.originalPrice" class="original-price">¥{{ product.originalPrice }}</text>
-        <text class="sales">已售{{ product.sales || 0 }}</text>
+      <view class="prow">
+        <view class="p">
+          <text class="p-i">¥</text>
+          <text class="p-b">{{ product.price }}</text>
+          <text v-if="product.originalPrice" class="p-s">{{ product.originalPrice }}</text>
+        </view>
+        <view class="add" @click.stop="$emit('add', product)" role="button" aria-label="加入购物车">
+          <wd-icon name="add" size="24rpx" custom-class="add-ic" />
+        </view>
       </view>
+      <text class="sold">已售 {{ product.sales || 0 }}</text>
     </view>
   </view>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   product: {
     type: Object,
     default: () => ({})
   }
 })
-defineEmits(['tap'])
+defineEmits(['tap', 'add'])
+
+/** subtitle 与后端 tags 字段都可能带标签，合并后按参考稿最多展示 3 个 */
+const tagList = computed(() => {
+  const raw = props.product.tags
+  const list = Array.isArray(raw) ? raw : String(raw || '').split(/[,，\s]+/).filter(Boolean)
+  return list.slice(0, 3)
+})
+
+/** 服务/物流类走绿色，券/满减类走红色，其余灰色（对应参考稿 .tg/.tr/.tk） */
+function tagClass(tag) {
+  if (/券|折|减|惠|抢/.test(tag)) return 'tr'
+  if (/包赔|包邮|溯源|直发|冷链|发货|无理由|新鲜/.test(tag)) return 'tg'
+  return 'tk'
+}
 </script>
 
-<style scoped>
-.product-card {
-  display: flex;
-  flex-direction: column;
-  background: #FFFFFF;
-  border-radius: 24rpx;
+<style lang="scss" scoped>
+/* 参考稿 .pd：定高图 + 两行标题 + 描边标签 + 价格行（右下加购） + 销量 */
+.pd {
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
   overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-  min-height: 88rpx;
+  box-shadow: $uni-shadow-sm;
   transition: opacity 150ms ease-out;
 }
 
-.product-card-hover {
+.pd-hover {
   opacity: 0.85;
 }
 
-.product-image-wrap {
+.thumb {
   width: 100%;
-  padding-top: 100%;
-  position: relative;
+  height: 304rpx;
+  background: $uni-bg-color-img;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  background: #F5F5F5;
 }
 
-.product-image {
-  position: absolute;
-  top: 0;
-  left: 0;
+.thumb-img {
   width: 100%;
-  height: 100%;
+  height: 304rpx;
 }
 
-.product-info {
-  padding: 16rpx;
+:deep(.thumb-ph-ic) {
+  color: $uni-color-img-icon;
 }
 
-.product-name {
-  font-size: 28rpx;
-  color: #111827;
-  line-height: 1.4;
+.in {
+  padding: 16rpx 18rpx 20rpx;
+}
+
+.nm {
+  font-size: 26rpx;
+  line-height: 36rpx;
+  height: 72rpx;
+  color: $uni-text-color;
+  overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
-.product-subtitle {
-  font-size: 24rpx;
-  color: #4B5563;
-  margin-top: 8rpx;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.nm-pre {
+  color: $uni-color-primary;
+  font-weight: 600;
+  margin-right: 8rpx;
 }
 
-.product-tags {
+.tags {
   display: flex;
   gap: 8rpx;
-  margin-top: 12rpx;
   flex-wrap: wrap;
+  margin: 12rpx 0;
 }
 
-.product-tag {
-  font-size: 22rpx;
-  color: #00B578;
-  background: #ECFDF5;
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
-  line-height: 1.4;
+.tag {
+  font-size: 18rpx;
+  line-height: 28rpx;
+  padding: 0 8rpx;
+  border-radius: 4rpx;
+  border: 2rpx solid $uni-border-color;
 }
 
-.product-footer {
+.tag.tg {
+  color: $uni-color-service;
+  border-color: $uni-color-service-100;
+}
+
+.tag.tr {
+  color: $uni-color-primary;
+  border-color: $uni-color-primary-100;
+}
+
+.tag.tk {
+  color: $uni-text-color-grey;
+  border-color: $uni-border-color;
+}
+
+.prow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.p {
   display: flex;
   align-items: baseline;
-  margin-top: 12rpx;
-}
-
-.price {
-  color: #E63946;
-  font-size: 32rpx;
-  font-weight: 700;
+  gap: 4rpx;
+  color: $uni-color-price;
+  font-family: $uni-font-family-num;
   font-variant-numeric: tabular-nums;
+  min-width: 0;
 }
 
-.original-price {
-  color: #9CA3AF;
-  font-size: 24rpx;
-  text-decoration: line-through;
-  margin-left: 8rpx;
-}
-
-.sales {
-  color: #9CA3AF;
+.p-i {
   font-size: 22rpx;
-  margin-left: auto;
+  font-weight: 700;
+}
+
+.p-b {
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1rpx;
+}
+
+.p-s {
+  font-size: 22rpx;
+  color: $uni-text-color-3;
+  text-decoration: line-through;
+  margin-left: 6rpx;
+}
+
+.add {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 22rpx;
+  background: $uni-color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+:deep(.add-ic) {
+  color: $uni-text-color-inverse;
+}
+
+.sold {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 20rpx;
+  color: $uni-text-color-placeholder;
+  font-family: $uni-font-family-num;
 }
 </style>

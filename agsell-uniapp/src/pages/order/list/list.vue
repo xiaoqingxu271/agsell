@@ -262,13 +262,13 @@ function onRepurchase(order) {
 <style scoped>
 .order-list-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .tabs {
   display: flex;
   background: #FFFFFF;
-  border-bottom: 1rpx solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E5E8;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -279,14 +279,14 @@ function onRepurchase(order) {
   text-align: center;
   padding: 28rpx 0;
   font-size: 28rpx;
-  color: #4B5563;
+  color: #666A73;
   position: relative;
   min-height: 88rpx;
   box-sizing: border-box;
 }
 
 .tab-item.active {
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
 }
 
@@ -298,13 +298,13 @@ function onRepurchase(order) {
   transform: translateX(-50%);
   width: 56rpx;
   height: 6rpx;
-  background: #00B578;
+  background: #E1251B;
   border-radius: 3rpx;
 }
 
 .tab-count {
   font-size: 20rpx;
-  background: #DC2626;
+  background: #D93026;
   color: #FFFFFF;
   border-radius: 16rpx;
   padding: 2rpx 10rpx;
@@ -332,7 +332,7 @@ function onRepurchase(order) {
 .card {
   background: #FFFFFF;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -341,12 +341,12 @@ function onRepurchase(order) {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16rpx;
-  border-bottom: 1rpx solid #F0F0F0;
+  border-bottom: 1rpx solid #EDEEF0;
 }
 
 .order-no {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .order-status {
@@ -358,10 +358,10 @@ function onRepurchase(order) {
 }
 
 .tag-warning { background: #FEF3C7; color: #92400E; }
-.tag-primary { background: #D1FAE5; color: #111827; }
-.tag-success { background: #D1FAE5; color: #00B578; }
-.tag-info { background: #F3F4F6; color: #4B5563; }
-.tag-danger { background: #FEE2E2; color: #991B1B; }
+.tag-primary { background: #F5C4C0; color: #1A1A1A; }
+.tag-success { background: #E8F6EF; color: #00A66A; }
+.tag-info { background: #F3F4F6; color: #666A73; }
+.tag-danger { background: #FDEEEC; color: #991B1B; }
 
 .order-product {
   display: flex;
@@ -373,7 +373,7 @@ function onRepurchase(order) {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   flex-shrink: 0;
 }
 
@@ -385,7 +385,7 @@ function onRepurchase(order) {
 
 .product-name {
   font-size: 26rpx;
-  color: #111827;
+  color: #1A1A1A;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -394,13 +394,13 @@ function onRepurchase(order) {
 
 .product-spec {
   font-size: 22rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 4rpx;
 }
 
 .product-qty {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   flex-shrink: 0;
 }
 
@@ -410,21 +410,21 @@ function onRepurchase(order) {
   align-items: flex-end;
   gap: 12rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #F0F0F0;
+  border-top: 1rpx solid #EDEEF0;
 }
 
 .order-time {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
 }
 
 .order-amount {
   font-size: 26rpx;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .amount-highlight {
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -456,26 +456,26 @@ function onRepurchase(order) {
 }
 
 .btn-primary {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
-  border: 1rpx solid #00B578;
+  border: 1rpx solid #E1251B;
 }
 
 .btn-ghost {
   background: transparent;
-  color: #00B578;
-  border: 1rpx solid #00B578;
+  color: #E1251B;
+  border: 1rpx solid #E1251B;
 }
 
 .btn-danger {
-  color: #DC2626;
-  border-color: #DC2626;
+  color: #D93026;
+  border-color: #D93026;
 }
 
 .loading, .no-more, .empty-orders {
   text-align: center;
   padding: 60rpx;
-  color: #4B5563;
+  color: #666A73;
   font-size: 26rpx;
 }
 </style>

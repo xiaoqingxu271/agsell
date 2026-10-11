@@ -1,69 +1,92 @@
 /**
- * agsell 小程序设计系统 v4.0（生鲜电商标准版）
- * 权威来源：doc/miniprogram-design-system-v4.md
+ * agsell 小程序设计系统 v5.0（品质电商风 · 京东/天猫超市参照）
+ * 权威来源：doc/ui-design/v2/full-flow.html（8 屏高保真稿）
  * 页面改造禁止引入本文档之外的裸色值/裸字号/裸间距
+ *
+ * 语义分工（不要混用）：
+ *   品牌红 primary  = 价格、CTA、选中态、角标
+ *   服务绿 service  = 成功状态、自营、坏果包赔、溯源
+ *   加购橙 cart     = 加入购物车按钮
+ *   警示黄 warning  = 待付款、库存、券
  */
 
-/* ============ 品牌绿阶（生鲜绿） ============ */
-$uni-color-primary: #00B578;       // brand-600 主色：主按钮、链接、激活态、tab 选中
-$uni-color-primary-dark: #009A63;   // brand-700 主色 pressed
-$uni-color-primary-deeper: #009A63; // brand-700 渐变深端
-$uni-color-primary-500: #00C886;    // brand-500 渐变亮端
-$uni-color-primary-100: #D1FAE5;    // 浅绿标签底
-$uni-color-primary-50: #ECFDF5;     // 极浅绿底
-$uni-color-success: #00B578;       // 成功实心
+/* ============ 品牌红阶（价格 / CTA / 选中态） ============ */
+$uni-color-primary: #E1251B;        // brand-600 主色
+$uni-color-primary-dark: #C81E14;   // brand-700 主色 pressed / 渐变深端
+$uni-color-primary-deeper: #C81E14;
+$uni-color-primary-500: #F04B3E;    // brand-500 渐变亮端
+$uni-color-primary-100: #F5C4C0;    // 浅红描边
+$uni-color-primary-50: #FDEEEC;     // 极浅红底（促销标签底、凑单条）
+$uni-color-success: #00A66A;        // 成功语义改用服务绿
 
-/* ============ 促销红阶（价格/秒杀/角标） ============ */
-$uni-color-price: #E63946;          // 价格主色、角标
-$uni-color-price-deep: #C62828;     // 价格 pressed
-$uni-color-price-light: #FF6B35;    // 秒杀渐变过渡
-$uni-color-price-bg: #FEE2E2;       // 浅红标签底
+/* ============ 服务绿阶（自营 / 保障 / 溯源 / 成功） ============ */
+$uni-color-service: #00A66A;
+$uni-color-service-dark: #00805A;
+$uni-color-service-100: #B9E3D0;    // 浅绿描边
+$uni-color-service-50: #E8F6EF;     // 浅绿底
+
+/* ============ 加购橙（加入购物车按钮 / 会员标） ============ */
+$uni-color-cart: #FF9200;
+$uni-color-cart-dark: #E68200;
+$uni-color-cart-50: #FFF4E6;
+$uni-color-cart-100: #F3D9AE;
+
+/* ============ 促销红阶（历史别名，与品牌红同源，保留兼容） ============ */
+$uni-color-price: #E1251B;          // 价格主色、角标
+$uni-color-price-deep: #C81E14;     // 价格 pressed
+$uni-color-price-light: #FF6F1F;    // 秒杀渐变过渡
+$uni-color-price-bg: #FDEEEC;       // 浅红标签底
 
 /* ============ 语义色 ============ */
-$uni-color-warning: #D97706;       // 待付款、库存预警
+$uni-color-warning: #D97706;        // 待付款、库存预警
 $uni-color-warning-bg: #FFF7ED;
-$uni-color-error: #DC2626;         // 危险动作、删除
-$uni-color-star: #FBBF24;          // 评分星星
+$uni-color-error: #D93026;          // 危险动作、删除
+$uni-color-star: #FBBF24;           // 评分星星
 
 /* ============ 文字颜色 ============ */
-$uni-text-color: #111827;          // 一级文字（标题/商品名）
+$uni-text-color: #1A1A1A;           // 一级文字（标题/商品名）
 $uni-text-color-inverse: #FFFFFF;
-$uni-text-color-grey: #4B5563;     // 二级文字（正文/次要信息，置于白卡）
-$uni-text-color-on-bg: #4B5563;    // 页面底上的直接文字
-$uni-text-color-placeholder: #9CA3AF;
-$uni-text-color-disable: #9CA3AF;
-$uni-text-color-3: #9CA3AF;        // 三级文字（划线原价/辅助）
-$uni-text-color-heading: #111827;
-$uni-text-color-card-title: #111827;
-$uni-text-link: #00B578;
+$uni-text-color-grey: #666A73;      // 二级文字（正文/次要信息，置于白卡）
+$uni-text-color-on-bg: #5A5F66;     // 页面底上的直接文字
+$uni-text-color-placeholder: #9AA0A8;
+$uni-text-color-disable: #C9CDD4;
+$uni-text-color-3: #9AA0A8;         // 三级文字（划线原价/辅助）
+$uni-text-color-heading: #1A1A1A;
+$uni-text-color-card-title: #1A1A1A;
+$uni-text-link: #E1251B;
 
 /* ============ 背景颜色 ============ */
 $uni-bg-color: #FFFFFF;
-$uni-bg-color-grey: #F5F5F5;       // 页面背景（中性浅灰）
-$uni-bg-color-muted: #F3F4F6;      // 输入框底、禁用底、步进器底
-$uni-bg-color-hover: #ECFDF5;     // 点击状态
+$uni-bg-color-grey: #F4F5F7;        // 页面背景（中性灰底）
+$uni-bg-color-muted: #F3F4F6;       // 输入框底、禁用底、步进器底
+$uni-bg-color-hover: #FDEEEC;       // 点击状态
 $uni-bg-color-mask: rgba(15, 23, 42, 0.5);
-$uni-bg-color-brand-50: #ECFDF5;
+$uni-bg-color-brand-50: #FDEEEC;
+$uni-bg-color-img: #F0F1F3;         // 商品图占位底
+$uni-color-img-icon: #C7CCD4;       // 商品图占位图标
 
 /* ============ 边框颜色 ============ */
-$uni-border-color: #E5E7EB;
-$uni-border-color-strong: #D1D5DB;
-$uni-border-color-divider: #F0F0F0;
+$uni-border-color: #E3E5E8;
+$uni-border-color-strong: #C9CDD4;
+$uni-border-color-divider: #EDEEF0;
 
 /* ============ 文字尺寸 ============ */
 $uni-font-size-caption: 20rpx;
 $uni-font-size-sm: 24rpx;
 $uni-font-size-base: 28rpx;
 $uni-font-size-lg: 34rpx;
-$uni-font-size-price: 32rpx;
+$uni-font-size-price: 40rpx;        // 价格整数（详情/结算合计）
 $uni-font-size-display: 56rpx;
+
+/* ============ 等宽数字字体（价格/数量/时间必须用） ============ */
+$uni-font-family-num: 'DIN Alternate', 'Bahnschrift', 'Helvetica Neue', Arial, sans-serif;
 
 /* ============ 图片尺寸 ============ */
 $uni-img-size-sm: 40rpx;
 $uni-img-size-base: 52rpx;
 $uni-img-size-lg: 80rpx;
 
-/* ============ Border Radius ============ */
+/* ============ Border Radius（卡片统一 16rpx = 8px） ============ */
 $uni-border-radius-sm: 8rpx;
 $uni-border-radius-base: 16rpx;
 $uni-border-radius-lg: 24rpx;
@@ -71,7 +94,7 @@ $uni-border-radius-xl: 32rpx;
 $uni-border-radius-circle: 50%;
 $uni-border-radius-pill: 999rpx;
 
-/* ============ 间距 ============ */
+/* ============ 间距（4px 栅格：8/16/24rpx） ============ */
 $uni-spacing-row-sm: 8rpx;
 $uni-spacing-row-base: 16rpx;
 $uni-spacing-row-lg: 24rpx;
@@ -82,16 +105,16 @@ $uni-spacing-col-lg: 24rpx;
 /* ============ 透明度 ============ */
 $uni-opacity-disabled: 0.4;
 
-/* ============ 阴影 ============ */
-$uni-shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-$uni-shadow-base: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-$uni-shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
-$uni-shadow-seckill: 0 8rpx 24rpx rgba(230, 57, 70, 0.3);
+/* ============ 阴影（克制，仅卡片微影 + 浮层） ============ */
+$uni-shadow-sm: 0 2rpx 4rpx rgba(20, 24, 31, 0.04);
+$uni-shadow-base: 0 2rpx 8rpx rgba(20, 24, 31, 0.05);
+$uni-shadow-lg: 0 8rpx 32rpx rgba(20, 24, 31, 0.10);
+$uni-shadow-seckill: 0 8rpx 24rpx rgba(225, 37, 27, 0.24);
 
 /* ============ 文章场景 ============ */
-$uni-color-title: #111827;
+$uni-color-title: #1A1A1A;
 $uni-font-size-title: 40rpx;
-$uni-color-subtitle: #111827;
+$uni-color-subtitle: #1A1A1A;
 $uni-font-size-subtitle: 34rpx;
-$uni-color-paragraph: #111827;
+$uni-color-paragraph: #1A1A1A;
 $uni-font-size-paragraph: 28rpx;

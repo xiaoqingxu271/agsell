@@ -217,7 +217,7 @@ async function onCancel() {
 <style scoped>
 .pay-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
   padding-bottom: 140rpx;
   box-sizing: border-box;
 }
@@ -227,7 +227,7 @@ async function onCancel() {
   margin: 24rpx;
   padding: 48rpx 32rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
   display: flex;
   flex-direction: column;
@@ -261,13 +261,13 @@ async function onCancel() {
   width: 96rpx;
   height: 96rpx;
   border-radius: 50%;
-  border: 6rpx solid #E63946;
+  border: 6rpx solid #E1251B;
   background: #FFFDF7;
   box-sizing: border-box;
 }
 
 .clock.expired {
-  border-color: #9CA3AF;
+  border-color: #9AA0A8;
   background: #F3F4F6;
 }
 
@@ -281,18 +281,18 @@ async function onCancel() {
 
 .clock-hand.hour {
   height: 26rpx;
-  background: #E63946;
+  background: #E1251B;
   transform: translate(-50%, -100%) rotate(45deg);
 }
 
 .clock-hand.minute {
   height: 36rpx;
-  background: #E63946;
+  background: #E1251B;
   transform: translate(-50%, -100%) rotate(135deg);
 }
 
 .clock.expired .clock-hand {
-  background: #9CA3AF;
+  background: #9AA0A8;
 }
 
 .clock-dot {
@@ -302,28 +302,28 @@ async function onCancel() {
   width: 10rpx;
   height: 10rpx;
   border-radius: 50%;
-  background: #E63946;
+  background: #E1251B;
   transform: translate(-50%, -50%);
 }
 
 .clock.expired .clock-dot {
-  background: #9CA3AF;
+  background: #9AA0A8;
 }
 
 .status-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
   margin-bottom: 16rpx;
 }
 
 .status-card.expired .status-title {
-  color: #4B5563;
+  color: #666A73;
 }
 
 .pay-amount {
   font-size: 64rpx;
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
   margin-bottom: 24rpx;
   font-variant-numeric: tabular-nums;
@@ -338,7 +338,7 @@ async function onCancel() {
 
 .countdown-label {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .countdown-time {
@@ -350,14 +350,14 @@ async function onCancel() {
 
 .expired-hint {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-bottom: 16rpx;
   text-align: center;
 }
 
 .order-no {
   font-size: 24rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
 }
 
 .tips-card {
@@ -365,7 +365,7 @@ async function onCancel() {
   margin: 0 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
 }
 
 .tip-row {
@@ -378,14 +378,14 @@ async function onCancel() {
 .tip-row:last-child { margin-bottom: 0; }
 
 .tip-dot {
-  color: #00B578;
+  color: #E1251B;
   font-size: 28rpx;
   line-height: 1.5;
 }
 
 .tip-text {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   line-height: 1.5;
   flex: 1;
 }
@@ -396,13 +396,13 @@ async function onCancel() {
   margin: 0 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
 }
 
 .methods-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
   margin-bottom: 16rpx;
 }
 
@@ -419,8 +419,8 @@ async function onCancel() {
 .method-row:last-child { margin-bottom: 0; }
 
 .method-row.active {
-  border-color: #00B578;
-  background: rgba(0, 181, 120, 0.04);
+  border-color: #E1251B;
+  background: #FDEEEC;
 }
 
 .method-icon {
@@ -448,7 +448,7 @@ async function onCancel() {
   width: 36rpx;
   height: 36rpx;
   border-radius: 50%;
-  border: 2rpx solid #D1D5DB;
+  border: 2rpx solid #C9CDD4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -457,14 +457,14 @@ async function onCancel() {
 }
 
 .method-radio.checked {
-  border-color: #00B578;
+  border-color: #E1251B;
 }
 
 .radio-dot {
   width: 20rpx;
   height: 20rpx;
   border-radius: 50%;
-  background: #00B578;
+  background: #E1251B;
 }
 
 .bottom-bar {
@@ -479,7 +479,7 @@ async function onCancel() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E5E7EB;
+  border-top: 1rpx solid #E3E5E8;
   z-index: 100;
 }
 
@@ -501,14 +501,14 @@ async function onCancel() {
 
 .btn-cancel {
   background: #FFFFFF;
-  color: #4B5563;
-  border: 1rpx solid #D1D5DB;
+  color: #666A73;
+  border: 1rpx solid #C9CDD4;
 }
 
 .btn-pay {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
-  border: 1rpx solid #00B578;
+  border: 1rpx solid #E1251B;
 }
 
 .btn-cancel.disabled, .btn-pay.disabled {

@@ -42,7 +42,7 @@
           class="review-textarea"
           v-model="content"
           placeholder="说说你的购物体验吧~"
-          placeholder-style="color:#9CA3AF"
+          placeholder-style="color:#9AA0A8"
           maxlength="500"
           show-count
         />
@@ -193,7 +193,7 @@ async function onSubmit() {
 <style scoped>
 .review-write-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
   padding-bottom: 140rpx;
 }
 
@@ -207,7 +207,7 @@ async function onSubmit() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -220,13 +220,13 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   padding: 12rpx 0;
-  border-bottom: 1rpx solid #F0F0F0;
+  border-bottom: 1rpx solid #EDEEF0;
   min-height: 88rpx;
   box-sizing: border-box;
 }
 
 .product-item.active {
-  background: #ECFDF5;
+  background: #FDEEEC;
   border-radius: 12rpx;
   padding: 12rpx 16rpx;
   margin: 0 -16rpx;
@@ -241,7 +241,7 @@ async function onSubmit() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   flex-shrink: 0;
 }
 
@@ -254,7 +254,7 @@ async function onSubmit() {
 .product-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -263,14 +263,14 @@ async function onSubmit() {
 
 .product-spec {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 8rpx;
   display: block;
 }
 
 .product-price {
   font-size: 24rpx;
-  color: #E63946;
+  color: #E1251B;
   margin-top: 8rpx;
   display: block;
   font-variant-numeric: tabular-nums;
@@ -279,7 +279,7 @@ async function onSubmit() {
 .product-check {
   width: 40rpx;
   height: 40rpx;
-  border: 2px solid #D1D5DB;
+  border: 2px solid #C9CDD4;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -289,8 +289,8 @@ async function onSubmit() {
 }
 
 .product-check.checked {
-  border-color: #00B578;
-  background: #00B578;
+  border-color: #E1251B;
+  background: #E1251B;
 }
 
 .check-mark {
@@ -302,7 +302,7 @@ async function onSubmit() {
 
 .product-hint {
   font-size: 22rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 12rpx;
   display: block;
 }
@@ -310,7 +310,7 @@ async function onSubmit() {
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #00B578;
+  color: #E1251B;
   margin-bottom: 20rpx;
   display: block;
 }
@@ -326,7 +326,7 @@ async function onSubmit() {
   display: block;
   text-align: center;
   font-size: 28rpx;
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
 }
 
@@ -334,12 +334,12 @@ async function onSubmit() {
   width: 100%;
   min-height: 240rpx;
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   background: #FFFFFF;
   border-radius: 12rpx;
   padding: 20rpx;
   box-sizing: border-box;
-  border: 1rpx solid #D1D5DB;
+  border: 1rpx solid #C9CDD4;
   line-height: 1.6;
 }
 
@@ -353,14 +353,14 @@ async function onSubmit() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .add-img-btn {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  border: 2rpx dashed #D1D5DB;
+  border: 2rpx dashed #C9CDD4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,14 +369,14 @@ async function onSubmit() {
 
 .add-icon {
   font-size: 56rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   line-height: 1;
   font-weight: 300;
 }
 
 .image-hint {
   font-size: 22rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 12rpx;
   display: block;
 }
@@ -391,7 +391,7 @@ async function onSubmit() {
 .checkbox {
   width: 40rpx;
   height: 40rpx;
-  border: 2px solid #D1D5DB;
+  border: 2px solid #C9CDD4;
   border-radius: 8rpx;
   display: flex;
   align-items: center;
@@ -400,18 +400,18 @@ async function onSubmit() {
 }
 
 .checkbox.checked {
-  border-color: #00B578;
-  background: #00B578;
+  border-color: #E1251B;
+  background: #E1251B;
 }
 
 .anonymous-label {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .anonymous-hint {
   font-size: 22rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-left: auto;
 }
 
@@ -423,12 +423,12 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E5E7EB;
+  border-top: 1rpx solid #E3E5E8;
   z-index: 100;
 }
 
 .submit-btn {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   text-align: center;
   height: 88rpx;

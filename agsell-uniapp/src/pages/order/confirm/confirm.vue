@@ -77,7 +77,7 @@
         <textarea
           class="remark-input"
           placeholder="选填，如有备注请在此输入"
-          placeholder-style="color:#9CA3AF"
+          placeholder-style="color:#9AA0A8"
           v-model="remark"
           maxlength="200"
           auto-height
@@ -351,7 +351,7 @@ async function onSubmit() {
 <style scoped>
 .confirm-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
   padding-bottom: 140rpx;
 }
 
@@ -364,7 +364,7 @@ async function onSubmit() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -388,12 +388,12 @@ async function onSubmit() {
 .receiver {
   font-size: 30rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .tag {
@@ -404,18 +404,18 @@ async function onSubmit() {
 }
 
 .tag-accent { background: #FFF7ED; color: #9A3412; }
-.tag-success { background: #D1FAE5; color: #00B578; }
+.tag-success { background: #E8F6EF; color: #00A66A; }
 
 .address-detail {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 8rpx;
   line-height: 1.5;
 }
 
 .address-empty {
   flex: 1;
-  color: #4B5563;
+  color: #666A73;
   font-size: 28rpx;
   display: flex;
   align-items: center;
@@ -423,15 +423,15 @@ async function onSubmit() {
 }
 
 .add-btn-text {
-  color: #00B578;
+  color: #E1251B;
   font-weight: 500;
 }
 
 .arrow-icon {
   width: 18rpx;
   height: 18rpx;
-  border-top: 4rpx solid #9CA3AF;
-  border-right: 4rpx solid #9CA3AF;
+  border-top: 4rpx solid #9AA0A8;
+  border-right: 4rpx solid #9AA0A8;
   border-radius: 2rpx;
   transform: rotate(45deg);
   flex-shrink: 0;
@@ -441,7 +441,7 @@ async function onSubmit() {
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #00B578;
+  color: #E1251B;
   margin-bottom: 20rpx;
   display: block;
 }
@@ -450,7 +450,7 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   padding: 16rpx 0;
-  border-bottom: 1rpx solid #F0F0F0;
+  border-bottom: 1rpx solid #EDEEF0;
 }
 
 .order-item:last-child { border-bottom: none; }
@@ -459,7 +459,7 @@ async function onSubmit() {
   width: 120rpx;
   height: 120rpx;
   border-radius: 12rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   flex-shrink: 0;
 }
 
@@ -471,7 +471,7 @@ async function onSubmit() {
 
 .item-name {
   font-size: 26rpx;
-  color: #111827;
+  color: #1A1A1A;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -480,7 +480,7 @@ async function onSubmit() {
 
 .item-spec {
   font-size: 22rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 4rpx;
 }
 
@@ -492,20 +492,20 @@ async function onSubmit() {
 
 .item-price {
   font-size: 26rpx;
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .item-qty {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-left: 8rpx;
 }
 
 .item-subtotal {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   font-weight: 600;
   margin-left: 16rpx;
   font-variant-numeric: tabular-nums;
@@ -518,19 +518,19 @@ async function onSubmit() {
   font-size: 28rpx;
 }
 
-.price-label { color: #4B5563; }
-.price-value { color: #111827; font-variant-numeric: tabular-nums; }
+.price-label { color: #666A73; }
+.price-value { color: #1A1A1A; font-variant-numeric: tabular-nums; }
 
 .price-row.total {
   font-size: 32rpx;
   font-weight: 600;
 }
 
-.price-value.pay { color: #E63946; }
+.price-value.pay { color: #E1251B; }
 
 .divider {
   height: 1rpx;
-  background: #F0F0F0;
+  background: #EDEEF0;
   margin: 8rpx 0;
 }
 
@@ -540,12 +540,12 @@ async function onSubmit() {
   max-height: 280rpx;
   font-size: 28rpx;
   line-height: 1.5;
-  color: #111827;
-  background: #F5F5F5;
+  color: #1A1A1A;
+  background: #F4F5F7;
   border-radius: 12rpx;
   padding: 16rpx 24rpx;
   box-sizing: border-box;
-  border: 1rpx solid #D1D5DB;
+  border: 1rpx solid #C9CDD4;
 }
 
 .bottom-bar {
@@ -560,7 +560,7 @@ async function onSubmit() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E5E7EB;
+  border-top: 1rpx solid #E3E5E8;
   z-index: 100;
 }
 
@@ -568,17 +568,17 @@ async function onSubmit() {
   flex: 1;
 }
 
-.pay-label { font-size: 26rpx; color: #4B5563; }
+.pay-label { font-size: 26rpx; color: #666A73; }
 
 .pay-price {
   font-size: 40rpx;
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .submit-btn {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   padding: 0 60rpx;
   height: 88rpx;
@@ -614,7 +614,7 @@ async function onSubmit() {
 }
 
 .coupon-empty {
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 26rpx;
 }
 
@@ -635,7 +635,7 @@ async function onSubmit() {
 
 .coupon-panel {
   width: 100%;
-  background: #F5F5F5;
+  background: #F4F5F7;
   border-radius: 32rpx 32rpx 0 0;
   padding: 32rpx 24rpx;
   padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
@@ -655,7 +655,7 @@ async function onSubmit() {
 .coupon-panel-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .coupon-panel-close {
@@ -671,20 +671,20 @@ async function onSubmit() {
 
 .coupon-panel-empty {
   text-align: center;
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 26rpx;
   padding: 80rpx 0;
 }
 
 .coupon-group-title {
   font-size: 24rpx;
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
   margin: 16rpx 0 12rpx;
 }
 
 .disabled-title {
-  color: #9CA3AF;
+  color: #9AA0A8;
 }
 
 .coupon-item {
@@ -695,7 +695,7 @@ async function onSubmit() {
   border-radius: 16rpx;
   padding: 20rpx 24rpx;
   margin-bottom: 16rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
 }
 
 .coupon-item.usable:active {
@@ -703,7 +703,7 @@ async function onSubmit() {
 }
 
 .coupon-item.usable.active {
-  border-color: #00B578;
+  border-color: #E1251B;
   background: #F0FDF4;
 }
 
@@ -736,23 +736,23 @@ async function onSubmit() {
 
 .coupon-item-threshold {
   font-size: 22rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .coupon-item-expire {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   margin-top: 4rpx;
 }
 
 .coupon-item-reason {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
 }
 
 .coupon-checked {
   font-size: 22rpx;
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
   margin-top: 4rpx;
 }

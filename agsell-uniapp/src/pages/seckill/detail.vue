@@ -6,6 +6,7 @@
     <!-- 商品大图 -->
     <view class="hero">
       <image class="hero-img" :src="currentSpec?.specImage || detail?.productImage" mode="aspectFill" :alt="detail?.productName" />
+      <text class="hero-flag">限时秒杀</text>
       <view v-if="currentSpec && currentSpec.activityStatus !== 2" class="hero-status-mask">
         <text class="hero-status-text">{{ currentSpec.activityStatus === 1 ? '未开始' : '已结束' }}</text>
       </view>
@@ -241,23 +242,36 @@ async function onBuy() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .detail-page {
   min-height: 100vh;
-  background: #F5F5F5;
-  padding-bottom: 140rpx;
+  background: $uni-bg-color-grey;
+  padding-bottom: 160rpx;
 }
 
+/* ── 主图 ── */
 .hero {
   position: relative;
   width: 100%;
   height: 600rpx;
-  background: #FFFFFF;
+  background: $uni-bg-color;
 }
 
 .hero-img {
   width: 100%;
   height: 600rpx;
+}
+
+.hero-flag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: $uni-color-primary;
+  color: $uni-text-color-inverse;
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 8rpx 24rpx;
+  border-radius: 0 0 $uni-border-radius-base 0;
 }
 
 .hero-status-mask {
@@ -266,25 +280,26 @@ async function onBuy() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(15, 23, 42, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .hero-status-text {
-  color: #FFFFFF;
+  color: $uni-text-color-inverse;
   font-size: 40rpx;
   font-weight: 700;
   letter-spacing: 8rpx;
 }
 
+/* ── 价格与活动信息 ── */
 .price-card {
   margin: 24rpx;
   padding: 28rpx;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-sm;
 }
 
 .price-row {
@@ -299,22 +314,28 @@ async function onBuy() {
 }
 
 .price-currency {
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   font-size: 28rpx;
-  color: #DC2626;
+  color: $uni-color-price;
   font-weight: 700;
 }
 
 .price-value {
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   font-size: 56rpx;
-  font-weight: 800;
-  color: #DC2626;
+  font-weight: 700;
+  color: $uni-color-price;
   line-height: 1;
   margin: 0 12rpx 0 4rpx;
 }
 
 .price-origin {
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   font-size: 26rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
   text-decoration: line-through;
 }
 
@@ -322,25 +343,26 @@ async function onBuy() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8rpx 20rpx;
-  border-radius: 12rpx;
-  background: #F3F4F6;
+  padding: 10rpx 24rpx;
+  border-radius: $uni-border-radius-sm;
+  background: $uni-bg-color-muted;
 }
 
 .countdown-ongoing {
-  background: #FFF1ED;
+  background: $uni-color-primary-50;
 }
 
 .cd-label {
   font-size: 20rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
 }
 
 .cd-value {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #FF4D2E;
+  font-family: $uni-font-family-num;
   font-variant-numeric: tabular-nums;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: $uni-color-primary;
 }
 
 .stock-row {
@@ -359,43 +381,45 @@ async function onBuy() {
 
 .stock-text {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
   flex-shrink: 0;
 }
 
 .stock-progress {
   flex: 1;
-  height: 12rpx;
-  background: #F3F4F6;
-  border-radius: 6rpx;
+  height: 28rpx;
+  background: $uni-color-primary-50;
+  border-radius: 14rpx;
   overflow: hidden;
 }
 
 .stock-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #FF4D2E, #FF7A1A);
-  border-radius: 6rpx;
+  background: linear-gradient(90deg, $uni-color-price-light, $uni-color-price);
+  border-radius: 14rpx;
 }
 
 .stock-remain {
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   font-size: 22rpx;
-  color: #FF4D2E;
+  color: $uni-color-primary;
   flex-shrink: 0;
 }
 
-/* 规格选择 */
+/* ── 规格选择 ── */
 .spec-card {
   margin: 0 24rpx 24rpx;
   padding: 24rpx 28rpx;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-sm;
 }
 
 .spec-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111827;
+  color: $uni-text-color;
   margin-bottom: 20rpx;
 }
 
@@ -410,48 +434,51 @@ async function onBuy() {
   flex-direction: column;
   align-items: center;
   padding: 16rpx 24rpx;
-  border: 1rpx solid #D1D5DB;
-  border-radius: 16rpx;
+  border: 1rpx solid $uni-border-color;
+  border-radius: $uni-border-radius-base;
   min-width: 180rpx;
   box-sizing: border-box;
   transition: border-color 150ms ease-out, background 150ms ease-out;
 }
 
 .spec-item.active {
-  border-color: #FF4D2E;
-  background: #FFF1ED;
+  border-color: $uni-color-primary;
+  background: $uni-color-primary-50;
 }
 
 .spec-item-disabled {
-  opacity: 0.5;
+  opacity: $uni-opacity-disabled;
 }
 
 .spec-name {
   font-size: 26rpx;
   font-weight: 600;
-  color: #111827;
+  color: $uni-text-color;
 }
 
 .spec-price {
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   font-size: 24rpx;
-  color: #DC2626;
+  color: $uni-color-price;
   font-weight: 600;
   margin-top: 4rpx;
 }
 
+/* ── 商品信息 ── */
 .info-card {
   margin: 0 24rpx;
   padding: 28rpx;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-sm;
 }
 
 .info-name {
   display: block;
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
+  color: $uni-text-color;
   margin-bottom: 24rpx;
 }
 
@@ -469,27 +496,29 @@ async function onBuy() {
 
 .info-label {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
 }
 
 .info-value {
   font-size: 26rpx;
-  color: #111827;
+  color: $uni-text-color;
 }
 
+/* ── 底部操作栏 ── */
 .bottom-bar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   height: 120rpx;
-  background: #FFFFFF;
+  background: $uni-bg-color;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24rpx;
   padding-bottom: env(safe-area-inset-bottom);
-  box-shadow: 0 -4rpx 16rpx rgba(16, 24, 40, 0.06);
+  border-top: 1rpx solid $uni-border-color-divider;
+  box-shadow: $uni-shadow-lg;
 }
 
 .bottom-left {
@@ -498,14 +527,18 @@ async function onBuy() {
 }
 
 .bottom-price {
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   font-size: 40rpx;
-  font-weight: 800;
-  color: #DC2626;
+  font-weight: 700;
+  color: $uni-color-price;
 }
 
 .bottom-origin {
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
   font-size: 24rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
   text-decoration: line-through;
   margin-left: 12rpx;
 }
@@ -514,14 +547,14 @@ async function onBuy() {
   height: 88rpx;
   line-height: 88rpx;
   padding: 0 64rpx;
-  background: linear-gradient(135deg, #FF4D2E, #FF7A1A);
-  color: #FFFFFF;
+  background: $uni-color-primary;
+  color: $uni-text-color-inverse;
   font-size: 32rpx;
   font-weight: 600;
-  border-radius: 44rpx;
+  border-radius: $uni-border-radius-pill;
 }
 
 .buy-btn-disabled {
-  background: #D1D5DB;
+  background: $uni-text-color-disable;
 }
 </style>

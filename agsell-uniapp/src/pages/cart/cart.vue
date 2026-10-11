@@ -1,88 +1,118 @@
 ﻿<template>
   <view class="cart-page">
-    <view v-if="cartItems.length === 0" class="empty-cart">
-      <view class="cart-empty">
-        <view class="ce-handle"></view>
-        <view class="ce-basket"></view>
-        <view class="ce-wheel wl"></view>
-        <view class="ce-wheel wr"></view>
+    <!-- 加载骨架屏 -->
+    <view v-if="loading" class="cart-loading">
+      <view v-for="i in 3" :key="i" class="card sk-row">
+        <wd-skeleton type="circle" width="48rpx" height="48rpx" />
+        <wd-skeleton type="rect" width="160rpx" height="160rpx" margin-left="24rpx" />
+        <view class="sk-col">
+          <wd-skeleton type="rect" width="100%" height="32rpx" />
+          <wd-skeleton type="rect" width="50%" height="28rpx" margin-top="32rpx" />
+        </view>
       </view>
+    </view>
+    <view v-else-if="cartItems.length === 0" class="empty-cart">
+      <wd-icon name="cart" size="140rpx" color="#C9CDD4" />
       <text class="empty-text">购物车是空的</text>
-      <button class="go-shop-btn" @click="goToShop">去逛逛</button>
+      <wd-button type="primary" round @click="goToShop">去逛逛</wd-button>
     </view>
     <view v-else>
+      <!-- 领券提示条（浅红底 + 品牌红字） -->
+      <view class="promo" @click="onCouponTap" role="button" aria-label="去领券中心">
+        <wd-icon name="discount" size="28rpx" custom-class="promo-icon" />
+        <text class="promo-text">结算前可领取优惠券，更划算</text>
+        <view class="promo-go">
+          <text>去领券</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="promo-arrow" />
+        </view>
+      </view>
+
       <view class="cart-list">
-        <view
+        <wd-swipe-action
           v-for="item in cartItems"
           :key="item.id"
-          class="cart-item card"
+          class="cart-swipe"
         >
-          <view class="item-checkbox" :class="{ checked: item.valid !== 0 && item.selected === 1, disabled: item.valid === 0 }" @click="onToggleSelect(item)" role="checkbox" :aria-checked="item.selected === 1">
-            <text class="checkbox-icon">{{ item.valid !== 0 && item.selected === 1 ? '✓' : '' }}</text>
-          </view>
-          <image
-            class="item-image"
-            :src="item.productImage || '/static/default-product.png'"
-            mode="aspectFill"
-            lazy-load
-            @click="onProductTap(item)"
-            :alt="item.productName"
-          />
-          <view class="item-info" @click="onProductTap(item)">
-            <text class="item-name">{{ item.productName }}</text>
-            <text v-if="item.specName" class="item-spec">{{ item.specName }}</text>
-            <view class="item-bottom">
-              <template v-if="item.valid === 0">
-                <text class="item-invalid">{{ item.invalidReason || '商品已失效' }}</text>
-                <view class="item-delete" @click.stop="onDelete(item)" role="button" aria-label="删除商品">
-                  <view class="trash-icon">
-                    <view class="trash-lid"></view>
-                    <view class="trash-body"></view>
-                  </view>
-                </view>
-              </template>
-              <template v-else>
-                <text class="item-price">¥{{ item.price }}</text>
-                <view class="item-bottom-right">
-                  <view class="qty-control">
-                    <view class="qty-btn" @click.stop="onMinus(item)" role="button" aria-label="减少数量">-</view>
-                    <text class="qty-value">{{ item.quantity }}</text>
-                    <view class="qty-btn" @click.stop="onPlus(item)" role="button" aria-label="增加数量">+</view>
-                  </view>
+          <view class="cart-item" :class="{ 'item-disabled': item.valid === 0 }">
+            <wd-checkbox
+              :model-value="item.valid !== 0 && item.selected === 1"
+              :disabled="item.valid === 0"
+              shape="circle"
+              custom-class="item-check"
+              @change="onToggleSelect(item)"
+            />
+            <view class="item-thumb" @click="onProductTap(item)">
+              <image
+                v-if="item.productImage"
+                class="item-image"
+                :src="item.productImage"
+                mode="aspectFill"
+                lazy-load
+                :alt="item.productName"
+              />
+              <wd-icon v-else name="picture" size="72rpx" custom-class="item-ph-ic" />
+            </view>
+            <view class="item-info" @click="onProductTap(item)">
+              <text class="item-name">{{ item.productName }}</text>
+              <view v-if="item.specName" class="item-spec">
+                <text class="spec-chip">{{ item.specName }}</text>
+              </view>
+              <view class="item-bottom">
+                <template v-if="item.valid === 0">
+                  <text class="item-invalid">{{ item.invalidReason || '商品已失效' }}</text>
                   <view class="item-delete" @click.stop="onDelete(item)" role="button" aria-label="删除商品">
-                    <view class="trash-icon">
-                      <view class="trash-lid"></view>
-                      <view class="trash-body"></view>
-                    </view>
+                    <wd-icon name="delete" size="40rpx" color="#9AA0A8" />
                   </view>
-                </view>
-              </template>
+                </template>
+                <template v-else>
+                  <view class="item-price">
+                    <text class="price-symbol">¥</text>
+                    <text class="price-int">{{ item.price }}</text>
+                  </view>
+                  <view class="qty-wrap" @click.stop>
+                    <wd-input-number
+                      :model-value="item.quantity"
+                      :min="1"
+                      :max="item.stock || 999"
+                      input-width="64rpx"
+                      @change="onQtyChange(item, $event)"
+                    />
+                  </view>
+                </template>
+              </view>
             </view>
           </view>
-        </view>
+          <template #right>
+            <view class="swipe-delete" @click="onDelete(item)">
+              <wd-icon name="delete" size="44rpx" color="#FFFFFF" />
+              <text class="swipe-delete-text">删除</text>
+            </view>
+          </template>
+        </wd-swipe-action>
       </view>
 
       <!-- 底部结算栏 -->
       <view class="bottom-bar">
-        <view class="select-all" @click="onToggleAll" role="checkbox" :aria-checked="allSelected">
-          <view class="checkbox-circle" :class="{ checked: allSelected }">
-            <text v-if="allSelected" class="check-mark">✓</text>
-          </view>
+        <view class="select-all">
+          <wd-checkbox :model-value="allSelected" shape="circle" @change="onToggleAll" />
           <text class="select-text">全选</text>
         </view>
         <view class="total-info">
-          <text class="total-label">合计：</text>
-          <text class="total-price">¥{{ totalAmount }}</text>
+          <text class="total-label">合计（已选 {{ selectedCount }} 件）</text>
+          <view class="total-wrap">
+            <text class="price-symbol">¥</text>
+            <text class="total-price">{{ totalAmount }}</text>
+          </view>
         </view>
-        <view
-          class="checkout-btn"
-          :class="{ disabled: selectedCount === 0 }"
+        <wd-button
+          type="error"
+          round
+          :disabled="selectedCount === 0"
+          custom-style="width: 208rpx; height: 84rpx; background: #E1251B; border-color: #E1251B;"
           @click="onCheckout"
-          role="button"
-          aria-label="去结算"
         >
           去结算({{ selectedCount }})
-        </view>
+        </wd-button>
       </view>
     </view>
   </view>
@@ -96,10 +126,17 @@ import { setPlatformTitle } from '../../utils/request'
 
 const cartItems = ref([])
 const allSelected = ref(false)
+const loading = ref(true)
 
 onShow(async () => {
   setPlatformTitle()
-  await loadCart()
+  // 仅首次进入展示骨架屏；从下单页返回时静默刷新，避免闪烁
+  loading.value = cartItems.value.length === 0
+  try {
+    await loadCart()
+  } finally {
+    loading.value = false
+  }
 })
 
 async function loadCart() {
@@ -135,29 +172,16 @@ function onToggleAll() {
   selectAllCart(!allSelected.value).then(() => loadCart())
 }
 
-function onPlus(item) {
-  if (item.valid === 0) {
-    uni.showToast({ title: item.invalidReason || '商品已失效', icon: 'none' })
-    return
-  }
+function onQtyChange(item, { value }) {
+  if (item.valid === 0) return
+  const qty = Number(value)
   const maxStock = item.stock || 999
-  if (item.quantity >= maxStock) {
+  if (!Number.isFinite(qty) || qty === item.quantity) return
+  if (qty > maxStock) {
     uni.showToast({ title: '库存不足（最多' + maxStock + '件）', icon: 'none' })
     return
   }
-  updateCartQuantity(item.id, item.quantity + 1).then(() => loadCart())
-}
-
-function onMinus(item) {
-  if (item.valid === 0) {
-    uni.showToast({ title: item.invalidReason || '商品已失效', icon: 'none' })
-    return
-  }
-  if (item.quantity <= 1) {
-    onDelete(item)
-    return
-  }
-  updateCartQuantity(item.id, item.quantity - 1).then(() => loadCart())
+  updateCartQuantity(item.id, qty).then(() => loadCart())
 }
 
 function onDelete(item) {
@@ -202,13 +226,37 @@ function onCheckout() {
 function goToShop() {
   uni.switchTab({ url: '/pages/category/category' })
 }
+
+function onCouponTap() {
+  uni.navigateTo({ url: '/pages/coupon/center' })
+}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .cart-page {
   min-height: 100vh;
-  background: #F5F5F5;
-  padding-bottom: 140rpx;
+  background: $uni-bg-color-grey;
+  padding-bottom: 200rpx;
+}
+
+/* 加载骨架屏 */
+.cart-loading {
+  padding-top: 16rpx;
+}
+
+.sk-row {
+  display: flex;
+  align-items: center;
+  margin: 16rpx $uni-spacing-col-lg;
+  padding: $uni-spacing-col-lg;
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-sm;
+}
+
+.sk-col {
+  flex: 1;
+  margin-left: $uni-spacing-col-lg;
 }
 
 .empty-cart {
@@ -218,91 +266,24 @@ function goToShop() {
   padding-top: 200rpx;
 }
 
-.cart-empty {
-  position: relative;
-  width: 120rpx;
-  height: 120rpx;
-  margin-bottom: 24rpx;
-}
-
-.ce-basket {
-  position: absolute;
-  left: 50%;
-  top: 56%;
-  transform: translate(-50%, -50%);
-  width: 76rpx;
-  height: 46rpx;
-  border: 6rpx solid #C7CECB;
-  border-top: none;
-  border-radius: 0 0 10rpx 10rpx;
-}
-
-.ce-basket::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -16rpx;
-  transform: translateX(-50%);
-  width: 88rpx;
-  border-top: 6rpx solid #C7CECB;
-  border-radius: 6rpx;
-}
-
-.ce-handle {
-  position: absolute;
-  left: 50%;
-  top: 16%;
-  transform: translateX(-50%);
-  width: 30rpx;
-  height: 30rpx;
-  border: 6rpx solid #C7CECB;
-  border-bottom: none;
-  border-radius: 18rpx 18rpx 0 0;
-}
-
-.ce-wheel {
-  position: absolute;
-  top: 66%;
-  width: 10rpx;
-  height: 10rpx;
-  border: 5rpx solid #C7CECB;
-  border-radius: 50%;
-  background: #FFFFFF;
-}
-
-.ce-wheel.wl { left: 16%; }
-.ce-wheel.wr { right: 16%; }
-
 .empty-text {
   font-size: 32rpx;
-  color: #4B5563;
-  margin-bottom: 40rpx;
+  color: $uni-text-color-grey;
+  margin: $uni-spacing-col-lg 0 40rpx;
 }
 
-.go-shop-btn {
-  background: #00B578;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 44rpx;
-  height: 88rpx;
-  line-height: 88rpx;
-  padding: 0 60rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.go-shop-btn::after {
-  border: none;
+.cart-swipe {
+  margin: 16rpx $uni-spacing-col-lg;
 }
 
 .cart-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  gap: 18rpx;
   padding: 24rpx;
-  margin: 16rpx 24rpx;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  background: $uni-bg-color;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-sm;
   transition: opacity 150ms ease-out;
 }
 
@@ -310,119 +291,102 @@ function goToShop() {
   opacity: 0.85;
 }
 
-.item-checkbox {
-  width: 48rpx;
-  height: 48rpx;
-  margin-right: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.item-disabled {
+  opacity: 0.55;
+}
+
+.item-check {
   flex-shrink: 0;
-  min-width: 48rpx;
+  margin-top: 4rpx;
 }
 
-.checkbox-icon {
-  font-size: 32rpx;
-  color: #D1D5DB;
-  width: 40rpx;
-  height: 40rpx;
-  border: 2rpx solid #D1D5DB;
-  border-radius: 50%;
+.item-thumb {
+  width: 156rpx;
+  height: 156rpx;
+  border-radius: 12rpx;
+  background: $uni-bg-color-img;
+  flex-shrink: 0;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
 }
 
-.item-checkbox.checked .checkbox-icon {
-  color: #FFFFFF;
-  background: #00B578;
-  border-color: #00B578;
-  font-weight: 600;
-}
-
-.item-checkbox.disabled .checkbox-icon {
-  color: #E5E7EB;
-  background: #F3F4F6;
-  border-color: #E5E7EB;
+:deep(.item-ph-ic) {
+  color: $uni-color-img-icon;
 }
 
 .item-image {
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 12rpx;
-  background: #F5F5F5;
-  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .item-info {
   flex: 1;
-  margin-left: 16rpx;
+  min-width: 0;
   overflow: hidden;
+  align-self: stretch;
 }
 
 .item-name {
-  font-size: 28rpx;
-  color: #111827;
+  font-size: 24rpx;
+  color: $uni-text-color;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.4;
+  line-height: 34rpx;
+  height: 68rpx;
 }
 
 .item-spec {
-  font-size: 22rpx;
-  color: #4B5563;
-  margin-top: 8rpx;
+  margin-top: 10rpx;
+}
+
+/* 规格胶囊：灰底小标签，点击无效 */
+.spec-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20rpx;
+  color: $uni-text-color-grey;
+  background: $uni-bg-color-grey;
+  border-radius: 6rpx;
+  padding: 4rpx 12rpx;
+  line-height: 1.4;
 }
 
 .item-bottom {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   margin-top: 16rpx;
 }
 
-.item-bottom-right {
+.item-price,
+.total-wrap {
   display: flex;
-  align-items: center;
-  gap: 12rpx;
+  align-items: baseline;
+  gap: 2rpx;
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
 }
 
-.item-price {
-  font-size: 32rpx;
-  color: #E63946;
+.price-symbol {
+  font-size: 22rpx;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  color: $uni-color-price;
 }
 
-.qty-control {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
+.price-int {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: $uni-color-price;
+  line-height: 1;
+  letter-spacing: -1rpx;
 }
 
-.qty-btn {
-  width: 56rpx;
-  height: 56rpx;
-  border: 1rpx solid #D1D5DB;
-  border-radius: 12rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  color: #111827;
-  background: #FFFFFF;
-  min-width: 56rpx;
-}
-
-.qty-value {
-  font-size: 28rpx;
-  min-width: 48rpx;
-  text-align: center;
-  color: #111827;
-  font-variant-numeric: tabular-nums;
+.qty-wrap {
+  flex-shrink: 0;
 }
 
 .item-delete {
@@ -434,43 +398,54 @@ function goToShop() {
   flex-shrink: 0;
 }
 
-.trash-icon {
-  position: relative;
-  width: 36rpx;
-  height: 36rpx;
+.swipe-delete {
+  width: 140rpx;
+  height: 100%;
+  background: $uni-color-error;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
 }
 
-.trash-lid {
-  position: absolute;
-  left: 50%;
-  top: 9rpx;
-  transform: translateX(-50%);
-  width: 28rpx;
-  border-top: 4rpx solid #9CA3AF;
-  border-radius: 2rpx;
+.swipe-delete-text {
+  font-size: $uni-font-size-caption;
+  color: $uni-text-color-inverse;
 }
 
-.trash-lid::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -8rpx;
-  transform: translateX(-50%);
-  width: 12rpx;
-  border-top: 4rpx solid #9CA3AF;
-  border-radius: 2rpx;
+/* 领券提示条 */
+.promo {
+  margin: 16rpx 24rpx 0;
+  padding: 18rpx 24rpx;
+  border-radius: $uni-border-radius-base;
+  background: $uni-color-primary-50;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 24rpx;
+  color: $uni-color-primary;
 }
 
-.trash-body {
-  position: absolute;
-  left: 50%;
-  top: 15rpx;
-  transform: translateX(-50%);
-  width: 22rpx;
-  height: 18rpx;
-  border: 4rpx solid #9CA3AF;
-  border-top: none;
-  border-radius: 0 0 4rpx 4rpx;
+:deep(.promo-icon) {
+  color: $uni-color-primary;
+}
+
+.promo-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.promo-go {
+  display: flex;
+  align-items: center;
+  gap: 2rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+:deep(.promo-arrow) {
+  color: $uni-color-primary;
 }
 
 .bottom-bar {
@@ -480,11 +455,13 @@ function goToShop() {
   right: 0;
   display: flex;
   align-items: center;
-  height: 110rpx;
-  padding: 0 24rpx;
-  background: #FFFFFF;
-  border-top: 1rpx solid #F0F0F0;
-  box-sizing: border-box;
+  gap: 16rpx;
+  height: 116rpx;
+  padding: 0 20rpx 0 24rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: $uni-bg-color;
+  border-top: 2rpx solid $uni-border-color-divider;
+  box-sizing: content-box;
   z-index: 999;
 }
 
@@ -492,75 +469,37 @@ function goToShop() {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-right: 24rpx;
-  min-height: 88rpx;
-}
-
-.checkbox-circle {
-  width: 40rpx;
-  height: 40rpx;
-  border: 2px solid #D1D5DB;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.checkbox-circle.checked {
-  background: #00B578;
-  border-color: #00B578;
-}
-
-.check-mark {
-  color: #FFFFFF;
-  font-size: 24rpx;
-  font-weight: 600;
-  line-height: 1;
+  flex-shrink: 0;
 }
 
 .select-text {
-  font-size: 28rpx;
-  color: #111827;
+  font-size: $uni-font-size-sm;
+  color: $uni-text-color;
 }
 
 .total-info {
   flex: 1;
-  text-align: center;
-  padding-right: 24rpx;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: $uni-spacing-col-base;
 }
 
 .total-label {
-  font-size: 26rpx;
-  color: #4B5563;
+  font-size: 20rpx;
+  color: $uni-text-color-grey;
 }
 
 .total-price {
-  font-size: 36rpx;
-  color: #E63946;
+  font-size: 40rpx;
+  color: $uni-color-price;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.checkout-btn {
-  background: #E63946;
-  color: #FFFFFF;
-  padding: 0 48rpx;
-  height: 88rpx;
-  line-height: 88rpx;
-  border-radius: 44rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-  min-width: 88rpx;
-  text-align: center;
-}
-
-.checkout-btn.disabled {
-  background: #E5E7EB;
-  color: #9CA3AF;
+  line-height: 1;
 }
 
 .item-invalid {
-  font-size: 24rpx;
-  color: #4B5563;
+  font-size: $uni-font-size-sm;
+  color: $uni-text-color-grey;
 }
 </style>

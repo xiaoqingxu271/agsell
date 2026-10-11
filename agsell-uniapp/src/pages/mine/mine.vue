@@ -1,117 +1,200 @@
 ﻿<template>
   <view class="mine-page">
-    <!-- 用户信息区 -->
-    <view v-if="isUserLoggedIn" class="user-header" @click="onChooseAvatar">
-      <image
-        class="user-avatar"
-        :src="userInfo?.avatar || '/static/default-avatar.png'"
-        mode="aspectFill"
-        alt="用户头像"
-      />
-      <view class="user-info">
-        <text class="user-name">{{ userInfo?.nickname || '微信用户' }}</text>
-        <text class="user-phone">{{ userInfo?.phone || '暂无绑定手机号' }}</text>
+    <!-- 头部：白底，不用大面积色块 -->
+    <view v-if="isUserLoggedIn" class="mhd" @click="onChooseAvatar">
+      <image v-if="userInfo?.avatar" class="mhd-av" :src="userInfo.avatar" mode="aspectFill" lazy-load />
+      <view v-else class="mhd-av mhd-av--ph">
+        <wd-icon name="user" size="52rpx" custom-class="mhd-av-ic" />
       </view>
-      <text class="avatar-tip">点击更换头像</text>
+      <view class="mhd-info">
+        <text class="mhd-name">{{ userInfo?.nickname || '微信用户' }}</text>
+        <text class="mhd-sub">{{ userInfo?.phone || '点击完善个人资料' }}</text>
+      </view>
+      <view class="mhd-qr" @click.stop="onScanTrace" role="button" aria-label="扫码溯源">
+        <wd-icon name="scan" size="34rpx" custom-class="mhd-qr-ic" />
+        <text class="mhd-qr-t">扫码</text>
+      </view>
+      <view class="mhd-qr mhd-qr--gap" @click.stop="goToAbout" role="button" aria-label="设置">
+        <wd-icon name="setting" size="34rpx" custom-class="mhd-qr-ic" />
+        <text class="mhd-qr-t">设置</text>
+      </view>
     </view>
-    <view v-else class="user-header login-prompt">
-      <image class="user-avatar" src="/static/default-avatar.png" mode="aspectFill" alt="默认头像" />
-      <view class="user-info">
-        <text class="user-name">登录后享受更多权益</text>
-        <text class="user-phone">订单管理 · 收货地址 · 商品评价</text>
+    <view v-else class="mhd login-prompt">
+      <view class="mhd-av mhd-av--ph">
+        <wd-icon name="user" size="52rpx" custom-class="mhd-av-ic" />
       </view>
-      <button class="login-btn" @click.stop="onLogin">微信一键登录</button>
+      <view class="mhd-info">
+        <text class="mhd-name">登录后享受更多权益</text>
+        <text class="mhd-sub">订单管理 · 收货地址 · 商品评价</text>
+      </view>
+      <wd-button
+        type="primary"
+        custom-style="width: 208rpx; height: 64rpx; border-radius: 32rpx; font-weight: 600;"
+        @click.stop="onLogin"
+      >微信一键登录</wd-button>
     </view>
 
-    <!-- 订单快捷入口 -->
-    <view class="order-section card">
-      <view class="section-title">我的订单</view>
-      <view class="order-tabs">
+    <!-- 订单区白卡 -->
+    <view class="card ord-card">
+      <view class="ord-hd">
+        <text class="ord-title">我的订单</text>
+        <view class="ord-all" @click="goToAllOrders" role="button" aria-label="查看全部订单">
+          <text class="ord-all-txt">全部订单</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="ord-all-ic" />
+        </view>
+      </view>
+      <view class="ord-grid">
         <view
           v-for="(item, index) in orderTabs"
           :key="index"
-          class="order-tab"
+          class="ord-tab"
           @click="onOrderTabTap(item.status)"
           role="button"
           :aria-label="item.label"
         >
-          <view class="tab-icon-wrap">
-            <image class="tab-icon" :src="item.icon" mode="aspectFit" alt="待付款" />
-          </view>
-          <text v-if="item.count > 0" class="tab-count">{{ item.count }}</text>
-          <text class="tab-label">{{ item.label }}</text>
+          <wd-icon :name="item.icon" size="42rpx" custom-class="ord-ic" />
+          <text class="ord-label">{{ item.label }}</text>
+          <text v-if="item.count > 0" class="ord-cb">{{ item.count > 99 ? '99+' : item.count }}</text>
+        </view>
+        <view class="ord-tab" @click="goToAfterSales" role="button" aria-label="退款/售后">
+          <wd-icon name="refresh" size="42rpx" custom-class="ord-ic" />
+          <text class="ord-label">退款/售后</text>
+          <text v-if="assetCounts.afterSales > 0" class="ord-cb">{{ assetCounts.afterSales > 99 ? '99+' : assetCounts.afterSales }}</text>
         </view>
       </view>
     </view>
 
-    <!-- 功能菜单 -->
-    <view class="menu-section card">
-      <view class="menu-item" @click="goToCouponCenter" role="button">
-        <view class="menu-icon menu-icon-coupon">券</view>
-        <text class="menu-text">领券中心</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+    <!-- 资产四列 -->
+    <view v-if="isUserLoggedIn" class="card ast-card">
+      <view class="ast-col" @click="goToMyCoupons" role="button" aria-label="优惠券">
+        <text class="ast-num">{{ assetCounts.coupon }}</text>
+        <text class="ast-label">优惠券</text>
       </view>
-      <view class="menu-item" @click="goToMyCoupons" role="button">
-        <view class="menu-icon menu-icon-coupon my">包</view>
-        <text class="menu-text">我的券包</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      <view class="ast-col" @click="goToMyReviews" role="button" aria-label="我的评价">
+        <text class="ast-num">{{ assetCounts.review }}</text>
+        <text class="ast-label">我的评价</text>
       </view>
-      <view class="menu-item" @click="goToAddress" role="button">
-        <image class="menu-icon" src="/static/icon-menu-address.png" mode="aspectFit" alt="收货地址" />
-        <text class="menu-text">收货地址</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      <view class="ast-col" @click="goToAddress" role="button" aria-label="收货地址">
+        <text class="ast-num">{{ assetCounts.address }}</text>
+        <text class="ast-label">收货地址</text>
       </view>
-      <view class="menu-item" @click="goToMyReviews" role="button">
-        <image class="menu-icon" src="/static/icon-menu-review.png" mode="aspectFit" alt="我的评价" />
-        <text class="menu-text">我的评价</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      <view class="ast-col ast-col--last" @click="goToAfterSales" role="button" aria-label="退款售后">
+        <text class="ast-num">{{ assetCounts.afterSales }}</text>
+        <text class="ast-label">退款/售后</text>
       </view>
-      <view class="menu-item" @click="goToAfterSales" role="button">
-        <image class="menu-icon" src="/static/icon-menu-aftersale.png" mode="aspectFit" alt="我的售后" />
-        <text class="menu-text">我的售后</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+    </view>
+
+    <!-- 功能菜单白卡 -->
+    <view class="card menu-card">
+      <text class="menu-t">购物助手</text>
+      <view class="menu-row" @click="onAiChat" role="button" aria-label="AI 智能客服">
+        <wd-icon name="chat1" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">AI 智能客服</text>
+        <view class="menu-v">
+          <text class="menu-value">推荐搭配 · 售后咨询</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
       </view>
-      <view class="menu-item" @click="onScanTrace" role="button">
-        <view class="menu-icon menu-icon-qr" aria-hidden="true"></view>
-        <text class="menu-text">扫码溯源</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      <view class="menu-row" @click="onScanTrace" role="button" aria-label="产地溯源查询">
+        <wd-icon name="qrcode" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">产地溯源查询</text>
+        <view class="menu-v">
+          <text class="menu-value">扫码溯源码</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
       </view>
-      <view v-if="servicePhone" class="menu-item" @click="onContactService" role="button">
-        <view class="menu-icon menu-icon-service" aria-hidden="true"></view>
-        <text class="menu-text">AI 智能客服</text>
-        <text class="menu-phone">AI 客服 · {{ servicePhone }}</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+      <view class="menu-row menu-row--last" @click="goToSeckill" role="button" aria-label="限时秒杀">
+        <wd-icon name="discount" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">限时秒杀</text>
+        <text class="menu-dot"></text>
       </view>
-      <view class="menu-item" @click="goToAbout" role="button">
-        <image class="menu-icon" src="/static/icon-menu-about.png" mode="aspectFit" alt="关于我们" />
-        <text class="menu-text">关于我们</text>
-        <image class="menu-arrow" src="/static/icon-menu-arrow.png" mode="aspectFit" alt="进入" />
+    </view>
+
+    <view class="card menu-card">
+      <text class="menu-t">常用工具</text>
+      <view class="menu-row" @click="goToCouponCenter" role="button" aria-label="领券中心">
+        <wd-icon name="discount-filled" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">领券中心</text>
+        <view class="menu-v">
+          <text class="menu-value">好货更省钱</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
+      </view>
+      <view class="menu-row" @click="goToMyCoupons" role="button" aria-label="我的券包">
+        <wd-icon name="wallet" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">我的券包</text>
+        <view class="menu-v">
+          <text class="menu-value">{{ assetCounts.coupon }} 张可用</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
+      </view>
+      <view class="menu-row" @click="goToAddress" role="button" aria-label="收货地址管理">
+        <wd-icon name="location" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">收货地址管理</text>
+        <view class="menu-v">
+          <text class="menu-value">{{ assetCounts.address }} 个地址</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
+      </view>
+      <view class="menu-row menu-row--last" @click="goToMyReviews" role="button" aria-label="我的评价">
+        <wd-icon name="evaluation" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">我的评价</text>
+        <view class="menu-v">
+          <text class="menu-value">{{ assetCounts.review }} 条</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
+      </view>
+    </view>
+
+    <view class="card menu-card">
+      <view v-if="servicePhone" class="menu-row" @click="onCallService" role="button" aria-label="帮助与客服">
+        <wd-icon name="service" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">帮助与客服</text>
+        <view class="menu-v">
+          <text class="menu-value">{{ servicePhone }}</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
+      </view>
+      <view class="menu-row menu-row--last" @click="goToAbout" role="button" aria-label="关于我们">
+        <wd-icon name="info-circle-filled" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">关于我们</text>
+        <view class="menu-v">
+          <text class="menu-value">{{ platformName }} v1.0</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
       </view>
     </view>
 
     <!-- 退出登录 -->
-    <view v-if="isUserLoggedIn" class="logout-btn" @click="onLogout" role="button">退出登录</view>
+    <view v-if="isUserLoggedIn" class="logout-wrap">
+      <view class="logout-btn" @click="onLogout" role="button">退出登录</view>
+    </view>
   </view>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { onShow, onUnload } from '@dcloudio/uni-app'
-import { getUserInfo, updateUserInfo, logout } from '../../api/user'
+import { getUserInfo, updateUserInfo, logout, getAddressList } from '../../api/user'
 import { getOrderList } from '../../api/order'
+import { getMyCoupons } from '../../api/coupon'
+import { getMyReviews } from '../../api/review'
+import { getAfterSalesList } from '../../api/afterSales'
 import { wxLogin, isLoggedIn, request } from '../../utils/request'
 import { uploadMiniImage } from '../../utils/upload'
 
 const userInfo = ref(null)
 const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
+const assetCounts = ref({ coupon: 0, review: 0, address: 0, afterSales: 0 })
 const isUserLoggedIn = ref(isLoggedIn())
 const servicePhone = ref('')
+const platformName = ref('农产品商城')
 
 const orderTabs = [
-  { label: '待付款', status: 0, icon: '/static/icon-order-pay.png', count: 0 },
-  { label: '待发货', status: 1, icon: '/static/icon-order-package.png', count: 0 },
-  { label: '待收货', status: 2, icon: '/static/icon-order-truck.png', count: 0 },
-  { label: '已完成', status: 3, icon: '/static/icon-order-done.png', count: 0 }
+  { label: '待付款', status: 0, icon: 'money-circle', count: 0 },
+  { label: '待发货', status: 1, icon: 'bags', count: 0 },
+  { label: '待收货', status: 2, icon: 'cart', count: 0 },
+  { label: '已完成', status: 3, icon: 'check-bold', count: 0 }
 ]
 
 onShow(async () => {
@@ -119,6 +202,7 @@ onShow(async () => {
   if (isUserLoggedIn.value) {
     await loadUserInfo()
     await loadOrderCounts()
+    loadAssetCounts()
   }
   loadServicePhone()
 })
@@ -134,7 +218,7 @@ function onOrderBadgeCleared(status) {
   orderCounts.value[status] = 0
 }
 
-/** 加载系统配置中的客服电话与平台名称（客服电话未配置则隐藏"联系客服"入口） */
+/** 加载系统配置中的客服电话与平台名称（客服电话未配置则隐藏"帮助与客服"入口） */
 async function loadServicePhone() {
   try {
     const res = await request('GET', '/system/config', null, { params: { keys: 'service_phone,platform_name' } })
@@ -142,6 +226,7 @@ async function loadServicePhone() {
       servicePhone.value = res.data.service_phone
     }
     if (res.code === 0 && res.data?.platform_name) {
+      platformName.value = res.data.platform_name
       uni.setStorageSync('platform_name', res.data.platform_name)
       uni.setNavigationBarTitle({ title: res.data.platform_name })
     }
@@ -149,13 +234,24 @@ async function loadServicePhone() {
     console.warn('加载客服电话失败', e)
     // 接口失败时用本地缓存的平台名兜底标题
     const cached = uni.getStorageSync('platform_name')
-    if (cached) uni.setNavigationBarTitle({ title: cached })
+    if (cached) {
+      platformName.value = cached
+      uni.setNavigationBarTitle({ title: cached })
+    }
   }
 }
 
-function onContactService() {
-  // 进入 AI 智能客服聊天页（客服电话已在聊天页欢迎语/兜底话术内提示）
+function onAiChat() {
   uni.navigateTo({ url: '/pages/ai-chat/chat' })
+}
+
+function onCallService() {
+  if (!servicePhone.value) return
+  uni.makePhoneCall({ phoneNumber: servicePhone.value, fail: () => {} })
+}
+
+function goToSeckill() {
+  uni.navigateTo({ url: '/pages/seckill/list' })
 }
 
 async function loadUserInfo() {
@@ -179,6 +275,36 @@ async function loadOrderCounts() {
   }
 }
 
+/** 资产四列：优惠券 / 我的评价 / 收货地址 / 退款售后，全部取自真实接口计数 */
+async function loadAssetCounts() {
+  try {
+    const res = await getMyCoupons({ pageNum: 1, pageSize: 1, status: 0 })
+    if (res.code === 0) assetCounts.value.coupon = res.data?.total || 0
+  } catch (e) {
+    console.warn('[Mine] 优惠券数量加载失败', e)
+  }
+  try {
+    const res = await getMyReviews(1, 1)
+    if (res.code === 0) assetCounts.value.review = res.data?.total || 0
+  } catch (e) {
+    console.warn('[Mine] 评价数量加载失败', e)
+  }
+  try {
+    const res = await getAddressList()
+    if (res.code === 0) {
+      assetCounts.value.address = Array.isArray(res.data) ? res.data.length : (res.data?.total || 0)
+    }
+  } catch (e) {
+    console.warn('[Mine] 地址数量加载失败', e)
+  }
+  try {
+    const res = await getAfterSalesList({ pageNum: 1, pageSize: 1 })
+    if (res.code === 0) assetCounts.value.afterSales = res.data?.total || 0
+  } catch (e) {
+    console.warn('[Mine] 售后数量加载失败', e)
+  }
+}
+
 async function onLogin() {
   uni.showLoading({ title: '登录中...', mask: true })
   const success = await wxLogin()
@@ -189,6 +315,7 @@ async function onLogin() {
     uni.showToast({ title: '登录成功', icon: 'success' })
     await loadUserInfo()
     await loadOrderCounts()
+    loadAssetCounts()
   } else {
     uni.showModal({
       title: '登录失败',
@@ -222,6 +349,11 @@ function goToAfterSales() {
   uni.navigateTo({ url: '/pages/after-sales/list/list' })
 }
 
+/** 查看全部订单：进入订单列表页（不带状态筛选） */
+function goToAllOrders() {
+  uni.navigateTo({ url: '/pages/order/list/list' })
+}
+
 /** 扫码溯源：识别二维码中的批次号，跳转溯源档案 */
 function onScanTrace() {
   uni.scanCode({
@@ -249,8 +381,7 @@ function onScanTrace() {
 }
 
 function goToAbout() {
-  const platformName = uni.getStorageSync('platform_name') || '农产品商城'
-  uni.showToast({ title: `${platformName} v1.0`, icon: 'none' })
+  uni.showToast({ title: `${platformName.value} v1.0`, icon: 'none' })
 }
 
 async function onLogout() {
@@ -293,287 +424,293 @@ async function onChooseAvatar() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .mine-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: $uni-bg-color-grey;
   padding-bottom: 40rpx;
 }
 
-.user-header {
+/* ===== 头部 ===== */
+.mhd {
   display: flex;
   align-items: center;
-  padding: 56rpx 40rpx 64rpx;
-  background: linear-gradient(135deg, #00B578 0%, #00C886 100%);
+  gap: $uni-spacing-col-base;
+  padding: 28rpx;
+  padding-bottom: 32rpx;
+  background: $uni-bg-color;
 }
 
-.login-btn {
-  margin-left: 24rpx;
-  width: 240rpx;
-  height: 72rpx;
-  line-height: 72rpx;
-  background: #FFFFFF;
-  color: #00B578;
-  font-size: 28rpx;
-  font-weight: 600;
-  border-radius: 36rpx;
-  border: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.login-btn::after {
-  border: none;
-}
-
-.user-avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: #FFFFFF;
-  border: 4rpx solid rgba(255, 255, 255, 0.5);
-  flex-shrink: 0;
-}
-
-.user-header.login-prompt .user-avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: #FFFFFF;
-  border: 4rpx solid rgba(255, 255, 255, 0.5);
-}
-
-.avatar-tip {
-  margin-left: 24rpx;
-  font-size: 22rpx;
-  color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.25);
-  padding: 8rpx 16rpx;
-  border-radius: 20rpx;
-  flex-shrink: 0;
-}
-
-.user-info {
-  margin-left: 24rpx;
+.mhd-info {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
-.user-name {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #FFFFFF;
+.mhd-name {
   display: block;
-}
-
-.user-phone {
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.85);
-  margin-top: 8rpx;
-  display: block;
-}
-
-.card {
-  background: #FFFFFF;
-  margin: 24rpx;
-  padding: 24rpx;
-  border-radius: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-}
-
-.section-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
-  margin-bottom: 20rpx;
+  color: $uni-text-color;
 }
 
-.order-tabs {
-  display: flex;
-  justify-content: space-around;
+.mhd-sub {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: $uni-text-color-placeholder;
 }
 
-.order-tab {
+.mhd-qr {
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16rpx 16rpx;
-  min-width: 88rpx;
-  min-height: 88rpx;
-  position: relative;
-  border-radius: 16rpx;
-  transition: opacity 150ms ease-out;
+  gap: 6rpx;
 }
 
-.order-tab:active {
-  opacity: 0.7;
+.mhd-qr--gap {
+  margin-left: 28rpx;
 }
 
-.tab-icon-wrap {
-  width: 56rpx;
-  height: 56rpx;
+.mhd-qr-t {
+  font-size: 18rpx;
+  color: $uni-text-color-placeholder;
+}
+
+:deep(.mhd-qr-ic) {
+  color: $uni-text-color-grey;
+}
+
+.mhd-av {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 50%;
+  background: $uni-bg-color-img;
+  border: 2rpx solid $uni-border-color;
+  flex-shrink: 0;
+}
+
+.mhd-av--ph {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8rpx;
 }
 
-.tab-icon {
-  width: 48rpx;
-  height: 48rpx;
+:deep(.mhd-av-ic) {
+  color: $uni-color-img-icon;
 }
 
-.tab-count {
+/* ===== 卡片通用 ===== */
+.card {
+  background: $uni-bg-color;
+  margin: $uni-spacing-col-lg;
+  border-radius: $uni-border-radius-base;
+  box-shadow: $uni-shadow-sm;
+}
+
+/* ===== 订单区 ===== */
+.ord-card {
+  margin: 16rpx $uni-spacing-col-lg;
+  padding: $uni-spacing-col-lg 0 28rpx;
+}
+
+.ord-hd {
+  display: flex;
+  align-items: center;
+  padding: 0 $uni-spacing-col-lg $uni-spacing-col-lg;
+}
+
+.ord-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $uni-text-color;
+}
+
+.ord-all {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.ord-all-txt {
+  font-size: 22rpx;
+  color: $uni-text-color-placeholder;
+}
+
+:deep(.ord-all-ic) {
+  color: $uni-text-color-placeholder;
+}
+
+.ord-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.ord-tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  padding: 16rpx 0;
+  min-height: 88rpx;
+  transition: opacity 150ms ease-out;
+}
+
+.ord-tab:active {
+  opacity: 0.7;
+}
+
+:deep(.ord-ic) {
+  color: $uni-text-color;
+}
+
+.ord-label {
+  font-size: 22rpx;
+  color: $uni-text-color-grey;
+}
+
+.ord-cb {
   position: absolute;
   top: 8rpx;
-  right: 8rpx;
-  font-size: 20rpx;
+  right: calc(50% - 44rpx);
+  min-width: 28rpx;
+  height: 28rpx;
+  padding: 0 6rpx;
+  border-radius: 14rpx;
+  background: $uni-color-primary;
+  color: $uni-text-color-inverse;
+  font-size: 18rpx;
+  line-height: 28rpx;
   font-weight: 600;
-  color: #FFFFFF;
-  background: #E63946;
-  min-width: 32rpx;
-  height: 32rpx;
-  line-height: 32rpx;
-  border-radius: 16rpx;
-  padding: 0 8rpx;
   text-align: center;
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
 }
 
-.tab-label {
-  font-size: 24rpx;
-  color: #4B5563;
+/* ===== 资产四列 ===== */
+.ast-card {
+  display: flex;
+  margin: 0 $uni-spacing-col-lg 16rpx;
+  padding: $uni-spacing-col-lg 0;
 }
 
-.menu-section {
-  margin: 24rpx;
-  padding: 0 24rpx;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+.ast-col {
+  flex: 1;
+  text-align: center;
+  border-right: 2rpx solid $uni-border-color-divider;
 }
 
-.menu-item {
+.ast-col--last {
+  border-right: none;
+}
+
+.ast-num {
+  display: block;
+  font-family: $uni-font-family-num;
+  font-variant-numeric: tabular-nums;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: $uni-text-color;
+  line-height: 1.2;
+}
+
+.ast-label {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: $uni-text-color-placeholder;
+}
+
+/* ===== 功能菜单 ===== */
+.menu-card {
+  margin: 0 $uni-spacing-col-lg 16rpx;
+  padding: 0;
+  overflow: hidden;
+}
+
+.menu-t {
+  display: block;
+  padding: $uni-spacing-col-lg $uni-spacing-col-lg 4rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: $uni-text-color;
+}
+
+.menu-row {
   display: flex;
   align-items: center;
-  padding: 32rpx 0;
-  border-bottom: 1rpx solid #F0F0F0;
+  gap: 20rpx;
+  padding: $uni-spacing-col-lg;
   min-height: 88rpx;
   box-sizing: border-box;
+  border-bottom: 2rpx solid $uni-border-color-divider;
   transition: opacity 150ms ease-out;
 }
 
-.menu-item:active {
-  opacity: 0.7;
+.menu-row:active {
+  opacity: 0.75;
 }
 
-.menu-item:last-child { border-bottom: none; }
-
-.menu-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-right: 20rpx;
-  flex-shrink: 0;
-}
-
-.menu-icon-coupon {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #F59E0B, #B45309);
-  color: #FFFFFF;
-  font-size: 26rpx;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.menu-icon-coupon.my {
-  background: linear-gradient(135deg, #00B578, #0E9F6E);
-}
-
-.menu-icon-qr {
-  border-radius: 8rpx;
-  background: #00B578;
-  position: relative;
-}
-
-.menu-icon-qr::before {
-  content: '';
-  position: absolute;
-  left: 7rpx;
-  top: 7rpx;
-  width: 11rpx;
-  height: 11rpx;
-  border: 3rpx solid #FFFFFF;
-  border-right: none;
+.menu-row--last {
   border-bottom: none;
-  border-top-left-radius: 4rpx;
 }
 
-.menu-icon-qr::after {
-  content: '';
-  position: absolute;
-  right: 7rpx;
-  bottom: 7rpx;
-  width: 11rpx;
-  height: 11rpx;
-  border: 3rpx solid #FFFFFF;
-  border-left: none;
-  border-top: none;
-  border-bottom-right-radius: 4rpx;
+:deep(.menu-ic) {
+  color: $uni-text-color-grey;
+  flex-shrink: 0;
 }
 
-.menu-icon-service {
-  border-radius: 8rpx;
-  background: #00B578;
-  position: relative;
+.menu-label {
+  font-size: 26rpx;
+  color: $uni-text-color;
+}
+
+.menu-v {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 4rpx;
+  min-width: 0;
 }
 
-.menu-icon-service::before {
-  content: '☎';
-  color: #FFFFFF;
-  font-size: 26rpx;
-  line-height: 1;
+.menu-value {
+  font-size: 22rpx;
+  color: $uni-text-color-placeholder;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.menu-text {
-  flex: 1;
-  font-size: 30rpx;
-  color: #111827;
+:deep(.menu-chev) {
+  color: $uni-text-color-disable;
 }
 
-.menu-arrow {
-  width: 32rpx;
-  height: 32rpx;
-  flex-shrink: 0;
+.menu-dot {
+  margin-left: auto;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: $uni-color-primary;
 }
 
-.menu-phone {
-  font-size: 24rpx;
-  color: #00B578;
-  margin-right: 8rpx;
-  flex-shrink: 0;
+/* ===== 退出登录 ===== */
+.logout-wrap {
+  padding: 28rpx $uni-spacing-col-lg 36rpx;
 }
 
 .logout-btn {
-  margin: 40rpx 24rpx;
+  height: 88rpx;
+  line-height: 84rpx;
   text-align: center;
-  border: none;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  color: #DC2626;
-  font-size: 30rpx;
-  font-weight: 500;
-  min-height: 88rpx;
-  line-height: 88rpx;
+  background: $uni-bg-color;
+  border: 2rpx solid $uni-border-color;
+  border-radius: 44rpx;
+  color: $uni-text-color-grey;
+  font-size: 28rpx;
+  font-weight: 400;
   box-sizing: border-box;
-  padding: 0;
 }
 </style>

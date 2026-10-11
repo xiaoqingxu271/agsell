@@ -68,11 +68,11 @@
         </view>
         <view class="form-item">
           <text class="form-label">收件人</text>
-          <input class="form-input" v-model="form.receiver" placeholder="请输入收件人姓名" placeholder-style="color:#9CA3AF" />
+          <input class="form-input" v-model="form.receiver" placeholder="请输入收件人姓名" placeholder-style="color:#9AA0A8" />
         </view>
         <view class="form-item">
           <text class="form-label">手机号</text>
-          <input class="form-input" type="number" v-model="form.phone" placeholder="请输入手机号" placeholder-style="color:#9CA3AF" />
+          <input class="form-input" type="number" v-model="form.phone" placeholder="请输入手机号" placeholder-style="color:#9AA0A8" />
         </view>
         <view class="form-item">
           <text class="form-label">所在地区</text>
@@ -86,7 +86,7 @@
         </view>
         <view class="form-item">
           <text class="form-label">详细地址</text>
-          <input class="form-input" v-model="form.detail" placeholder="街道/门牌号等" placeholder-style="color:#9CA3AF" />
+          <input class="form-input" v-model="form.detail" placeholder="街道/门牌号等" placeholder-style="color:#9AA0A8" />
         </view>
         <view class="form-item">
           <text class="form-label">标签</text>
@@ -276,7 +276,7 @@ async function onSetDefault(addr) {
 <style scoped>
 .address-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .content {
@@ -351,17 +351,17 @@ async function onSetDefault(addr) {
   border-right: 6rpx solid #C7CECB;
   border-bottom: 6rpx solid #C7CECB;
   transform: rotate(45deg);
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .empty-text {
   font-size: 28rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-bottom: 32rpx;
 }
 
 .login-hint-btn {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   padding: 20rpx 48rpx;
   border-radius: 44rpx;
@@ -380,7 +380,7 @@ async function onSetDefault(addr) {
   bottom: calc(20rpx + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   display: flex;
   align-items: center;
@@ -408,12 +408,12 @@ async function onSetDefault(addr) {
   border-radius: 24rpx;
   margin-bottom: 16rpx;
   overflow: hidden;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .address-card.is-default {
-  border-color: #00B578;
+  border-color: #E1251B;
 }
 
 .addr-main {
@@ -431,12 +431,12 @@ async function onSetDefault(addr) {
 .receiver {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .tag {
@@ -452,13 +452,13 @@ async function onSetDefault(addr) {
 }
 
 .tag-success {
-  background: #D1FAE5;
-  color: #00B578;
+  background: #F5C4C0;
+  color: #E1251B;
 }
 
 .addr-detail {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   line-height: 1.6;
 }
 
@@ -467,7 +467,7 @@ async function onSetDefault(addr) {
   gap: 16rpx;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #F0F0F0;
+  border-top: 1rpx solid #EDEEF0;
   flex-wrap: wrap;
 }
 
@@ -483,18 +483,18 @@ async function onSetDefault(addr) {
 }
 
 .action-edit {
-  color: #00B578;
-  border: 1rpx solid #00B578;
+  color: #E1251B;
+  border: 1rpx solid #E1251B;
 }
 
 .action-delete {
-  color: #DC2626;
-  border: 1rpx solid #DC2626;
+  color: #D93026;
+  border: 1rpx solid #D93026;
 }
 
 .action-default {
-  color: #E63946;
-  border: 1rpx solid #E63946;
+  color: #E1251B;
+  border: 1rpx solid #E1251B;
 }
 
 /* 编辑弹窗 */
@@ -530,7 +530,7 @@ async function onSetDefault(addr) {
 .edit-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .edit-close {
@@ -539,7 +539,7 @@ async function onSetDefault(addr) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .edit-close .close-x {
@@ -556,7 +556,7 @@ async function onSetDefault(addr) {
   top: 50%;
   width: 30rpx;
   height: 4rpx;
-  background: #4B5563;
+  background: #666A73;
   border-radius: 2rpx;
 }
 
@@ -569,7 +569,7 @@ async function onSetDefault(addr) {
 
 .form-label {
   font-size: 28rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-bottom: 12rpx;
   display: block;
   font-weight: 500;
@@ -578,11 +578,11 @@ async function onSetDefault(addr) {
 .form-input {
   width: 100%;
   height: 88rpx;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #C9CDD4;
   border-radius: 12rpx;
   padding: 0 24rpx;
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   box-sizing: border-box;
   background: #FFFFFF;
 }
@@ -591,7 +591,7 @@ async function onSetDefault(addr) {
   padding: 0 24rpx;
   background: #FFFFFF;
   border-radius: 12rpx;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #C9CDD4;
   height: 88rpx;
   display: flex;
   align-items: center;
@@ -599,7 +599,7 @@ async function onSetDefault(addr) {
 
 .region-picker {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .tag-options {
@@ -609,10 +609,10 @@ async function onSetDefault(addr) {
 
 .tag-option {
   padding: 12rpx 32rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   border-radius: 44rpx;
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   min-height: 60rpx;
   line-height: 60rpx;
   box-sizing: border-box;
@@ -621,9 +621,9 @@ async function onSetDefault(addr) {
 }
 
 .tag-option.active {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
-  border-color: #00B578;
+  border-color: #E1251B;
 }
 
 .default-row {
@@ -639,13 +639,13 @@ async function onSetDefault(addr) {
 
 .toggle-text {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .toggle-switch {
   width: 88rpx;
   height: 48rpx;
-  background: #D1D5DB;
+  background: #C9CDD4;
   border-radius: 16rpx;
   position: relative;
   transition: background 0.2s ease;
@@ -653,7 +653,7 @@ async function onSetDefault(addr) {
 }
 
 .toggle-switch.on {
-  background: #00B578;
+  background: #E1251B;
 }
 
 .toggle-circle {
@@ -672,7 +672,7 @@ async function onSetDefault(addr) {
 }
 
 .save-btn {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   text-align: center;
   height: 88rpx;

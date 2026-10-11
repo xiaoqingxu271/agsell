@@ -1,88 +1,126 @@
 ﻿<template>
   <view class="category-page">
+    <!-- 顶部搜索 + 扫码（白底头部） -->
+    <view class="hd">
+      <view class="srch" @click="onSearchTap" role="button" aria-label="搜索商品">
+        <wd-icon name="search" size="28rpx" custom-class="srch-ic" />
+        <text class="srch-ph">搜索分类内商品</text>
+      </view>
+      <view class="hd-ic" @click="onSearchTap" role="button" aria-label="扫码搜索">
+        <wd-icon name="scan" size="36rpx" custom-class="hd-scan" />
+      </view>
+    </view>
+
     <view class="category-layout">
-      <!-- 左侧一级分类 -->
-      <scroll-view scroll-y class="category-sidebar">
+      <!-- 左侧一级导轨 -->
+      <scroll-view scroll-y class="rail">
         <view
           v-for="cat in firstCategories"
           :key="cat.id"
-          class="sidebar-item"
+          class="rail-item"
           :class="{ active: currentFirstId === cat.id }"
           @click="onFirstCategoryTap(cat)"
           role="button"
           :aria-label="cat.name"
         >
-          {{ cat.name }}
+          <text class="rail-name">{{ cat.name }}</text>
         </view>
       </scroll-view>
 
       <!-- 右侧内容区 -->
-      <view class="category-content">
-        <!-- 二级分类 -->
-        <scroll-view scroll-x class="second-row">
-          <view
-            v-for="cat in secondCategories"
-            :key="cat.id"
-            class="second-item"
-            :class="{ active: currentSecondId === cat.id }"
-            @click="onSecondCategoryTap(cat)"
-          >
-            {{ cat.name }}
+      <view class="cmain">
+        <scroll-view scroll-y class="cmain-scroll" @scrolltolower="onReachBottom">
+          <!-- Banner 浅红条 -->
+          <view class="cban">
+            <view class="cban-txt">
+              <text class="cban-title">{{ currentFirstName }}</text>
+              <text class="cban-sub">优选产地 · 新鲜直达</text>
+            </view>
+            <wd-icon name="bags" size="68rpx" custom-class="cban-ic" />
           </view>
-          <view
-            v-if="secondCategories.length === 0"
-            class="second-item all-category"
-            :class="{ active: !currentSecondId }"
-            @click="onSecondCategoryTap(null)"
-          >
-            全部
-          </view>
-        </scroll-view>
 
-        <!-- 排序栏 -->
-        <view class="sort-bar">
-          <view
-            v-for="item in sortOptions"
-            :key="item.value"
-            class="sort-item"
-            :class="{ active: sortBy === item.value }"
-            @click="onSortTap(item.value)"
-          >
-            {{ item.label }}
-            <text v-if="sortBy === item.value" class="sort-arrow">↑</text>
-          </view>
-        </view>
+          <!-- 排序 chips -->
+          <scroll-view scroll-x class="cts">
+            <view
+              v-for="item in sortOptions"
+              :key="item.value"
+              class="chip"
+              :class="{ on: sortBy === item.value }"
+              @click="onSortTap(item.value)"
+            >
+              {{ item.label }}
+            </view>
+          </scroll-view>
 
-        <!-- 商品列表 -->
-        <scroll-view scroll-y class="product-list-scroll" @scrolltolower="onReachBottom">
-          <view class="product-grid">
+          <!-- 当前子类名 + 二级分类图标网格 -->
+          <text v-if="currentSecondName" class="cgrp-t">{{ currentSecondName }}</text>
+          <view class="cgrid">
+            <view
+              v-for="cat in secondCategories"
+              :key="cat.id"
+              class="cgrid-item"
+              :class="{ on: currentSecondId === cat.id }"
+              @click="onSecondCategoryTap(cat)"
+            >
+              <view class="cgrid-im">
+                <wd-icon name="goods" size="48rpx" custom-class="cgrid-ic" />
+              </view>
+              <text class="cgrid-name">{{ cat.name }}</text>
+            </view>
+            <view
+              v-if="secondCategories.length === 0"
+              class="cgrid-item"
+              :class="{ on: !currentSecondId }"
+              @click="onSecondCategoryTap(null)"
+            >
+              <view class="cgrid-im">
+                <wd-icon name="list" size="48rpx" custom-class="cgrid-ic" />
+              </view>
+              <text class="cgrid-name">全部</text>
+            </view>
+          </view>
+
+          <view class="sep"></view>
+
+          <!-- 商品单列横向列表 -->
+          <view class="clist">
             <view
               v-for="product in products"
               :key="product.id"
-              class="product-item"
+              class="li"
               @click="onProductTap(product)"
             >
-              <view class="product-img-wrap">
+              <view class="li-thumb">
                 <image
-                  class="product-img"
-                  :src="product.mainImage || '/static/default-product.png'"
+                  v-if="product.mainImage"
+                  class="li-img"
+                  :src="product.mainImage"
                   mode="aspectFill"
                   lazy-load
                   :alt="product.name"
                 />
+                <wd-icon v-else name="picture" size="72rpx" custom-class="li-ph-ic" />
               </view>
-              <text class="product-name">{{ product.name }}</text>
-              <view class="product-price-row">
-                <text class="product-price">¥{{ product.price }}</text>
-                <text v-if="product.originalPrice" class="product-original">¥{{ product.originalPrice }}</text>
+              <view class="li-in">
+                <text class="li-nm">{{ product.name }}</text>
+                <text class="li-sp">{{ product.subtitle || `已售 ${product.sales || 0}` }}</text>
+                <view class="li-bt">
+                  <view class="price">
+                    <text class="price-sym">¥</text>
+                    <text class="price-num">{{ product.price }}</text>
+                    <text v-if="product.originalPrice" class="price-origin">{{ product.originalPrice }}</text>
+                  </view>
+                  <view class="add" @click.stop="onQuickAdd(product)" role="button" aria-label="加入购物车">
+                    <wd-icon name="add" size="24rpx" custom-class="add-ic" />
+                  </view>
+                </view>
               </view>
-              <text class="product-sales">已售{{ product.sales || 0 }}</text>
             </view>
           </view>
 
-          <!-- 加载中 -->
-          <view v-if="loading" class="loading">加载中...</view>
-          <view v-if="!hasMore && products.length > 0" class="no-more">没有更多了</view>
+          <!-- 状态提示 -->
+          <view v-if="loading" class="hint">加载中...</view>
+          <view v-if="!hasMore && products.length > 0" class="hint">— 以上为「{{ currentFirstName }}」全部商品 —</view>
           <view v-if="!loading && products.length === 0 && !requesting" class="empty">暂无商品</view>
         </scroll-view>
       </view>
@@ -91,9 +129,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getCategoryList, getProductList } from '../../api/product'
-import { setPlatformTitle } from '../../utils/request'
+import { addToCart } from '../../api/cart'
+import { isLoggedIn, wxLogin, setPlatformTitle } from '../../utils/request'
 
 const firstCategories = ref([])
 const secondCategories = ref([])
@@ -114,6 +153,18 @@ const sortOptions = [
   { label: '价格↓', value: 'price_desc' },
   { label: '新品', value: 'new' }
 ]
+
+// 纯展示：当前选中一级分类名，用于右侧 Banner 文案（无匹配则为空）
+const currentFirstName = computed(() => {
+  const hit = firstCategories.value.find((c) => String(c.id) === String(currentFirstId.value))
+  return hit ? hit.name : '分类精选'
+})
+
+// 纯展示：当前选中子类名，作为图标网格上方的小标题
+const currentSecondName = computed(() => {
+  const hit = secondCategories.value.find((c) => String(c.id) === String(currentSecondId.value))
+  return hit ? hit.name : ''
+})
 
 onMounted(async () => {
   setPlatformTitle()
@@ -207,20 +258,85 @@ function onProductTap(product) {
   uni.navigateTo({ url: `/pages/product/product?id=${id}` })
 }
 
+/** 列表右下角红色加购，与首页/详情页走同一接口 */
+async function onQuickAdd(product) {
+  if (!isLoggedIn()) {
+    const success = await wxLogin()
+    if (!success) return
+  }
+  const res = await addToCart({ productId: product.id, specId: null, quantity: 1 })
+  if (res.code === 0) {
+    uni.showToast({ title: '已加入购物车', icon: 'success' })
+  } else {
+    uni.showToast({ title: res.message || '操作失败', icon: 'none' })
+  }
+}
+
 function onReachBottom() {
   if (hasMore.value && !loading.value) {
     pageNum.value++
     loadProducts()
   }
 }
+
+function onSearchTap() {
+  uni.navigateTo({ url: '/pages/search/search' })
+}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .category-page {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F5F5F5;
+  background: $uni-bg-color-grey;
+}
+
+/* ===== 顶部搜索头部（白底 + 扫码） ===== */
+.hd {
+  background: $uni-bg-color;
+  padding: 12rpx 24rpx 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex-shrink: 0;
+}
+
+.srch {
+  flex: 1;
+  min-width: 0;
+  height: 64rpx;
+  background: $uni-bg-color-muted;
+  border: 2rpx solid #E8E9EC;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+  gap: 12rpx;
+}
+
+.hd-ic {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+:deep(.hd-scan) {
+  color: $uni-text-color-grey;
+}
+
+:deep(.srch-ic) {
+  color: $uni-text-color-placeholder;
+  flex-shrink: 0;
+}
+
+.srch-ph {
+  flex: 1;
+  font-size: 24rpx;
+  color: $uni-text-color-placeholder;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .category-layout {
@@ -229,183 +345,308 @@ function onReachBottom() {
   overflow: hidden;
 }
 
-.category-sidebar {
-  width: 180rpx;
-  background: #FFFFFF;
-  overflow-y: auto;
+/* ===== 左侧一级导轨 ===== */
+.rail {
+  width: 164rpx;
+  background: $uni-bg-color-img;
   flex-shrink: 0;
-  border-right: 1rpx solid #F0F0F0;
+  overflow-y: auto;
 }
 
-.sidebar-item {
-  padding: 32rpx 16rpx;
-  font-size: 26rpx;
-  color: #4B5563;
-  text-align: center;
-  border-left: 6rpx solid transparent;
-  min-height: 88rpx;
+.rail-item {
+  min-height: 104rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 16rpx 12rpx;
   box-sizing: border-box;
   transition: background 150ms ease-out, color 150ms ease-out;
 }
 
-.sidebar-item.active {
-  background: #ECFDF5;
-  color: #00B578;
-  border-left-color: #00B578;
+.rail-name {
+  font-size: 24rpx;
+  color: $uni-text-color-grey;
+  text-align: center;
+  line-height: 34rpx;
+}
+
+.rail-item.active {
+  background: $uni-bg-color;
+  box-shadow: inset 6rpx 0 0 $uni-color-primary;
+
+  .rail-name {
+    color: $uni-color-primary;
+    font-weight: 600;
+  }
+}
+
+/* ===== 右侧内容区 ===== */
+.cmain {
+  flex: 1;
+  min-width: 0;
+  background: $uni-bg-color;
+  overflow: hidden;
+}
+
+.cmain-scroll {
+  height: 100%;
+}
+
+/* Banner 浅红渐变条 */
+.cban {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  height: 124rpx;
+  margin: 20rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  border-radius: $uni-border-radius-base;
+  background: linear-gradient(100deg, #FFF4F3, $uni-color-primary-50);
+  border: 2rpx solid $uni-color-primary-100;
+}
+
+.cban-txt {
+  flex: 1;
+  min-width: 0;
+}
+
+.cban-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $uni-color-primary;
+}
+
+.cban-sub {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: $uni-text-color-grey;
+}
+
+:deep(.cban-ic) {
+  color: $uni-color-primary;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* 排序 chips */
+.cts {
+  white-space: nowrap;
+  padding: 0 20rpx 20rpx;
+}
+
+.chip {
+  display: inline-block;
+  height: 52rpx;
+  line-height: 52rpx;
+  padding: 0 22rpx;
+  margin-right: 12rpx;
+  border-radius: $uni-border-radius-pill;
+  background: $uni-bg-color-grey;
+  font-size: 22rpx;
+  color: $uni-text-color-grey;
+}
+
+.chip.on {
+  background: $uni-color-primary-50;
+  color: $uni-color-primary;
   font-weight: 600;
 }
 
-.category-content {
-  flex: 1;
+/* 子类小标题 */
+.cgrp-t {
+  display: block;
+  padding: 0 20rpx 12rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: $uni-text-color-grey;
+}
+
+/* 二级分类图标网格 */
+.cgrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24rpx 0;
+  padding: 4rpx 20rpx 24rpx;
+}
+
+.cgrid-item {
   display: flex;
   flex-direction: column;
-  background: #F5F5F5;
-  overflow: hidden;
+  align-items: center;
+  gap: 10rpx;
 }
 
-.second-row {
-  white-space: nowrap;
-  padding: 16rpx 20rpx;
-  background: #FFFFFF;
-  flex-shrink: 0;
-}
-
-.second-item {
-  display: inline-block;
-  padding: 12rpx 28rpx;
-  margin-right: 16rpx;
-  font-size: 26rpx;
-  color: #4B5563;
-  background: #F3F4F6;
-  border-radius: 999rpx;
-  min-height: 60rpx;
-  line-height: 60rpx;
-  box-sizing: border-box;
-  transition: background 150ms ease-out, color 150ms ease-out;
-}
-
-.second-item.active {
-  background: #00B578;
-  color: #FFFFFF;
-  font-weight: 600;
-}
-
-.sort-bar {
-  display: flex;
-  padding: 16rpx 20rpx;
-  background: #FFFFFF;
-  flex-shrink: 0;
-}
-
-.sort-item {
-  flex: 1;
-  text-align: center;
-  font-size: 26rpx;
-  color: #4B5563;
-  min-height: 60rpx;
+.cgrid-im {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 12rpx;
+  background: $uni-bg-color-img;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.sort-item.active {
-  color: #00B578;
+:deep(.cgrid-ic) {
+  color: $uni-color-img-icon;
+}
+
+.cgrid-item.on .cgrid-im {
+  background: $uni-color-primary-50;
+  box-shadow: inset 0 0 0 2rpx $uni-color-primary;
+
+  :deep(.cgrid-ic) {
+    color: $uni-color-primary;
+  }
+}
+
+.cgrid-name {
+  font-size: 20rpx;
+  color: $uni-text-color-grey;
+}
+
+.cgrid-item.on .cgrid-name {
+  color: $uni-color-primary;
   font-weight: 600;
 }
 
-.sort-arrow {
-  font-size: 20rpx;
-  margin-left: 4rpx;
+/* 分割线 */
+.sep {
+  height: 1rpx;
+  background: $uni-border-color-divider;
+  margin: 0 20rpx;
 }
 
-.product-list-scroll {
-  flex: 1;
-  height: 0;
-}
-
-.product-grid {
+/* 商品单列横向列表 */
+.clist {
+  padding: 0 20rpx 24rpx;
   display: flex;
-  flex-wrap: wrap;
-  padding: 16rpx;
-  gap: 16rpx;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
-.product-item {
-  width: calc(50% - 8rpx);
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-  min-height: 88rpx;
+.li {
+  display: flex;
+  gap: 18rpx;
   transition: opacity 150ms ease-out;
 }
 
-.product-item:active {
+.li:active {
   opacity: 0.85;
 }
 
-.product-img-wrap {
-  width: 100%;
-  padding-top: 100%;
-  position: relative;
+.li-thumb {
+  width: 156rpx;
+  height: 156rpx;
+  border-radius: 12rpx;
+  background: $uni-bg-color-img;
+  flex-shrink: 0;
   overflow: hidden;
-  background: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.product-img {
-  position: absolute;
-  top: 0;
-  left: 0;
+:deep(.li-ph-ic) {
+  color: $uni-color-img-icon;
+}
+
+.li-img {
   width: 100%;
   height: 100%;
 }
 
-.product-name {
-  display: block;
-  padding: 12rpx 16rpx;
-  font-size: 26rpx;
-  color: #111827;
-  line-height: 1.4;
+.li-in {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.li-nm {
+  font-size: 24rpx;
+  line-height: 34rpx;
+  height: 68rpx;
+  color: $uni-text-color;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.product-price-row {
+.li-sp {
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: $uni-text-color-3;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.li-bt {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.price {
   display: flex;
   align-items: baseline;
-  padding: 0 16rpx;
-}
-
-.product-price {
-  color: #E63946;
-  font-size: 32rpx;
-  font-weight: 700;
+  gap: 4rpx;
+  font-family: $uni-font-family-num;
   font-variant-numeric: tabular-nums;
+  color: $uni-color-primary;
 }
 
-.product-original {
-  color: #9CA3AF;
+.price-sym {
   font-size: 22rpx;
+  font-weight: 700;
+}
+
+.price-num {
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1rpx;
+}
+
+.price-origin {
+  font-size: 22rpx;
+  color: $uni-text-color-3;
   text-decoration: line-through;
-  margin-left: 8rpx;
+  margin-left: 6rpx;
 }
 
-.product-sales {
-  display: block;
-  padding: 8rpx 16rpx 16rpx;
-  font-size: 22rpx;
-  color: #9CA3AF;
+.add {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 22rpx;
+  background: $uni-color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.loading, .no-more, .empty {
+:deep(.add-ic) {
+  color: $uni-text-color-inverse;
+}
+
+/* 状态提示 */
+.hint {
   text-align: center;
-  padding: 40rpx;
-  color: #4B5563;
+  padding: 12rpx 0 24rpx;
+  font-size: 20rpx;
+  color: $uni-text-color-disable;
+}
+
+.empty {
+  text-align: center;
+  padding: 80rpx 24rpx;
   font-size: 26rpx;
+  color: $uni-text-color-grey;
 }
 </style>

@@ -47,12 +47,12 @@ export const ORDER_STATUS_TEXT = {
  */
 export const ORDER_STATUS_COLOR = {
   0: '#D97706',
-  1: '#111827',
-  2: '#00B578',
-  3: '#4B5563',
-  4: '#4B5563',
-  5: '#DC2626',
-  6: '#00B578'
+  1: '#1A1A1A',
+  2: '#00A66A',
+  3: '#666A73',
+  4: '#666A73',
+  5: '#D93026',
+  6: '#00A66A'
 }
 
 export function getOrderStatusText(status) {

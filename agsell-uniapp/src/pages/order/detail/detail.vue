@@ -250,7 +250,7 @@ async function onViewAfterSales() {
 <style scoped>
 .order-detail-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
   display: flex;
   flex-direction: column;
 }
@@ -268,8 +268,8 @@ async function onViewAfterSales() {
   margin: 24rpx 24rpx 8rpx;
   padding: 40rpx 32rpx;
   border-radius: 28rpx;
-  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-  border: 1rpx solid #D1FAE5;
+  background: linear-gradient(135deg, #FDEEEC 0%, #F5C4C0 100%);
+  border: 1rpx solid #F5C4C0;
   box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.06);
 }
 
@@ -278,7 +278,7 @@ async function onViewAfterSales() {
   height: 96rpx;
   border-radius: 50%;
   background: #FFFFFF;
-  border: 1rpx solid #D1FAE5;
+  border: 1rpx solid #F5C4C0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -289,8 +289,8 @@ async function onViewAfterSales() {
 .status-check {
   width: 34rpx;
   height: 18rpx;
-  border-left: 6rpx solid #00B578;
-  border-bottom: 6rpx solid #00B578;
+  border-left: 6rpx solid #E1251B;
+  border-bottom: 6rpx solid #E1251B;
   border-radius: 2rpx;
   transform: rotate(-45deg);
   margin-top: -4rpx;
@@ -304,14 +304,14 @@ async function onViewAfterSales() {
 .status-text {
   font-size: 38rpx;
   font-weight: 700;
-  color: #111827;
+  color: #1A1A1A;
   display: block;
   margin-bottom: 6rpx;
 }
 
 .status-hint {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   display: block;
 }
 
@@ -321,14 +321,14 @@ async function onViewAfterSales() {
   margin: 16rpx 24rpx;
   padding: 28rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
 .card-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #00B578;
+  color: #E1251B;
   margin-bottom: 20rpx;
   padding-left: 18rpx;
   position: relative;
@@ -342,7 +342,7 @@ async function onViewAfterSales() {
   bottom: 6rpx;
   width: 8rpx;
   border-radius: 4rpx;
-  background: linear-gradient(180deg, #22C55E, #00B578);
+  background: linear-gradient(180deg, #F04B3E, #E1251B);
 }
 
 /* ===== 订单信息 ===== */
@@ -351,20 +351,20 @@ async function onViewAfterSales() {
   justify-content: space-between;
   align-items: center;
   padding: 14rpx 0;
-  border-bottom: 1rpx solid #F0F0F0;
+  border-bottom: 1rpx solid #EDEEF0;
   font-size: 26rpx;
 }
 
 .info-row:last-child { border-bottom: none; }
 
 .info-label {
-  color: #4B5563;
+  color: #666A73;
   flex-shrink: 0;
   margin-right: 24rpx;
 }
 
 .info-value {
-  color: #111827;
+  color: #1A1A1A;
   text-align: right;
   font-variant-numeric: tabular-nums;
   word-break: break-all;
@@ -372,7 +372,7 @@ async function onViewAfterSales() {
 
 .order-no {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 /* ===== 商品清单 ===== */
@@ -380,7 +380,7 @@ async function onViewAfterSales() {
   display: flex;
   align-items: center;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #F0F0F0;
+  border-bottom: 1rpx solid #EDEEF0;
 }
 
 .goods-item:last-child { border-bottom: none; }
@@ -389,7 +389,7 @@ async function onViewAfterSales() {
   width: 128rpx;
   height: 128rpx;
   border-radius: 16rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   flex-shrink: 0;
 }
 
@@ -402,7 +402,7 @@ async function onViewAfterSales() {
 
 .goods-name {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -412,7 +412,7 @@ async function onViewAfterSales() {
 
 .goods-spec {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   margin-top: 6rpx;
   display: block;
 }
@@ -424,20 +424,20 @@ async function onViewAfterSales() {
 
 .goods-price {
   font-size: 28rpx;
-  color: #E63946;
+  color: #E1251B;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .goods-qty {
   font-size: 24rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   margin-left: 10rpx;
 }
 
 .goods-subtotal {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
@@ -452,18 +452,18 @@ async function onViewAfterSales() {
   font-size: 28rpx;
 }
 
-.amount-label { color: #4B5563; }
+.amount-label { color: #666A73; }
 
 .amount-value {
-  color: #111827;
+  color: #1A1A1A;
   font-variant-numeric: tabular-nums;
 }
 
-.amount-value.discount { color: #DC2626; }
+.amount-value.discount { color: #D93026; }
 
 .amount-divider {
   height: 1px;
-  background: #F0F0F0;
+  background: #EDEEF0;
   margin: 8rpx 0;
 }
 
@@ -474,7 +474,7 @@ async function onViewAfterSales() {
 }
 
 .amount-value.total-value {
-  color: #E63946;
+  color: #E1251B;
   font-size: 36rpx;
   font-weight: 700;
 }
@@ -489,19 +489,19 @@ async function onViewAfterSales() {
 .receiver {
   font-size: 32rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .phone {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-left: 24rpx;
   font-variant-numeric: tabular-nums;
 }
 
 .address-detail {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   line-height: 1.6;
 }
 
@@ -515,12 +515,12 @@ async function onViewAfterSales() {
 .logistics-company {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .logistics-no {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   font-variant-numeric: tabular-nums;
 }
 
@@ -539,7 +539,7 @@ async function onViewAfterSales() {
   padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
-  border-top: 1rpx solid #E5E7EB;
+  border-top: 1rpx solid #E3E5E8;
   z-index: 100;
   justify-content: flex-end;
 }
@@ -563,20 +563,20 @@ async function onViewAfterSales() {
 }
 
 .btn-primary {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
-  border: 1rpx solid #00B578;
+  border: 1rpx solid #E1251B;
 }
 
 .btn-ghost {
   background: transparent;
-  color: #00B578;
-  border: 1rpx solid #00B578;
+  color: #E1251B;
+  border: 1rpx solid #E1251B;
 }
 
 .btn-danger {
-  color: #DC2626;
-  border-color: #DC2626;
+  color: #D93026;
+  border-color: #D93026;
 }
 
 .btn-warning {

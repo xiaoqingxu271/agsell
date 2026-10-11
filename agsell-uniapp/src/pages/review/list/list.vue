@@ -161,7 +161,7 @@ function onReachBottom() {
 <style scoped>
 .review-list-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .content {
@@ -175,7 +175,7 @@ function onReachBottom() {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -192,14 +192,14 @@ function onReachBottom() {
 .avg-score {
   font-size: 72rpx;
   font-weight: 600;
-  color: #E63946;
+  color: #E1251B;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .total-reviews {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 12rpx;
 }
 
@@ -213,7 +213,7 @@ function onReachBottom() {
   gap: 12rpx;
   margin-bottom: 12rpx;
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .ratio-bar-bg {
@@ -226,13 +226,13 @@ function onReachBottom() {
 
 .ratio-bar {
   height: 100%;
-  background: #E63946;
+  background: #E1251B;
   border-radius: 6rpx;
 }
 
 .ratio-pct {
   font-size: 22rpx;
-  color: #4B5563;
+  color: #666A73;
   min-width: 48rpx;
   font-variant-numeric: tabular-nums;
 }
@@ -270,7 +270,7 @@ function onReachBottom() {
 
 .product-name {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   font-weight: 500;
   display: block;
   margin-bottom: 4rpx;
@@ -281,7 +281,7 @@ function onReachBottom() {
 
 .spec-name {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   display: block;
   margin-bottom: 4rpx;
 }
@@ -293,7 +293,7 @@ function onReachBottom() {
 
 .user-name {
   font-size: 26rpx;
-  color: #111827;
+  color: #1A1A1A;
   font-weight: 500;
   display: block;
   margin-bottom: 4rpx;
@@ -301,13 +301,13 @@ function onReachBottom() {
 
 .review-time {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   flex-shrink: 0;
 }
 
 .review-content {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   line-height: 1.6;
   display: block;
   margin-bottom: 16rpx;
@@ -324,37 +324,37 @@ function onReachBottom() {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .review-reply {
-  background: #F5F5F5;
+  background: #F4F5F7;
   border-radius: 12rpx;
   padding: 16rpx;
 }
 
 .reply-label {
   font-size: 24rpx;
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
 }
 
 .reply-content {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   line-height: 1.5;
 }
 
 .reply-time {
   font-size: 22rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   float: right;
 }
 
 .empty, .loading, .no-more {
   text-align: center;
   padding: 60rpx;
-  color: #4B5563;
+  color: #666A73;
   font-size: 26rpx;
 }
 </style>

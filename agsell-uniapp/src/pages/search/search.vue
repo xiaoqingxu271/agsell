@@ -227,7 +227,7 @@ function onProductTap(item) {
 <style scoped>
 .search-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 /* 搜索栏 */
@@ -236,7 +236,7 @@ function onProductTap(item) {
   align-items: center;
   padding: 20rpx 24rpx;
   background: #FFFFFF;
-  border-bottom: 1rpx solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E5E8;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -247,7 +247,7 @@ function onProductTap(item) {
   display: flex;
   align-items: center;
   height: 72rpx;
-  background: #F5F5F5;
+  background: #F4F5F7;
   border-radius: 36rpx;
   padding: 0 24rpx;
 }
@@ -262,25 +262,25 @@ function onProductTap(item) {
 .search-input {
   flex: 1;
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   height: 72rpx;
   line-height: 72rpx;
 }
 
 .search-placeholder {
-  color: #9CA3AF;
+  color: #9AA0A8;
 }
 
 .clear-btn {
   font-size: 36rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   padding: 0 8rpx;
 }
 
 .search-btn {
   margin-left: 20rpx;
   font-size: 28rpx;
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
 }
 
@@ -303,12 +303,12 @@ function onProductTap(item) {
 .block-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #111827;
+  color: #1A1A1A;
 }
 
 .block-action {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .tag-wrap {
@@ -321,22 +321,22 @@ function onProductTap(item) {
   font-size: 26rpx;
   color: #374151;
   background: #FFFFFF;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   border-radius: 32rpx;
   padding: 10rpx 28rpx;
   line-height: 1.4;
 }
 
 .tag.hot {
-  color: #00B578;
-  background: #ECFDF5;
-  border-color: #D1FAE5;
+  color: #E1251B;
+  background: #FDEEEC;
+  border-color: #F5C4C0;
 }
 
 .empty-tip {
   padding: 120rpx 0;
   text-align: center;
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 26rpx;
 }
 
@@ -350,7 +350,7 @@ function onProductTap(item) {
   align-items: center;
   background: #FFFFFF;
   padding: 0 24rpx;
-  border-bottom: 1rpx solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E5E8;
   position: sticky;
   top: 112rpx;
   z-index: 9;
@@ -358,14 +358,14 @@ function onProductTap(item) {
 
 .sort-item {
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
   padding: 20rpx 0;
   margin-right: 40rpx;
   position: relative;
 }
 
 .sort-item.active {
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
 }
 
@@ -377,7 +377,7 @@ function onProductTap(item) {
   bottom: 0;
   height: 6rpx;
   border-radius: 6rpx 6rpx 0 0;
-  background: #00B578;
+  background: #E1251B;
 }
 
 .product-list {
@@ -387,7 +387,7 @@ function onProductTap(item) {
 .product-card {
   display: flex;
   background: #FFFFFF;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   border-radius: 24rpx;
   overflow: hidden;
   margin-bottom: 16rpx;
@@ -402,7 +402,7 @@ function onProductTap(item) {
   width: 200rpx;
   height: 200rpx;
   flex-shrink: 0;
-  background: #F5F5F5;
+  background: #F4F5F7;
 }
 
 .product-info {
@@ -415,7 +415,7 @@ function onProductTap(item) {
 
 .product-name {
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -425,7 +425,7 @@ function onProductTap(item) {
 
 .product-subtitle {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
   margin-top: 8rpx;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -441,21 +441,21 @@ function onProductTap(item) {
 }
 
 .price {
-  color: #E63946;
+  color: #E1251B;
   font-size: 34rpx;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .sales {
-  color: #4B5563;
+  color: #666A73;
   font-size: 22rpx;
   margin-left: auto;
 }
 
 .load-tip {
   text-align: center;
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 24rpx;
   padding: 24rpx 0;
 }
@@ -480,7 +480,7 @@ function onProductTap(item) {
 
 .empty-sub {
   font-size: 24rpx;
-  color: #9CA3AF;
+  color: #9AA0A8;
   margin-top: 12rpx;
 }
 </style>

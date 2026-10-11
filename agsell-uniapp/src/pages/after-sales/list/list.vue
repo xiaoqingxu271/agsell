@@ -129,7 +129,7 @@ function goDetail(afterSalesNo) {
 <style scoped>
 .as-list-page {
   min-height: 100vh;
-  background: #F5F5F5;
+  background: #F4F5F7;
   display: flex;
   flex-direction: column;
 }
@@ -137,7 +137,7 @@ function goDetail(afterSalesNo) {
 .filter-bar {
   display: flex;
   background: #FFFFFF;
-  border-bottom: 1rpx solid #E5E7EB;
+  border-bottom: 1rpx solid #E3E5E8;
   padding: 0 24rpx;
 }
 
@@ -146,7 +146,7 @@ function goDetail(afterSalesNo) {
   text-align: center;
   padding: 24rpx 0;
   font-size: 28rpx;
-  color: #4B5563;
+  color: #666A73;
   position: relative;
   min-height: 88rpx;
   line-height: 40rpx;
@@ -154,7 +154,7 @@ function goDetail(afterSalesNo) {
 }
 
 .filter-active {
-  color: #00B578;
+  color: #E1251B;
   font-weight: 600;
 }
 
@@ -167,7 +167,7 @@ function goDetail(afterSalesNo) {
   width: 56rpx;
   height: 6rpx;
   border-radius: 3rpx;
-  background: #00B578;
+  background: #E1251B;
 }
 
 .content {
@@ -181,7 +181,7 @@ function goDetail(afterSalesNo) {
   margin: 16rpx 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  border: 1rpx solid #E5E7EB;
+  border: 1rpx solid #E3E5E8;
   box-shadow: 0 1rpx 2rpx rgba(16, 24, 40, 0.05);
 }
 
@@ -190,18 +190,18 @@ function goDetail(afterSalesNo) {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16rpx;
-  border-bottom: 1rpx solid #F0F0F0;
+  border-bottom: 1rpx solid #EDEEF0;
 }
 
 .as-no {
   font-size: 24rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .as-status {
   font-size: 24rpx;
   font-weight: 600;
-  color: #00B578;
+  color: #E1251B;
 }
 
 .as-row {
@@ -211,9 +211,9 @@ function goDetail(afterSalesNo) {
   font-size: 26rpx;
 }
 
-.as-label { color: #4B5563; flex-shrink: 0; margin-right: 24rpx; }
-.as-value { color: #111827; text-align: right; word-break: break-all; }
-.as-value.pay { color: #E63946; font-weight: 600; font-variant-numeric: tabular-nums; }
+.as-label { color: #666A73; flex-shrink: 0; margin-right: 24rpx; }
+.as-value { color: #1A1A1A; text-align: right; word-break: break-all; }
+.as-value.pay { color: #E1251B; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .empty-state {
   text-align: center;
@@ -222,13 +222,13 @@ function goDetail(afterSalesNo) {
 
 .empty-text {
   font-size: 28rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .load-more {
   text-align: center;
   padding: 24rpx 0;
   font-size: 26rpx;
-  color: #4B5563;
+  color: #666A73;
 }
 </style>

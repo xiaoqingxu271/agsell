@@ -1,39 +1,46 @@
 ﻿<template>
   <view class="chat-page">
     <!-- 问题④修复：NavBar emit('back') 是事件，须用 @back 监听；:back 是 prop 绑定，无效 -->
-    <NavBar title="AI 客服" show-back @back="onBack" />
+    <NavBar title="AI 客服" show-back @back="onBack">
+      <template #right>
+        <view class="nav-online">
+          <text class="nav-online-dot"></text>
+          <text class="nav-online-t">在线</text>
+        </view>
+      </template>
+    </NavBar>
 
     <!-- 消息列表（首屏即含欢迎消息：作为第一条 AI 消息保存，带客服头像） -->
     <scroll-view class="msg-list" scroll-y :scroll-into-view="scrollInto" scroll-with-animation>
+      <text class="msg-date">{{ sessionTimeLabel }}</text>
       <view
         v-for="(msg, index) in messages"
         :key="index"
         class="msg-row"
         :class="msg.role === 'user' ? 'row-user' : 'row-ai'"
       >
-        <!-- 问题①修复：双侧头像（用户=自己头像，客服=默认客服头像） -->
-        <image
-          v-if="msg.role === 'ai'"
-          class="avatar avatar-ai"
-          src="/static/icon-service-avatar.png"
-          mode="aspectFill"
-        />
-        <view class="bubble" :class="msg.role === 'user' ? 'bubble-user' : 'bubble-ai'">
-          <!-- 流式阶段提示（业务查询中：正在查询订单…） -->
-          <view v-if="msg.streaming && msg.stage" class="stage-hint">
-            <text class="stage-text">{{ msg.stage }}</text>
+        <!-- 问题①修复：双侧头像（用户=自己头像，客服=品牌红图标块） -->
+        <view v-if="msg.role === 'ai'" class="avatar avatar-ai">
+          <wd-icon name="service" size="34rpx" custom-class="av-ai-icon" />
+        </view>
+        <view class="msg-main">
+          <view class="bubble" :class="msg.role === 'user' ? 'bubble-user' : 'bubble-ai'">
+            <!-- 流式阶段提示（业务查询中：正在查询订单…） -->
+            <view v-if="msg.streaming && msg.stage" class="stage-hint">
+              <text class="stage-text">{{ msg.stage }}</text>
+            </view>
+            <!-- 流式回复：首 token 前打字动画，之后逐字渲染 + 闪烁光标 -->
+            <view v-if="msg.streaming && !msg.content" class="typing-dots">
+              <view class="dot"></view>
+              <view class="dot"></view>
+              <view class="dot"></view>
+            </view>
+            <text v-else class="bubble-text" user-select>{{ msg.content }}</text>
+            <text v-if="msg.streaming && msg.content" class="stream-cursor">▍</text>
           </view>
-          <!-- 流式回复：首 token 前打字动画，之后逐字渲染 + 闪烁光标 -->
-          <view v-if="msg.streaming && !msg.content" class="typing-dots">
-            <view class="dot"></view>
-            <view class="dot"></view>
-            <view class="dot"></view>
-          </view>
-          <text v-else class="bubble-text" user-select>{{ msg.content }}</text>
-          <text v-if="msg.streaming && msg.content" class="stream-cursor">▍</text>
 
-          <!-- 问题③：客服回答后的下一轮询问小贴士 -->
-          <view v-if="msg.role === 'ai' && msg.suggestions && msg.suggestions.length" class="suggest-wrap">
+          <!-- 问题③：客服回答后的下一轮询问小贴士（气泡外 chips） -->
+          <view v-if="msg.suggestions && msg.suggestions.length" class="suggest-wrap">
             <view
               v-for="s in msg.suggestions"
               :key="s"
@@ -62,7 +69,7 @@
       <input
         v-model="draft"
         class="chat-input"
-        placeholder="请输入您的问题…"
+        placeholder="问问 AI 客服，比如「送礼选什么」"
         placeholder-class="input-placeholder"
         confirm-type="send"
         :disabled="sending"
@@ -87,6 +94,7 @@ const draft = ref('')
 const sending = ref(false)
 const scrollInto = ref('')
 const sessionId = ref('')
+const sessionTimeLabel = ref('')
 
 const quickQuestions = [
   '怎么申请退款？',
@@ -117,6 +125,9 @@ const userAvatar = computed(() => {
 onLoad(() => {
   // 会话 ID：页面级生成，多轮对话共用（服务端记忆以 sessionId 为 key）
   sessionId.value = 'wx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+  const now = new Date()
+  const p = (n) => (n < 10 ? '0' + n : '' + n)
+  sessionTimeLabel.value = `今天 ${p(now.getHours())}:${p(now.getMinutes())} · 会话已开始`
   // 首条欢迎消息：作为正式 AI 消息保存进历史（带客服头像），快捷问题作为下一轮小贴士
   messages.value.push({
     role: 'ai',
@@ -213,26 +224,36 @@ async function onSend() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .chat-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #F5F5F5;
+  background: $uni-bg-color-grey;
   overflow: hidden;
 }
 
 /* 消息列表 */
 .msg-list {
   flex: 1;
-  padding: 24rpx 32rpx;
+  padding: 24rpx;
   box-sizing: border-box;
   height: 0;
+  background: #F6F7F9;
+}
+
+.msg-date {
+  display: block;
+  text-align: center;
+  padding: 4rpx 0 24rpx;
+  font-size: 20rpx;
+  color: $uni-text-color-disable;
 }
 
 .msg-row {
   display: flex;
   align-items: flex-start;
+  gap: 16rpx;
   margin-bottom: 24rpx;
 }
 
@@ -244,83 +265,103 @@ async function onSend() {
   justify-content: flex-start;
 }
 
-/* 问题①：头像 */
+.msg-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 524rpx;
+  min-width: 0;
+}
+
+.row-user .msg-main {
+  align-items: flex-end;
+}
+
+/* 头像 */
 .avatar {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 50%;
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 12rpx;
   flex-shrink: 0;
-  background: #E5E7EB;
 }
 
 .avatar-ai {
-  margin-right: 16rpx;
+  background: $uni-color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.av-ai-icon) {
+  color: $uni-text-color-inverse;
 }
 
 .avatar-user {
-  margin-left: 16rpx;
+  border-radius: 12rpx;
+  background: $uni-bg-color-img;
 }
 
+/* 气泡 */
 .bubble {
-  max-width: 78%;
-  padding: 20rpx 24rpx;
+  max-width: 100%;
+  padding: 18rpx 22rpx;
   border-radius: 20rpx;
-  font-size: 28rpx;
-  line-height: 1.6;
+  font-size: 26rpx;
+  line-height: 40rpx;
   word-break: break-word;
 }
 
 .bubble-user {
-  background: #00B578;
-  color: #FFFFFF;
+  background: #C9E7FF;
+  color: $uni-text-color;
   border-top-right-radius: 4rpx;
 }
 
 .bubble-ai {
-  background: #FFFFFF;
-  color: #111827;
-  border: 1rpx solid #E5E7EB;
+  background: $uni-bg-color;
+  color: $uni-text-color;
   border-top-left-radius: 4rpx;
+  box-shadow: $uni-shadow-sm;
 }
 
-/* 问题③：下一轮询问小贴士 */
+/* 下一轮询问小贴士（气泡外 chips） */
 .suggest-wrap {
-  margin-top: 20rpx;
+  margin-top: 12rpx;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 12rpx;
-  border-top: 1rpx dashed #E5E7EB;
-  padding-top: 16rpx;
 }
 
 .suggest-item {
-  align-self: flex-start;
-  background: #ECFDF5;
-  border: 1rpx solid #D1FAE5;
-  border-radius: 12rpx;
-  padding: 12rpx 20rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  background: $uni-bg-color;
+  border: 2rpx solid $uni-border-color;
+  border-radius: 28rpx;
+  padding: 0 22rpx;
 }
 
 .suggest-item:active {
-  background: #D1FAE5;
+  background: $uni-bg-color-hover;
 }
 
 .suggest-text {
-  font-size: 24rpx;
-  color: #00B578;
+  font-size: 22rpx;
+  color: $uni-text-color;
 }
 
-/* 流式阶段提示（业务查询中） */
+/* 流式阶段提示 */
 .stage-hint {
   margin-bottom: 12rpx;
 }
 
 .stage-text {
   font-size: 24rpx;
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
 }
 
-/* 流式首 token 前的打字动画（在 AI 气泡内） */
+/* 打字动画 */
 .typing-dots {
   display: flex;
   align-items: center;
@@ -331,8 +372,8 @@ async function onSend() {
 .dot {
   width: 12rpx;
   height: 12rpx;
-  border-radius: 50%;
-  background: #9CA3AF;
+  border-radius: $uni-border-radius-circle;
+  background: $uni-text-color-placeholder;
   animation: blink 1.2s infinite ease-in-out;
 }
 
@@ -351,7 +392,7 @@ async function onSend() {
 
 /* 流式输出光标 */
 .stream-cursor {
-  color: #00B578;
+  color: $uni-color-primary;
   animation: cursor-blink 0.8s step-end infinite;
 }
 
@@ -365,40 +406,65 @@ async function onSend() {
   height: 1rpx;
 }
 
+/* 导航右侧在线状态 */
+.nav-online {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.nav-online-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: $uni-color-service;
+}
+
+.nav-online-t {
+  font-size: 22rpx;
+  color: $uni-color-service;
+}
+
 /* 底部输入栏 */
 .input-bar {
+  flex: none;
   display: flex;
   align-items: center;
   gap: 16rpx;
-  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: #FFFFFF;
-  border-top: 1rpx solid #E5E7EB;
+  height: 98rpx;
+  padding: 0 20rpx;
+  padding-bottom: calc(18rpx + env(safe-area-inset-bottom));
+  box-sizing: content-box;
+  background: $uni-bg-color;
+  border-top: 2rpx solid $uni-border-color-divider;
 }
 
 .chat-input {
   flex: 1;
-  height: 80rpx;
-  background: #F5F5F5;
-  border-radius: 40rpx;
-  padding: 0 32rpx;
-  font-size: 28rpx;
-  color: #111827;
+  height: 68rpx;
+  background: $uni-bg-color-muted;
+  border: 2rpx solid $uni-border-color;
+  border-radius: 34rpx;
+  padding: 0 24rpx;
+  font-size: 24rpx;
+  color: $uni-text-color;
 }
 
 .input-placeholder {
-  color: #9CA3AF;
+  color: $uni-text-color-placeholder;
 }
 
 .send-btn {
   flex-shrink: 0;
-  height: 80rpx;
-  line-height: 80rpx;
-  padding: 0 40rpx;
-  background: #00B578;
-  color: #FFFFFF;
-  font-size: 28rpx;
+  width: 112rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0;
+  background: $uni-color-primary;
+  color: $uni-text-color-inverse;
+  font-size: 24rpx;
   font-weight: 600;
-  border-radius: 40rpx;
+  border-radius: 30rpx;
   border: none;
   margin: 0;
 }
@@ -408,7 +474,7 @@ async function onSend() {
 }
 
 .send-btn[disabled] {
-  background: #A7CBB5;
-  color: #FFFFFF;
+  background: $uni-text-color-disable;
+  color: $uni-text-color-inverse;
 }
 </style>

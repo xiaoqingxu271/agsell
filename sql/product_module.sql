@@ -87,7 +87,7 @@ INSERT INTO `product_category` (`name`, `parent_id`, `sort`, `status`) VALUES
 
 -- 二级分类
 INSERT INTO `product_category` (`name`, `parent_id`, `sort`, `status`) VALUES
-(' citrus ', 1, 10, 1),
+('柑橘类', 1, 10, 1),
 ('浆果类', 1, 9, 1),
 ('热带水果', 1, 8, 1),
 ('叶菜类', 2, 10, 1),

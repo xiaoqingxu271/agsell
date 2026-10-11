@@ -27,17 +27,24 @@ async function loadPlatformName() {
 
 <style>
 /* ============================================================
- * agsell 小程序设计系统 v4.0（生鲜电商标准版）
- * 权威来源：doc/miniprogram-design-system-v4.md
+ * agsell 小程序设计系统 v5.0（品质电商风 · 京东/天猫超市参照）
+ * 权威来源：doc/ui-design/v2/full-flow.html
+ * 语义分工：品牌红=价格/CTA/选中态，服务绿=成功/自营/保障，加购橙=加入购物车
  * ============================================================ */
 
 page {
-  background-color: #F5F5F5;
+  background-color: #F4F5F7;
   font-family: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei',
     'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 28rpx;
-  color: #111827;
+  color: #1A1A1A;
   box-sizing: border-box;
+
+  /* wot-design-uni 主题覆写：收敛到设计系统 v5.0 */
+  --wot-color-theme: #E1251B;
+  --wot-color-success: #00A66A;
+  --wot-color-danger: #D93026;
+  --wot-color-warning: #D97706;
 }
 
 /* 横屏/平板内容区居中 */
@@ -46,18 +53,19 @@ page {
   margin: 0 auto;
 }
 
-/* 通用卡片：白底 + 24rpx 圆角 + 微阴影 */
+/* 通用卡片：白底 + 16rpx 圆角 + 微阴影 */
 .card {
   background: #FFFFFF;
-  border-radius: 24rpx;
+  border-radius: 16rpx;
   margin: 24rpx;
   padding: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2rpx 4rpx rgba(20, 24, 31, 0.04);
 }
 
 /* 按压反馈 */
 .card:active,
 .btn-primary:active,
+.btn-cart:active,
 .btn-ghost:active,
 .btn-secondary:active,
 .checkout-btn:active,
@@ -67,9 +75,9 @@ page {
   transition: opacity 150ms ease-out;
 }
 
-/* 主按钮（绿） */
+/* 主按钮（品牌红） */
 .btn-primary {
-  background: #00B578;
+  background: #E1251B;
   color: #FFFFFF;
   border: none;
   border-radius: 44rpx;
@@ -84,15 +92,31 @@ page {
 }
 
 .btn-primary[disabled] {
-  background: #E5E7EB;
-  color: #9CA3AF;
+  background: #E3E5E8;
+  color: #9AA0A8;
 }
 
-/* 次要按钮 ghost */
+/* 加入购物车（橙） */
+.btn-cart {
+  background: #FF9200;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 44rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.btn-cart::after {
+  border: none;
+}
+
+/* 次要按钮 ghost（品牌红描边） */
 .btn-ghost {
   background: #FFFFFF;
-  color: #00B578;
-  border: 1rpx solid #00B578;
+  color: #E1251B;
+  border: 1rpx solid #E1251B;
   border-radius: 40rpx;
   height: 80rpx;
   line-height: 80rpx;
@@ -103,17 +127,18 @@ page {
   border: none;
 }
 
-/* 价格（红色） */
+/* 价格（品牌红 + 等宽数字，数字必须对齐） */
 .price {
-  color: #E63946;
+  color: #E1251B;
   font-weight: 700;
+  font-family: 'DIN Alternate', 'Bahnschrift', 'Helvetica Neue', Arial, sans-serif;
   font-variant-numeric: tabular-nums;
 }
 
 /* 分割线 */
 .divider {
   height: 1rpx;
-  background: #F0F0F0;
+  background: #EDEEF0;
   margin: 24rpx 0;
 }
 
@@ -123,11 +148,11 @@ page {
   flex-direction: column;
   align-items: center;
   padding: 120rpx 0;
-  color: #9CA3AF;
+  color: #9AA0A8;
   font-size: 28rpx;
 }
 
-/* 状态标签 */
+/* 状态标签：绿=服务承诺，红=促销，黄=券/待付，灰=属性 */
 .tag {
   display: inline-flex;
   align-items: center;
@@ -140,8 +165,8 @@ page {
 }
 
 .tag-success {
-  background: #ECFDF5;
-  color: #00B578;
+  background: #E8F6EF;
+  color: #00A66A;
 }
 
 .tag-warning {
@@ -150,55 +175,51 @@ page {
 }
 
 .tag-danger {
-  background: #FEF2F2;
-  color: #DC2626;
+  background: #FDEEEC;
+  color: #D93026;
 }
 
 .tag-primary {
-  background: #ECFDF5;
-  color: #00B578;
+  background: #FDEEEC;
+  color: #E1251B;
 }
 
 .tag-info {
   background: #F3F4F6;
-  color: #4B5563;
+  color: #666A73;
 }
 
 .tag-accent {
-  background: #FEE2E2;
-  color: #E63946;
+  background: #FDEEEC;
+  color: #E1251B;
 }
 
 /* ============================================================
- * 宽屏适配（平板 / H5 宽窗）
+ * H5 宽屏适配：渲染成 375px 手机画布，与设计稿 full-flow.html 的
+ * .phone{width:375px} 逐像素对齐。
+ *
+ * uni-app H5 把 rpx 编译成 rem，并由 JS 把 html{font-size} 设成
+ * innerWidth/750*32，因此只限容器宽度会让所有字号按真实视口放大。
+ * 必须同时把根字号钉到 16px（= 375/750*32，即 1rpx = 0.5px）。
+ * transform 让 uni-app 成为 fixed 后代的包含块，底部操作栏自动收进列内。
  * ============================================================ */
-@media (min-width: 1000px) {
-  .index-page,
-  .category-page,
-  .cart-page,
-  .mine-page,
-  .product-page,
-  .order-list-page,
-  .order-detail-page,
-  .confirm-page,
-  .pay-success-page,
-  .review-list-page,
-  .review-write-page,
-  .apply-page,
-  .as-detail-page,
-  .as-list-page,
-  .address-page {
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
+/* #ifdef H5 */
+@media (min-width: 520px) {
+  html {
+    /* stylelint-disable-next-line declaration-no-important */
+    font-size: 16px !important;
+    background: #E9EBEE;
   }
 
-  .bottom-bar,
-  .app-footer {
-    left: 50%;
-    transform: translateX(-50%);
-    width: 900px;
-    max-width: 100%;
+  uni-app {
+    width: 375px;
+    min-height: 100vh;
+    margin: 0 auto;
+    position: relative;
+    transform: translateZ(0);
+    background: #F4F5F7;
+    box-shadow: 0 0 0 1px #E3E5E8, 0 16px 48px rgba(20, 24, 31, 0.16);
   }
 }
+/* #endif */
 </style>

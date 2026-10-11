@@ -1,10 +1,13 @@
 <template>
-  <view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
-    <view class="nav-content" :style="{ height: navBarHeight + 'px' }">
+  <view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px', background: background }">
+    <view
+      class="nav-content"
+      :style="{ height: navBarHeight + 'px', borderBottom: bordered ? '1rpx solid #EDEEF0' : 'none' }"
+    >
       <view v-if="showBack" class="nav-back" aria-label="返回" @click="$emit('back')">
-        <view class="nav-back-arrow"></view>
+        <view class="nav-back-arrow" :style="{ borderLeftColor: color, borderBottomColor: color }"></view>
       </view>
-      <text class="nav-title">{{ title }}</text>
+      <text class="nav-title" :style="{ color: color }">{{ title }}</text>
       <view class="nav-right"><slot name="right" /></view>
     </view>
   </view>
@@ -15,7 +18,11 @@ import { ref, onMounted } from 'vue'
 
 const props = defineProps({
   title: { type: String, default: '' },
-  showBack: { type: Boolean, default: true }
+  showBack: { type: Boolean, default: true },
+  // 可选主题化：默认值完全保持原有白色导航外观，仅在秒杀等频道页传入红色参数
+  background: { type: String, default: '#FFFFFF' },
+  color: { type: String, default: '#1A1A1A' },
+  bordered: { type: Boolean, default: true }
 })
 defineEmits(['back'])
 
@@ -32,14 +39,12 @@ onMounted(() => {
 <style scoped>
 .nav-bar {
   width: 100%;
-  background: #FFFFFF;
 }
 .nav-content {
   position: relative;
   display: flex;
   align-items: center;
   padding: 0 24rpx;
-  border-bottom: 1rpx solid #F0F0F0;
 }
 .nav-back {
   width: 88rpx;
@@ -53,8 +58,8 @@ onMounted(() => {
 .nav-back-arrow {
   width: 22rpx;
   height: 22rpx;
-  border-left: 5rpx solid #111827;
-  border-bottom: 5rpx solid #111827;
+  border-left: 5rpx solid #1A1A1A;
+  border-bottom: 5rpx solid #1A1A1A;
   transform: rotate(45deg);
 }
 .nav-title {
@@ -63,7 +68,7 @@ onMounted(() => {
   right: 0;
   text-align: center;
   font-size: 34rpx;
-  color: #111827;
+  color: #1A1A1A;
   font-weight: 600;
   letter-spacing: 1rpx;
   pointer-events: none;

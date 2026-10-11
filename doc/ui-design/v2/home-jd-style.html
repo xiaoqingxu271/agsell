@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>山货集市 · 首页风格小样 v2（品质电商风）</title>
+<style>
+:root{
+  /* ===== 色彩令牌：参考京东/天猫超市的中性灰分层 + 克制品红 ===== */
+  --brand:#E1251B;          /* 主品牌红：仅用于价格、CTA、选中态 */
+  --brand-deep:#C81E14;
+  --brand-soft:#FDEEEC;     /* 红色弱底：促销标签、券 */
+  --accent:#FF6F1F;         /* 辅助橙：秒杀/倒计时 */
+  --accent-soft:#FFF3E9;
+  --green:#00A66A;          /* 生鲜绿：自营、溯源、服务承诺 */
+  --green-soft:#E8F6EF;
+  --page:#F4F5F7;           /* 页面底 */
+  --card:#FFFFFF;           /* 卡片底 */
+  --line:#EDEEF0;           /* 分割线 */
+  --t1:#1A1A1A;             /* 主文本 */
+  --t2:#666A73;             /* 次文本 */
+  --t3:#9AA0A8;             /* 弱文本 */
+  --img:#F0F1F3;            /* 商品图占位底 */
+  --r-s:4px; --r-m:8px; --r-l:12px;
+  --sh-card:0 1px 2px rgba(20,24,31,.04);
+  --sh-float:0 4px 16px rgba(20,24,31,.10);
+  --num:"DIN Alternate","Bahnschrift","Helvetica Neue",Arial,sans-serif;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{background:#E9EBEE;font-family:var(--sans);color:var(--t1);padding:40px 32px 64px}
+.doc{max-width:1180px;margin:0 auto}
+.doc h1{font-size:22px;font-weight:600;letter-spacing:.5px}
+.doc h1 em{font-style:normal;color:var(--brand)}
+.doc .sub{margin-top:8px;font-size:13px;line-height:22px;color:#5A5F66;max-width:820px}
+.doc .sub b{color:var(--t1);font-weight:600}
+
+.stage{display:flex;gap:36px;align-items:flex-start;margin-top:28px;flex-wrap:wrap}
+
+/* ===== 手机框 ===== */
+.phone{width:375px;height:812px;background:var(--page);border-radius:38px;
+  box-shadow:0 0 0 10px #17181A,0 0 0 12px #2C2E31,0 24px 60px rgba(20,24,31,.22);
+  overflow:hidden;position:relative;flex:none}
+.sbar{height:40px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;font-size:12px;font-weight:600;font-family:var(--num);color:var(--t1);background:var(--card)}
+.sbar .r{display:flex;align-items:center;gap:5px}
+.batt{width:20px;height:10px;border:1px solid var(--t1);border-radius:2px;position:relative}
+.batt::after{content:"";position:absolute;inset:1.5px;right:6px;background:var(--t1);border-radius:1px}
+.scroll{position:absolute;top:40px;bottom:0;left:0;right:0;overflow:hidden}
+
+/* ===== 顶部搜索 ===== */
+.hd{background:var(--card);padding:6px 12px 10px;display:flex;align-items:center;gap:10px}
+.loc{display:flex;align-items:center;gap:2px;font-size:12px;color:var(--t1);font-weight:500;flex:none}
+.loc svg{width:13px;height:13px;color:var(--brand)}
+.srch{flex:1;height:32px;background:#F3F4F6;border-radius:16px;display:flex;align-items:center;
+  padding:0 4px 0 10px;gap:6px;border:1px solid #E8E9EC}
+.srch svg{width:14px;height:14px;color:var(--t3);flex:none}
+.srch .ph{flex:1;font-size:12px;color:var(--t3);white-space:nowrap;overflow:hidden}
+.srch .go{height:24px;padding:0 12px;border-radius:12px;background:var(--brand);color:#fff;
+  font-size:12px;font-weight:500;display:flex;align-items:center}
+.hd .ic{width:20px;height:20px;color:var(--t2);flex:none;position:relative}
+
+/* ===== 频道宫格 ===== */
+.cats{background:var(--card);padding:12px 4px 16px;display:grid;
+  grid-template-columns:repeat(5,1fr);gap:14px 0;border-bottom-left-radius:12px;border-bottom-right-radius:12px}
+.cat{display:flex;flex-direction:column;align-items:center;gap:5px}
+.cat .box{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.cat .box svg{width:20px;height:20px}
+.cat span{font-size:11px;color:var(--t2);line-height:1}
+.cat.on span{color:var(--brand);font-weight:600}
+.c1{background:#FFF1EF}.c1 svg{color:#F04B3E}
+.c2{background:#FFF5E8}.c2 svg{color:#F08A00}
+.c3{background:#EAF7F0}.c3 svg{color:#00A66A}
+.c4{background:#EAF2FD}.c4 svg{color:#2E7CE4}
+.c5{background:#F2EEFB}.c5 svg{color:#7B57D8}
+.c6{background:#E9F6F8}.c6 svg{color:#0E97A8}
+.c7{background:#FDF0F4}.c7 svg{color:#D9497C}
+.c8{background:#F0F4E9}.c8 svg{color:#6E9B28}
+.c9{background:#F4F5F7}.c9 svg{color:#5A6270}
+.c10{background:#FFF5E8}.c10 svg{color:#C8821A}
+
+/* ===== Banner ===== */
+.bn{margin:10px 12px 0;height:118px;border-radius:var(--r-m);overflow:hidden;position:relative;
+  background:linear-gradient(100deg,#1C1F24 0%,#3A2220 55%,#7A2A22 100%)}
+.bn .tag{position:absolute;left:14px;top:14px;font-size:10px;color:#FFD9B0;border:1px solid rgba(255,217,176,.5);
+  padding:2px 6px;border-radius:2px;letter-spacing:1px}
+.bn h3{position:absolute;left:14px;top:38px;font-size:20px;font-weight:600;color:#fff;letter-spacing:1px}
+.bn p{position:absolute;left:14px;top:68px;font-size:11px;color:rgba(255,255,255,.62)}
+.bn .cta{position:absolute;left:14px;top:90px;font-size:11px;color:#1A1A1A;background:#FFD86B;
+  padding:4px 12px;border-radius:11px;font-weight:600}
+.bn .art{position:absolute;right:16px;top:22px;width:82px;height:82px;opacity:.9}
+.dots{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.dots i{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}
+.dots i.on{width:12px;background:#fff}
+
+/* ===== 通用区块卡 ===== */
+.blk{background:var(--card);margin:10px 12px;border-radius:var(--r-m);padding:12px;box-shadow:var(--sh-card)}
+.bhd{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.bhd .t{font-size:16px;font-weight:600;letter-spacing:.3px}
+.bhd .st{font-size:11px;color:var(--t3)}
+.cd{margin-left:auto;display:flex;align-items:center;gap:3px;font-size:11px;color:var(--t2)}
+.cd b{font-family:var(--num);background:#3A3D42;color:#fff;font-size:11px;font-weight:600;
+  padding:1px 3px;border-radius:3px;min-width:16px;text-align:center}
+.more{margin-left:auto;font-size:11px;color:var(--t2);display:flex;align-items:center;gap:1px}
+.more svg{width:12px;height:12px}
+
+/* ===== 秒杀横滑 ===== */
+.sk{display:flex;gap:8px;overflow:hidden}
+.sk .i{width:88px;flex:none}
+.sk .im{width:88px;height:88px;border-radius:6px;background:var(--img);display:flex;
+  align-items:center;justify-content:center;position:relative}
+.sk .im svg{width:44px;height:44px;color:#C7CCD3}
+.sk .nm{font-size:11px;color:var(--t2);margin:6px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sk .pr{display:flex;align-items:baseline;gap:3px}
+.sk .pr i{font-style:normal;font-size:10px;color:var(--brand);font-family:var(--num)}
+.sk .pr b{font-family:var(--num);font-size:15px;color:var(--brand);font-weight:700;line-height:1}
+.sk .pr s{font-family:var(--num);font-size:10px;color:var(--t3);text-decoration:line-through}
+.bar{height:14px;margin-top:5px;border-radius:7px;background:var(--brand-soft);position:relative;overflow:hidden}
+.bar em{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#FF6F1F,#E1251B);border-radius:7px}
+.bar span{position:absolute;left:0;top:0;bottom:0;padding-left:6px;display:flex;align-items:center;
+  font-size:9px;color:#fff;font-weight:600;letter-spacing:.2px;text-shadow:0 0 3px rgba(180,60,0,.55)}
+
+/* ===== 服务承诺条 ===== */
+.svc{display:flex;background:var(--card);margin:10px 12px;border-radius:var(--r-m);padding:10px 0;box-shadow:var(--sh-card)}
+.svc div{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--t2);
+  border-right:1px solid var(--line)}
+.svc div:last-child{border-right:none}
+.svc svg{width:13px;height:13px;color:var(--green)}
+
+/* ===== 双列商品流 ===== */
+.sec-t{display:flex;align-items:center;gap:8px;margin:16px 12px 8px}
+.sec-t i{width:3px;height:14px;background:var(--brand);border-radius:2px}
+.sec-t b{font-size:15px;font-weight:600}
+.sec-t span{font-size:11px;color:var(--t3)}
+.flow{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 16px}
+.pd{background:var(--card);border-radius:var(--r-m);overflow:hidden;box-shadow:var(--sh-card)}
+.pd .thumb{width:100%;height:152px;background:var(--img);position:relative;display:flex;
+  align-items:center;justify-content:center}
+.pd .thumb svg{width:70px;height:70px;color:#C7CCD3}
+.pd .flag{position:absolute;left:0;top:0;font-size:9px;padding:2px 5px;border-radius:var(--r-s) 0 var(--r-s) 0;
+  background:var(--green);color:#fff;font-weight:500}
+.pd .flag.hot{background:var(--brand)}
+.pd .in{padding:8px 9px 10px}
+.pd .nm{font-size:13px;line-height:18px;color:var(--t1);height:36px;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pd .nm u{text-decoration:none;color:var(--brand);font-weight:600}
+.tags{display:flex;gap:4px;margin:6px 0}
+.tags i{font-style:normal;font-size:9px;line-height:14px;padding:0 4px;border-radius:2px}
+.tags .g{color:var(--green);border:1px solid #B9E3D0}
+.tags .r{color:var(--brand);border:1px solid #F5C4C0}
+.tags .k{color:var(--t2);border:1px solid var(--line)}
+.prow{display:flex;align-items:flex-end;justify-content:space-between}
+.price{display:flex;align-items:baseline;gap:4px}
+.price i{font-style:normal;font-family:var(--num);font-size:11px;color:var(--brand);font-weight:700}
+.price b{font-family:var(--num);font-size:20px;color:var(--brand);font-weight:700;line-height:1;letter-spacing:-.3px}
+.price s{font-family:var(--num);font-size:11px;color:var(--t3)}
+.sold{font-size:10px;color:var(--t3);font-family:var(--num)}
+.add{width:22px;height:22px;border-radius:11px;background:var(--brand);display:flex;
+  align-items:center;justify-content:center;margin-bottom:1px}
+.add svg{width:12px;height:12px;color:#fff}
+
+/* ===== TabBar ===== */
+.tab{position:absolute;bottom:0;left:0;right:0;height:58px;padding-bottom:9px;background:rgba(255,255,255,.97);
+  border-top:1px solid var(--line);display:flex;backdrop-filter:blur(8px)}
+.tab a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:10px;color:var(--t3);text-decoration:none;position:relative}
+.tab a svg{width:20px;height:20px}
+.tab a.on{color:var(--brand);font-weight:600}
+.tab .cb{position:absolute;top:3px;right:calc(50% - 17px);min-width:14px;height:14px;padding:0 3px;
+  border-radius:7px;background:var(--brand);color:#fff;font-size:9px;line-height:14px;
+  font-family:var(--num);font-weight:600;text-align:center}
+.homi{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:100px;height:4px;
+  border-radius:2px;background:#1A1A1A;opacity:.85}
+
+/* ===== 右侧规范说明 ===== */
+.spec{width:330px;flex:none;background:var(--card);border-radius:var(--r-l);padding:20px;box-shadow:var(--sh-card)}
+.spec h2{font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.spec h3{font-size:12px;font-weight:600;color:var(--t1);margin:16px 0 8px}
+.spec p,.spec li{font-size:12px;line-height:20px;color:#5A5F66}
+.spec ul{padding-left:16px}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw div{width:calc(50% - 4px);border:1px solid var(--line);border-radius:6px;padding:6px;display:flex;
+  align-items:center;gap:6px;font-size:11px;color:var(--t2);font-family:var(--num)}
+.sw i{width:16px;height:16px;border-radius:4px;border:1px solid rgba(0,0,0,.06);flex:none}
+.spec table{width:100%;border-collapse:collapse;font-size:11px}
+.spec td{padding:5px 0;border-bottom:1px dashed var(--line);color:#5A5F66}
+.spec td:first-child{color:var(--t1);width:88px}
+.spec .note{margin-top:14px;padding:10px;background:#FFF8E9;border-left:2px solid #F0A020;
+  font-size:11px;line-height:18px;color:#6B5320;border-radius:0 6px 6px 0}
+</style>
+</head>
+<body>
+<!-- ===== 线性图标库 ===== -->
+<svg style="display:none">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16H6l1.4-2.3V10a4.6 4.6 0 119.2 0v3.7z"/><path d="M10 19a2 2 0 004 0"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16M4 12h16"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V19a1 1 0 01-1 1h-4v-5h-6v5H5a1 1 0 01-1-1z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h2.2l2.3 10.4h9.7L20 8H6"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c1.2-3.4 3.9-5 7-5s5.8 1.6 7 5"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5.5-13 14-13 0 8.5-5 13-11 13H5z"/><path d="M8 16c2.5-3.5 5.5-5.8 9-6.8"/></symbol>
+  <symbol id="i-grain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 12c-3 0-4.5-2-4.5-4.5C10 7.5 12 9.2 12 12zM12 12c3 0 4.5-2 4.5-4.5C14 7.5 12 9.2 12 12zM12 17c-3 0-4.5-2-4.5-4.5C10 12.5 12 14.2 12 17zM12 17c3 0 4.5-2 4.5-4.5C14 12.5 12 14.2 12 17z"/></symbol>
+  <symbol id="i-egg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c3.6 0 6.5 4.6 6.5 9.2A6.5 6.5 0 015.5 12.2C5.5 7.6 8.4 3 12 3z"/></symbol>
+  <symbol id="i-fish" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4.5 7-6.5 11-6.5 3.5 0 6 2 6.5 6.5-.5 4.5-3 6.5-6.5 6.5-4 0-8-2-11-6.5z"/><path d="M17.5 11h.01"/><path d="M3 12l-1-3.5M3 12l-1 3.5"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h11v7a5.5 5.5 0 01-11 0z"/><path d="M16 9h2a2.2 2.2 0 010 4.4h-2"/><path d="M4 21h13"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13"/><path d="M12 7S10.5 3.5 8.3 4.2C6.6 4.8 7.5 7 12 7zM12 7s1.5-3.5 3.7-2.8C17.4 4.8 16.5 7 12 7z"/></symbol>
+  <symbol id="i-milk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3l2 3v9a1 1 0 01-1 1H8a1 1 0 01-1-1v-9l2-3z"/><path d="M7 12h10"/></symbol>
+  <symbol id="i-pot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16v6a4 4 0 01-4 4H8a4 4 0 01-4-4z"/><path d="M2 11h2M20 11h2M9 6c0-1.5 1-2 1.5-3M14 6c0-1.5 1-2 1.5-3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.6v5.6c0 4.4-2.9 7.7-7 9.2-4.1-1.5-7-4.8-7-9.2V5.6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A1.5 1.5 0 014.5 7h15A1.5 1.5 0 0121 8.5v2a2 2 0 000 3.9v1.1A1.5 1.5 0 0119.5 17h-15A1.5 1.5 0 013 15.5v-1.1a2 2 0 000-3.9z"/><path d="M12 8v2M12 14v2"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8"/><circle cx="6.5" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2L5 13.2h4.6L8.5 22 19 9.8h-4.9z"/></symbol>
+  <symbol id="i-basket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5h18l-1.7 8.2a2.5 2.5 0 01-2.5 2H7.2a2.5 2.5 0 01-2.5-2z"/><path d="M8 9.5L11 3M16 9.5L13 3"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5c-1.2-1.5-3.2-2-4.7-1.2C5.3 7.4 4.5 10.5 5.6 13.6 6.6 16.4 8.4 20 10.3 20c.8 0 1.2-.5 1.7-.5s.9.5 1.7.5c1.9 0 3.7-3.6 4.7-6.4 1.1-3.1.3-6.2-1.7-7.3-1.5-.8-3.5-.3-4.7 1.2z"/><path d="M12 7.5c0-2 1-3.4 3-4"/></symbol>
+  <symbol id="i-rice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0116 0z"/><path d="M3 13h18v3.5A2.5 2.5 0 0118.5 19h-13A2.5 2.5 0 013 16.5z"/><path d="M9 10.5c.8-.8.8-2 0-2.8M13.5 10c.6-.6.6-1.6 0-2.2"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5L12 4l8 4.5v7L12 20l-8-4.5z"/><path d="M4 8.5L12 13l8-4.5M12 13v7"/></symbol>
+</svg>
+
+<div class="doc">
+  <h1>山货集市 <em>·</em> 品质电商风 首页小样 v2</h1>
+  <p class="sub">
+    参考<b>京东主站 + 天猫超市</b>的信息组织与视觉分层：<b>中性灰底 + 纯白卡片</b>拉开层级，品牌红只出现在价格与行动点，
+    其余全部交给排版和留白。所有元素落在 <b>4px 栅格</b>上，商品流用<b>等宽双列定高卡</b>而非瀑布流，保证货架感与整齐度。
+  </p>
+
+  <div class="stage">
+    <!-- ================= 手机 ================= -->
+    <div class="phone">
+      <div class="sbar"><span>9:41</span><span class="r"><span style="font-size:10px">5G</span><span class="batt"></span></span></div>
+
+      <div class="scroll">
+        <!-- 顶部 -->
+        <div class="hd">
+          <div class="loc"><svg><use href="#i-pin"/></svg>南昌<svg style="width:10px;height:10px;color:#9AA0A8"><use href="#i-right"/></svg></div>
+          <div class="srch">
+            <svg><use href="#i-scan"/></svg>
+            <div class="ph">赣南脐橙 · 当季新米</div>
+            <div class="go">搜索</div>
+          </div>
+          <svg class="ic"><use href="#i-bell"/></svg>
+        </div>
+
+        <!-- 频道宫格 -->
+        <div class="cats">
+          <div class="cat on"><div class="box c1"><svg><use href="#i-apple"/></svg></div><span>水果蔬菜</span></div>
+          <div class="cat"><div class="box c2"><svg><use href="#i-rice"/></svg></div><span>米面粮油</span></div>
+          <div class="cat"><div class="box c3"><svg><use href="#i-egg"/></svg></div><span>禽蛋肉禽</span></div>
+          <div class="cat"><div class="box c4"><svg><use href="#i-fish"/></svg></div><span>水产海鲜</span></div>
+          <div class="cat"><div class="box c5"><svg><use href="#i-cup"/></svg></div><span>茶酒饮料</span></div>
+          <div class="cat"><div class="box c6"><svg><use href="#i-milk"/></svg></div><span>乳品烘焙</span></div>
+          <div class="cat"><div class="box c7"><svg><use href="#i-gift"/></svg></div><span>零食特产</span></div>
+          <div class="cat"><div class="box c8"><svg><use href="#i-pot"/></svg></div><span>调味速食</span></div>
+          <div class="cat"><div class="box c9"><svg><use href="#i-shield"/></svg></div><span>产地溯源</span></div>
+          <div class="cat"><div class="box c10"><svg><use href="#i-ticket"/></svg></div><span>领券中心</span></div>
+        </div>
+
+        <!-- Banner -->
+        <div class="bn">
+          <div class="tag">产地直发</div>
+          <h3>秋收尝鲜季</h3>
+          <p>全国 8 大产区 · 满 99 减 20</p>
+          <div class="cta">立即抢购</div>
+          <svg class="art" style="color:rgba(255,216,107,.85)"><use href="#i-basket"/></svg>
+          <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
+        </div>
+
+        <!-- 限时秒杀 -->
+        <div class="blk">
+          <div class="bhd">
+            <svg style="width:15px;height:15px;color:var(--accent);align-self:center"><use href="#i-bolt"/></svg>
+            <span class="t" style="color:var(--brand)">限时秒杀</span>
+            <div class="cd"><b>01</b>:<b>24</b>:<b>38</b></div>
+          </div>
+          <div class="sk">
+            <div class="i">
+              <div class="im"><svg><use href="#i-apple"/></svg></div>
+              <div class="nm">烟台红富士 5斤</div>
+              <div class="pr"><i>¥</i><b>19.9</b><s>39.9</s></div>
+              <div class="bar"><em style="width:88%"></em><span>已抢 88%</span></div>
+            </div>
+            <div class="i">
+              <div class="im"><svg><use href="#i-rice"/></svg></div>
+              <div class="nm">五常稻花香 5kg</div>
+              <div class="pr"><i>¥</i><b>45.0</b><s>68.0</s></div>
+              <div class="bar"><em style="width:76%"></em><span>已抢 76%</span></div>
+            </div>
+            <div class="i">
+              <div class="im"><svg><use href="#i-egg"/></svg></div>
+              <div class="nm">农家土鸡蛋 30枚</div>
+              <div class="pr"><i>¥</i><b>22.9</b><s>32.9</s></div>
+              <div class="bar"><em style="width:62%"></em><span>已抢 62%</span></div>
+            </div>
+            <div class="i">
+              <div class="im"><svg><use href="#i-grain"/></svg></div>
+              <div class="nm">云南蒙自石榴 6斤</div>
+              <div class="pr"><i>¥</i><b>16.9</b><s>29.9</s></div>
+              <div class="bar"><em style="width:58%"></em><span>已抢 58%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 服务承诺 -->
+        <div class="svc">
+          <div><svg><use href="#i-shield"/></svg>坏果包赔</div>
+          <div><svg><use href="#i-truck"/></svg>顺丰包邮</div>
+          <div><svg><use href="#i-box"/></svg>产地溯源</div>
+        </div>
+
+        <!-- 推荐流 -->
+        <div class="sec-t"><i></i><b>为你推荐</b><span>根据你的浏览偏好</span></div>
+        <div class="flow">
+          <div class="pd">
+            <div class="thumb"><span class="flag">自营</span><svg><use href="#i-apple"/></svg></div>
+            <div class="in">
+              <div class="nm"><u>产地直发</u> 赣南脐橙 手剥橙 5斤装 果径70-75mm</div>
+              <div class="tags"><i class="g">顺丰包邮</i><i class="r">满99减20</i><i class="k">坏果包赔</i></div>
+              <div class="prow">
+                <div class="price"><i>¥</i><b>29.9</b><s>45.9</s></div>
+                <div class="add"><svg><use href="#i-plus"/></svg></div>
+              </div>
+              <div class="sold" style="margin-top:5px">已售 2.3万 · 好评 98%</div>
+            </div>
+          </div>
+
+          <div class="pd">
+            <div class="thumb"><span class="flag hot">当季</span><svg><use href="#i-rice"/></svg></div>
+            <div class="in">
+              <div class="nm"><u>五常核心产区</u> 稻花香2号 新米 10kg 真空装</div>
+              <div class="tags"><i class="g">产地溯源</i><i class="k">24h发货</i></div>
+              <div class="prow">
+                <div class="price"><i>¥</i><b>89.0</b><s>128.0</s></div>
+                <div class="add"><svg><use href="#i-plus"/></svg></div>
+              </div>
+              <div class="sold" style="margin-top:5px">已售 8900 · 好评 99%</div>
+            </div>
+          </div>
+
+          <div class="pd">
+            <div class="thumb"><span class="flag">自营</span><svg><use href="#i-egg"/></svg></div>
+            <div class="in">
+              <div class="nm">林间散养土鸡蛋 30枚 可生食级 破损包赔</div>
+              <div class="tags"><i class="r">券29减4</i><i class="k">冷链</i></div>
+              <div class="prow">
+                <div class="price"><i>¥</i><b>25.9</b><s>32.9</s></div>
+                <div class="add"><svg><use href="#i-plus"/></svg></div>
+              </div>
+              <div class="sold" style="margin-top:5px">已售 1.1万 · 好评 97%</div>
+            </div>
+          </div>
+
+          <div class="pd">
+            <div class="thumb"><span class="flag">自营</span><svg><use href="#i-grain"/></svg></div>
+            <div class="in">
+              <div class="nm">云南蒙自软籽石榴 6斤 礼盒装 现摘现发</div>
+              <div class="tags"><i class="g">顺丰包邮</i><i class="k">坏果包赔</i></div>
+              <div class="prow">
+                <div class="price"><i>¥</i><b>19.9</b><s>29.9</s></div>
+                <div class="add"><svg><use href="#i-plus"/></svg></div>
+              </div>
+              <div class="sold" style="margin-top:5px">已售 6400 · 好评 96%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TabBar -->
+      <div class="tab">
+        <a class="on"><svg><use href="#i-home"/></svg>首页</a>
+        <a><svg><use href="#i-grid"/></svg>分类</a>
+        <a><svg><use href="#i-cart"/></svg>购物车<span class="cb">3</span></a>
+        <a><svg><use href="#i-user"/></svg>我的</a>
+      </div>
+      <div class="homi"></div>
+    </div>
+
+    <!-- ================= 规范说明 ================= -->
+    <div class="spec">
+      <h2>这一版改了什么</h2>
+      <ul>
+        <li>去掉插画与描边装饰，改用<b>灰底 / 白卡</b>两层结构拉开层级。</li>
+        <li>品牌红<b>只用于价格、CTA、选中态</b>，其余文本回归黑灰，避免满屏红。</li>
+        <li>商品流从<b>不等高瀑布流</b>改为<b>定高双列卡</b>，图 1:1、标题固定两行、价格行底部对齐。</li>
+        <li>价格用<b>等宽数字字体</b>（¥ 11px / 整数 20px / 原价 11px 划线），数字对齐才显专业。</li>
+        <li>标签体系收敛为 3 类语义：绿=服务承诺、红=促销、灰=属性，全部 1px 描边不用色块。</li>
+        <li>秒杀改为<b>标题+倒计时+横滑货架</b>的独立模块，进度条承担紧迫感而不是靠大字报。</li>
+      </ul>
+
+      <h3 style="margin-top:22px">色彩令牌</h3>
+      <div class="sw">
+        <div><i style="background:#E1251B"></i>brand #E1251B</div>
+        <div><i style="background:#FDEEEC"></i>brand-soft</div>
+        <div><i style="background:#FF6F1F"></i>accent #FF6F1F</div>
+        <div><i style="background:#00A66A"></i>green #00A66A</div>
+        <div><i style="background:#F4F5F7;border:1px solid #E3E5E8"></i>page #F4F5F7</div>
+        <div><i style="background:#fff;border:1px solid #E3E5E8"></i>card #FFFFFF</div>
+        <div><i style="background:#1A1A1A"></i>text-1 #1A1A1A</div>
+        <div><i style="background:#9AA0A8"></i>text-3 #9AA0A8</div>
+      </div>
+
+      <h3>字号 / 间距</h3>
+      <table>
+        <tr><td>区块标题</td><td>16px / 600</td></tr>
+        <tr><td>商品标题</td><td>13px / 400 / 行高18</td></tr>
+        <tr><td>正文与辅助</td><td>11–12px / #666A73</td></tr>
+        <tr><td>价格整数</td><td>20px / 等宽数字</td></tr>
+        <tr><td>栅格基数</td><td>4px（卡片内边距 12）</td></tr>
+        <tr><td>卡片圆角</td><td>8px（图片同）</td></tr>
+        <tr><td>页面左右留白</td><td>12px</td></tr>
+      </table>
+
+      <div class="note">
+        <b>落地成本：</b>只改 <code>uni.scss</code> 令牌 + 商品卡/宫格/秒杀三处结构，不动任何接口与业务逻辑；
+        现有 <code>wot-design-uni</code> 组件继续复用（tabbar、搜索、步进器、角标都是现成的）。<br>
+        <b>待你确认：</b>① 品牌红是否换成项目现有的 #00B578 绿做主色；② 首页要不要保留「AI 导购」入口。
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

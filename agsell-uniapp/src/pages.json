@@ -1,4 +1,10 @@
 {
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^wd-(.*)": "wot-design-uni/components/wd-$1/wd-$1.vue"
+    }
+  },
   "pages": [
     { "path": "pages/index/index", "type": "home" },
     { "path": "pages/category/category", "type": "page" },
@@ -25,17 +31,17 @@
     { "path": "pages/search/search", "type": "page", "style": { "navigationBarTitleText": "搜索" } }
   ],
   "globalStyle": {
-    "navigationBarBackgroundColor": "#00B578",
-    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
     "navigationBarTitleText": "农产品商城",
-    "backgroundColor": "#F5F5F5",
+    "backgroundColor": "#F4F5F7",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#9CA3AF",
-    "selectedColor": "#00B578",
+    "color": "#9AA0A8",
+    "selectedColor": "#E1251B",
     "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
