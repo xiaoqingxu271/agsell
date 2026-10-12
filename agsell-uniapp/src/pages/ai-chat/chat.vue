@@ -25,11 +25,7 @@
         </view>
         <view class="msg-main">
           <view class="bubble" :class="msg.role === 'user' ? 'bubble-user' : 'bubble-ai'">
-            <!-- 流式阶段提示（业务查询中：正在查询订单…） -->
-            <view v-if="msg.streaming && msg.stage" class="stage-hint">
-              <text class="stage-text">{{ msg.stage }}</text>
-            </view>
-            <!-- 流式回复：首 token 前打字动画，之后逐字渲染 + 闪烁光标 -->
+            <!-- 流式回复：首 token 前打字动画，之后逐字渲染 + 闪烁光标（内部阶段文案不向用户展示） -->
             <view v-if="msg.streaming && !msg.content" class="typing-dots">
               <view class="dot"></view>
               <view class="dot"></view>
@@ -103,14 +99,6 @@ const quickQuestions = [
   '我申请过退款吗？结果怎么样？'
 ]
 
-// 流式阶段提示文案（与 Python 侧 stage 事件对应）
-const STAGE_LABELS = {
-  faq_retrieve: '正在翻阅知识库…',
-  order_query: '正在查询订单…',
-  logistics_query: '正在查询物流…',
-  after_sales_query: '正在查询售后进度…'
-}
-
 // 问题①：用户头像取自登录 userInfo（wxLogin 时写入 { userId, nickname, avatar, phone }），未登录用默认头像
 const userAvatar = computed(() => {
   try {
@@ -171,23 +159,22 @@ async function onSend() {
 
   sending.value = true
   // 预插入 AI 气泡：首 token 前显示打字动画，token 到达后逐字渲染
-  messages.value.push({ role: 'ai', content: '', suggestions: null, streaming: true, stage: '' })
+  messages.value.push({ role: 'ai', content: '', suggestions: null, streaming: true })
   const msg = messages.value[messages.value.length - 1]
 
   try {
     await sendAiChatStream(sessionId.value, text, {
       onToken: (t) => {
-        msg.stage = ''
-        msg.content += t
+        // Agnes 首包常带前导换行，流式期间就剥掉，避免气泡顶部出现空行
+        msg.content = msg.content ? msg.content + t : (t || '').replace(/^\s+/, '')
         scrollToBottom()
       },
-      onStatus: (s) => {
-        msg.stage = (s && STAGE_LABELS[s.stage]) || ''
+      onStatus: () => {
+        // 内部阶段事件（检索/业务查询中）不向用户展示，仅保持流解析完整
         scrollToBottom()
       },
       onDone: (d) => {
         msg.streaming = false
-        msg.stage = ''
         // 兜底：流正常收尾但无内容（不应发生，防御性处理）
         msg.content = (msg.content || '').trim() || '抱歉，服务开小差了，请稍后再试。'
         if (d && d.suggestions && d.suggestions.length) {
@@ -198,7 +185,6 @@ async function onSend() {
       onError: (e) => {
         // 上游 error 事件：展示服务端文案；气泡已有内容时保留已生成的部分
         msg.streaming = false
-        msg.stage = ''
         if (!msg.content) {
           msg.content = (e && e.message) || '抱歉，服务开小差了，请稍后再试。'
         }
@@ -209,7 +195,6 @@ async function onSend() {
     console.warn('AI 客服流式请求失败', e)
     // 传输失败 / 业务失败（token 失效 40100 等）
     msg.streaming = false
-    msg.stage = ''
     if (!msg.content) {
       if (e?.code === 40100 || e?.code === 10001) {
         msg.content = '登录状态已失效，请重新登录后再试。'
@@ -349,16 +334,6 @@ async function onSend() {
 .suggest-text {
   font-size: 22rpx;
   color: $uni-text-color;
-}
-
-/* 流式阶段提示 */
-.stage-hint {
-  margin-bottom: 12rpx;
-}
-
-.stage-text {
-  font-size: 24rpx;
-  color: $uni-text-color-placeholder;
 }
 
 /* 打字动画 */
