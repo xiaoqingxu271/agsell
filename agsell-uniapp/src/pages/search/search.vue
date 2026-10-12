@@ -69,7 +69,8 @@
       <view v-else-if="!loading" class="empty-state">
         <text class="empty-icon">🔍</text>
         <text class="empty-text">没有找到「{{ keyword }}」相关商品</text>
-        <text class="empty-sub">换个关键词试试</text>
+        <text v-if="sortBy" class="empty-link" @click="onSort('')">切回「相关度」试试，AI 能听懂“送礼”这类说法</text>
+        <text v-else class="empty-sub">换个关键词试试</text>
       </view>
     </view>
   </view>
@@ -77,7 +78,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+import { onLoad, onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
 import { searchProducts, getHotWords } from '../../api/product'
 
 const HISTORY_KEY = 'searchHistory'
@@ -166,8 +167,11 @@ async function doSearch(reset) {
       total.value = res.data.total || 0
       noMore.value = list.value.length >= total.value
       pageNum += 1
+    } else if (reset) {
+      // 首页检索失败：只落空态，不把后端错误码文案抛给用户（检索层问题不该由用户承担）
+      noMore.value = true
     } else {
-      uni.showToast({ title: res.message || '搜索失败', icon: 'none' })
+      uni.showToast({ title: '暂时没能加载更多，稍后再试', icon: 'none' })
     }
   } catch (e) {
     console.warn('搜索失败', e)
@@ -176,6 +180,21 @@ async function doSearch(reset) {
     loading.value = false
   }
 }
+
+/** 下拉刷新：已检索则重跑当前关键词（语义召回结果会随浏览行为变化），否则只更新热词 */
+onPullDownRefresh(async () => {
+  try {
+    if (searched.value && keyword.value.trim()) {
+      await doSearch(true)
+    } else {
+      await loadHotWords()
+    }
+  } catch (e) {
+    console.warn('[Search] 下拉刷新失败', e)
+  } finally {
+    uni.stopPullDownRefresh()
+  }
+})
 
 function onSearch() {
   const kw = keyword.value.trim()
@@ -482,5 +501,14 @@ function onProductTap(item) {
   font-size: 24rpx;
   color: #9AA0A8;
   margin-top: 12rpx;
+}
+
+.empty-link {
+  font-size: 24rpx;
+  color: #E1251B;
+  margin-top: 12rpx;
+  padding: 8rpx 20rpx;
+  background: #FDEEEC;
+  border-radius: 24rpx;
 }
 </style>

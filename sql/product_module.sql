@@ -51,7 +51,10 @@ CREATE TABLE `product` (
     PRIMARY KEY (`id`),
     KEY `idx_category_id` (`category_id`),
     KEY `idx_status` (`status`),
-    KEY `idx_name` (`name`)
+    KEY `idx_name` (`name`),
+    -- 全文索引内置在建表语句：本脚本会 DROP 重建 product，若只靠 search_module.sql 补建，
+    -- 每次重新播种素材都会丢索引，导致搜索接口 MATCH AGAINST 报 1191。
+    FULLTEXT KEY `ft_product_name_subtitle` (`name`, `subtitle`) WITH PARSER ngram
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品表';
 
 -- ------------------------------------------------------------

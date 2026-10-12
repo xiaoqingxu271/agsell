@@ -3,6 +3,21 @@
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
 /**
+ * 兜底非 JSON 响应与内部异常文案，页面拿到的 message 永远是用户能看懂的话术
+ * - 后端 50000 是全局异常兜底码，原文"系统错误"对使用者无意义且惊吓，换成友好提示
+ * - 网关/HTML 错误页等解析不出 code 时，统一成网络异常文案
+ */
+function normalizeResult(raw) {
+  if (!raw || typeof raw !== 'object' || raw.code === undefined) {
+    return { code: -1, data: null, message: '网络开小差了，请稍后重试' }
+  }
+  if (raw.code === 50000) {
+    return { ...raw, message: '服务开小差了，请稍后重试' }
+  }
+  return raw
+}
+
+/**
  * 统一处理非 0 的响应码，返回 false 表示业务失败，不抛出异常
  * 40100/10001 时静默清除登录态，不弹窗（避免游客模式死循环）
  */
@@ -38,16 +53,16 @@ export function request(method, url, data = null, extra = {}) {
       header,
       timeout: extra.timeout || 8000,
       success: (res) => {
-        const { data: result } = res
-        if (result.code === 40100 || result.code === 10001) {
+        const { data: raw } = res
+        if (raw && (raw.code === 40100 || raw.code === 10001)) {
           // Token 失效，静默清除登录态，不弹窗（避免游客模式死循环）
           uni.removeStorageSync('token')
           uni.removeStorageSync('userInfo')
           console.warn('[Request] Token 失效，已清除登录态')
-          reject(result)
+          reject(raw)
           return
         }
-        resolve(result)
+        resolve(normalizeResult(raw))
       },
       fail: (err) => {
         console.warn('网络请求失败', err)

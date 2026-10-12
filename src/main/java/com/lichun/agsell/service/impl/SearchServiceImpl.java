@@ -3,6 +3,7 @@ package com.lichun.agsell.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lichun.agsell.client.AiSearchClient;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.ProductCategoryMapper;
 import com.lichun.agsell.mapper.ProductMapper;
@@ -21,9 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +41,7 @@ public class SearchServiceImpl implements SearchService {
     private final ProductMapper productMapper;
     private final ProductCategoryMapper categoryMapper;
     private final HotWordService hotWordService;
+    private final AiSearchClient aiSearchClient;
 
     @Override
     public Page<ProductSearchVO> search(SearchRequest request) {
@@ -59,23 +63,39 @@ public class SearchServiceImpl implements SearchService {
 
         List<Product> products;
         long total;
-        if (keyword.length() < 2) {
-            // 单字符：bigram 索引无法可靠命中，降级 LIKE
-            LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Product::getStatus, 1)
-                    .and(w -> w.like(Product::getName, keyword)
-                            .or().like(Product::getSubtitle, keyword));
-            if (request.getCategoryId() != null) {
-                wrapper.eq(Product::getCategoryId, request.getCategoryId());
+
+        // ① 首页·默认相关度排序·无分类过滤·关键词≥2：优先 AI 向量语义召回重排，命中则置顶
+        List<Product> semantic = null;
+        if (keyword.length() >= 2 && pageNum == 1
+                && request.getCategoryId() == null && sortBy.isEmpty()) {
+            List<Long> semIds = aiSearchClient.semanticProductIds(keyword, pageSize);
+            List<Product> semProducts = fetchOnSaleByIdsInOrder(semIds);
+            if (!semProducts.isEmpty()) {
+                semantic = mergeSemanticBackfill(semProducts, keyword, pageSize);
             }
-            applySort(wrapper, sortBy);
-            Page<Product> page = productMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
+        }
+
+        if (semantic != null) {
+            products = semantic;
+            // 语义首页：总数以全文命中口径兜底，翻页自动回退全文检索
+            total = Math.max(products.size(), safeCountFulltext(keyword));
+        } else if (keyword.length() < 2) {
+            // 单字符：bigram 索引无法可靠命中，降级 LIKE
+            Page<Product> page = selectByLike(keyword, request.getCategoryId(), sortBy, pageNum, pageSize);
             products = page.getRecords();
             total = page.getTotal();
         } else {
             long offset = (long) (pageNum - 1) * pageSize;
-            products = productSearchMapper.searchByFulltext(keyword, request.getCategoryId(), sortBy, offset, pageSize);
-            total = productSearchMapper.countByFulltext(keyword, request.getCategoryId());
+            try {
+                products = productSearchMapper.searchByFulltext(keyword, request.getCategoryId(), sortBy, offset, pageSize);
+                total = productSearchMapper.countByFulltext(keyword, request.getCategoryId());
+            } catch (Exception e) {
+                // 全文索引缺失/SQL 异常时降级 LIKE：搜索主链路绝不因检索层故障对用户报"系统错误"
+                log.warn("全文检索不可用，降级 LIKE 兜底：keyword={}, cause={}", keyword, e.toString());
+                Page<Product> page = selectByLike(keyword, request.getCategoryId(), sortBy, pageNum, pageSize);
+                products = page.getRecords();
+                total = page.getTotal();
+            }
         }
 
         Map<Long, String> categoryMap = loadCategoryMap(products);
@@ -95,6 +115,66 @@ public class SearchServiceImpl implements SearchService {
     }
 
     // ==================== 私有方法 ====================
+
+    /** AI 语义命中 id → 在售商品实体，严格按语义相关度顺序返回（下架/软删自动跳过） */
+    private List<Product> fetchOnSaleByIdsInOrder(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, Product> byId = productMapper.selectBatchIds(ids).stream()
+                .filter(p -> p.getStatus() != null && p.getStatus() == 1)
+                .collect(Collectors.toMap(Product::getId, p -> p, (a, b) -> a));
+        return ids.stream()
+                .map(byId::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /** 语义命中置顶后，用全文检索结果补足当页（去重），避免语义命中过少导致首页空档 */
+    private List<Product> mergeSemanticBackfill(List<Product> semProducts, String keyword, int pageSize) {
+        if (semProducts.size() >= pageSize) {
+            return semProducts;
+        }
+        Set<Long> have = semProducts.stream().map(Product::getId).collect(Collectors.toCollection(HashSet::new));
+        List<Product> merged = new ArrayList<>(semProducts);
+        try {
+            List<Product> fulltext = productSearchMapper.searchByFulltext(keyword, null, "", 0, pageSize);
+            for (Product p : fulltext) {
+                if (merged.size() >= pageSize) {
+                    break;
+                }
+                if (!have.contains(p.getId())) {
+                    merged.add(p);
+                }
+            }
+        } catch (Exception e) {
+            // 补足只是锦上添花，检索层故障时保住语义命中结果即可
+            log.warn("语义首页补足失败，仅返回语义命中：keyword={}, cause={}", keyword, e.toString());
+        }
+        return merged;
+    }
+
+    /** LIKE 兜底查询：单字符关键词与全文检索不可用两条路径共用 */
+    private Page<Product> selectByLike(String keyword, Long categoryId, String sortBy, int pageNum, int pageSize) {
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getStatus, 1)
+                .and(w -> w.like(Product::getName, keyword)
+                        .or().like(Product::getSubtitle, keyword));
+        if (categoryId != null) {
+            wrapper.eq(Product::getCategoryId, categoryId);
+        }
+        applySort(wrapper, sortBy);
+        return productMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
+    }
+
+    private long safeCountFulltext(String keyword) {
+        try {
+            return productSearchMapper.countByFulltext(keyword, null);
+        } catch (Exception e) {
+            log.warn("全文总数统计失败: {}", keyword, e);
+            return 0L;
+        }
+    }
 
     private void applySort(LambdaQueryWrapper<Product> wrapper, String sortBy) {
         switch (sortBy) {
