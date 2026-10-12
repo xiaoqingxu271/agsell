@@ -179,21 +179,34 @@ public class AiInternalController {
         return ResultUtils.success(result);
     }
 
-    @Operation(summary = "智能导购商品搜索（按关键词/价格区间，默认销量降序，附口碑摘要）")
+    @Operation(summary = "智能导购商品搜索（向量召回 id 批量 / 关键词/价格区间，默认销量降序，附口碑摘要）")
     @PostMapping("/product/search")
     public BaseResponse<List<AiProductVO>> productSearch(@RequestBody AiProductSearchRequest req) {
         int limit = req.getLimit() == null ? 6 : Math.min(Math.max(req.getLimit(), 1), 10);
 
-        List<Product> products = productMapper.selectList(new LambdaQueryWrapper<Product>()
-                .eq(Product::getStatus, 1)  // 仅在售商品
-                .and(req.getKeyword() != null && !req.getKeyword().isBlank(),
-                        w -> w.like(Product::getName, req.getKeyword())
-                                .or()
-                                .like(Product::getSubtitle, req.getKeyword()))
-                .ge(req.getMinPrice() != null, Product::getPrice, req.getMinPrice())
-                .le(req.getMaxPrice() != null, Product::getPrice, req.getMaxPrice())
-                .orderByDesc(Product::getSales)
-                .last("LIMIT " + limit));
+        List<Long> recalledIds = req.getProductIds();
+        List<Product> products;
+        if (recalledIds != null && !recalledIds.isEmpty()) {
+            // 向量召回模式：Python 侧已按语义相关度选出候选，这里只做在售过滤与详情组装，
+            // 排序权在 Python（按召回顺序重排），Java 不再按销量覆盖
+            products = productMapper.selectList(new LambdaQueryWrapper<Product>()
+                    .eq(Product::getStatus, 1)
+                    .in(Product::getId, recalledIds)
+                    .ge(req.getMinPrice() != null, Product::getPrice, req.getMinPrice())
+                    .le(req.getMaxPrice() != null, Product::getPrice, req.getMaxPrice())
+                    .last("LIMIT " + Math.min(recalledIds.size(), 50)));
+        } else {
+            products = productMapper.selectList(new LambdaQueryWrapper<Product>()
+                    .eq(Product::getStatus, 1)  // 仅在售商品
+                    .and(req.getKeyword() != null && !req.getKeyword().isBlank(),
+                            w -> w.like(Product::getName, req.getKeyword())
+                                    .or()
+                                    .like(Product::getSubtitle, req.getKeyword()))
+                    .ge(req.getMinPrice() != null, Product::getPrice, req.getMinPrice())
+                    .le(req.getMaxPrice() != null, Product::getPrice, req.getMaxPrice())
+                    .orderByDesc(Product::getSales)
+                    .last("LIMIT " + limit));
+        }
 
         // 口碑聚合：批量拉取候选商品的评价情感结果（只查聚合所需列，未分析的不回传）
         List<Long> productIds = products.stream().map(Product::getId).toList();

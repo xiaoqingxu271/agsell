@@ -1,5 +1,5 @@
 {
-  "faq_count": 36,
+  "faq_count": 280,
   "channels": [
     {
       "channel": "vector_only",
@@ -94,6 +94,6 @@
   ],
   "separability": {
     "in_domain_top1_mean": 0.7096,
-    "out_domain_top1_mean": 0.3292
+    "out_domain_top1_mean": 0.3748
   }
 }

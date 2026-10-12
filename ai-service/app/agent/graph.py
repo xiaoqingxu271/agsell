@@ -33,10 +33,12 @@ from app.agent.state import AgentState
 _DEFAULT_CHECKPOINTER = object()
 
 
-def build_graph(llm, retriever=None, java_api_module=None, checkpointer=_DEFAULT_CHECKPOINTER):
+def build_graph(llm, retriever=None, java_api_module=None, checkpointer=_DEFAULT_CHECKPOINTER, product_store=None, personalizer=None):
     """构建并编译客服 Agent 图。llm/retriever/java_api_module 可传真实实现或测试 stub。
 
     checkpointer: 默认 MemorySaver（进程内多轮记忆）；单测传 None 关闭。
+    product_store: 商品向量召回索引（智能导购一级召回源）；None 时保持原关键词/热销路径。
+    personalizer: 个性化重排（登录用户偏好加权）；None 时纯语义召回序。
     """
     builder = StateGraph(AgentState)
     builder.add_node("intent", make_intent_node(llm))
@@ -44,7 +46,7 @@ def build_graph(llm, retriever=None, java_api_module=None, checkpointer=_DEFAULT
     builder.add_node("order_query", make_order_query_node(java_api_module))
     builder.add_node("logistics_query", make_logistics_query_node(java_api_module))
     builder.add_node("after_sales_query", make_after_sales_query_node(java_api_module))
-    builder.add_node("recommend_query", make_recommend_node(java_api_module, llm))
+    builder.add_node("recommend_query", make_recommend_node(java_api_module, llm, product_store, personalizer))
     builder.add_node("generate", make_generate_node(llm))
     builder.add_node("smalltalk", make_smalltalk_node(llm))
     builder.add_node("human_fallback", make_human_fallback_node())

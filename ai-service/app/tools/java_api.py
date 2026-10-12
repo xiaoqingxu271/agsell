@@ -73,9 +73,16 @@ def search_products(
     min_price: float | None = None,
     max_price: float | None = None,
     limit: int = 6,
+    ids: list[int] | None = None,
 ) -> list[dict]:
-    """智能导购商品搜索（无需登录态；无 keyword 时按销量降序返回热销商品）"""
+    """智能导购商品搜索。
+
+    - ids：按向量召回命中的商品 id 批量取详情（Java 侧仍过滤仅在售、可叠加价格区间）；
+    - 无 ids 时按 keyword LIKE 搜索；两者皆无按销量降序返回热销商品。
+    """
     payload: dict = {"limit": limit}
+    if ids:
+        payload["productIds"] = ids
     if keyword:
         payload["keyword"] = keyword
     if min_price is not None:

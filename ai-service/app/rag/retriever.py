@@ -23,6 +23,13 @@ class Retriever:
         self._session_factory = session_factory or SessionLocal
         self._top_k = top_k or settings.KB_TOP_K
         self._threshold = settings.KB_SCORE_THRESHOLD if score_threshold is None else score_threshold
+        # 低区分度通用词（"推荐/什么时候"等）：命中不加权、也不豁免拒答阈值
+        # （量化实验五改进方向落地：修复"推荐一部电影"被关键词通道带进知识库答案）
+        self._stopwords = {
+            x.strip()
+            for x in (getattr(settings, "KB_KEYWORD_STOPWORDS", "") or "").split(",")
+            if x.strip()
+        }
 
     def retrieve(self, question: str, top_k: int | None = None) -> list[dict]:
         """返回 [{id, question, answer, score}]，按综合得分降序，去重。
@@ -43,7 +50,7 @@ class Retriever:
             answers = {f.id: f.answer for f in faqs}
             for faq in faqs:
                 kw_list = [x.strip() for x in (faq.keywords or "").split(",") if x.strip()]
-                matched = [kw for kw in kw_list if kw and kw in question]
+                matched = [kw for kw in kw_list if kw and kw in question and kw not in self._stopwords]
                 if not matched:
                     continue
                 item = merged.get(faq.id)

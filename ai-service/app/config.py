@@ -38,6 +38,21 @@ class Settings(BaseSettings):
     # 检索得分阈值（反幻觉闸门）：低于阈值的向量召回不注入上下文，检索为空则走确定性拒答。
     # 依据量化实验：域内 top-1 相似度均值 0.710、域外仅 0.329，0.5 居中可分。0 = 不启用。
     KB_SCORE_THRESHOLD: float = 0.5
+    # 关键词通道低区分度通用词（命中不加权、也不豁免阈值）：
+    # 实验五发现"推荐/什么时候"类通用词曾让"推荐电影"等域外问法穿透闸门
+    KB_KEYWORD_STOPWORDS: str = "推荐,什么时候,多少,怎么,如何,哪里,什么,为什么,有哪些"
+
+    # 商品向量召回（智能导购，collection="product"）
+    PRODUCT_TOP_K: int = 8
+
+    # 导购个性化重排：final = 语义分 + α·类目偏好 + β·销量归一 + γ·好评率
+    # 登录用户才叠加偏好项；游客 β/γ 仍生效（热销兜底语义）
+    REC_PREF_ALPHA: float = 0.25
+    REC_SALES_BETA: float = 0.10
+    REC_RATE_GAMMA: float = 0.10
+    # 偏好信号合并权重（订单 : 好评）
+    REC_ORDER_WEIGHT: float = 0.6
+    REC_REVIEW_WEIGHT: float = 0.4
 
     # 运行时
     LOG_LEVEL: str = "INFO"

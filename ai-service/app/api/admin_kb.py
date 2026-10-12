@@ -1,13 +1,15 @@
 """知识库管理接口（阶段二）
 
-- GET  /v1/admin/kb/stats   知识库状态
-- POST /v1/admin/kb/index   触发全量重建（读 MySQL → bge-m3 向量化 → 写 Chroma）
+- GET  /v1/admin/kb/stats   知识库状态（FAQ + 商品索引条数）
+- POST /v1/admin/kb/index   触发 FAQ 全量重建（读 MySQL → bge 向量化 → 写 Chroma）
+- POST /v1/admin/kb/products/index  触发商品召回索引全量重建
 - GET  /v1/admin/kb/faqs    FAQ 列表（分页/分类）
 - POST /v1/admin/kb/faqs    新增 FAQ
 - PUT  /v1/admin/kb/faqs/{id} 更新 FAQ
 - DELETE /v1/admin/kb/faqs/{id} 删除 FAQ
 
 提示：新增/修改/删除 FAQ 后自动增量同步向量库；也可随时调用 POST /index 全量重建。
+商品上下架低频，暂只在商品数据变更后手动调用 products/index 重建。
 """
 import logging
 
@@ -16,7 +18,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.db import get_session
+from app.db import SessionLocal, get_session
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
 
@@ -52,9 +54,11 @@ def stats(session: Session = Depends(get_session), _=Depends(_check_admin_key)):
     return {
         "faq_count": faq_repo.count_enabled(session),
         "indexed_count": _get_vectorstore().count(),
+        "product_indexed_count": _get_product_store().count(),
         "embedding_model": settings.EMBEDDING_MODEL,
         "vector_db_path": settings.VECTOR_DB_PATH,
         "top_k": settings.KB_TOP_K,
+        "product_top_k": settings.PRODUCT_TOP_K,
     }
 
 
@@ -72,6 +76,17 @@ def rebuild_index(session: Session = Depends(get_session), _=Depends(_check_admi
         for f in faq_repo.list_enabled(session)
     ]
     n = _get_vectorstore().rebuild(entries)
+    return {"indexed": n, "model": settings.EMBEDDING_MODEL}
+
+
+@router.post("/products/index")
+def rebuild_product_index(_=Depends(_check_admin_key)):
+    """全量重建商品召回索引：读在售商品（MySQL 为准）→ 向量化 → 写 Chroma(product)"""
+    session = SessionLocal()
+    try:
+        n = _get_product_store().rebuild(session)
+    finally:
+        session.close()
     return {"indexed": n, "model": settings.EMBEDDING_MODEL}
 
 
@@ -137,6 +152,12 @@ def _get_vectorstore() -> VectorStore:
     from app.main import get_vectorstore  # 延迟导入避免循环依赖
 
     return get_vectorstore()
+
+
+def _get_product_store():
+    from app.main import get_product_store  # 延迟导入避免循环依赖
+
+    return get_product_store()
 
 
 def _faq_entry(f) -> dict:

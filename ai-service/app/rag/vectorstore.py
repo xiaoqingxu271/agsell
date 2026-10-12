@@ -4,6 +4,11 @@
 - 显式传入 embedding，避免 Chroma 内置默认模型下载
 - 全量重建（rebuild）与单条增量（upsert / delete_ids）并存：
   FAQ 新增/修改/删除后走增量同步，无需每次全量重灌。
+- collection 可参数化：FAQ 知识库默认 collection="faq"；
+  商品召回索引使用独立 collection="product"，两库互不污染检索阈值语义。
+
+条目统一结构 {id, question, answer, category, keywords}——
+商品索引用 question=商品名、answer=卖点文本复用同一套管线。
 """
 import chromadb
 from fastembed import TextEmbedding
@@ -14,14 +19,21 @@ COLLECTION_NAME = "faq"
 
 
 class VectorStore:
-    def __init__(self, path: str | None = None, model: str | None = None, embedder=None):
+    def __init__(
+        self,
+        path: str | None = None,
+        model: str | None = None,
+        embedder=None,
+        collection: str = COLLECTION_NAME,
+    ):
         self._path = path or settings.VECTOR_DB_PATH
         self._model = model or settings.EMBEDDING_MODEL
+        self._collection_name = collection
         self._client = chromadb.PersistentClient(path=self._path)
         # 固定 cosine；delete_collection 后需按相同配置重建集合
         self._collection_config = {"hnsw:space": "cosine"}
         self._collection = self._client.get_or_create_collection(
-            name=COLLECTION_NAME, metadata=self._collection_config
+            name=self._collection_name, metadata=self._collection_config
         )
         self._embedder = embedder or TextEmbedding(self._model)
 
@@ -48,9 +60,9 @@ class VectorStore:
     # ---- 索引侧 ----
     def rebuild(self, entries: list[dict]) -> int:
         """全量重建：清空集合后写入全部条目。entries 元素：{id, question, answer, category, keywords}"""
-        self._client.delete_collection(COLLECTION_NAME)
+        self._client.delete_collection(self._collection_name)
         self._collection = self._client.create_collection(
-            name=COLLECTION_NAME, metadata=self._collection_config
+            name=self._collection_name, metadata=self._collection_config
         )
         if not entries:
             return 0

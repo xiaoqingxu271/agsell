@@ -74,3 +74,17 @@ def test_threshold_disabled_when_zero():
     )
     hits = r.retrieve("随便什么问题")
     assert [h["id"] for h in hits] == [2]
+
+
+def test_stopword_keyword_does_not_bypass_threshold():
+    """低区分度通用词（"推荐"）命中不豁免阈值；高区分度词（"首页"）照常豁免"""
+
+    class Repo:
+        def list_enabled(self, session=None):
+            return [type("F", (), {"id": 9, "question": "首页有什么功能？",
+                                   "answer": "轮播/分类/搜索", "keywords": "推荐,首页"})()]
+
+    r = Retriever(FakeVectorStore(hits=[]), Repo(), top_k=5, score_threshold=0.5)
+    assert r.retrieve("推荐一部好看的电影") == []  # 域外问法仅命中通用词 → 拒答
+    hits = r.retrieve("首页都有什么")  # 高区分度关键词仍直答
+    assert hits and hits[0]["id"] == 9 and hits[0]["keyword_hit"] is True

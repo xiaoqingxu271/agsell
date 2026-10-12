@@ -2,20 +2,20 @@
   "threshold": 0.5,
   "out_of_domain": {
     "queries": 12,
-    "refused": 9,
-    "refusal_rate": 0.75,
+    "refused": 11,
+    "refusal_rate": 0.9167,
     "detail": [
       {
         "q": "今天股市行情怎么样",
         "refused": true,
         "returned": 0,
-        "top1_vector_score": 0.3809
+        "top1_vector_score": 0.3858
       },
       {
         "q": "推荐一部好看的电影",
-        "refused": false,
-        "returned": 1,
-        "top1_vector_score": 0.2565
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.284
       },
       {
         "q": "怎么备考研究生",
@@ -27,13 +27,13 @@
         "q": "附近有什么好吃的火锅店",
         "refused": true,
         "returned": 0,
-        "top1_vector_score": 0.2934
+        "top1_vector_score": 0.4719
       },
       {
         "q": "帮我写一首诗",
         "refused": true,
         "returned": 0,
-        "top1_vector_score": 0.3221
+        "top1_vector_score": 0.3391
       },
       {
         "q": "世界杯决赛是哪两队",
@@ -49,15 +49,15 @@
       },
       {
         "q": "推荐几本小说",
-        "refused": false,
-        "returned": 1,
-        "top1_vector_score": 0.2809
+        "refused": true,
+        "returned": 0,
+        "top1_vector_score": 0.3736
       },
       {
         "q": "现在油价多少",
-        "refused": true,
-        "returned": 0,
-        "top1_vector_score": 0.4276
+        "refused": false,
+        "returned": 3,
+        "top1_vector_score": 0.5958
       },
       {
         "q": "怎么学好英语",
@@ -67,8 +67,8 @@
       },
       {
         "q": "周杰伦新歌什么时候发",
-        "refused": false,
-        "returned": 1,
+        "refused": true,
+        "returned": 0,
         "top1_vector_score": 0.3368
       },
       {

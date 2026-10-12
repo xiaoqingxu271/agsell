@@ -103,8 +103,40 @@ def get_llm():
 
 
 @lru_cache
+def get_embedder():
+    """bge 模型只加载一次，FAQ / 商品两个向量库共用（本地推理，零 LLM 额度）"""
+    from fastembed import TextEmbedding
+
+    return TextEmbedding(settings.EMBEDDING_MODEL)
+
+
+@lru_cache
 def get_vectorstore() -> VectorStore:
-    return VectorStore(path=settings.VECTOR_DB_PATH, model=settings.EMBEDDING_MODEL)
+    return VectorStore(
+        path=settings.VECTOR_DB_PATH, model=settings.EMBEDDING_MODEL, embedder=get_embedder()
+    )
+
+
+@lru_cache
+def get_product_store():
+    """商品向量召回索引（独立 collection，不污染 FAQ 拒答阈值语义）"""
+    from app.rag.product_store import PRODUCT_COLLECTION, ProductStore
+
+    product_vs = VectorStore(
+        path=settings.VECTOR_DB_PATH,
+        model=settings.EMBEDDING_MODEL,
+        embedder=get_embedder(),
+        collection=PRODUCT_COLLECTION,
+    )
+    return ProductStore(product_vs)
+
+
+@lru_cache
+def get_personalizer():
+    """导购个性化重排（订单+好评类目偏好，只读 MySQL）"""
+    from app.rag.personalize import Personalizer
+
+    return Personalizer(SessionLocal)
 
 
 @lru_cache
@@ -119,7 +151,13 @@ def get_retriever() -> Retriever:
 @lru_cache
 def get_graph():
     # _checkpointer 为 None 时 build_graph 内部回退 MemorySaver
-    return build_graph(get_llm(), get_retriever(), checkpointer=_checkpointer)
+    return build_graph(
+        get_llm(),
+        get_retriever(),
+        checkpointer=_checkpointer,
+        product_store=get_product_store(),
+        personalizer=get_personalizer(),
+    )
 
 
 app.include_router(admin_kb_router, prefix="/v1")

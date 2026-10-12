@@ -1,0 +1,4593 @@
+{
+  "catalog_size": 202,
+  "results": [
+    {
+      "channel": "hot",
+      "queries": 40,
+      "hit_at_1": 0.075,
+      "hit_at_5": 0.15,
+      "precision_at_5": 0.05,
+      "mrr": 0.1008,
+      "category_coverage": 10,
+      "misses": [
+        "有没有橙子推荐",
+        "柚子",
+        "想吃榴莲",
+        "哪种芒果甜",
+        "浆果都有什么",
+        "买点大米",
+        "东北的大米",
+        "煮粥用什么杂粮好",
+        "挂面有几种",
+        "包饺子买什么面粉",
+        "什么油比较健康",
+        "做川菜要买什么椒",
+        "减肥低脂吃什么肉",
+        "给小宝宝做辅食买什么",
+        "有什么泡水喝的",
+        "送礼的茶叶哪种好",
+        "深山里的蜂蜜",
+        "买些干香菇木耳",
+        "山里的松子",
+        "腊肠",
+        "阳澄湖大闸蟹",
+        "买条大鱼",
+        "蚝和扇贝",
+        "坐月子的产妇买点什么好",
+        "宁夏的枸杞",
+        "山药养胃",
+        "冲藕粉喝",
+        "红薯做的零食",
+        "买点豆制品",
+        "30元以内的水果",
+        "洪湖的莲藕",
+        "新鲜竹笋",
+        "鸡胸肉健身餐",
+        "夏天解暑的瓜"
+      ],
+      "details": [
+        {
+          "query": "有没有橙子推荐",
+          "categories": [
+            "柑橘类"
+          ],
+          "keyword": "橙子",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "我想买苹果",
+          "categories": [
+            "仁果核果"
+          ],
+          "keyword": "苹果",
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "现在买什么桃子好吃",
+          "categories": [
+            "仁果核果"
+          ],
+          "keyword": "桃",
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "柚子",
+          "categories": [
+            "柑橘类"
+          ],
+          "keyword": "柚",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "想吃榴莲",
+          "categories": [
+            "热带水果"
+          ],
+          "keyword": "榴莲",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "哪种芒果甜",
+          "categories": [
+            "热带水果"
+          ],
+          "keyword": "芒果",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "浆果都有什么",
+          "categories": [
+            "浆果类"
+          ],
+          "keyword": "莓",
+          "max_price": null,
+          "relevant_count": 6,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "买点大米",
+          "categories": [
+            "大米"
+          ],
+          "keyword": "大米",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "东北的大米",
+          "categories": [
+            "大米"
+          ],
+          "keyword": "东北大米",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "煮粥用什么杂粮好",
+          "categories": [
+            "杂粮"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 6,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "挂面有几种",
+          "categories": [
+            "面粉挂面"
+          ],
+          "keyword": "挂面",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "包饺子买什么面粉",
+          "categories": [
+            "面粉挂面"
+          ],
+          "keyword": "面粉",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "什么油比较健康",
+          "categories": [
+            "食用油"
+          ],
+          "keyword": "油",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "调料酱料来点",
+          "categories": [
+            "酱料"
+          ],
+          "keyword": "酱",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.2
+        },
+        {
+          "query": "做川菜要买什么椒",
+          "categories": [
+            "香辛料"
+          ],
+          "keyword": "辣椒",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "10元以内有什么蔬菜",
+          "categories": [
+            "叶菜类",
+            "茄果类",
+            "根茎类",
+            "葱蒜类",
+            "鲜菇"
+          ],
+          "keyword": null,
+          "max_price": 10.0,
+          "relevant_count": 15,
+          "top5": [
+            {
+              "id": 2109101682588422192,
+              "name": "紫长茄",
+              "category": "茄果类"
+            },
+            {
+              "id": 2109101682588422182,
+              "name": "黄心土豆",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422263,
+              "name": "金针菇",
+              "category": "鲜菇"
+            },
+            {
+              "id": 2109101682588422204,
+              "name": "小香葱",
+              "category": "葱蒜类"
+            },
+            {
+              "id": 2109101682588422193,
+              "name": "密刺黄瓜",
+              "category": "茄果类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "减肥低脂吃什么肉",
+          "categories": [
+            "禽类"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "给小宝宝做辅食买什么",
+          "categories": [
+            "蛋类",
+            "奶制品"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "有什么泡水喝的",
+          "categories": [
+            "花草茶",
+            "蜂蜜冲调"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 9,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "送礼的茶叶哪种好",
+          "categories": [
+            "绿茶红茶",
+            "乌龙普洱"
+          ],
+          "keyword": "茶",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "深山里的蜂蜜",
+          "categories": [
+            "蜂蜜冲调"
+          ],
+          "keyword": "蜂蜜",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "买些干香菇木耳",
+          "categories": [
+            "干制菌菇"
+          ],
+          "keyword": "香菇",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "山里的松子",
+          "categories": [
+            "山珍干货"
+          ],
+          "keyword": "松子",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "过年送小孩什么零食",
+          "categories": [
+            "蜜饯果干",
+            "坚果炒货",
+            "粗粮零食"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 16,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.3333
+        },
+        {
+          "query": "腊肠",
+          "categories": [
+            "腊味火腿"
+          ],
+          "keyword": "腊肠",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "阳澄湖大闸蟹",
+          "categories": [
+            "虾蟹"
+          ],
+          "keyword": "大闸蟹",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "买条大鱼",
+          "categories": [
+            "海鱼",
+            "淡水鱼虾"
+          ],
+          "keyword": "鱼",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "蚝和扇贝",
+          "categories": [
+            "贝类"
+          ],
+          "keyword": "生蚝",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "坐月子的产妇买点什么好",
+          "categories": [
+            "滋补特产"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "宁夏的枸杞",
+          "categories": [
+            "滋补特产"
+          ],
+          "keyword": "枸杞",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "山药养胃",
+          "categories": [
+            "根茎类"
+          ],
+          "keyword": "山药",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "冲藕粉喝",
+          "categories": [
+            "蜂蜜冲调"
+          ],
+          "keyword": "藕",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "红薯做的零食",
+          "categories": [
+            "粗粮零食",
+            "根茎类"
+          ],
+          "keyword": "红薯",
+          "max_price": null,
+          "relevant_count": 12,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "买点豆制品",
+          "categories": [
+            "豆制品"
+          ],
+          "keyword": "豆腐",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "下饭的咸菜泡菜",
+          "categories": [
+            "腌菜泡菜"
+          ],
+          "keyword": "榨菜",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "30元以内的水果",
+          "categories": [
+            "柑橘类",
+            "仁果核果",
+            "热带水果",
+            "浆果类",
+            "瓜果类"
+          ],
+          "keyword": null,
+          "max_price": 30.0,
+          "relevant_count": 10,
+          "top5": [
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422192,
+              "name": "紫长茄",
+              "category": "茄果类"
+            },
+            {
+              "id": 2109101682588422295,
+              "name": "芝麻糖",
+              "category": "粗粮零食"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "洪湖的莲藕",
+          "categories": [
+            "根茎类"
+          ],
+          "keyword": "莲藕",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "新鲜竹笋",
+          "categories": [
+            "竹笋"
+          ],
+          "keyword": "笋",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "鸡胸肉健身餐",
+          "categories": [
+            "禽类"
+          ],
+          "keyword": "鸡胸",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "夏天解暑的瓜",
+          "categories": [
+            "瓜果类"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        }
+      ]
+    },
+    {
+      "channel": "keyword",
+      "queries": 40,
+      "hit_at_1": 0.6,
+      "hit_at_5": 0.75,
+      "precision_at_5": 0.265,
+      "mrr": 0.6667,
+      "category_coverage": 36,
+      "misses": [
+        "有没有橙子推荐",
+        "哪种芒果甜",
+        "东北的大米",
+        "煮粥用什么杂粮好",
+        "减肥低脂吃什么肉",
+        "给小宝宝做辅食买什么",
+        "有什么泡水喝的",
+        "坐月子的产妇买点什么好",
+        "30元以内的水果",
+        "夏天解暑的瓜"
+      ],
+      "details": [
+        {
+          "query": "有没有橙子推荐",
+          "categories": [
+            "柑橘类"
+          ],
+          "keyword": "橙子",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "我想买苹果",
+          "categories": [
+            "仁果核果"
+          ],
+          "keyword": "苹果",
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422164,
+              "name": "烟台红富士苹果",
+              "category": "仁果核果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "现在买什么桃子好吃",
+          "categories": [
+            "仁果核果"
+          ],
+          "keyword": "桃",
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422284,
+              "name": "临安山核桃",
+              "category": "坚果炒货"
+            },
+            {
+              "id": 2109101682588422152,
+              "name": "烟台大樱桃 美早",
+              "category": "浆果类"
+            },
+            {
+              "id": 2109101682588422170,
+              "name": "阳山水蜜桃",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422169,
+              "name": "奉化水蜜桃",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422280,
+              "name": "新疆纸皮核桃",
+              "category": "坚果炒货"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 0.3333
+        },
+        {
+          "query": "柚子",
+          "categories": [
+            "柑橘类"
+          ],
+          "keyword": "柚",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422148,
+              "name": "福建琯溪蜜柚 三红肉",
+              "category": "柑橘类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "想吃榴莲",
+          "categories": [
+            "热带水果"
+          ],
+          "keyword": "榴莲",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422158,
+              "name": "泰国金枕头榴莲",
+              "category": "热带水果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "哪种芒果甜",
+          "categories": [
+            "热带水果"
+          ],
+          "keyword": "芒果",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422288,
+              "name": "芒果干 无添加",
+              "category": "蜜饯果干"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "浆果都有什么",
+          "categories": [
+            "浆果类"
+          ],
+          "keyword": "莓",
+          "max_price": null,
+          "relevant_count": 6,
+          "top5": [
+            {
+              "id": 2109101682588422150,
+              "name": "丹东红颜草莓",
+              "category": "浆果类"
+            },
+            {
+              "id": 2109101682588422153,
+              "name": "延边树莓 红树梅",
+              "category": "浆果类"
+            },
+            {
+              "id": 2109101682588422151,
+              "name": "云南高山蓝莓",
+              "category": "浆果类"
+            },
+            {
+              "id": 2109101682588422155,
+              "name": "黑莓 新鲜果",
+              "category": "浆果类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "买点大米",
+          "categories": [
+            "大米"
+          ],
+          "keyword": "大米",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422206,
+              "name": "五常大米 东北稻花香",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422207,
+              "name": "盘锦蟹田大米",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422208,
+              "name": "江苏射阳大米",
+              "category": "大米"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "东北的大米",
+          "categories": [
+            "大米"
+          ],
+          "keyword": "东北大米",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "煮粥用什么杂粮好",
+          "categories": [
+            "杂粮"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 6,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "挂面有几种",
+          "categories": [
+            "面粉挂面"
+          ],
+          "keyword": "挂面",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422219,
+              "name": "手工空心挂面",
+              "category": "面粉挂面"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "包饺子买什么面粉",
+          "categories": [
+            "面粉挂面"
+          ],
+          "keyword": "面粉",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422218,
+              "name": "中筋面粉 5kg",
+              "category": "面粉挂面"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "什么油比较健康",
+          "categories": [
+            "食用油"
+          ],
+          "keyword": "油",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422179,
+              "name": "油麦菜",
+              "category": "叶菜类"
+            },
+            {
+              "id": 2109101682588422224,
+              "name": "小磨香油",
+              "category": "食用油"
+            },
+            {
+              "id": 2109101682588422222,
+              "name": "胡姬花古法花生油",
+              "category": "食用油"
+            },
+            {
+              "id": 2109101682588422221,
+              "name": "小榨菜籽油 5L",
+              "category": "食用油"
+            },
+            {
+              "id": 2109101682588422338,
+              "name": "油豆皮",
+              "category": "豆制品"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "调料酱料来点",
+          "categories": [
+            "酱料"
+          ],
+          "keyword": "酱",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422326,
+              "name": "芝麻酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422324,
+              "name": "东北黄豆酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422322,
+              "name": "头抽酱油",
+              "category": "基础调味"
+            },
+            {
+              "id": 2109101682588422325,
+              "name": "蒜蓉辣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "做川菜要买什么椒",
+          "categories": [
+            "香辛料"
+          ],
+          "keyword": "辣椒",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422315,
+              "name": "线椒干 辣椒段",
+              "category": "香辛料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "10元以内有什么蔬菜",
+          "categories": [
+            "叶菜类",
+            "茄果类",
+            "根茎类",
+            "葱蒜类",
+            "鲜菇"
+          ],
+          "keyword": null,
+          "max_price": 10.0,
+          "relevant_count": 15,
+          "top5": [
+            {
+              "id": 2109101682588422192,
+              "name": "紫长茄",
+              "category": "茄果类"
+            },
+            {
+              "id": 2109101682588422182,
+              "name": "黄心土豆",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422263,
+              "name": "金针菇",
+              "category": "鲜菇"
+            },
+            {
+              "id": 2109101682588422204,
+              "name": "小香葱",
+              "category": "葱蒜类"
+            },
+            {
+              "id": 2109101682588422193,
+              "name": "密刺黄瓜",
+              "category": "茄果类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "减肥低脂吃什么肉",
+          "categories": [
+            "禽类"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "给小宝宝做辅食买什么",
+          "categories": [
+            "蛋类",
+            "奶制品"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "有什么泡水喝的",
+          "categories": [
+            "花草茶",
+            "蜂蜜冲调"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 9,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "送礼的茶叶哪种好",
+          "categories": [
+            "绿茶红茶",
+            "乌龙普洱"
+          ],
+          "keyword": "茶",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422303,
+              "name": "福鼎白茶 白牡丹",
+              "category": "乌龙普洱"
+            },
+            {
+              "id": 2109101682588422271,
+              "name": "干茶树菇",
+              "category": "干制菌菇"
+            },
+            {
+              "id": 2109101682588422298,
+              "name": "祁门红茶",
+              "category": "绿茶红茶"
+            },
+            {
+              "id": 2109101682588422305,
+              "name": "平阴玫瑰花茶",
+              "category": "花草茶"
+            },
+            {
+              "id": 2109101682588422223,
+              "name": "赣南山茶油",
+              "category": "食用油"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "深山里的蜂蜜",
+          "categories": [
+            "蜂蜜冲调"
+          ],
+          "keyword": "蜂蜜",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422308,
+              "name": "洋槐蜂蜜",
+              "category": "蜂蜜冲调"
+            },
+            {
+              "id": 2109101682588422310,
+              "name": "深山土蜂蜜",
+              "category": "蜂蜜冲调"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "买些干香菇木耳",
+          "categories": [
+            "干制菌菇"
+          ],
+          "keyword": "香菇",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422262,
+              "name": "庆元香菇 鲜菇",
+              "category": "鲜菇"
+            },
+            {
+              "id": 2109101682588422267,
+              "name": "椴木干香菇",
+              "category": "干制菌菇"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "山里的松子",
+          "categories": [
+            "山珍干货"
+          ],
+          "keyword": "松子",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422281,
+              "name": "东北松子 手剥",
+              "category": "坚果炒货"
+            },
+            {
+              "id": 2109101682588422277,
+              "name": "长白山松子",
+              "category": "山珍干货"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "过年送小孩什么零食",
+          "categories": [
+            "蜜饯果干",
+            "坚果炒货",
+            "粗粮零食"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 16,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.3333
+        },
+        {
+          "query": "腊肠",
+          "categories": [
+            "腊味火腿"
+          ],
+          "keyword": "腊肠",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422332,
+              "name": "广式腊肠",
+              "category": "腊味火腿"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "阳澄湖大闸蟹",
+          "categories": [
+            "虾蟹"
+          ],
+          "keyword": "大闸蟹",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422256,
+              "name": "阳澄湖大闸蟹",
+              "category": "虾蟹"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "买条大鱼",
+          "categories": [
+            "海鱼",
+            "淡水鱼虾"
+          ],
+          "keyword": "鱼",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422246,
+              "name": "现杀草鱼",
+              "category": "淡水鱼虾"
+            },
+            {
+              "id": 2109101682588422261,
+              "name": "鲍鱼 鲜货",
+              "category": "贝类"
+            },
+            {
+              "id": 2109101682588422250,
+              "name": "宁德大黄鱼",
+              "category": "海鱼"
+            },
+            {
+              "id": 2109101682588422251,
+              "name": "舟山带鱼中段",
+              "category": "海鱼"
+            },
+            {
+              "id": 2109101682588422248,
+              "name": "鳜鱼 臭鳜鱼原料",
+              "category": "淡水鱼虾"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "蚝和扇贝",
+          "categories": [
+            "贝类"
+          ],
+          "keyword": "生蚝",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422258,
+              "name": "乳山生蚝",
+              "category": "贝类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "坐月子的产妇买点什么好",
+          "categories": [
+            "滋补特产"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "宁夏的枸杞",
+          "categories": [
+            "滋补特产"
+          ],
+          "keyword": "枸杞",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422343,
+              "name": "宁夏枸杞 免洗",
+              "category": "滋补特产"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "山药养胃",
+          "categories": [
+            "根茎类"
+          ],
+          "keyword": "山药",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422183,
+              "name": "铁棍山药",
+              "category": "根茎类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "冲藕粉喝",
+          "categories": [
+            "蜂蜜冲调"
+          ],
+          "keyword": "藕",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422186,
+              "name": "洪湖九孔莲藕",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422311,
+              "name": "纯藕粉",
+              "category": "蜂蜜冲调"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "红薯做的零食",
+          "categories": [
+            "粗粮零食",
+            "根茎类"
+          ],
+          "keyword": "红薯",
+          "max_price": null,
+          "relevant_count": 12,
+          "top5": [
+            {
+              "id": 2109101682588422292,
+              "name": "倒蒸红薯干",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422339,
+              "name": "红薯粉条",
+              "category": "粉条干货"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "买点豆制品",
+          "categories": [
+            "豆制品"
+          ],
+          "keyword": "豆腐",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422335,
+              "name": "手工豆腐干",
+              "category": "豆制品"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "下饭的咸菜泡菜",
+          "categories": [
+            "腌菜泡菜"
+          ],
+          "keyword": "榨菜",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422221,
+              "name": "小榨菜籽油 5L",
+              "category": "食用油"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "30元以内的水果",
+          "categories": [
+            "柑橘类",
+            "仁果核果",
+            "热带水果",
+            "浆果类",
+            "瓜果类"
+          ],
+          "keyword": null,
+          "max_price": 30.0,
+          "relevant_count": 10,
+          "top5": [
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422192,
+              "name": "紫长茄",
+              "category": "茄果类"
+            },
+            {
+              "id": 2109101682588422295,
+              "name": "芝麻糖",
+              "category": "粗粮零食"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "洪湖的莲藕",
+          "categories": [
+            "根茎类"
+          ],
+          "keyword": "莲藕",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422186,
+              "name": "洪湖九孔莲藕",
+              "category": "根茎类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "新鲜竹笋",
+          "categories": [
+            "竹笋"
+          ],
+          "keyword": "笋",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422273,
+              "name": "冬笋",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422275,
+              "name": "手剥笋",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422274,
+              "name": "笋干 扁尖",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422272,
+              "name": "天目山雷笋",
+              "category": "竹笋"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "鸡胸肉健身餐",
+          "categories": [
+            "禽类"
+          ],
+          "keyword": "鸡胸",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422237,
+              "name": "鸡胸肉 低脂",
+              "category": "禽类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "夏天解暑的瓜",
+          "categories": [
+            "瓜果类"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422289,
+              "name": "富平柿饼",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        }
+      ]
+    },
+    {
+      "channel": "vector",
+      "queries": 40,
+      "hit_at_1": 0.775,
+      "hit_at_5": 0.925,
+      "precision_at_5": 0.52,
+      "mrr": 0.8417,
+      "category_coverage": 40,
+      "misses": [
+        "浆果都有什么",
+        "给小宝宝做辅食买什么",
+        "有什么泡水喝的"
+      ],
+      "details": [
+        {
+          "query": "有没有橙子推荐",
+          "categories": [
+            "柑橘类"
+          ],
+          "keyword": "橙子",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422145,
+              "name": "赣南脐橙 新鲜当季",
+              "category": "柑橘类"
+            },
+            {
+              "id": 2109101682588422147,
+              "name": "秭归夏橙 现摘直发",
+              "category": "柑橘类"
+            },
+            {
+              "id": 2109101682588422146,
+              "name": "武鸣沃柑 薄皮蜜柑",
+              "category": "柑橘类"
+            },
+            {
+              "id": 2109101682588422288,
+              "name": "芒果干 无添加",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422149,
+              "name": "象山红美人 柑橘",
+              "category": "柑橘类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "我想买苹果",
+          "categories": [
+            "仁果核果"
+          ],
+          "keyword": "苹果",
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422164,
+              "name": "烟台红富士苹果",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422283,
+              "name": "夏威夷果",
+              "category": "坚果炒货"
+            },
+            {
+              "id": 2109101682588422172,
+              "name": "北京大兴西瓜",
+              "category": "瓜果类"
+            },
+            {
+              "id": 2109101682588422159,
+              "name": "徐闻菠萝",
+              "category": "热带水果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "现在买什么桃子好吃",
+          "categories": [
+            "仁果核果"
+          ],
+          "keyword": "桃",
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422170,
+              "name": "阳山水蜜桃",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422169,
+              "name": "奉化水蜜桃",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422284,
+              "name": "临安山核桃",
+              "category": "坚果炒货"
+            },
+            {
+              "id": 2109101682588422152,
+              "name": "烟台大樱桃 美早",
+              "category": "浆果类"
+            },
+            {
+              "id": 2109101682588422154,
+              "name": "桑葚 现摘紫果",
+              "category": "浆果类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "柚子",
+          "categories": [
+            "柑橘类"
+          ],
+          "keyword": "柚",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422148,
+              "name": "福建琯溪蜜柚 三红肉",
+              "category": "柑橘类"
+            },
+            {
+              "id": 2109101682588422157,
+              "name": "广西小米蕉",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422162,
+              "name": "海南椰子 现摘",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422159,
+              "name": "徐闻菠萝",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422167,
+              "name": "砀山酥梨",
+              "category": "仁果核果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "想吃榴莲",
+          "categories": [
+            "热带水果"
+          ],
+          "keyword": "榴莲",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422158,
+              "name": "泰国金枕头榴莲",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422163,
+              "name": "三亚莲雾",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422186,
+              "name": "洪湖九孔莲藕",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422160,
+              "name": "红心火龙果",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422184,
+              "name": "水果胡萝卜",
+              "category": "根茎类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "哪种芒果甜",
+          "categories": [
+            "热带水果"
+          ],
+          "keyword": "芒果",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422161,
+              "name": "攀枝花凯特芒",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422288,
+              "name": "芒果干 无添加",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422160,
+              "name": "红心火龙果",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422156,
+              "name": "海南贵妃芒",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422157,
+              "name": "广西小米蕉",
+              "category": "热带水果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "浆果都有什么",
+          "categories": [
+            "浆果类"
+          ],
+          "keyword": "莓",
+          "max_price": null,
+          "relevant_count": 6,
+          "top5": [
+            {
+              "id": 2109101682588422170,
+              "name": "阳山水蜜桃",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422157,
+              "name": "广西小米蕉",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422167,
+              "name": "砀山酥梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422168,
+              "name": "库尔勒香梨",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422169,
+              "name": "奉化水蜜桃",
+              "category": "仁果核果"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "买点大米",
+          "categories": [
+            "大米"
+          ],
+          "keyword": "大米",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422208,
+              "name": "江苏射阳大米",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422207,
+              "name": "盘锦蟹田大米",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422206,
+              "name": "五常大米 东北稻花香",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422216,
+              "name": "高粱米",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422214,
+              "name": "黑米",
+              "category": "杂粮"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "东北的大米",
+          "categories": [
+            "大米"
+          ],
+          "keyword": "东北大米",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422206,
+              "name": "五常大米 东北稻花香",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422208,
+              "name": "江苏射阳大米",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422207,
+              "name": "盘锦蟹田大米",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422214,
+              "name": "黑米",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422216,
+              "name": "高粱米",
+              "category": "杂粮"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "煮粥用什么杂粮好",
+          "categories": [
+            "杂粮"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 6,
+          "top5": [
+            {
+              "id": 2109101682588422206,
+              "name": "五常大米 东北稻花香",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422214,
+              "name": "黑米",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422294,
+              "name": "锅巴 小米",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422216,
+              "name": "高粱米",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422211,
+              "name": "沁州黄小米",
+              "category": "杂粮"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "挂面有几种",
+          "categories": [
+            "面粉挂面"
+          ],
+          "keyword": "挂面",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422219,
+              "name": "手工空心挂面",
+              "category": "面粉挂面"
+            },
+            {
+              "id": 2109101682588422218,
+              "name": "中筋面粉 5kg",
+              "category": "面粉挂面"
+            },
+            {
+              "id": 2109101682588422220,
+              "name": "荞麦面",
+              "category": "面粉挂面"
+            },
+            {
+              "id": 2109101682588422342,
+              "name": "莜面 燕麦面",
+              "category": "粉条干货"
+            },
+            {
+              "id": 2109101682588422217,
+              "name": "河套雪花粉",
+              "category": "面粉挂面"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "包饺子买什么面粉",
+          "categories": [
+            "面粉挂面"
+          ],
+          "keyword": "面粉",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422342,
+              "name": "莜面 燕麦面",
+              "category": "粉条干货"
+            },
+            {
+              "id": 2109101682588422218,
+              "name": "中筋面粉 5kg",
+              "category": "面粉挂面"
+            },
+            {
+              "id": 2109101682588422217,
+              "name": "河套雪花粉",
+              "category": "面粉挂面"
+            },
+            {
+              "id": 2109101682588422215,
+              "name": "燕麦米",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422220,
+              "name": "荞麦面",
+              "category": "面粉挂面"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "什么油比较健康",
+          "categories": [
+            "食用油"
+          ],
+          "keyword": "油",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422223,
+              "name": "赣南山茶油",
+              "category": "食用油"
+            },
+            {
+              "id": 2109101682588422221,
+              "name": "小榨菜籽油 5L",
+              "category": "食用油"
+            },
+            {
+              "id": 2109101682588422224,
+              "name": "小磨香油",
+              "category": "食用油"
+            },
+            {
+              "id": 2109101682588422222,
+              "name": "胡姬花古法花生油",
+              "category": "食用油"
+            },
+            {
+              "id": 2109101682588422225,
+              "name": "玉米胚芽油",
+              "category": "食用油"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 1.0,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "调料酱料来点",
+          "categories": [
+            "酱料"
+          ],
+          "keyword": "酱",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422325,
+              "name": "蒜蓉辣酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422323,
+              "name": "郫县豆瓣酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422324,
+              "name": "东北黄豆酱",
+              "category": "酱料"
+            },
+            {
+              "id": 2109101682588422322,
+              "name": "头抽酱油",
+              "category": "基础调味"
+            },
+            {
+              "id": 2109101682588422326,
+              "name": "芝麻酱",
+              "category": "酱料"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "做川菜要买什么椒",
+          "categories": [
+            "香辛料"
+          ],
+          "keyword": "辣椒",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422315,
+              "name": "线椒干 辣椒段",
+              "category": "香辛料"
+            },
+            {
+              "id": 2109101682588422314,
+              "name": "汉源花椒",
+              "category": "香辛料"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422191,
+              "name": "螺丝椒",
+              "category": "茄果类"
+            },
+            {
+              "id": 2109101682588422278,
+              "name": "野生蕨菜干",
+              "category": "山珍干货"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "10元以内有什么蔬菜",
+          "categories": [
+            "叶菜类",
+            "茄果类",
+            "根茎类",
+            "葱蒜类",
+            "鲜菇"
+          ],
+          "keyword": null,
+          "max_price": 10.0,
+          "relevant_count": 15,
+          "top5": [
+            {
+              "id": 2109101682588422177,
+              "name": "本地菠菜",
+              "category": "叶菜类"
+            },
+            {
+              "id": 2109101682588422178,
+              "name": "球生菜",
+              "category": "叶菜类"
+            },
+            {
+              "id": 2109101682588422179,
+              "name": "油麦菜",
+              "category": "叶菜类"
+            },
+            {
+              "id": 2109101682588422180,
+              "name": "大白菜",
+              "category": "叶菜类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "减肥低脂吃什么肉",
+          "categories": [
+            "禽类"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422237,
+              "name": "鸡胸肉 低脂",
+              "category": "禽类"
+            },
+            {
+              "id": 2109101682588422229,
+              "name": "前腿肉 馅用",
+              "category": "猪肉"
+            },
+            {
+              "id": 2109101682588422148,
+              "name": "福建琯溪蜜柚 三红肉",
+              "category": "柑橘类"
+            },
+            {
+              "id": 2109101682588422226,
+              "name": "土猪五花肉",
+              "category": "猪肉"
+            },
+            {
+              "id": 2109101682588422230,
+              "name": "黄牛牛腩块",
+              "category": "牛羊肉"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "给小宝宝做辅食买什么",
+          "categories": [
+            "蛋类",
+            "奶制品"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 7,
+          "top5": [
+            {
+              "id": 2109101682588422294,
+              "name": "锅巴 小米",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422210,
+              "name": "胚芽米 轻碾",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422212,
+              "name": "红小豆",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422342,
+              "name": "莜面 燕麦面",
+              "category": "粉条干货"
+            },
+            {
+              "id": 2109101682588422215,
+              "name": "燕麦米",
+              "category": "杂粮"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "有什么泡水喝的",
+          "categories": [
+            "花草茶",
+            "蜂蜜冲调"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 9,
+          "top5": [
+            {
+              "id": 2109101682588422329,
+              "name": "萝卜干",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422328,
+              "name": "酸豆角",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422330,
+              "name": "梅干菜",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422163,
+              "name": "三亚莲雾",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422206,
+              "name": "五常大米 东北稻花香",
+              "category": "大米"
+            }
+          ],
+          "hit": false,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0
+        },
+        {
+          "query": "送礼的茶叶哪种好",
+          "categories": [
+            "绿茶红茶",
+            "乌龙普洱"
+          ],
+          "keyword": "茶",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422302,
+              "name": "云南普洱熟茶饼",
+              "category": "乌龙普洱"
+            },
+            {
+              "id": 2109101682588422303,
+              "name": "福鼎白茶 白牡丹",
+              "category": "乌龙普洱"
+            },
+            {
+              "id": 2109101682588422307,
+              "name": "茉莉花茶",
+              "category": "花草茶"
+            },
+            {
+              "id": 2109101682588422298,
+              "name": "祁门红茶",
+              "category": "绿茶红茶"
+            },
+            {
+              "id": 2109101682588422301,
+              "name": "武夷山大红袍",
+              "category": "乌龙普洱"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "深山里的蜂蜜",
+          "categories": [
+            "蜂蜜冲调"
+          ],
+          "keyword": "蜂蜜",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422310,
+              "name": "深山土蜂蜜",
+              "category": "蜂蜜冲调"
+            },
+            {
+              "id": 2109101682588422308,
+              "name": "洋槐蜂蜜",
+              "category": "蜂蜜冲调"
+            },
+            {
+              "id": 2109101682588422309,
+              "name": "枣花蜜",
+              "category": "蜂蜜冲调"
+            },
+            {
+              "id": 2109101682588422170,
+              "name": "阳山水蜜桃",
+              "category": "仁果核果"
+            },
+            {
+              "id": 2109101682588422275,
+              "name": "手剥笋",
+              "category": "竹笋"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "买些干香菇木耳",
+          "categories": [
+            "干制菌菇"
+          ],
+          "keyword": "香菇",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422267,
+              "name": "椴木干香菇",
+              "category": "干制菌菇"
+            },
+            {
+              "id": 2109101682588422268,
+              "name": "东北黑木耳",
+              "category": "干制菌菇"
+            },
+            {
+              "id": 2109101682588422269,
+              "name": "古田银耳",
+              "category": "干制菌菇"
+            },
+            {
+              "id": 2109101682588422271,
+              "name": "干茶树菇",
+              "category": "干制菌菇"
+            },
+            {
+              "id": 2109101682588422262,
+              "name": "庆元香菇 鲜菇",
+              "category": "鲜菇"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "山里的松子",
+          "categories": [
+            "山珍干货"
+          ],
+          "keyword": "松子",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422277,
+              "name": "长白山松子",
+              "category": "山珍干货"
+            },
+            {
+              "id": 2109101682588422281,
+              "name": "东北松子 手剥",
+              "category": "坚果炒货"
+            },
+            {
+              "id": 2109101682588422345,
+              "name": "长白山人参片",
+              "category": "滋补特产"
+            },
+            {
+              "id": 2109101682588422276,
+              "name": "迁西板栗",
+              "category": "山珍干货"
+            },
+            {
+              "id": 2109101682588422278,
+              "name": "野生蕨菜干",
+              "category": "山珍干货"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "过年送小孩什么零食",
+          "categories": [
+            "蜜饯果干",
+            "坚果炒货",
+            "粗粮零食"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 16,
+          "top5": [
+            {
+              "id": 2109101682588422293,
+              "name": "手工米饼",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422295,
+              "name": "芝麻糖",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422294,
+              "name": "锅巴 小米",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422153,
+              "name": "延边树莓 红树梅",
+              "category": "浆果类"
+            },
+            {
+              "id": 2109101682588422157,
+              "name": "广西小米蕉",
+              "category": "热带水果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "腊肠",
+          "categories": [
+            "腊味火腿"
+          ],
+          "keyword": "腊肠",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422332,
+              "name": "广式腊肠",
+              "category": "腊味火腿"
+            },
+            {
+              "id": 2109101682588422331,
+              "name": "湘西烟熏腊肉",
+              "category": "腊味火腿"
+            },
+            {
+              "id": 2109101682588422157,
+              "name": "广西小米蕉",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422227,
+              "name": "黑猪里脊",
+              "category": "猪肉"
+            },
+            {
+              "id": 2109101682588422319,
+              "name": "古法红糖",
+              "category": "基础调味"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "阳澄湖大闸蟹",
+          "categories": [
+            "虾蟹"
+          ],
+          "keyword": "大闸蟹",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422256,
+              "name": "阳澄湖大闸蟹",
+              "category": "虾蟹"
+            },
+            {
+              "id": 2109101682588422257,
+              "name": "梭子蟹",
+              "category": "虾蟹"
+            },
+            {
+              "id": 2109101682588422254,
+              "name": "湛江基围虾",
+              "category": "虾蟹"
+            },
+            {
+              "id": 2109101682588422207,
+              "name": "盘锦蟹田大米",
+              "category": "大米"
+            },
+            {
+              "id": 2109101682588422208,
+              "name": "江苏射阳大米",
+              "category": "大米"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.6,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "买条大鱼",
+          "categories": [
+            "海鱼",
+            "淡水鱼虾"
+          ],
+          "keyword": "鱼",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422248,
+              "name": "鳜鱼 臭鳜鱼原料",
+              "category": "淡水鱼虾"
+            },
+            {
+              "id": 2109101682588422250,
+              "name": "宁德大黄鱼",
+              "category": "海鱼"
+            },
+            {
+              "id": 2109101682588422247,
+              "name": "土鲫鱼",
+              "category": "淡水鱼虾"
+            },
+            {
+              "id": 2109101682588422246,
+              "name": "现杀草鱼",
+              "category": "淡水鱼虾"
+            },
+            {
+              "id": 2109101682588422261,
+              "name": "鲍鱼 鲜货",
+              "category": "贝类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "蚝和扇贝",
+          "categories": [
+            "贝类"
+          ],
+          "keyword": "生蚝",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422260,
+              "name": "獐子岛扇贝",
+              "category": "贝类"
+            },
+            {
+              "id": 2109101682588422258,
+              "name": "乳山生蚝",
+              "category": "贝类"
+            },
+            {
+              "id": 2109101682588422333,
+              "name": "南宁板鸭",
+              "category": "腊味火腿"
+            },
+            {
+              "id": 2109101682588422259,
+              "name": "花蛤 沙蛤",
+              "category": "贝类"
+            },
+            {
+              "id": 2109101682588422261,
+              "name": "鲍鱼 鲜货",
+              "category": "贝类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "坐月子的产妇买点什么好",
+          "categories": [
+            "滋补特产"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422181,
+              "name": "娃娃菜 三包",
+              "category": "叶菜类"
+            },
+            {
+              "id": 2109101682588422346,
+              "name": "糯米酒 月子酒",
+              "category": "滋补特产"
+            },
+            {
+              "id": 2109101682588422178,
+              "name": "球生菜",
+              "category": "叶菜类"
+            },
+            {
+              "id": 2109101682588422304,
+              "name": "杭白菊 胎菊",
+              "category": "花草茶"
+            },
+            {
+              "id": 2109101682588422277,
+              "name": "长白山松子",
+              "category": "山珍干货"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "宁夏的枸杞",
+          "categories": [
+            "滋补特产"
+          ],
+          "keyword": "枸杞",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422343,
+              "name": "宁夏枸杞 免洗",
+              "category": "滋补特产"
+            },
+            {
+              "id": 2109101682588422171,
+              "name": "宁夏硒砂瓜",
+              "category": "瓜果类"
+            },
+            {
+              "id": 2109101682588422231,
+              "name": "金钱腱子",
+              "category": "牛羊肉"
+            },
+            {
+              "id": 2109101682588422147,
+              "name": "秭归夏橙 现摘直发",
+              "category": "柑橘类"
+            },
+            {
+              "id": 2109101682588422312,
+              "name": "黑芝麻糊",
+              "category": "蜂蜜冲调"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "山药养胃",
+          "categories": [
+            "根茎类"
+          ],
+          "keyword": "山药",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422345,
+              "name": "长白山人参片",
+              "category": "滋补特产"
+            },
+            {
+              "id": 2109101682588422183,
+              "name": "铁棍山药",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422291,
+              "name": "山楂片 空心",
+              "category": "蜜饯果干"
+            },
+            {
+              "id": 2109101682588422278,
+              "name": "野生蕨菜干",
+              "category": "山珍干货"
+            },
+            {
+              "id": 2109101682588422167,
+              "name": "砀山酥梨",
+              "category": "仁果核果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "query": "冲藕粉喝",
+          "categories": [
+            "蜂蜜冲调"
+          ],
+          "keyword": "藕",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422311,
+              "name": "纯藕粉",
+              "category": "蜂蜜冲调"
+            },
+            {
+              "id": 2109101682588422186,
+              "name": "洪湖九孔莲藕",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422341,
+              "name": "桂林米粉",
+              "category": "粉条干货"
+            },
+            {
+              "id": 2109101682588422189,
+              "name": "小黄姜",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422218,
+              "name": "中筋面粉 5kg",
+              "category": "面粉挂面"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "红薯做的零食",
+          "categories": [
+            "粗粮零食",
+            "根茎类"
+          ],
+          "keyword": "红薯",
+          "max_price": null,
+          "relevant_count": 12,
+          "top5": [
+            {
+              "id": 2109101682588422292,
+              "name": "倒蒸红薯干",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422339,
+              "name": "红薯粉条",
+              "category": "粉条干货"
+            },
+            {
+              "id": 2109101682588422187,
+              "name": "烟薯25 蜜薯",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422295,
+              "name": "芝麻糖",
+              "category": "粗粮零食"
+            },
+            {
+              "id": 2109101682588422188,
+              "name": "紫薯",
+              "category": "根茎类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "买点豆制品",
+          "categories": [
+            "豆制品"
+          ],
+          "keyword": "豆腐",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422212,
+              "name": "红小豆",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422213,
+              "name": "绿小豆",
+              "category": "杂粮"
+            },
+            {
+              "id": 2109101682588422338,
+              "name": "油豆皮",
+              "category": "豆制品"
+            },
+            {
+              "id": 2109101682588422335,
+              "name": "手工豆腐干",
+              "category": "豆制品"
+            },
+            {
+              "id": 2109101682588422340,
+              "name": "土豆粉条",
+              "category": "粉条干货"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 0.3333
+        },
+        {
+          "query": "下饭的咸菜泡菜",
+          "categories": [
+            "腌菜泡菜"
+          ],
+          "keyword": "榨菜",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422330,
+              "name": "梅干菜",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422328,
+              "name": "酸豆角",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422327,
+              "name": "涪陵榨菜芯",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422329,
+              "name": "萝卜干",
+              "category": "腌菜泡菜"
+            },
+            {
+              "id": 2109101682588422180,
+              "name": "大白菜",
+              "category": "叶菜类"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "30元以内的水果",
+          "categories": [
+            "柑橘类",
+            "仁果核果",
+            "热带水果",
+            "浆果类",
+            "瓜果类"
+          ],
+          "keyword": null,
+          "max_price": 30.0,
+          "relevant_count": 10,
+          "top5": [
+            {
+              "id": 2109101682588422184,
+              "name": "水果胡萝卜",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422200,
+              "name": "水果玉米 现摘",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422157,
+              "name": "广西小米蕉",
+              "category": "热带水果"
+            },
+            {
+              "id": 2109101682588422159,
+              "name": "徐闻菠萝",
+              "category": "热带水果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 0.3333
+        },
+        {
+          "query": "洪湖的莲藕",
+          "categories": [
+            "根茎类"
+          ],
+          "keyword": "莲藕",
+          "max_price": null,
+          "relevant_count": 8,
+          "top5": [
+            {
+              "id": 2109101682588422186,
+              "name": "洪湖九孔莲藕",
+              "category": "根茎类"
+            },
+            {
+              "id": 2109101682588422311,
+              "name": "纯藕粉",
+              "category": "蜂蜜冲调"
+            },
+            {
+              "id": 2109101682588422274,
+              "name": "笋干 扁尖",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422198,
+              "name": "荷兰豆",
+              "category": "鲜食豆谷"
+            },
+            {
+              "id": 2109101682588422246,
+              "name": "现杀草鱼",
+              "category": "淡水鱼虾"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "新鲜竹笋",
+          "categories": [
+            "竹笋"
+          ],
+          "keyword": "笋",
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422273,
+              "name": "冬笋",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422275,
+              "name": "手剥笋",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422274,
+              "name": "笋干 扁尖",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422272,
+              "name": "天目山雷笋",
+              "category": "竹笋"
+            },
+            {
+              "id": 2109101682588422336,
+              "name": "石磨腐竹",
+              "category": "豆制品"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "鸡胸肉健身餐",
+          "categories": [
+            "禽类"
+          ],
+          "keyword": "鸡胸",
+          "max_price": null,
+          "relevant_count": 5,
+          "top5": [
+            {
+              "id": 2109101682588422237,
+              "name": "鸡胸肉 低脂",
+              "category": "禽类"
+            },
+            {
+              "id": 2109101682588422229,
+              "name": "前腿肉 馅用",
+              "category": "猪肉"
+            },
+            {
+              "id": 2109101682588422331,
+              "name": "湘西烟熏腊肉",
+              "category": "腊味火腿"
+            },
+            {
+              "id": 2109101682588422239,
+              "name": "土鸡蛋 散养柴鸡蛋",
+              "category": "蛋类"
+            },
+            {
+              "id": 2109101682588422333,
+              "name": "南宁板鸭",
+              "category": "腊味火腿"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "query": "夏天解暑的瓜",
+          "categories": [
+            "瓜果类"
+          ],
+          "keyword": null,
+          "max_price": null,
+          "relevant_count": 4,
+          "top5": [
+            {
+              "id": 2109101682588422172,
+              "name": "北京大兴西瓜",
+              "category": "瓜果类"
+            },
+            {
+              "id": 2109101682588422171,
+              "name": "宁夏硒砂瓜",
+              "category": "瓜果类"
+            },
+            {
+              "id": 2109101682588422173,
+              "name": "海南哈密瓜",
+              "category": "瓜果类"
+            },
+            {
+              "id": 2109101682588422174,
+              "name": "羊角蜜甜瓜",
+              "category": "瓜果类"
+            },
+            {
+              "id": 2109101682588422163,
+              "name": "三亚莲雾",
+              "category": "热带水果"
+            }
+          ],
+          "hit": true,
+          "precision_at_5": 0.8,
+          "reciprocal_rank": 1.0
+        }
+      ]
+    }
+  ],
+  "personalization_replay": {
+    "samples": 20,
+    "method": "模拟同类目连购3件的用户历史；同公式仅切换是否叠加偏好项",
+    "hit_at_5_baseline": 0.0,
+    "hit_at_5_personalized": 0.95,
+    "avg_rank_gain": 2.15,
+    "details": [
+      {
+        "query": "有没有橙子推荐",
+        "target": {
+          "id": 2109101682588422149,
+          "name": "象山红美人 柑橘",
+          "category": "柑橘类"
+        },
+        "rank_baseline": 7,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "想吃榴莲",
+        "target": {
+          "id": 2109101682588422161,
+          "name": "攀枝花凯特芒",
+          "category": "热带水果"
+        },
+        "rank_baseline": 8,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "哪种芒果甜",
+        "target": {
+          "id": 2109101682588422163,
+          "name": "三亚莲雾",
+          "category": "热带水果"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 5,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "买点大米",
+        "target": {
+          "id": 2109101682588422210,
+          "name": "胚芽米 轻碾",
+          "category": "大米"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "东北的大米",
+        "target": {
+          "id": 2109101682588422210,
+          "name": "胚芽米 轻碾",
+          "category": "大米"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "煮粥用什么杂粮好",
+        "target": {
+          "id": 2109101682588422213,
+          "name": "绿小豆",
+          "category": "杂粮"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 3,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "挂面有几种",
+        "target": {
+          "id": 2109101682588422217,
+          "name": "河套雪花粉",
+          "category": "面粉挂面"
+        },
+        "rank_baseline": 4,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "包饺子买什么面粉",
+        "target": {
+          "id": 2109101682588422219,
+          "name": "手工空心挂面",
+          "category": "面粉挂面"
+        },
+        "rank_baseline": 8,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "什么油比较健康",
+        "target": {
+          "id": 2109101682588422225,
+          "name": "玉米胚芽油",
+          "category": "食用油"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 5,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "调料酱料来点",
+        "target": {
+          "id": 2109101682588422326,
+          "name": "芝麻酱",
+          "category": "酱料"
+        },
+        "rank_baseline": 3,
+        "rank_personalized": 3,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "10元以内有什么蔬菜",
+        "target": {
+          "id": 2109101682588422180,
+          "name": "大白菜",
+          "category": "叶菜类"
+        },
+        "rank_baseline": 7,
+        "rank_personalized": 6,
+        "entered_top5": false,
+        "alpha": 0.25
+      },
+      {
+        "query": "送礼的茶叶哪种好",
+        "target": {
+          "id": 2109101682588422297,
+          "name": "黄山毛峰",
+          "category": "绿茶红茶"
+        },
+        "rank_baseline": 7,
+        "rank_personalized": 2,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "买些干香菇木耳",
+        "target": {
+          "id": 2109101682588422270,
+          "name": "羊肚菌",
+          "category": "干制菌菇"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 5,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "过年送小孩什么零食",
+        "target": {
+          "id": 2109101682588422281,
+          "name": "东北松子 手剥",
+          "category": "坚果炒货"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 1,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "买条大鱼",
+        "target": {
+          "id": 2109101682588422251,
+          "name": "舟山带鱼中段",
+          "category": "海鱼"
+        },
+        "rank_baseline": 6,
+        "rank_personalized": 2,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "蚝和扇贝",
+        "target": {
+          "id": 2109101682588422261,
+          "name": "鲍鱼 鲜货",
+          "category": "贝类"
+        },
+        "rank_baseline": 4,
+        "rank_personalized": 3,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "红薯做的零食",
+        "target": {
+          "id": 2109101682588422293,
+          "name": "手工米饼",
+          "category": "粗粮零食"
+        },
+        "rank_baseline": 8,
+        "rank_personalized": 3,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "下饭的咸菜泡菜",
+        "target": {
+          "id": 2109101682588422329,
+          "name": "萝卜干",
+          "category": "腌菜泡菜"
+        },
+        "rank_baseline": 4,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "新鲜竹笋",
+        "target": {
+          "id": 2109101682588422272,
+          "name": "天目山雷笋",
+          "category": "竹笋"
+        },
+        "rank_baseline": 4,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      },
+      {
+        "query": "夏天解暑的瓜",
+        "target": {
+          "id": 2109101682588422174,
+          "name": "羊角蜜甜瓜",
+          "category": "瓜果类"
+        },
+        "rank_baseline": 5,
+        "rank_personalized": 4,
+        "entered_top5": true,
+        "alpha": 0.25
+      }
+    ]
+  }
+}

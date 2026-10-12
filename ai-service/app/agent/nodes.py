@@ -1,17 +1,18 @@
-"""LangGraph 节点（阶段三；阶段六新增智能导购）
+"""LangGraph 节点（阶段三；阶段六新增智能导购；导购升级为 RAG 商品召回优先）
 
 图结构：intent → 条件路由：
   faq        → faq_retrieve → generate
   order      → order_query → generate
   logistics  → logistics_query → generate
   after_sales→ after_sales_query → generate
-  recommend  → recommend_query → generate（导购：偏好抽取 → 商品搜索 → 推荐话术）
+  recommend  → recommend_query → generate（导购：商品向量召回 → 关键词搜索 → 热销榜 三级降级）
   smalltalk  → smalltalk → END
   human      → human_fallback → END
 
-依赖注入：llm / retriever / java_api，均为可测试接口。
+依赖注入：llm / retriever / java_api / product_store，均为可测试接口。
 """
 import json
+import logging
 import re
 
 from langchain_core.messages import (
@@ -36,6 +37,8 @@ from app.prompts import (
     format_context,
 )
 from app.tools import java_api
+
+logger = logging.getLogger("agsell.ai.nodes")
 
 
 # ---------- 意图识别 ----------
@@ -145,7 +148,7 @@ def make_after_sales_query_node(java_api_module=None):
     return after_sales_query_node
 
 
-# ---------- 智能导购（阶段六）----------
+# ---------- 智能导购（阶段六；步骤一升级为 RAG 商品召回优先）----------
 def _extract_preferences(question: str, llm) -> tuple[str | None, float | None]:
     """从用户消息抽取（品类关键词, 价格上限）。LLM 失败返回 (None, None)，
     导购节点随即降级为"按销量推荐热销商品"，路由与回复不中断。"""
@@ -162,13 +165,41 @@ def _extract_preferences(question: str, llm) -> tuple[str | None, float | None]:
         return None, None
 
 
-def make_recommend_node(java_api_module=None, llm=None):
+def _reorder_by_recall(products: list[dict], recalled_ids: list[int]) -> list[dict]:
+    """按向量召回顺序重排 Java 返回的商品列表（Java 侧默认销量降序，这里恢复语义相关度序）"""
+    rank = {pid: i for i, pid in enumerate(recalled_ids)}
+    return sorted(products, key=lambda p: rank.get(p.get("id"), len(recalled_ids)))
+
+
+def make_recommend_node(java_api_module=None, llm=None, product_store=None, personalizer=None):
     api = java_api_module or java_api
 
     def recommend_query_node(state: dict) -> dict:
         last = state["messages"][-1]
         question = last.content if isinstance(last, HumanMessage) else str(last.content)
         keyword, max_price = _extract_preferences(question, llm) if llm else (None, None)
+
+        # 一级：商品向量语义召回（整句进索引，"适合送礼的柑橘"这类描述也能命中）；
+        # 命中 id 后仍经 Java 接口取详情——在售过滤、价格区间与口碑注入口径与原来一致。
+        # 登录用户在召回序上叠加个性化重排（偏好/销量/好评）。
+        # 索引为空/召回失败不阻断，逐级降级到下方关键词/热销路径。
+        if product_store is not None:
+            try:
+                hits = product_store.search(question)
+                recalled = [h["id"] for h in hits]
+                sem_by_id = {h["id"]: h["score"] for h in hits}
+                if recalled:
+                    products = _reorder_by_recall(
+                        api.search_products(ids=recalled, max_price=max_price), recalled
+                    )
+                    if products:
+                        if personalizer is not None:
+                            products = personalizer.rerank(state.get("userId"), products, sem_by_id)
+                        return {"tool_result": api.format_payload(products), "tool_type": "recommend"}
+            except Exception as e:
+                logger.warning("商品向量召回不可用，降级关键词/热销路径：%s", e)
+
+        # 二级：关键词 LIKE 搜索；三级：热销榜兜底
         try:
             products = api.search_products(keyword=keyword, max_price=max_price)
             if not products and keyword:
@@ -223,6 +254,12 @@ def _build_messages(system_prompt: str, history: list, max_chars: int | None = N
             start_on="human",
             allow_partial=False,
         )
+        # 兜底：大上下文 system（如推荐的商品 JSON）可能吃满预算，把用户消息裁光，
+        # 网关会报 400 "No user query found in messages"——至少保留最近一条用户消息
+        if not any(isinstance(m, HumanMessage) for m in messages):
+            last_human = next((m for m in reversed(list(history)) if isinstance(m, HumanMessage)), None)
+            if last_human is not None:
+                messages = [*messages, last_human]
     return messages
 
 
@@ -259,6 +296,7 @@ def make_generate_node(llm):
         try:
             response = llm.invoke(messages)
         except Exception as e:  # 阶段五：Agnes 限流/超时/断网 → 降级话术，不白屏
+            logger.warning("生成节点 LLM 调用失败，降级话术：%s: %s", type(e).__name__, e)
             response = AIMessage(
                 content=build_degraded_reply(settings.SERVICE_PHONE, error=str(e))
             )
@@ -280,6 +318,7 @@ def make_smalltalk_node(llm):
         try:
             response = llm.invoke(messages)
         except Exception as e:  # 阶段五：降级话术
+            logger.warning("闲聊节点 LLM 调用失败，降级话术：%s: %s", type(e).__name__, e)
             response = AIMessage(
                 content=build_degraded_reply(settings.SERVICE_PHONE, error=str(e))
             )
