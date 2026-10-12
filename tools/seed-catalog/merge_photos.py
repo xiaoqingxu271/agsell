@@ -25,6 +25,14 @@ UA = {
 }
 PER_PRODUCT = 3
 MAX_REUSE = 2  # 同一张图最多允许出现在几个商品里
+# 个别品类 Pexels 只有这么几张真图（肉眼逐张核过，如竹笋全部 4 个 SKU 共用 3 张生鲜笋）。
+# 硬限流不会把它们匀出去，只会把它们挤掉、换成同一级分类里别的食材，反而更错。
+PINNED_REUSE: dict[int, int] = {34027514: 4, 36182943: 4, 20880098: 4}
+
+
+def reuse_cap(pid: int, base: int) -> int:
+    return max(base, PINNED_REUSE.get(pid, 0))
+
 
 
 def cdn_url(pid: int) -> str:
@@ -53,6 +61,13 @@ def check(pid: int):
     return pid, False, last
 
 
+def batch_order(path: Path):
+    """批次号要按数字比：按字符串排序 9h 会排在 10i 之后，新一轮补采会被旧批次静默覆盖。"""
+    tail = path.stem.removeprefix("photos_batch_")
+    digits = tail[: len(tail) - len(tail.lstrip("0123456789"))]
+    return (int(digits or 0), tail)
+
+
 def main() -> int:
     dry = "--dry-run" in sys.argv
     if hasattr(sys.stdout, "reconfigure"):
@@ -62,13 +77,15 @@ def main() -> int:
     products = {str(p["id"]): p for p in manifest["products"]}
 
     merged: dict[str, list[int]] = {}
-    for f in sorted(glob.glob(str(OUT / "photos_batch_*.json"))):
-        data = json.loads(Path(f).read_text(encoding="utf-8"))
+    for f in sorted((Path(x) for x in glob.glob(str(OUT / "photos_batch_*.json"))), key=batch_order):
+        data = json.loads(f.read_text(encoding="utf-8"))
         for k, v in data.items():
             ids = [int(x) for x in (v or [])]
-            if ids or not merged.get(k):
-                if len(ids) >= len(merged.get(k, [])):
-                    merged[k] = ids
+            # 后加载的批次就是更新一轮的采集结果，非空即覆盖。
+            # 曾按"列表更长者优先"合并，会让诚实地只交回 2 张已核验图的补采批次
+            # 被上一轮 3 张错配图压掉，等于白采。缺的第 3 张交给同类池兜底。
+            if ids:
+                merged[k] = ids
         print(f"[LOAD] {Path(f).name}: {len(data)} 条")
 
     unknown = [k for k in merged if k not in products]
@@ -94,57 +111,30 @@ def main() -> int:
                 ids.append(i)
         raw_valid[pid] = ids
 
-    # 图片池兜底：同二级分类 -> 同一级分类（同类食材总比瞎配可靠）
-    parent_of = {c["id"]: c["parent_id"] for c in manifest["categories"]}
-
-    def add_pool(pool: dict, key, i: int):
-        if i not in pool.setdefault(key, []):
-            pool[key].append(i)
-
-    pools: dict[int, list[int]] = {}
-    l1_pools: dict[int, list[int]] = {}
-    for pid, p in products.items():
-        for i in raw_valid[pid]:
-            add_pool(pools, p["category_id"], i)
-            add_pool(l1_pools, parent_of[p["category_id"]], i)
-
-    # 跨商品限流 + 分类池兜底
+    # 图片池兜底已删除：曾用"同二级/同一级分类的图"补满 3 张，肉眼核对 30 个兜底商品后
+    # 约 8 成配错（树莓配草莓、冬瓜配番茄、腐竹配红烧豆腐、挂面配辣椒晾晒场）。
+    # 宁可商品只有 1-2 张真图，也不要第 3 张是别的食材——答辩时点开详情就露馅。
     use_count: dict[int, int] = {}
     final: dict[str, list[int]] = {}
-    fallback_used = 0
-    fallbacks: dict[str, dict] = {}
     gaps = []
+    thin = []
     for pid, p in products.items():
         keep = []
         for i in raw_valid[pid]:
-            if i not in keep and len(keep) < PER_PRODUCT and use_count.get(i, 0) < MAX_REUSE:
+            if i not in keep and len(keep) < PER_PRODUCT and use_count.get(i, 0) < reuse_cap(i, MAX_REUSE):
                 use_count[i] = use_count.get(i, 0) + 1
                 keep.append(i)
-        own = len(keep)
-        for src, cap in ((pools.get(p["category_id"], []), MAX_REUSE + 1),
-                         (l1_pools.get(parent_of[p["category_id"]], []), MAX_REUSE)):
-            for i in src:
-                if len(keep) >= PER_PRODUCT:
-                    break
-                if i not in keep and use_count.get(i, 0) < cap:
-                    use_count[i] = use_count.get(i, 0) + 1
-                    keep.append(i)
-        if len(keep) > own:
-            fallback_used += 1
-            fallbacks[pid] = {
-                "name": p["name"],
-                "own": raw_valid[pid],
-                "added": [i for i in keep if i not in raw_valid[pid]],
-            }
         final[pid] = keep
         if len(keep) < PER_PRODUCT:
+            thin.append((pid, p["name"], len(keep)))
+        if len(keep) < 2:
             gaps.append((pid, p["name"], p["kw"], len(keep)))
 
     reused = sorted(((c, i) for i, c in use_count.items() if c > 1), reverse=True)[:10]
     print(f"[INFO] 被 2 个以上商品共用的图片：{reused}")
-    print(f"[INFO] 图片齐全(3 张)的商品 {sum(1 for v in final.values() if len(v) == 3)} / {len(products)}")
-    print(f"[INFO] 用到同类兜底图的商品 {fallback_used}")
-    print(f"[INFO] 有缺口的商品 {len(gaps)}")
+    print(f"[INFO] 图片齐全({PER_PRODUCT} 张)的商品 {sum(1 for v in final.values() if len(v) == PER_PRODUCT)} / {len(products)}")
+    print(f"[INFO] 图片不足 {PER_PRODUCT} 张的商品 {len(thin)}")
+    print(f"[INFO] 图片少于 2 张、需要补采的商品 {len(gaps)}")
     for pid, name, kw, n in gaps:
         print(f"   {pid} {name} kw={kw} 现有 {n} 张")
 
@@ -153,8 +143,9 @@ def main() -> int:
     (HERE / "photos.full.json").write_text(
         json.dumps(final, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    (OUT / "photo_fallback.json").write_text(
-        json.dumps(fallbacks, ensure_ascii=False, indent=2), encoding="utf-8"
+    (OUT / "photo_thin.json").write_text(
+        json.dumps([{"id": t[0], "name": t[1], "have": t[2]} for t in thin], ensure_ascii=False, indent=2),
+        encoding="utf-8",
     )
     (OUT / "photo_gaps.json").write_text(
         json.dumps([{"id": g[0], "name": g[1], "kw": g[2], "have": g[3]} for g in gaps], ensure_ascii=False, indent=2),
