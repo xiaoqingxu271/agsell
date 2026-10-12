@@ -120,7 +120,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getCartList, updateCartQuantity, deleteCartItem, toggleCartSelect, selectAllCart } from '../../api/cart'
 import { setPlatformTitle } from '../../utils/request'
 
@@ -146,6 +146,17 @@ async function loadCart() {
     updateSelectAll()
   }
 }
+
+/** 下拉刷新：重新校验价格与库存，失效商品当场标灰 */
+onPullDownRefresh(async () => {
+  try {
+    await loadCart()
+  } catch (e) {
+    console.warn('[Cart] 下拉刷新失败', e)
+  } finally {
+    uni.stopPullDownRefresh()
+  }
+})
 
 const selectedCount = computed(() => cartItems.value.filter(i => i.selected === 1 && i.valid !== 0).length)
 const totalAmount = computed(() => {

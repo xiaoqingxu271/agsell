@@ -27,7 +27,12 @@ export default defineConfig(({ command }) => {
       }
     },
     define: isH5Dev
-      ? { 'import.meta.env.VITE_API_BASE_URL': JSON.stringify('/api') }
+      ? {
+          'import.meta.env.VITE_API_BASE_URL': JSON.stringify('/api'),
+          // 发行构建会按 pages.json 自动打开下拉刷新特性位，dev 下 uni-h5 原样加载、
+          // 该特性位恒为假，页面级 enablePullDownRefresh 在 dev 里不生效，这里补齐口径
+          __UNI_FEATURE_PULL_DOWN_REFRESH__: 'true'
+        }
       : {},
     plugins: [uni()]
   }

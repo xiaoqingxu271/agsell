@@ -20,6 +20,11 @@ export function getHotProducts(limit = 10) {
   return request('GET', '/product/hot', null, { params: { limit } })
 }
 
+/** AI 个性化推荐 feed（游客可用，服务端自动回退热销） */
+export function getRecommendFeed(limit = 10) {
+  return request('GET', '/product/recommend/feed', null, { params: { limit } })
+}
+
 /** 新品推荐（需登录） */
 export function getNewProducts(limit = 10) {
   return request('GET', '/product/new', null, { params: { limit } })
@@ -35,6 +40,14 @@ export function getHotWords(limit = 10) {
   return request('GET', '/product/search/hot', null, { params: { limit } })
 }
 
+/**
+ * 上报一次商品浏览（AI 个性化推荐的实时行为信号）
+ * 纯埋点：失败/游客都静默，绝不允许给用户的访问带来任何可见影响
+ */
+export function reportProductView(productId) {
+  return request('POST', '/product/view', null, { params: { productId }, timeout: 5000 })
+}
+
 export default {
   getCategoryList,
   getProductList,
@@ -42,5 +55,6 @@ export default {
   getHotProducts,
   getNewProducts,
   searchProducts,
-  getHotWords
+  getHotWords,
+  reportProductView
 }

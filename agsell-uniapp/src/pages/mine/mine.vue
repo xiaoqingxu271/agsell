@@ -177,7 +177,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { onShow, onUnload } from '@dcloudio/uni-app'
+import { onShow, onUnload, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getUserInfo, updateUserInfo, logout, getAddressList } from '../../api/user'
 import { getOrderList } from '../../api/order'
 import { getMyCoupons } from '../../api/coupon'
@@ -206,15 +206,28 @@ const orderTabs = [
   { label: '已完成', status: 3, icon: 'check-bold', count: 0 }
 ]
 
-onShow(async () => {
+onShow(() => loadPageData())
+
+/** 下拉刷新：订单角标与资产计数即时重取，不用退出重进 */
+onPullDownRefresh(async () => {
+  try {
+    await loadPageData()
+  } catch (e) {
+    console.warn('[Mine] 下拉刷新失败', e)
+  } finally {
+    uni.stopPullDownRefresh()
+  }
+})
+
+async function loadPageData() {
   isUserLoggedIn.value = isLoggedIn()
   if (isUserLoggedIn.value) {
     await loadUserInfo()
     await loadOrderCounts()
     loadAssetCounts()
   }
-  loadServicePhone()
-})
+  await loadServicePhone()
+}
 
 // 订单列表页查看完某个状态后，立即把对应角标清零，返回时无需等 onShow 重新拉接口
 uni.$on('orderBadgeCleared', onOrderBadgeCleared)

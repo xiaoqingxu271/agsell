@@ -6,10 +6,18 @@
     }
   },
   "pages": [
-    { "path": "pages/index/index", "type": "home" },
+    {
+      "path": "pages/index/index",
+      "type": "home",
+      "style": { "enablePullDownRefresh": true, "backgroundTextStyle": "dark" }
+    },
     { "path": "pages/category/category", "type": "page" },
     { "path": "pages/product/product", "type": "page", "style": { "navigationStyle": "custom" } },
-    { "path": "pages/cart/cart", "type": "page" },
+    {
+      "path": "pages/cart/cart",
+      "type": "page",
+      "style": { "enablePullDownRefresh": true, "backgroundTextStyle": "dark" }
+    },
     { "path": "pages/order/list/list", "type": "page" },
     { "path": "pages/order/detail/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/order/confirm/confirm", "type": "page", "style": { "navigationStyle": "custom" } },
@@ -21,17 +29,29 @@
     { "path": "pages/after-sales/detail/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/after-sales/list/list", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/trace/detail", "type": "page", "style": { "navigationStyle": "custom" } },
-    { "path": "pages/seckill/list", "type": "page", "style": { "navigationStyle": "custom" } },
+    {
+      "path": "pages/seckill/list",
+      "type": "page",
+      "style": { "navigationStyle": "custom", "enablePullDownRefresh": true, "backgroundTextStyle": "light" }
+    },
     { "path": "pages/seckill/detail", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/coupon/center", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/coupon/my", "type": "page", "style": { "navigationStyle": "custom" } },
-    { "path": "pages/mine/mine", "type": "page" },
+    {
+      "path": "pages/mine/mine",
+      "type": "page",
+      "style": { "enablePullDownRefresh": true, "backgroundTextStyle": "dark" }
+    },
     { "path": "pages/mine/address", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/mine/settings", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/mine/profile", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/mine/about", "type": "page", "style": { "navigationStyle": "custom" } },
     { "path": "pages/ai-chat/chat", "type": "page", "style": { "navigationStyle": "custom" } },
-    { "path": "pages/search/search", "type": "page", "style": { "navigationBarTitleText": "搜索" } }
+    {
+      "path": "pages/search/search",
+      "type": "page",
+      "style": { "navigationBarTitleText": "搜索", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" }
+    }
   ],
   "globalStyle": {
     "navigationBarBackgroundColor": "#FFFFFF",

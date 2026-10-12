@@ -94,6 +94,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { onPullDownRefresh } from '@dcloudio/uni-app'
 import NavBar from '../../components/NavBar/NavBar.vue'
 import { getSeckillList } from '../../api/seckill'
 
@@ -143,6 +144,17 @@ async function fetchList() {
     loading.value = false
   }
 }
+
+/** 下拉刷新：重新取库存进度与倒计时基准 */
+onPullDownRefresh(async () => {
+  try {
+    await fetchList()
+  } catch (e) {
+    console.warn('[Seckill] 下拉刷新失败', e)
+  } finally {
+    uni.stopPullDownRefresh()
+  }
+})
 
 function switchTab(tab) {
   activeTab.value = tab

@@ -149,9 +149,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { onPullDownRefresh } from '@dcloudio/uni-app'
 import ProductCard from '../../components/ProductCard/ProductCard.vue'
 import { getBannerList } from '../../api/banner'
-import { getCategoryList, getHotProducts } from '../../api/product'
+import { getCategoryList, getHotProducts, getRecommendFeed } from '../../api/product'
 import { getSeckillList } from '../../api/seckill'
 import { addToCart, getCartList } from '../../api/cart'
 import { isLoggedIn, wxLogin, request } from '../../utils/request'
@@ -172,18 +173,24 @@ let countdownTimer = null
 onMounted(async () => {
   setNavTitle()
   try {
-    // 并行加载且互不阻断：某个接口失败时其余模块照常渲染，页面不白屏
-    await Promise.allSettled([
-      loadBanners(),
-      loadSeckill(),
-      loadCategories(),
-      loadHotProducts()
-    ])
+    await loadAll()
   } finally {
     loading.value = false
   }
   syncCartBadge()
 })
+
+/** 下拉刷新：让刚发生的浏览行为立刻反映到「为你推荐」，无需退出重进 */
+onPullDownRefresh(async () => {
+  await loadAll()
+  syncCartBadge()
+  uni.stopPullDownRefresh()
+})
+
+/** 并行加载且互不阻断：某个接口失败时其余模块照常渲染，页面不白屏 */
+async function loadAll() {
+  await Promise.allSettled([loadBanners(), loadSeckill(), loadCategories(), loadHotProducts()])
+}
 
 onUnmounted(() => {
   if (countdownTimer) clearInterval(countdownTimer)
@@ -258,8 +265,15 @@ async function loadCategories() {
 }
 
 async function loadHotProducts() {
-  const res = await getHotProducts(10)
-  if (res.code === 0) hotProducts.value = res.data
+  // AI 个性化 feed（登录用户按偏好+销量+好评排序；游客/服务不可用时 Java 侧回退热销榜）
+  // 前端再兜一层：feed 接口本身失败（旧版后端无此接口等）→ 直接拉热销
+  const res = await getRecommendFeed(10)
+  if (res.code === 0 && res.data && res.data.length) {
+    hotProducts.value = res.data
+    return
+  }
+  const fallback = await getHotProducts(10)
+  if (fallback.code === 0) hotProducts.value = fallback.data
 }
 
 function onCategoryTap(cat) {

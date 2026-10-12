@@ -2,7 +2,14 @@
   <view class="product-page">
     <NavBar title="商品详情" @back="uni.navigateBack()" />
 
-    <scroll-view scroll-y class="product-scroll">
+    <scroll-view
+      scroll-y
+      class="product-scroll"
+      refresher-enabled
+      refresher-background="#F4F5F7"
+      :refresher-triggered="refreshing"
+      @refresherrefresh="onRefresh"
+    >
       <!-- 加载骨架屏 -->
       <view v-if="loading" class="page-skeleton">
         <wd-skeleton class="sk-banner" type="rect" width="100%" height="750rpx" border-radius="0" />
@@ -184,7 +191,7 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../components/NavBar/NavBar.vue'
 import StarRating from '../../components/StarRating/StarRating.vue'
-import { getProductDetail, getHotProducts } from '../../api/product'
+import { getProductDetail, getHotProducts, reportProductView } from '../../api/product'
 import { getProductReviews } from '../../api/review'
 import { addToCart } from '../../api/cart'
 import { wxLogin, isLoggedIn } from '../../utils/request'
@@ -199,7 +206,9 @@ const reviews = ref([])
 const reviewSummary = ref(null)
 const relatedProducts = ref([])
 const loading = ref(true)
+const refreshing = ref(false)
 const swiperIdx = ref(0)
+const productId = ref('')
 
 const allImages = computed(() => {
   if (images.value && images.value.length > 0) {
@@ -238,6 +247,7 @@ function onPreviewImage(current) {
 onLoad((options) => {
   const id = String(options?.id || '')
   if (id && id !== 'undefined' && id !== 'null') {
+    productId.value = id
     loadProductDetail(id)
     loadReviews(id)
     loadRelatedProducts(id)
@@ -246,9 +256,25 @@ onLoad((options) => {
   }
 })
 
-async function loadProductDetail(id) {
+/** 下拉刷新：静默重载详情（不重铺骨架屏），评价与规格库存一并跟上 */
+async function onRefresh() {
+  const id = productId.value
+  refreshing.value = true
+  if (id) {
+    await Promise.allSettled([loadProductDetail(id, true), loadReviews(id), loadRelatedProducts(id)])
+  }
+  refreshing.value = false
+}
+
+/** 浏览足迹上报（AI 个性化推荐的实时行为信号）：失败静默，绝不影响用户浏览 */
+function reportView(id) {
+  if (!isLoggedIn()) return
+  reportProductView(id).catch(() => {})
+}
+
+async function loadProductDetail(id, silent = false) {
   if (!id) return
-  loading.value = true
+  if (!silent) loading.value = true
   try {
     const res = await getProductDetail(id)
     if (res.code === 0 && res.data) {
@@ -261,7 +287,8 @@ async function loadProductDetail(id) {
         specs.value = res.data.specs
         selectedSpec.value = res.data.specs[0]
       }
-      quantity.value = 1
+      if (!silent) quantity.value = 1
+      reportView(res.data.id || id)
     } else {
       uni.showToast({ title: res.message || '商品加载失败', icon: 'none' })
     }

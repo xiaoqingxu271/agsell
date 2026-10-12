@@ -14,7 +14,14 @@
       >{{ tab.label }}</view>
     </view>
 
-    <scroll-view scroll-y class="content">
+    <scroll-view
+      scroll-y
+      class="content"
+      refresher-enabled
+      refresher-background="#F4F5F7"
+      :refresher-triggered="refreshing"
+      @refresherrefresh="onRefresh"
+    >
       <!-- 空态 -->
       <view v-if="!loading && list.length === 0" class="empty-state">
         <text class="empty-text">暂无售后记录</text>
@@ -78,6 +85,7 @@ const pageNum = ref(1)
 const pageSize = 10
 const total = ref(0)
 const loading = ref(false)
+const refreshing = ref(false)
 
 const hasMore = computed(() => list.value.length < total.value)
 
@@ -115,6 +123,18 @@ function loadMore() {
   if (!hasMore.value || loading.value) return
   pageNum.value += 1
   loadList(false)
+}
+
+/** 下拉刷新：重取当前筛选条件下的首屏（管理端处理进度会变） */
+async function onRefresh() {
+  refreshing.value = true
+  try {
+    await loadList(true)
+  } catch (e) {
+    console.warn('[AfterSales] 下拉刷新失败', e)
+  } finally {
+    refreshing.value = false
+  }
 }
 
 onReachBottom(() => {

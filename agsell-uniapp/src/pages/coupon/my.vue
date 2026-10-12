@@ -15,7 +15,15 @@
       </view>
     </view>
 
-    <scroll-view scroll-y class="content" @scrolltolower="loadMore">
+    <scroll-view
+      scroll-y
+      class="content"
+      @scrolltolower="loadMore"
+      refresher-enabled
+      refresher-background="#F4F5F7"
+      :refresher-triggered="refreshing"
+      @refresherrefresh="onRefresh"
+    >
       <view v-if="!loading && !list.length" class="empty">
         <text class="empty-text">{{ activeTab === 0 ? '还没有可用优惠券，去领券中心看看吧' : '暂无相关记录' }}</text>
         <view v-if="activeTab === 0" class="empty-btn" @click="goCenter">去领券</view>
@@ -61,6 +69,7 @@ const page = ref(1)
 const pageSize = 10
 const hasMore = ref(true)
 const loading = ref(false)
+const refreshing = ref(false)
 
 onLoad(() => {
   fetchList(true)
@@ -69,6 +78,16 @@ onLoad(() => {
 onShow(() => {
   fetchList(true)
 })
+
+/** 下拉刷新：重取当前 tab 首屏（券状态可能已因下单变化） */
+async function onRefresh() {
+  refreshing.value = true
+  try {
+    await fetchList(true)
+  } finally {
+    refreshing.value = false
+  }
+}
 
 function switchTab(val) {
   if (activeTab.value === val) return

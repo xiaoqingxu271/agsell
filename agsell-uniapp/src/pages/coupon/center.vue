@@ -2,7 +2,14 @@
   <view class="coupon-center">
     <NavBar title="领券中心" @back="uni.navigateBack()" />
 
-    <scroll-view scroll-y class="content">
+    <scroll-view
+      scroll-y
+      class="content"
+      refresher-enabled
+      refresher-background="#F4F5F7"
+      :refresher-triggered="refreshing"
+      @refresherrefresh="onRefresh"
+    >
       <view v-if="!loading && !list.length" class="empty">
         <text class="empty-text">优惠券抢光了</text>
       </view>
@@ -38,10 +45,21 @@ import { getCouponList, receiveCoupon } from '../../api/coupon'
 
 const list = ref([])
 const loading = ref(false)
+const refreshing = ref(false)
 
 onLoad(async () => {
   await fetchList()
 })
+
+/** 下拉刷新：重取券池余量与本人已领状态 */
+async function onRefresh() {
+  refreshing.value = true
+  try {
+    await fetchList()
+  } finally {
+    refreshing.value = false
+  }
+}
 
 async function fetchList() {
   loading.value = true

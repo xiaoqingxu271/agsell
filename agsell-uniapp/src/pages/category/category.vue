@@ -29,7 +29,15 @@
 
       <!-- 右侧内容区 -->
       <view class="cmain">
-        <scroll-view scroll-y class="cmain-scroll" @scrolltolower="onReachBottom">
+        <scroll-view
+          scroll-y
+          class="cmain-scroll"
+          @scrolltolower="onReachBottom"
+          refresher-enabled
+          refresher-background="#F4F5F7"
+          :refresher-triggered="refreshing"
+          @refresherrefresh="onRefresh"
+        >
           <!-- Banner 浅红条 -->
           <view class="cban">
             <view class="cban-txt">
@@ -145,6 +153,7 @@ const pageSize = ref(20)
 const loading = ref(false)
 const hasMore = ref(true)
 const requesting = ref(false)
+const refreshing = ref(false)
 
 const sortOptions = [
   { label: '综合', value: '' },
@@ -276,6 +285,22 @@ function onReachBottom() {
   if (hasMore.value && !loading.value) {
     pageNum.value++
     loadProducts()
+  }
+}
+
+/** 下拉刷新：保留当前选中的分类，重取分类树与该分类首屏商品 */
+async function onRefresh() {
+  refreshing.value = true
+  try {
+    await loadCategories()
+    pageNum.value = 1
+    products.value = []
+    hasMore.value = true
+    await loadProducts()
+  } catch (e) {
+    console.warn('[Category] 下拉刷新失败', e)
+  } finally {
+    refreshing.value = false
   }
 }
 
