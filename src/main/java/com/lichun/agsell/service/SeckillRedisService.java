@@ -42,7 +42,12 @@ public interface SeckillRedisService {
     /**
      * 幂等释放名额：用户标记存在则回补库存并清除标记
      */
-    void releaseSeckill(Long activityId, Long userId);
+    /**
+     * 回补一个秒杀名额（仅当该用户确实持有名额标记时生效，幂等）。
+     *
+     * @return true=已回补（调用方需同步扣减 DB 的 sold_count）；false=无标记，未回补
+     */
+    boolean releaseSeckill(Long activityId, Long userId);
 
     /**
      * 当前用户是否已参与过该秒杀

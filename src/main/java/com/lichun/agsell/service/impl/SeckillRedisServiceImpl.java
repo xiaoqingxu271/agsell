@@ -80,9 +80,13 @@ public class SeckillRedisServiceImpl implements SeckillRedisService {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(activity);
             redisTemplate.opsForValue().set(ACTIVITY_KEY + activity.getId(), json);
-            // 重置剩余库存为活动总库存（编辑活动时同步回写）
-            redisTemplate.opsForValue().set(STOCK_KEY + activity.getId(), String.valueOf(activity.getSeckillStock()));
-            log.info("[SeckillRedis] 写入活动快照, activityId={}, stock={}", activity.getId(), activity.getSeckillStock());
+            // 剩余库存 = 活动总名额 - DB 已占名额（sold_count 为真相，缓存丢失重建不会把已抢掉的放回去）
+            int sold = activity.getSoldCount() == null ? 0 : activity.getSoldCount();
+            int total = activity.getSeckillStock() == null ? 0 : activity.getSeckillStock();
+            int remaining = Math.max(0, total - sold);
+            redisTemplate.opsForValue().set(STOCK_KEY + activity.getId(), String.valueOf(remaining));
+            log.info("[SeckillRedis] 写入活动快照, activityId={}, total={}, sold={}, remaining={}",
+                    activity.getId(), total, sold, remaining);
         } catch (Exception e) {
             log.error("[SeckillRedis] 活动快照序列化失败, activityId={}", activity.getId(), e);
         }
@@ -133,15 +137,17 @@ public class SeckillRedisServiceImpl implements SeckillRedisService {
     }
 
     @Override
-    public void releaseSeckill(Long activityId, Long userId) {
+    public boolean releaseSeckill(Long activityId, Long userId) {
         if (activityId == null || userId == null) {
-            return;
+            return false;
         }
         Long result = redisTemplate.execute(RELEASE_SCRIPT,
                 java.util.List.of(STOCK_KEY + activityId, USER_KEY + activityId + ":" + userId));
-        if (result != null && result == 1L) {
+        boolean released = result != null && result == 1L;
+        if (released) {
             log.info("[SeckillRedis] 释放秒杀名额, activityId={}, userId={}", activityId, userId);
         }
+        return released;
     }
 
     @Override

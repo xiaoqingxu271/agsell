@@ -9,22 +9,24 @@ import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.dto.OrderShipRequest;
 import com.lichun.agsell.model.entity.Order;
+import com.lichun.agsell.support.MpLambdaCache;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 /**
- * 链路 B 修复验证：发货请求判空与状态校验
+ * 链路 B 修复验证：发货请求判空、状态校验与并发发货原子抢占
  */
 @ExtendWith(MockitoExtension.class)
 class AdminOrderServiceImplTest {
@@ -38,6 +40,12 @@ class AdminOrderServiceImplTest {
 
     @InjectMocks
     private AdminOrderServiceImpl adminOrderService;
+
+    @BeforeAll
+    static void initLambdaCache() {
+        // 发货用 LambdaUpdateWrapper.set(...) 写状态与物流单号，链式调用时即解析列名
+        MpLambdaCache.init(Order.class);
+    }
 
     @BeforeEach
     void setUp() {
@@ -106,22 +114,34 @@ class AdminOrderServiceImplTest {
     }
 
     @Test
-    @DisplayName("正常发货更新状态为待收货并记录物流")
+    @DisplayName("正常发货：原子抢占「待发货→待收货」，条件 UPDATE 生效")
     void shipOrderSuccess() {
         when(orderMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(buildOrder(1));
-        when(orderMapper.updateById((Order) any())).thenReturn(1);
+        when(orderMapper.update(nullable(Order.class), any())).thenReturn(1);
 
         OrderShipRequest request = new OrderShipRequest();
         request.setLogType("顺丰速运");
         request.setLogNo("SF123456");
         adminOrderService.shipOrder("AGS123", request);
 
-        ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-        verify(orderMapper).updateById(captor.capture());
-        Order update = captor.getValue();
-        assertEquals(2, update.getStatus());
-        assertEquals("顺丰速运", update.getLogType());
-        assertEquals("SF123456", update.getLogNo());
-        assertNotNull(update.getDeliveryTime());
+        // 状态、物流单号、发货时间一次写入；不再有「先查后无条件改」的 updateById
+        verify(orderMapper).update(nullable(Order.class), any());
+        verify(orderMapper, never()).updateById(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("并发发货：条件 UPDATE 影响 0 行（已被他人发货）时报状态错误，不覆盖物流单号")
+    void shipOrderLosingRaceFails() {
+        when(orderMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(buildOrder(1));
+        when(orderMapper.update(nullable(Order.class), any())).thenReturn(0);
+
+        OrderShipRequest request = new OrderShipRequest();
+        request.setLogType("顺丰速运");
+        request.setLogNo("SF999999");
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> adminOrderService.shipOrder("AGS123", request));
+        assertEquals(ErrorCode.ORDER_STATUS_ERROR.getCode(), ex.getCode());
+        verify(orderMapper, never()).updateById(any(Order.class));
     }
 }

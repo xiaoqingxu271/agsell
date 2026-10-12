@@ -30,12 +30,24 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     /**
-     * CORS 跨域配置
+     * CORS 跨域配置。
+     * <p>默认只放行本机来源（管理后台/H5 调试端口）：小程序原生请求不带 Origin、不受 CORS 约束，
+     * 线上 H5 与后台都由 nginx 同源反代 /api，同样不需要跨域。
+     * <p>确需跨域时用环境变量 CORS_ALLOWED_ORIGINS 指定具体域名（逗号分隔）。
+     * 不要改回 "*"/全通配：allowedOriginPattern("*") 叠加 allowCredentials(true)
+     * 等于允许任意第三方站点带凭证读取接口响应。
      */
+    @org.springframework.beans.factory.annotation.Value(
+            "${cors.allowed-origins:http://localhost:*,http://127.0.0.1:*}")
+    private String allowedOrigins;
+
     @org.springframework.context.annotation.Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("*");
+        java.util.Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .forEach(config::addAllowedOriginPattern);
         config.setAllowCredentials(true);
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");

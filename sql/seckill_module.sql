@@ -17,6 +17,7 @@ CREATE TABLE `seckill_activity` (
     `product_spec_id`  BIGINT        DEFAULT NULL COMMENT '绑定规格ID（无规格为NULL，按商品维度秒杀）',
     `seckill_price`    DECIMAL(10,2) NOT NULL COMMENT '秒杀价',
     `seckill_stock`    INT           NOT NULL DEFAULT 0 COMMENT '秒杀库存（活动放出的名额）',
+    `sold_count`       INT           NOT NULL DEFAULT 0 COMMENT '已占名额（DB 侧真相；Redis 库存丢失时按 seckill_stock - sold_count 重建）',
     `seckill_limit`    INT           NOT NULL DEFAULT 1 COMMENT '每人限购数量',
     `start_time`       DATETIME      NOT NULL COMMENT '开始时间',
     `end_time`         DATETIME      NOT NULL COMMENT '结束时间',

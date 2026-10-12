@@ -232,13 +232,24 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
         AfterSales afterSales = afterSalesMapper.selectOne(new LambdaQueryWrapper<AfterSales>()
                 .eq(AfterSales::getAfterSalesNo, afterSalesNo));
         ThrowUtils.throwIf(afterSales == null, ErrorCode.NOT_FOUND_ERROR, "售后单不存在");
-        ThrowUtils.throwIf(afterSales.getStatus() != STATUS_PENDING,
+
+        boolean agreed = Boolean.TRUE.equals(request.getAgree());
+        // 原子抢占处理权：仅「待处理」→「已处理」生效。双管理员并发处理同一售后单时，
+        // 只有一人进入后续库存回补/销量回滚，避免重复回补库存。
+        int claimed = afterSalesMapper.update(null, new LambdaUpdateWrapper<AfterSales>()
+                .eq(AfterSales::getId, afterSales.getId())
+                .eq(AfterSales::getStatus, STATUS_PENDING)
+                .set(AfterSales::getStatus, agreed ? STATUS_AGREED : STATUS_REJECTED)
+                .set(AfterSales::getHandleRemark, request.getRemark())
+                .set(AfterSales::getHandleBy, adminId)
+                .set(AfterSales::getHandleTime, LocalDateTime.now()));
+        ThrowUtils.throwIf(claimed == 0,
                 ErrorCode.AFTER_SALES_STATUS_ERROR, "该售后单已处理，请勿重复操作");
 
         Order order = orderMapper.selectById(afterSales.getOrderId());
         ThrowUtils.throwIf(order == null, ErrorCode.NOT_FOUND_ERROR, "订单不存在");
 
-        if (Boolean.TRUE.equals(request.getAgree())) {
+        if (agreed) {
             // ===== 同意退款：订单置已退款 + 退货退款回补库存 + 已完成订单回滚销量 =====
             // 1. 回补库存：仅"退货退款(type=2)"回补——货物退回商家才可重新上架；
             //    "仅退款(type=1)"货未退回、仍在买家手里，库存不得回补
@@ -286,13 +297,6 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
                     adminId, afterSalesNo, order.getOrderNo(), afterSales.getOriginalStatus());
         }
 
-        // 3. 更新售后单处理结果
-        AfterSales update = new AfterSales();
-        update.setId(afterSales.getId());
-        update.setStatus(Boolean.TRUE.equals(request.getAgree()) ? STATUS_AGREED : STATUS_REJECTED);
-        update.setHandleRemark(request.getRemark());
-        update.setHandleBy(adminId);
-        update.setHandleTime(LocalDateTime.now());
-        afterSalesMapper.updateById(update);
+        // 售后单状态/处理人/时间/意见已在上面的原子抢占 UPDATE 中一次性写入，不再重复 updateById
     }
 }

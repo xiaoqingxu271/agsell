@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -26,6 +26,9 @@ public class SmsCodeServiceImpl implements SmsCodeService {
 
     /** 验证码长度 */
     private static final int CODE_LENGTH = 6;
+
+    /** 验证码是凭据，必须用 SecureRandom（java.util.Random 可被前几个输出预测） */
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /** 发送间隔（秒）- 防止频繁发送 */
     private static final int SEND_INTERVAL_SECONDS = 60;
@@ -92,10 +95,9 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      * 生成指定长度的纯数字验证码
      */
     private String generateCode() {
-        Random random = new Random();
         StringBuilder sb = new StringBuilder(CODE_LENGTH);
         for (int i = 0; i < CODE_LENGTH; i++) {
-            sb.append(random.nextInt(10));
+            sb.append(SECURE_RANDOM.nextInt(10));
         }
         return sb.toString();
     }

@@ -30,13 +30,4 @@ public class FileUploadController {
         String fileUrl = fileUploadService.upload(file, prefix, fileType);
         return ResultUtils.success(fileUrl);
     }
-
-    @Operation(summary = "删除文件（管理端）", description = "根据文件 URL 删除 OSS 上的对应文件，仅管理员可调用")
-    @DeleteMapping("/admin/file/delete")
-    public BaseResponse<Void> delete(
-            @Parameter(description = "文件的完整 URL", required = true)
-            @RequestParam("fileUrl") String fileUrl) {
-        fileUploadService.delete(fileUrl);
-        return ResultUtils.success(null);
-    }
 }

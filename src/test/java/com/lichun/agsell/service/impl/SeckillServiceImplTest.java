@@ -39,10 +39,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 /**
- * 秒杀模块单元测试：活动校验、Lua 预扣、一人一单、失败补偿、释放幂等
+ * 秒杀模块单元测试：活动校验、Lua 预扣、DB 名额记账、一人一单、失败补偿、释放幂等
  */
 @ExtendWith(MockitoExtension.class)
 class SeckillServiceImplTest {
@@ -132,11 +133,20 @@ class SeckillServiceImplTest {
         when(seckillActivityMapper.selectOne(any())).thenReturn(activity);
     }
 
+    /**
+     * 模拟 DB 名额记账成功：条件 UPDATE（sold_count &lt; seckill_stock 时 +1）影响 1 行。
+     * Mockito 默认返回 0，会被业务侧视为 Redis 与 DB 名额漂移并按售罄拒绝。
+     */
+    private void mockBookingSuccess() {
+        when(seckillActivityMapper.update(nullable(SeckillActivity.class), any())).thenReturn(1);
+    }
+
     @Test
-    @DisplayName("秒杀下单成功：Redis 预扣 + 创建待付款订单，金额为秒杀价")
+    @DisplayName("秒杀下单成功：Redis 预扣 + DB 名额记账 + 创建待付款订单，金额为秒杀价")
     void createOrder_success() {
         SeckillActivity activity = ongoingActivity();
         mockActivityLookup(activity);
+        mockBookingSuccess();
         when(seckillRedisService.getSnapshot(101L)).thenReturn(activity);
         when(seckillRedisService.trySeckill(101L, 1L)).thenReturn(1);
         when(productMapper.selectById(1001L)).thenReturn(mockProduct());
@@ -161,7 +171,29 @@ class SeckillServiceImplTest {
         assertEquals(new BigDecimal("9.90"), captor.getValue().getPayAmount());
         assertEquals(1L, captor.getValue().getUserId());
         verify(orderItemMapper).insert(any(OrderItem.class));
+        // DB 侧名额记账确实发生（Redis 只是闸门，sold_count 才是配额真相）
+        verify(seckillActivityMapper).update(nullable(SeckillActivity.class), any());
         verify(seckillRedisService, never()).releaseSeckill(any(), any());
+    }
+
+    @Test
+    @DisplayName("Redis 放行但 DB 名额已满：按售罄拒绝 + 回补 Redis 标记，不创建订单")
+    void createOrder_dbQuotaExhaustedCompensatesRedis() {
+        SeckillActivity activity = ongoingActivity();
+        mockActivityLookup(activity);
+        when(seckillRedisService.getSnapshot(101L)).thenReturn(activity);
+        when(seckillRedisService.trySeckill(101L, 1L)).thenReturn(1);
+        when(productMapper.selectById(1001L)).thenReturn(mockProduct());
+        when(addressMapper.selectById(10L)).thenReturn(mockAddress());
+        // 条件 UPDATE 影响 0 行 = sold_count 已达 seckill_stock（例如 Redis 重启后配额被重放）
+        when(seckillActivityMapper.update(nullable(SeckillActivity.class), any())).thenReturn(0);
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> seckillService.createSeckillOrder(buildOrderRequest()));
+        assertEquals(ErrorCode.SECKILL_SOLD_OUT.getCode(), ex.getCode());
+        // 回补 Redis 标记，且订单不落库
+        verify(seckillRedisService).releaseSeckill(101L, 1L);
+        verify(orderMapper, never()).insert(any(Order.class));
     }
 
     @Test
@@ -236,6 +268,7 @@ class SeckillServiceImplTest {
     @DisplayName("DB 唯一索引冲突（并发穿透 Redis 标记）：SECKILL_REPEAT + 名额补偿")
     void createOrder_repeatByDbUniqueKey() {
         mockActivityLookup(ongoingActivity());
+        mockBookingSuccess();
         when(seckillRedisService.getSnapshot(101L)).thenReturn(ongoingActivity());
         when(seckillRedisService.trySeckill(101L, 1L)).thenReturn(1);
         when(productMapper.selectById(1001L)).thenReturn(mockProduct());
@@ -255,6 +288,7 @@ class SeckillServiceImplTest {
     @DisplayName("下单 DB 异常：回补 Redis 名额 + 异常传播")
     void createOrder_dbErrorCompensate() {
         mockActivityLookup(ongoingActivity());
+        mockBookingSuccess();
         when(seckillRedisService.getSnapshot(101L)).thenReturn(ongoingActivity());
         when(seckillRedisService.trySeckill(101L, 1L)).thenReturn(1);
         when(productMapper.selectById(1001L)).thenReturn(mockProduct());
@@ -268,10 +302,24 @@ class SeckillServiceImplTest {
     }
 
     @Test
-    @DisplayName("释放名额：幂等委托 Redis 服务")
+    @DisplayName("释放名额：Redis 确实回补时才同步扣减 DB sold_count")
     void releaseQuota() {
+        when(seckillRedisService.releaseSeckill(101L, 1L)).thenReturn(true);
+
         seckillService.releaseSeckillQuota(101L, 1L);
+
         verify(seckillRedisService).releaseSeckill(101L, 1L);
+        verify(seckillActivityMapper).update(nullable(SeckillActivity.class), any());
+    }
+
+    @Test
+    @DisplayName("释放名额幂等：Redis 未回补（用户标记已不存在）时不扣 DB，避免减成负数")
+    void releaseQuota_idempotentWhenRedisSkips() {
+        when(seckillRedisService.releaseSeckill(101L, 1L)).thenReturn(false);
+
+        seckillService.releaseSeckillQuota(101L, 1L);
+
+        verify(seckillActivityMapper, never()).update(nullable(SeckillActivity.class), any());
     }
 
     @Test
@@ -407,5 +455,22 @@ class SeckillServiceImplTest {
 
         var list = seckillService.listActivities(1);
         assertTrue(list.isEmpty());
+    }
+
+    @Test
+    @DisplayName("缓存缺失：剩余名额按 DB 真相（seckill_stock - sold_count）重建并回填快照")
+    void listActivities_rebuildsRemainingFromDbWhenCacheMissing() {
+        SeckillActivity ongoing = ongoingActivity(); // seckill_stock = 50
+        ongoing.setSoldCount(42);
+        when(seckillActivityMapper.selectList(any())).thenReturn(List.of(ongoing));
+        when(seckillRedisService.getRemainingStock(101L)).thenReturn(null);
+        when(productMapper.selectById(1001L)).thenReturn(mockProduct());
+
+        var list = seckillService.listActivities(1);
+
+        // Redis 重启/键被淘汰后不会把已抢掉的名额重新放出去：50 - 42 = 8
+        assertEquals(8, list.get(0).getRemainingStock());
+        assertEquals(84, list.get(0).getProgress());
+        verify(seckillRedisService).saveSnapshot(ongoing);
     }
 }

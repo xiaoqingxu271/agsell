@@ -3,6 +3,7 @@ package com.lichun.agsell.service.impl;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.common.BaseContext;
 import com.lichun.agsell.exception.BusinessException;
@@ -105,9 +106,8 @@ public class SeckillServiceImpl implements SeckillService {
                     vo.setActivityStatus(st);
                     vo.setActivityStatusText(activityStatusText(st));
                     vo.setCountdownSeconds(calcCountdown(act, st, now));
-                    // 剩余库存（Redis 实时值；无缓存回退活动总库存）
-                    Integer remaining = seckillRedisService.getRemainingStock(act.getId());
-                    vo.setRemainingStock(remaining != null ? remaining : act.getSeckillStock());
+                    // 剩余库存（Redis 实时值；无缓存按 DB 的 seckill_stock - sold_count 推导）
+                    vo.setRemainingStock(resolveRemainingStock(act));
                     vo.setProgress(calcProgress(act.getSeckillStock(), vo.getRemainingStock()));
                     // 商品信息
                     Product product = productMapper.selectById(act.getProductId());
@@ -154,8 +154,7 @@ public class SeckillServiceImpl implements SeckillService {
             int st = calcActivityStatus(act);
             spec.setActivityStatus(st);
             spec.setCountdownSeconds(calcCountdown(act, st, now));
-            Integer remaining = seckillRedisService.getRemainingStock(act.getId());
-            spec.setRemainingStock(remaining != null ? remaining : act.getSeckillStock());
+            spec.setRemainingStock(resolveRemainingStock(act));
             spec.setProgress(calcProgress(act.getSeckillStock(), spec.getRemainingStock()));
             spec.setUserSeckilled(userId != null && seckillRedisService.hasUserSeckilled(act.getId(), userId));
             // 规格名称与图片
@@ -193,8 +192,7 @@ public class SeckillServiceImpl implements SeckillService {
         vo.setActivityStatus(st);
         vo.setActivityStatusText(activityStatusText(st));
         vo.setCountdownSeconds(calcCountdown(currentActivity, st, now));
-        Integer remaining = seckillRedisService.getRemainingStock(currentActivity.getId());
-        vo.setRemainingStock(remaining != null ? remaining : currentActivity.getSeckillStock());
+        vo.setRemainingStock(resolveRemainingStock(currentActivity));
         vo.setProgress(calcProgress(currentActivity.getSeckillStock(), vo.getRemainingStock()));
         vo.setUserSeckilled(userId != null && seckillRedisService.hasUserSeckilled(currentActivity.getId(), userId));
         vo.setSpecs(specList);
@@ -271,6 +269,20 @@ public class SeckillServiceImpl implements SeckillService {
             }
         }
 
+        // 6.1 DB 记账：抢到名额即 sold_count + 1，条件为「已占 < 活动名额」（两列比较，不受快照陈旧影响）。
+        //     Redis 只是高速闸门，这一列才是名额真相；Redis 重启或键被淘汰后可按
+        //     seckill_stock - sold_count 无损重建，不会把已抢掉的名额重新放出去。
+        //     本方法在事务内：后续订单插入失败会连这条一起回滚，不会虚增已售。
+        int booked = seckillActivityMapper.update(null, new LambdaUpdateWrapper<SeckillActivity>()
+                .setSql("sold_count = sold_count + 1")
+                .eq(SeckillActivity::getId, activityId)
+                .apply("sold_count < seckill_stock"));
+        if (booked == 0) {
+            // Redis 与 DB 名额漂移：回补 Redis 标记后按售罄拒绝，保证活动配额不被击穿
+            seckillRedisService.releaseSeckill(activityId, userId);
+            throw new BusinessException(ErrorCode.SECKILL_SOLD_OUT);
+        }
+
         // 7. 构建秒杀订单（服务端计价：金额=秒杀价，数量=1，不信任前端）
         try {
             BigDecimal freight = computeFreight(activity.getSeckillPrice());
@@ -326,7 +338,30 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public void releaseSeckillQuota(Long activityId, Long userId) {
-        seckillRedisService.releaseSeckill(activityId, userId);
+        // Redis 真的回补了才同步 DB 计数（脚本幂等：用户标记不存在时返回 false，重复调用不会减成负数）
+        if (!seckillRedisService.releaseSeckill(activityId, userId)) {
+            return;
+        }
+        seckillActivityMapper.update(null, new LambdaUpdateWrapper<SeckillActivity>()
+                .setSql("sold_count = sold_count - 1")
+                .eq(SeckillActivity::getId, activityId)
+                .gt(SeckillActivity::getSoldCount, 0));
+    }
+
+    /**
+     * 剩余名额：优先取 Redis 实时值；缓存缺失时按 DB 真相（seckill_stock - sold_count）推导，
+     * 并顺手回填快照，使后续抢购不必再走 -1 补偿路径。
+     */
+    private int resolveRemainingStock(SeckillActivity activity) {
+        Integer cached = seckillRedisService.getRemainingStock(activity.getId());
+        if (cached != null) {
+            return cached;
+        }
+        int total = activity.getSeckillStock() == null ? 0 : activity.getSeckillStock();
+        int sold = activity.getSoldCount() == null ? 0 : activity.getSoldCount();
+        int derived = Math.max(0, total - sold);
+        seckillRedisService.saveSnapshot(activity);
+        return derived;
     }
 
     /**
@@ -374,8 +409,7 @@ public class SeckillServiceImpl implements SeckillService {
             vo.setCreateTime(act.getCreateTime());
             int st = calcActivityStatus(act);
             vo.setActivityStatusText(activityStatusText(st));
-            Integer remaining = seckillRedisService.getRemainingStock(act.getId());
-            vo.setRemainingStock(remaining != null ? remaining : act.getSeckillStock());
+            vo.setRemainingStock(resolveRemainingStock(act));
             // 关键字过滤（商品名）
             Product product = productMapper.selectById(act.getProductId());
             if (product != null) {

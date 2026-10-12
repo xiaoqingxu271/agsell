@@ -439,7 +439,8 @@ onMounted(async () => {
   fetchList()
   // 商品下拉：上架中的商品
   try {
-    const res = await listProducts({ pageNum: 1, pageSize: 1000, status: 1 })
+    // 后端分页封顶 500 条（MybatisPlusConfig），商品数超过时需要改成可搜索下拉
+    const res = await listProducts({ pageNum: 1, pageSize: 500, status: 1 })
     productOptions.value = res.records
   } catch {
     // interceptor handles error

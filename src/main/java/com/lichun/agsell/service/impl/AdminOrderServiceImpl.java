@@ -1,6 +1,7 @@
 package com.lichun.agsell.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.common.AdminContext;
 import com.lichun.agsell.exception.ErrorCode;
@@ -186,12 +187,15 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         ThrowUtils.throwIf(order.getStatus() != OrderStatusEnum.PENDING_SHIPMENT.getCode(),
                 ErrorCode.ORDER_STATUS_ERROR, "只有待发货订单可以发货");
 
-        Order update = new Order();
-        update.setId(order.getId());
-        update.setStatus(OrderStatusEnum.PENDING_RECEIPT.getCode()); // 待收货
-        update.setLogType(request.getLogType());
-        update.setLogNo(request.getLogNo());
-        update.setDeliveryTime(java.time.LocalDateTime.now());
-        orderMapper.updateById(update);
+        // 原子抢占发货权：仅「待发货→待收货」生效。并发发货（双管理员同时处理、双击按钮）
+        // 只有一个事务能抢到，其余在此拒绝，避免旧「先查状态再无条件改」导致的重复发货与物流单号互相覆盖。
+        int claimed = orderMapper.update(null, new LambdaUpdateWrapper<Order>()
+                .eq(Order::getId, order.getId())
+                .eq(Order::getStatus, OrderStatusEnum.PENDING_SHIPMENT.getCode())
+                .set(Order::getStatus, OrderStatusEnum.PENDING_RECEIPT.getCode()) // 待收货
+                .set(Order::getLogType, request.getLogType())
+                .set(Order::getLogNo, request.getLogNo())
+                .set(Order::getDeliveryTime, java.time.LocalDateTime.now()));
+        ThrowUtils.throwIf(claimed == 0, ErrorCode.ORDER_STATUS_ERROR, "订单状态已变化，请勿重复发货");
     }
 }

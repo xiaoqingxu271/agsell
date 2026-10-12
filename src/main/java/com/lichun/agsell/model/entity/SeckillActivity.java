@@ -37,6 +37,9 @@ public class SeckillActivity implements Serializable {
     /** 秒杀库存（活动放出的名额） */
     private Integer seckillStock;
 
+    /** 已占名额（DB 侧真相）：Redis 库存缓存丢失时按 seckill_stock - sold_count 重建 */
+    private Integer soldCount;
+
     /** 每人限购数量 */
     private Integer seckillLimit;
 
