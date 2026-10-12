@@ -45,14 +45,27 @@ class Settings(BaseSettings):
     # 商品向量召回（智能导购，collection="product"）
     PRODUCT_TOP_K: int = 8
 
-    # 导购个性化重排：final = 语义分 + α·类目偏好 + β·销量归一 + γ·好评率
-    # 登录用户才叠加偏好项；游客 β/γ 仍生效（热销兜底语义）
+    # 语义搜索（搜索框接入向量召回）：一次召回较多候选交 Java 与全文/在售过滤后合并
+    REC_SEARCH_TOP_K: int = 50
+    # 语义命中相似度闸门：低于此分的候选不作为语义结果（域外词退回全文检索）
+    # 依据量化实验：域内 top-1 均值 ~0.71、域外 ~0.33，取 0.35 略偏召回
+    REC_SEARCH_MIN_SCORE: float = 0.35
+
+    # 导购个性化重排：final = 语义分 + α·类目偏好 + β·销量归一 + γ·好评率 + δ·新鲜度
+    # 登录用户才叠加偏好项；游客 β/γ/δ 仍生效（热销兜底语义）
     REC_PREF_ALPHA: float = 0.25
     REC_SALES_BETA: float = 0.10
     REC_RATE_GAMMA: float = 0.10
-    # 偏好信号合并权重（订单 : 好评）
-    REC_ORDER_WEIGHT: float = 0.6
-    REC_REVIEW_WEIGHT: float = 0.4
+    REC_FRESH_DELTA: float = 0.15
+    # 偏好信号合并权重（订单 : 好评 : 浏览）。
+    # 订单是已验证的真实选择，权重最高；浏览是弱意向信号，但带时间衰减，
+    # 因此"刚看过几件腊味"能在一次下拉刷新内改变推荐排序。
+    REC_ORDER_WEIGHT: float = 0.5
+    REC_REVIEW_WEIGHT: float = 0.3
+    REC_BROWSE_WEIGHT: float = 0.2
+    # 浏览行为回看窗口与指数衰减半衰期（天）：半衰期 3 天=3 天前的浏览只剩一半权重
+    REC_BROWSE_DAYS: int = 7
+    REC_BROWSE_HALF_LIFE: int = 3
 
     # 运行时
     LOG_LEVEL: str = "INFO"

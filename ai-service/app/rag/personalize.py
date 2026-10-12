@@ -2,7 +2,7 @@
 
 final = sem_score + α·pref(category) + β·sales_norm + γ·positive_rate
 - sem_score：商品向量召回相似度（0~1）
-- pref：用户近 50 笔订单 + 好评的类目偏好权重（0~1，preference_repo 聚合）
+- pref：用户类目偏好权重（0~1，订单+好评+衰减浏览三路合并，见 preference_repo）
 - sales_norm：候选集内 log10(1+销量) 归一（0~1）
 - positive_rate：Java 口碑注入的好评率（0~100 → 0~1；无口碑数据记 0）
 

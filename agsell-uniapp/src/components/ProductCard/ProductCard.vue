@@ -16,6 +16,10 @@
       <view v-if="tagList.length" class="tags">
         <text v-for="(tag, i) in tagList" :key="i" class="tag" :class="tagClass(tag)">{{ tag }}</text>
       </view>
+      <view v-if="product.recommendReason" class="reason">
+        <text class="reason-badge">AI</text>
+        <text class="reason-txt">{{ product.recommendReason }}</text>
+      </view>
       <view class="prow">
         <view class="p">
           <text class="p-i">¥</text>
@@ -139,6 +143,33 @@ function tagClass(tag) {
 .tag.tk {
   color: $uni-text-color-grey;
   border-color: $uni-border-color;
+}
+
+/* AI 可解释推荐理由（仅个性化 feed 命中时出现） */
+.reason {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  margin: 4rpx 0 10rpx;
+  padding: 2rpx 10rpx 2rpx 4rpx;
+  border-radius: 6rpx;
+  background: #FFF3EF;
+}
+
+.reason-ic {
+  font-size: 16rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: $uni-text-color-inverse;
+  background: $uni-color-primary;
+  border-radius: 4rpx;
+  padding: 3rpx 6rpx;
+}
+
+.reason-txt {
+  font-size: 20rpx;
+  line-height: 28rpx;
+  color: $uni-color-primary;
 }
 
 .prow {

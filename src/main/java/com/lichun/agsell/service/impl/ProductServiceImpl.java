@@ -230,6 +230,30 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<ProductListItemVO> listProductsByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Product> list = productMapper.selectList(new LambdaQueryWrapper<Product>()
+                .eq(Product::getStatus, 1)
+                .in(Product::getId, ids));
+        Map<Long, Product> byId = list.stream()
+                .collect(Collectors.toMap(Product::getId, p -> p, (a, b) -> a));
+        // 严格按传入 id 顺序输出（推荐序由 AI 服务决定），下架/不存在的静默跳过
+        List<Product> ordered = ids.stream().map(byId::get).filter(Objects::nonNull).collect(Collectors.toList());
+
+        List<Long> categoryIds = ordered.stream().map(Product::getCategoryId).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        List<ProductCategory> categories = categoryIds.isEmpty() ? new ArrayList<>()
+                : categoryMapper.selectBatchIds(categoryIds);
+        Map<Long, String> categoryMap = categories.stream()
+                .collect(Collectors.toMap(ProductCategory::getId, ProductCategory::getName, (a, b) -> a));
+
+        return ordered.stream()
+                .map(p -> convertToListVO(p, categoryMap.get(p.getCategoryId())))
+                .collect(Collectors.toList());
+    }
+
     // ==================== 私有方法 ====================
 
     private LambdaQueryWrapper<Product> buildAdminQueryWrapper(ProductQueryRequest request) {

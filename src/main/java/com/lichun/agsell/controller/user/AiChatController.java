@@ -7,10 +7,8 @@ import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.model.dto.AiChatRequest;
 import com.lichun.agsell.model.vo.AiChatReplyVO;
-import com.lichun.agsell.service.RedisTokenService;
-import com.lichun.agsell.utils.JwtUtils;
 import com.lichun.agsell.utils.ResultUtils;
-import io.jsonwebtoken.Claims;
+import com.lichun.agsell.utils.UserContextResolver;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,8 +67,7 @@ public class AiChatController {
     @Value("${ai-service.internal-key:}")
     private String internalKey;
 
-    private final JwtUtils jwtUtils;
-    private final RedisTokenService redisTokenService;
+    private final UserContextResolver userContextResolver;
 
     @Operation(summary = "AI 客服对话")
     @PostMapping
@@ -228,30 +225,10 @@ public class AiChatController {
     }
 
     /**
-     * 解析 JWT 中的 userId（游客返回 null，业务查询由 Python 侧引导登录）
+     * 解析 JWT 中的 userId（游客返回 null，业务查询由 Python 侧引导登录）。
+     * 口径统一收敛到 UserContextResolver（Redis 会话校验等安全逻辑单一来源）。
      */
     private Long resolveUserId(HttpServletRequest request) {
-        try {
-            String token = jwtUtils.getTokenFromRequest(request);
-            if (token == null) {
-                return null;
-            }
-            Claims claims = jwtUtils.parseToken(token);
-            String type = claims.get("type", String.class);
-            if (!"user".equals(type)) {
-                return null;
-            }
-            Long userId = Long.valueOf(claims.getSubject());
-            String jti = claims.get("jti", String.class);
-            // 与 JwtAuthInterceptor 同口径校验 Redis 会话：这两个接口在 JWT 白名单里、自行解析 token，
-            // 不校验会话就会让已登出/被顶号的旧 token 继续驱动 AI 查询该用户订单。
-            if (!redisTokenService.validateUserToken(userId, token, jti)) {
-                return null;
-            }
-            return userId;
-        } catch (Exception e) {
-            // token 无效视为游客，不阻断 FAQ 咨询
-            return null;
-        }
+        return userContextResolver.resolveUserId(request);
     }
 }

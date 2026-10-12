@@ -42,6 +42,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/product/list",
             "/api/product/hot",
             "/api/product/new",
+            // AI 个性化推荐 feed（游客可用，Controller 内自行解析 JWT 取 userId）
+            "/api/product/recommend/feed",
+            // 浏览足迹上报（白名单+可选登录：游客调用由服务层静默跳过，绝不给用户报错）
+            "/api/product/view",
             // 搜索接口（无需登录）
             "/api/product/search",
             "/api/product/search/hot",

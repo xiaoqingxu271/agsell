@@ -21,6 +21,19 @@ def category_name_map(session: Session) -> dict[int, str]:
     return {c.id: c.name for c in session.scalars(select(ProductCategory))}
 
 
+def list_by_ids(session: Session, product_ids: list[int]) -> list[Product]:
+    """按 id 取在售商品（status=1 且未软删），用于语义搜索命中集的重排打分"""
+    if not product_ids:
+        return []
+    return list(
+        session.scalars(
+            select(Product).where(
+                Product.id.in_(product_ids), Product.status == 1, Product.deleted == 0
+            )
+        )
+    )
+
+
 def category_by_ids(session: Session, product_ids: list[int]) -> dict[int, int]:
     """商品 id → 分类 id（个性化重排查偏好权重用；软删/下架也返回，过滤归 Java）"""
     if not product_ids:

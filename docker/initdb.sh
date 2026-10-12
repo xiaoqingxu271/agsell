@@ -9,6 +9,8 @@ mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MY
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/seckill_module.sql
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/coupon_module.sql
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/search_module.sql
+# 用户浏览足迹：AI 个性化推荐的实时行为信号（user_product_view 表）
+mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/behavior_module.sql
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/system_module.sql
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/traceability_module.sql
 # 优惠券二期：折扣券/品类券（加 discount/max_discount 列 + coupon_product 表）

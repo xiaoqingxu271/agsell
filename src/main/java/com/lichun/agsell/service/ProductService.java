@@ -50,4 +50,9 @@ public interface ProductService {
      * 用户端：新品推荐
      */
     List<ProductListItemVO> listNewProducts(int limit);
+
+    /**
+     * 用户端：按给定 id 顺序返回在售商品（AI 个性化 feed 用，排序权在 Python）
+     */
+    List<ProductListItemVO> listProductsByIds(List<Long> ids);
 }

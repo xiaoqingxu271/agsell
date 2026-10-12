@@ -28,6 +28,7 @@ from langchain_openai import ChatOpenAI
 
 from app.agent.graph import build_graph
 from app.api.admin_kb import router as admin_kb_router
+from app.api.rec_feed import router as rec_feed_router
 from app.api.review_reply import router as review_reply_router
 from app.api.sentiment import router as sentiment_router
 from app.config import settings
@@ -163,6 +164,7 @@ def get_graph():
 app.include_router(admin_kb_router, prefix="/v1")
 app.include_router(sentiment_router, prefix="/v1")
 app.include_router(review_reply_router, prefix="/v1")
+app.include_router(rec_feed_router, prefix="/v1")
 
 
 @app.get("/health", response_model=HealthResponse)
