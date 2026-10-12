@@ -1,5 +1,5 @@
 // 全局请求封装
-// API 地址统一从环境文件读取：改 agsell-uniapp/.env.mp-weixin 里的 VITE_API_BASE_URL 即可
+// API 地址来自 agsell-uniapp/.env 的 VITE_API_BASE_URL（编译期烤进产物，改后需重新构建）
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
 /**

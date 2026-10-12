@@ -52,7 +52,7 @@
 
 ```bash
 # 1. 配置环境变量
-cp .env.example .env          # 若仓库无 .env.example，按下表手写一份
+cp .env.example .env          # 按下表把占位值换成真实值（AI_INTERNAL_KEY 与 ai-service/.env 保持一致）
 cp ai-service/.env.example ai-service/.env   # 填入 AGNES_API_KEY
 
 # 2. 一键构建启动（mysql 自动执行 sql/ 下全部建表与种子脚本）
@@ -81,6 +81,7 @@ docker compose exec mysql mysql -uroot -p"$$MYSQL_ROOT_PASSWORD" agsell < /sql/d
 | `JWT_SECRET` | JWT 签名密钥（64 字节） |
 | `WECHAT_MINIAPP_APPID` / `WECHAT_MINIAPP_SECRET` | 微信小程序凭据（无则登录走游客模式） |
 | `ALIYUN_OSS_ENDPOINT` / `ACCESS_KEY_ID` / `ACCESS_KEY_SECRET` / `BUCKET_NAME` | 阿里云 OSS（图片上传） |
+| `AI_INTERNAL_KEY` | Python 回调 Java `/api/ai/internal/**` 的服务间密钥，须与 `ai-service/.env` 的 `JAVA_INTERNAL_KEY` 一致；`application.yaml` 已无默认值，缺失则 backend 启动失败 |
 
 启动后访问：
 

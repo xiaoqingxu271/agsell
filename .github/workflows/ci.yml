@@ -130,6 +130,11 @@ jobs:
               allowed-image-types: jpg,png
               allowed-video-types: mp4
               allowed-other-types: pdf,zip
+          # application.yaml 的 ai-service.internal-key 已取消默认值，
+          # CI 给固定测试值避免占位符解析失败（真实密钥只走环境变量注入）
+          ai-service:
+            base-url: http://127.0.0.1:8000
+            internal-key: ci-test-internal-key
           mybatis-plus:
             global-config:
               db-config:

@@ -21,7 +21,8 @@ class Settings(BaseSettings):
     AGNES_TEMPERATURE: float = 0.3
 
     # Java 主系统服务间鉴权（阶段三使用）
-    JAVA_INTERNAL_KEY: str = "agsell-ai-internal-2026"
+    # 无默认值：未注入 JAVA_INTERNAL_KEY 时校验恒失败（fail-closed），不会静默沿用公开密钥
+    JAVA_INTERNAL_KEY: str = ""
     JAVA_BASE_URL: str = "http://127.0.0.1:8080/api"
 
     # MySQL（复用 agsell 主库，FAQ 数据源）

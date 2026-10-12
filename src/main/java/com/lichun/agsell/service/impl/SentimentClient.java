@@ -27,7 +27,7 @@ public class SentimentClient {
     @Value("${ai-service.base-url:http://127.0.0.1:8000}")
     private String aiBaseUrl;
 
-    @Value("${ai-service.internal-key:agsell-ai-internal-2026}")
+    @Value("${ai-service.internal-key:}")
     private String internalKey;
 
     /** 单批分析上限（与 Python 端 max_length=200 一致） */

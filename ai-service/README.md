@@ -76,7 +76,7 @@ intent 节点：LLM 意图分类 + 订单号正则 + 关键词兜底
 | POST | `/api/ai/internal/order/detail` | `{"userId":..., "orderNo":"AGS..."}` | 订单详情 + 商品快照 + 物流字段（强制归属校验） |
 | POST | `/api/ai/internal/after-sales/list` | `{"userId":...}` | 售后记录（类型 / 状态 / 原因文本映射） |
 
-> 鉴权：请求头 `X-Internal-Key: agsell-ai-internal-2026`（生产环境务必更换）。
+> 鉴权：请求头 `X-Internal-Key: <服务间密钥>`，取值来自 `ai-service/.env` 的 `JAVA_INTERNAL_KEY`，须与根 `.env` 的 `AI_INTERNAL_KEY` 一致。代码里已无默认值，未配置即一律 401。
 > 路径说明：Spring MVC 拦截器 `addPathPatterns` 匹配的是 servlet path（不含 context-path），故注册为 `/ai/internal/**`；JWT 白名单用 `requestURI`（含 context-path），故写 `/api/ai/internal`。
 
 ## 目录结构
@@ -149,4 +149,4 @@ docker compose up -d --build
 
 依赖配置见 `.env.example`（复制为 `.env` 填写 AGNES_API_KEY 等）。
 
-> 安全提醒：`.env` 已加入 `.gitignore`，请勿提交；Agnes 免费层可能用数据训练，演示勿传真实手机号 / 地址等隐私；`agsell-ai-internal-2026` 为本地演示密钥，部署前务必更换。
+> 安全提醒：`.env` 已加入 `.gitignore`，请勿提交；Agnes 免费层可能用数据训练，演示勿传真实手机号 / 地址等隐私；服务间密钥已取消代码默认值（`JAVA_INTERNAL_KEY` 未配置即 401），部署时务必用随机值。

@@ -31,7 +31,10 @@ services:
     container_name: agsell-backend
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      # 仅本机回环：管理端 nginx（proxy_pass http://backend:8080）与 ai-service 回调都走 compose
+      # 网络内的服务名访问，不经过这里发布的端口；微信开发者工具与 cpolar 均连本机 127.0.0.1。
+      # 锁回环后同网段无法再直连 http://内网IP:8080/api 绕过前端裸调接口（见审计 P0）
+      - "127.0.0.1:8080:8080"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
@@ -58,6 +61,8 @@ services:
       ALIYUN_OSS_ACCESS_KEY_SECRET: ${ALIYUN_OSS_ACCESS_KEY_SECRET}
       ALIYUN_OSS_BUCKET_NAME: ${ALIYUN_OSS_BUCKET_NAME}
       AI_SERVICE_BASE_URL: http://ai-service:8000
+      # Python 回调 /api/ai/internal/** 的服务间密钥，必须由根 .env 注入（application.yaml 已无默认值）
+      AI_INTERNAL_KEY: ${AI_INTERNAL_KEY}
       # 生产部署关闭接口文档（/doc.html、/v3/api-docs）
       SPRINGDOC_ENABLED: "false"
       KNIFE4J_PRODUCTION: "true"
@@ -83,7 +88,9 @@ services:
     container_name: agsell-ai-service
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      # 仅本机回环：compose 网络内 backend 通过 http://ai-service:8000 访问，无需对外暴露；
+      # 否则任何人可直连 :8000 用免费额度刷 LLM（见审计 P0）
+      - "127.0.0.1:8000:8000"
     env_file:
       - ./ai-service/.env
     environment:
