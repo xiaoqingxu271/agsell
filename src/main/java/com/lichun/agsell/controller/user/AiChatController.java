@@ -58,6 +58,8 @@ public class AiChatController {
 
     /** HttpClient 不可变可复用；SSE 响应头超时放宽到 90s（业务查询链路较慢） */
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            // 必须锁 HTTP/1.1：默认 HTTP/2 会随请求发 Upgrade: h2c，uvicorn 拒绝升级并吞掉请求体（422）
+            .version(HttpClient.Version.HTTP_1_1)
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
