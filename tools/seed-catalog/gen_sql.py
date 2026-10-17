@@ -11,8 +11,12 @@
 
 manifest 里的分类/商品短 ID（1001 / 20001）只作为素材文件名与图集 key 的目录主键，
 入库前一律经 snowflake() 换成与后端 IdType.ASSIGN_ID 同布局的 19 位雪花 ID。
+
+时间字段（商品采摘日、溯源档案/生产记录的日期与批次号）不写 manifest 里的绝对日期，
+一律改写为相对 CURDATE 的表达式，理由见 harvest_age_days()。
 """
 import json
+import math
 import re
 import sys
 from datetime import datetime
@@ -74,6 +78,86 @@ def remap_category_id(raw, idmap: dict) -> int:
     if short not in idmap["category"]:
         sys.exit(f"[ERR] 商品引用了不存在的分类短 ID：{short}")
     return idmap["category"][short]
+
+
+# ---------- 时间字段相对化（采摘日期 / 溯源批次） ----------
+# manifest 里的 harvest_date 是"生成素材那天"的绝对日期：种子 SQL 隔一周再导入，
+# 全部商品凭空变陈一周，且方向是反的——短保生鲜（保质期 3~7 天）新鲜度直接归 0，
+# 耐储粮油（18 个月）反而拿到 0.9 高分，时令引擎的排序结果与产品目标完全相反。
+# 因此入库时改写为 DATE_SUB(CURDATE(), INTERVAL n DAY)，n 由"保质期已消耗比例"推出：
+# - 比例随保质期长度上升（供应链常识：日配生鲜隔天摘，粮油年度收购），
+#   于是短保货新鲜度高、耐储货中等，梯度可讲可演示；
+# - 再按商品 ID 确定性散列抖动 ±10%，同类目不至于齐刷刷同分，重复生成结果一致；
+# - 上限 75%，任何商品导入当天都还没过保。
+_UNIT_DAYS = {"天": 1, "日": 1, "周": 7, "月": 30, "年": 365}
+_NUM = re.compile(r"(\d+)")
+_RATIO_FLOOR = 0.02
+_RATIO_CAP = 0.75
+_RATIO_JITTER = 0.10
+
+
+def shelf_life_days(shelf_life) -> int | None:
+    if not shelf_life:
+        return None
+    m = _NUM.search(str(shelf_life))
+    if not m:
+        return None
+    n = int(m.group(1))
+    for unit, days in _UNIT_DAYS.items():
+        if unit in str(shelf_life):
+            return n * days
+    return n  # 纯数字无单位：按天理解
+
+
+def consumed_ratio(short_id: int, days: int) -> float:
+    """保质期已消耗比例：随保质期对数上升 + ID 抖动，落在 2%~75%"""
+    span = math.log10(730) - math.log10(3)
+    center = 0.05 + 0.50 * (math.log10(min(max(days, 1), 730)) - math.log10(3)) / span
+    jitter = (((short_id * 2654435761) % 101) - 50) / 100.0 * _RATIO_JITTER
+    return min(max(center + jitter, _RATIO_FLOOR), _RATIO_CAP)
+
+
+def harvest_age_days(short_id: int, shelf_life) -> int | None:
+    """商品采摘日距今多少天；保质期解析不出来返回 None，保留原绝对日期"""
+    days = shelf_life_days(shelf_life)
+    if not days or days <= 0:
+        return None
+    return max(int(round(consumed_ratio(short_id, days) * days)), 0)
+
+
+def sql_date_days_ago(days: int) -> str:
+    return f"DATE_SUB(CURDATE(), INTERVAL {int(days)} DAY)"
+
+
+def sql_date_days_ago(days: int) -> str:
+    return f"DATE_SUB(CURDATE(), INTERVAL {int(days)} DAY)"
+
+
+def rolled_group_date(value, anchor: datetime, anchor_age: int) -> str:
+    """把溯源组内的绝对日期整体平移：锚点（该组采摘日）落在 anchor_age 天前，组内间隔原样保留
+
+    采摘之后的记录（质检/装箱）在 anchor_age 很小时会被 clamp 到今天就地发生，
+    宁可在当天补记，也不写未来日期——未来日期会让溯源页出现"还没发生"的记录。
+    """
+    offset = (datetime.strptime(str(value), "%Y-%m-%d") - anchor).days
+    return sql_date_days_ago(max(anchor_age - offset, 0))
+
+
+def rolled_batch_no(batch_no: str, anchor_age: int) -> str:
+    """批次号里的日期段（B202609110001）跟着采摘日一起滚动，避免批次号与日期各说一套"""
+    m = re.match(r"^B(\d{8})(\d+)$", batch_no or "")
+    if not m:
+        return q(batch_no)
+    return f"CONCAT('B', DATE_FORMAT({sql_date_days_ago(anchor_age)}, '%Y%m%d'), {q(m.group(2))})"
+
+
+def rolled_harvest(short_id: int, p: dict) -> tuple[str, int | None]:
+    """(SQL 日期表达式, 距今天数)；无法滚动时回落 manifest 原始值"""
+    age = harvest_age_days(short_id, p.get("shelf_life"))
+    if age is None:
+        return q(p.get("harvest_date")), None
+    return sql_date_days_ago(age), age
+
 
 CLEAR_TABLES = [
     "product_spec",
@@ -151,7 +235,9 @@ def build(manifest: dict, urls: dict, idmap: dict) -> str:
 
     # ---------- 商品 ----------
     lines.append("-- ---------- 商品（主图 + 图集 JSON + 详情 HTML，主键为雪花 ID） ----------")
+    lines.append("-- 采摘日期滚动生成：DATE_SUB(CURDATE(), INTERVAL n DAY)，n 随保质期长短递增（越短保存得越久不划算，转得越快）")
     p_rows = []
+    harvest_age_by_short: dict[int, int] = {}
     for p in manifest["products"]:
         photos = [urls.get(f"photo:{p['id']}:{i}") for i in range(len(p["photos"]))]
         if not photos:
@@ -159,6 +245,9 @@ def build(manifest: dict, urls: dict, idmap: dict) -> str:
         if not all(photos):
             sys.exit(f"[ERR] 商品 {p['id']} {p['name']} 图集不完整，请先跑 upload_oss.py")
         images_json = json.dumps(photos, ensure_ascii=False)
+        harvest_sql, harvest_age = rolled_harvest(p["id"], p)
+        if harvest_age is not None:
+            harvest_age_by_short[p["id"]] = harvest_age
         p_rows.append(
             (
                 "    ({id}, {name}, {sub}, {cat}, {price}, {oprice}, {stock}, {sales}, "
@@ -176,7 +265,7 @@ def build(manifest: dict, urls: dict, idmap: dict) -> str:
             images=q(images_json),
             desc=q(desc_html(p, photos)),
             origin=q(p.get("origin")),
-            harvest=q(p.get("harvest_date")),
+            harvest=harvest_sql,
             shelf=q(p.get("shelf_life")),
             storage=q(p.get("storage")),
             sort=p.get("sort", 0),
@@ -245,22 +334,39 @@ def build(manifest: dict, urls: dict, idmap: dict) -> str:
             + ";\n"
         )
     if demo.get("traceability"):
-        lines.append("-- ---------- 产地溯源档案 + 生产记录 ----------")
+        lines.append("-- ---------- 产地溯源档案 + 生产记录（日期与批次号跟着商品采摘日滚动） ----------")
         t_rows, r_rows = [], []
         rec_id = 0
         for t in demo["traceability"]:
             pid = remap_product_id(t["product_id"], idmap)
+            anchor_age = harvest_age_by_short.get(int(t["product_id"]))
+            if anchor_age is None:  # 商品没配保质期：溯源日期也保持原绝对值
+                plant_sql = q(t["planting_date"])
+                harvest_sql = q(t["harvest_date"])
+                batch_sql = q(t["batch_no"])
+
+                def rec_sql(d):
+                    return q(d)
+            else:
+                anchor = datetime.strptime(t["harvest_date"], "%Y-%m-%d")
+                plant_sql = rolled_group_date(t["planting_date"], anchor, anchor_age)
+                harvest_sql = sql_date_days_ago(anchor_age)
+                batch_sql = rolled_batch_no(t["batch_no"], anchor_age)
+
+                def rec_sql(d):
+                    return rolled_group_date(d, anchor, anchor_age)
+
             t_rows.append(
-                f"    ({t['id']}, {pid}, {q(t['batch_no'])}, {q(t['farmer_name'])}, {q(t['farmer_phone'])}, "
+                f"    ({t['id']}, {pid}, {batch_sql}, {q(t['farmer_name'])}, {q(t['farmer_phone'])}, "
                 f"{q(t['origin_province'])}, {q(t['origin_city'])}, {q(t['origin_district'])}, "
-                f"{q(t['planting_date'])}, {q(t['harvest_date'])}, {q(t['quality_check_result'])}, "
+                f"{plant_sql}, {harvest_sql}, {q(t['quality_check_result'])}, "
                 f"{q(t['pesticide_test'])}, {q(t['certification_type'])}, 0)"
             )
             for rec in t.get("records", []):
                 rec_id += 1
                 r_rows.append(
-                    f"    ({2097480000000005000 + rec_id}, {pid}, {q(t['batch_no'])}, {q(rec['type'])}, "
-                    f"{q(rec['date'])}, {q(rec['content'])}, {q(rec['operator'])}, 0)"
+                    f"    ({2097480000000005000 + rec_id}, {pid}, {batch_sql}, {q(rec['type'])}, "
+                    f"{rec_sql(rec['date'])}, {q(rec['content'])}, {q(rec['operator'])}, 0)"
                 )
         lines.append(
             "INSERT INTO `traceability_info` (`id`, `product_id`, `batch_no`, `farmer_name`, `farmer_phone`,"
