@@ -1,5 +1,10 @@
 {
+  "measured_at": "2026-10-17T15:06:02",
+  "git_commit": "6a7cf8f",
   "faq_count": 280,
+  "covered_count": 280,
+  "coverage": 1.0,
+  "embedding_model": "BAAI/bge-small-zh-v1.5",
   "channels": [
     {
       "channel": "vector_only",
@@ -92,8 +97,64 @@
       ]
     }
   ],
+  "product_channels": [
+    {
+      "channel": "vector_only",
+      "queries": 404,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0,
+      "misses": []
+    },
+    {
+      "channel": "keyword_only",
+      "queries": 404,
+      "hit_at_1": 0.9901,
+      "hit_at_3": 1.0,
+      "mrr": 0.995,
+      "misses": []
+    },
+    {
+      "channel": "merged_dual_channel",
+      "queries": 404,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0,
+      "misses": []
+    }
+  ],
+  "category_channels": [
+    {
+      "channel": "vector_only",
+      "queries": 84,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0,
+      "misses": []
+    },
+    {
+      "channel": "keyword_only",
+      "queries": 84,
+      "hit_at_1": 0.9762,
+      "hit_at_3": 1.0,
+      "mrr": 0.9881,
+      "misses": []
+    },
+    {
+      "channel": "merged_dual_channel",
+      "queries": 84,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0,
+      "misses": []
+    }
+  ],
   "separability": {
     "in_domain_top1_mean": 0.7096,
-    "out_domain_top1_mean": 0.3748
+    "out_domain_top1_mean": 0.3748,
+    "out_domain_top1_max": 0.4719,
+    "threshold": 0.5,
+    "margin": 0.0281,
+    "above_threshold": []
   }
 }

@@ -1,81 +1,89 @@
 {
+  "measured_at": "2026-10-17T16:03:49",
+  "git_commit": "6a7cf8f",
+  "rounds": 1,
+  "llm_calls_per_branch": {
+    "smalltalk": 1,
+    "faq": 2,
+    "recommend": 3
+  },
   "detail": [
     {
       "question": "你好",
       "intent": "smalltalk",
-      "ttfb_status_ms": 1582,
-      "ttfb_token_ms": 5417,
-      "total_ms": 5441,
-      "reply_chars": 42,
+      "ttfb_status_ms": 311,
+      "ttfb_token_ms": 2108,
+      "total_ms": 3204,
+      "reply_chars": 44,
       "group": "smalltalk",
       "round": 1
     },
     {
       "question": "在吗",
       "intent": "smalltalk",
-      "ttfb_status_ms": 2286,
-      "ttfb_token_ms": 4700,
-      "total_ms": 4814,
-      "reply_chars": 12,
+      "ttfb_status_ms": 20,
+      "ttfb_token_ms": 2109,
+      "total_ms": 2185,
+      "reply_chars": 19,
       "group": "smalltalk",
       "round": 1
     },
     {
       "question": "谢谢你",
       "intent": "smalltalk",
-      "ttfb_status_ms": 6367,
-      "ttfb_token_ms": 9844,
-      "total_ms": 9861,
-      "reply_chars": 32,
+      "ttfb_status_ms": 17,
+      "ttfb_token_ms": 2341,
+      "total_ms": 2920,
+      "reply_chars": 58,
       "group": "smalltalk",
       "round": 1
     },
     {
       "question": "再见",
       "intent": "smalltalk",
-      "ttfb_status_ms": 3432,
-      "ttfb_token_ms": 9093,
-      "total_ms": 9176,
-      "reply_chars": 30,
+      "ttfb_status_ms": 18,
+      "ttfb_token_ms": 1757,
+      "total_ms": 2026,
+      "reply_chars": 40,
       "group": "smalltalk",
       "round": 1
     },
     {
       "question": "运费怎么算",
       "intent": "faq",
-      "ttfb_status_ms": 4986,
-      "ttfb_token_ms": 10866,
-      "total_ms": 10961,
-      "reply_chars": 77,
+      "ttfb_status_ms": 3254,
+      "ttfb_token_ms": 5367,
+      "total_ms": 5378,
+      "reply_chars": 47,
       "group": "faq",
       "round": 1
     },
     {
       "question": "支持哪些支付方式",
       "intent": "faq",
-      "ttfb_status_ms": 4112,
-      "ttfb_token_ms": 7619,
-      "total_ms": 7623,
-      "reply_chars": 66,
+      "ttfb_status_ms": 2198,
+      "ttfb_token_ms": 6908,
+      "total_ms": 6917,
+      "reply_chars": 51,
       "group": "faq",
       "round": 1
     },
     {
       "question": "怎么申请售后",
-      "intent": "after_sales",
-      "ttfb_status_ms": 2900,
-      "ttfb_token_ms": 5989,
-      "total_ms": 5994,
-      "reply_chars": 66,
+      "intent": "faq",
+      "ttfb_status_ms": 2711,
+      "ttfb_token_ms": 5692,
+      "total_ms": 6613,
+      "reply_chars": 132,
       "group": "faq",
       "round": 1
     },
     {
       "question": "溯源二维码怎么用",
       "intent": "faq",
-      "ttfb_status_ms": 3159,
-      "ttfb_token_ms": 6535,
-      "total_ms": 6539,
+      "ttfb_status_ms": 4328,
+      "ttfb_token_ms": 8418,
+      "total_ms": 8422,
       "reply_chars": 66,
       "group": "faq",
       "round": 1
@@ -83,48 +91,96 @@
     {
       "question": "秒杀活动怎么参加",
       "intent": "faq",
-      "ttfb_status_ms": 6968,
-      "ttfb_token_ms": 8677,
-      "total_ms": 9036,
-      "reply_chars": 69,
+      "ttfb_status_ms": 5727,
+      "ttfb_token_ms": 9868,
+      "total_ms": 9871,
+      "reply_chars": 66,
       "group": "faq",
       "round": 1
     },
     {
       "question": "怎么修改收货地址",
       "intent": "faq",
-      "ttfb_status_ms": 1929,
-      "ttfb_token_ms": 4416,
-      "total_ms": 4485,
-      "reply_chars": 63,
+      "ttfb_status_ms": 5819,
+      "ttfb_token_ms": 10824,
+      "total_ms": 10825,
+      "reply_chars": 66,
       "group": "faq",
+      "round": 1
+    },
+    {
+      "question": "有什么水果推荐",
+      "intent": "recommend",
+      "ttfb_status_ms": 7188,
+      "ttfb_token_ms": 13514,
+      "total_ms": 14660,
+      "reply_chars": 74,
+      "group": "recommend",
+      "round": 1
+    },
+    {
+      "question": "50 元以内有什么好物",
+      "intent": "recommend",
+      "ttfb_status_ms": 3617,
+      "ttfb_token_ms": 9222,
+      "total_ms": 10765,
+      "reply_chars": 102,
+      "group": "recommend",
+      "round": 1
+    },
+    {
+      "question": "哪种茶叶比较好",
+      "intent": "recommend",
+      "ttfb_status_ms": 7782,
+      "ttfb_token_ms": 14198,
+      "total_ms": 14391,
+      "reply_chars": 81,
+      "group": "recommend",
+      "round": 1
+    },
+    {
+      "question": "帮我挑个送礼的",
+      "intent": "recommend",
+      "ttfb_status_ms": 2951,
+      "ttfb_token_ms": 7597,
+      "total_ms": 8378,
+      "reply_chars": 90,
+      "group": "recommend",
       "round": 1
     }
   ],
   "summary": [
     {
-      "group": "smalltalk",
-      "n": 4,
-      "ttfb_token_avg_ms": 7264,
-      "ttfb_token_p95_ms": 9093,
-      "total_avg_ms": 7323,
-      "total_p95_ms": 9176
-    },
-    {
       "group": "faq",
       "n": 6,
-      "ttfb_token_avg_ms": 7350,
-      "ttfb_token_p95_ms": 8677,
-      "total_avg_ms": 7440,
-      "total_p95_ms": 9036
+      "ttfb_token_avg_ms": 7846,
+      "ttfb_token_p95_ms": 9868,
+      "total_avg_ms": 8004,
+      "total_p95_ms": 9871
+    },
+    {
+      "group": "recommend",
+      "n": 4,
+      "ttfb_token_avg_ms": 11133,
+      "ttfb_token_p95_ms": 13514,
+      "total_avg_ms": 12048,
+      "total_p95_ms": 14391
+    },
+    {
+      "group": "smalltalk",
+      "n": 4,
+      "ttfb_token_avg_ms": 2079,
+      "ttfb_token_p95_ms": 2109,
+      "total_avg_ms": 2584,
+      "total_p95_ms": 2920
     },
     {
       "group": "all",
-      "n": 10,
-      "ttfb_token_avg_ms": 7316,
-      "ttfb_token_p95_ms": 9844,
-      "total_avg_ms": 7393,
-      "total_p95_ms": 9861
+      "n": 14,
+      "ttfb_token_avg_ms": 7137,
+      "ttfb_token_p95_ms": 13514,
+      "total_avg_ms": 7611,
+      "total_p95_ms": 14391
     }
   ]
 }

@@ -1,0 +1,121 @@
+{
+  "mode": "llm",
+  "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset_holdout.json",
+  "testset_kind": "holdout",
+  "measured_at": "2026-10-17T16:01:28",
+  "git_commit": "6a7cf8f",
+  "valid": true,
+  "sampled": true,
+  "sample_of_total": "45/109",
+  "sample_seed": 20261017,
+  "llm_calls": 41,
+  "llm_errors": 0,
+  "rate_limited_calls": 8,
+  "total": 45,
+  "accuracy": 1.0,
+  "per_intent": {
+    "after_sales": {
+      "total": 6,
+      "correct": 6,
+      "recall": 1.0
+    },
+    "faq": {
+      "total": 7,
+      "correct": 7,
+      "recall": 1.0
+    },
+    "human": {
+      "total": 5,
+      "correct": 5,
+      "recall": 1.0
+    },
+    "logistics": {
+      "total": 7,
+      "correct": 7,
+      "recall": 1.0
+    },
+    "order": {
+      "total": 5,
+      "correct": 5,
+      "recall": 1.0
+    },
+    "recommend": {
+      "total": 6,
+      "correct": 6,
+      "recall": 1.0
+    },
+    "smalltalk": {
+      "total": 9,
+      "correct": 9,
+      "recall": 1.0
+    }
+  },
+  "confusion": [],
+  "misclassified": [],
+  "by_feature": {
+    "lexical": {
+      "total": 15,
+      "correct": 15,
+      "accuracy": 1.0
+    },
+    "semantic": {
+      "total": 30,
+      "correct": 30,
+      "accuracy": 1.0
+    }
+  },
+  "order_no_accuracy": null,
+  "sampling_note": "本次为 109 条全集中的 45 条随机抽样（seed=20261017，可复现）——受免费额度窗口配额限制未跑全集，引用时必须写明是子集",
+  "rule_channel_reference": {
+    "accuracy": 0.3778,
+    "per_intent": {
+      "after_sales": {
+        "total": 6,
+        "correct": 3,
+        "recall": 0.5
+      },
+      "faq": {
+        "total": 7,
+        "correct": 3,
+        "recall": 0.4286
+      },
+      "human": {
+        "total": 5,
+        "correct": 2,
+        "recall": 0.4
+      },
+      "logistics": {
+        "total": 7,
+        "correct": 4,
+        "recall": 0.5714
+      },
+      "order": {
+        "total": 5,
+        "correct": 1,
+        "recall": 0.2
+      },
+      "recommend": {
+        "total": 6,
+        "correct": 2,
+        "recall": 0.3333
+      },
+      "smalltalk": {
+        "total": 9,
+        "correct": 2,
+        "recall": 0.2222
+      }
+    },
+    "by_feature": {
+      "lexical": {
+        "total": 15,
+        "correct": 9,
+        "accuracy": 0.6
+      },
+      "semantic": {
+        "total": 30,
+        "correct": 8,
+        "accuracy": 0.2667
+      }
+    }
+  }
+}

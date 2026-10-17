@@ -1,0 +1,119 @@
+{
+  "mode": "llm_only",
+  "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset_holdout.json",
+  "testset_kind": "holdout",
+  "measured_at": "2026-10-17T15:15:38",
+  "git_commit": "6a7cf8f",
+  "valid": true,
+  "sampled": true,
+  "sample_of_total": "45/109",
+  "sample_seed": 20261017,
+  "llm_calls": 45,
+  "llm_errors": 0,
+  "rate_limited_calls": 8,
+  "total": 45,
+  "accuracy": 0.9333,
+  "per_intent": {
+    "after_sales": {
+      "total": 6,
+      "correct": 6,
+      "recall": 1.0
+    },
+    "faq": {
+      "total": 7,
+      "correct": 7,
+      "recall": 1.0
+    },
+    "human": {
+      "total": 5,
+      "correct": 5,
+      "recall": 1.0
+    },
+    "logistics": {
+      "total": 7,
+      "correct": 5,
+      "recall": 0.7143
+    },
+    "order": {
+      "total": 5,
+      "correct": 4,
+      "recall": 0.8
+    },
+    "recommend": {
+      "total": 6,
+      "correct": 6,
+      "recall": 1.0
+    },
+    "smalltalk": {
+      "total": 9,
+      "correct": 9,
+      "recall": 1.0
+    }
+  },
+  "confusion": [
+    {
+      "truth": "order",
+      "pred": "faq",
+      "count": 1
+    },
+    {
+      "truth": "logistics",
+      "pred": "order",
+      "count": 1
+    },
+    {
+      "truth": "logistics",
+      "pred": "faq",
+      "count": 1
+    }
+  ],
+  "misclassified": [
+    {
+      "q": "我这个月的消费记录在哪里看",
+      "truth": "order",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "我下的那单是从哪个城市发出来的",
+      "truth": "logistics",
+      "pred": "order",
+      "feature": "lexical"
+    },
+    {
+      "q": "能改成周末再送吗",
+      "truth": "logistics",
+      "pred": "faq",
+      "feature": "semantic"
+    }
+  ],
+  "by_feature": {
+    "lexical": {
+      "total": 15,
+      "correct": 14,
+      "accuracy": 0.9333
+    },
+    "semantic": {
+      "total": 30,
+      "correct": 28,
+      "accuracy": 0.9333
+    }
+  },
+  "order_no_accuracy": null,
+  "sampling_note": "本次为 109 条全集中的 45 条随机抽样（seed=20261017，可复现）——受免费额度窗口配额限制未跑全集，引用时必须写明是子集",
+  "rule_channel_reference": {
+    "accuracy": 0.3556,
+    "by_feature": {
+      "lexical": {
+        "total": 15,
+        "correct": 9,
+        "accuracy": 0.6
+      },
+      "semantic": {
+        "total": 30,
+        "correct": 7,
+        "accuracy": 0.2333
+      }
+    }
+  }
+}

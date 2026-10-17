@@ -8,6 +8,7 @@
 import argparse
 import json
 import statistics
+import subprocess
 import sys
 import time
 import uuid
@@ -20,7 +21,12 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 RESULT_DIR = PROJECT_ROOT / "scripts" / "eval_results"
 
-# 覆盖两条主要路由：smalltalk（纯 LLM 生成）与 faq（RAG 检索 + LLM 生成）
+
+from _provenance import provenance  # noqa: E402  统一溯源字段
+
+# 覆盖三条主路由：smalltalk（1 次 LLM）/ faq（检索 + 1 次 LLM）/
+# recommend（导购：意图分类 + 偏好抽取 + 生成，**3 次串行 LLM**，线上最慢也最该测的一支，
+# 原实验四漏测——论文主角分支的延迟此前没有任何实测数据）
 QUESTIONS = [
     ("smalltalk", "你好"),
     ("smalltalk", "在吗"),
@@ -32,6 +38,10 @@ QUESTIONS = [
     ("faq", "溯源二维码怎么用"),
     ("faq", "秒杀活动怎么参加"),
     ("faq", "怎么修改收货地址"),
+    ("recommend", "有什么水果推荐"),
+    ("recommend", "50 元以内有什么好物"),
+    ("recommend", "哪种茶叶比较好"),
+    ("recommend", "帮我挑个送礼的"),
 ]
 
 
@@ -120,7 +130,8 @@ def main():
                 f"首token={row['ttfb_token_ms']}ms 整轮={row['total_ms']}ms 回复{row['reply_chars']}字"
             )
 
-    summary = [summarize([r for r in rows if r["group"] == g], g) for g in ("smalltalk", "faq")]
+    groups = sorted({r["group"] for r in rows})
+    summary = [summarize([r for r in rows if r["group"] == g], g) for g in groups]
     summary.append(summarize(rows, "all"))
 
     print("\n## AI 客服流式响应性能\n")
@@ -134,7 +145,20 @@ def main():
 
     RESULT_DIR.mkdir(exist_ok=True)
     out_path = RESULT_DIR / "latency_eval.json"
-    out_path.write_text(json.dumps({"detail": rows, "summary": summary}, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_path.write_text(
+        json.dumps(
+            {
+            **provenance(),
+                "rounds": args.rounds,
+                "llm_calls_per_branch": {"smalltalk": 1, "faq": 2, "recommend": 3},
+                "detail": rows,
+                "summary": summary,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     print(f"\n结果已写入：{out_path}")
 
 

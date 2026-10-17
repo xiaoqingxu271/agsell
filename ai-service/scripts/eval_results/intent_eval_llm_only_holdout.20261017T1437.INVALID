@@ -1,0 +1,589 @@
+{
+  "mode": "llm_only",
+  "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset_holdout.json",
+  "testset_kind": "holdout",
+  "measured_at": "2026-10-17T14:37:29",
+  "git_commit": "6a7cf8f",
+  "llm_calls": 109,
+  "total": 109,
+  "accuracy": 0.2661,
+  "per_intent": {
+    "after_sales": {
+      "total": 15,
+      "correct": 4,
+      "recall": 0.2667
+    },
+    "faq": {
+      "total": 20,
+      "correct": 11,
+      "recall": 0.55
+    },
+    "human": {
+      "total": 14,
+      "correct": 9,
+      "recall": 0.6429
+    },
+    "logistics": {
+      "total": 15,
+      "correct": 3,
+      "recall": 0.2
+    },
+    "order": {
+      "total": 15,
+      "correct": 0,
+      "recall": 0.0
+    },
+    "recommend": {
+      "total": 16,
+      "correct": 0,
+      "recall": 0.0
+    },
+    "smalltalk": {
+      "total": 14,
+      "correct": 2,
+      "recall": 0.1429
+    }
+  },
+  "confusion": [
+    {
+      "truth": "faq",
+      "pred": "__error__",
+      "count": 9
+    },
+    {
+      "truth": "order",
+      "pred": "__error__",
+      "count": 15
+    },
+    {
+      "truth": "logistics",
+      "pred": "__error__",
+      "count": 10
+    },
+    {
+      "truth": "logistics",
+      "pred": "faq",
+      "count": 2
+    },
+    {
+      "truth": "after_sales",
+      "pred": "logistics",
+      "count": 1
+    },
+    {
+      "truth": "after_sales",
+      "pred": "__error__",
+      "count": 10
+    },
+    {
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "count": 12
+    },
+    {
+      "truth": "human",
+      "pred": "__error__",
+      "count": 5
+    },
+    {
+      "truth": "recommend",
+      "pred": "__error__",
+      "count": 16
+    }
+  ],
+  "misclassified": [
+    {
+      "q": "签收之后发现坏了还能申请退款吗",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "平台上有带有机认证的商品吗",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "起订数量有要求吗",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "预售的商品什么时候才发货",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "支付方式里有花呗吗",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "可以备注不要放小票吗",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "你们发全国吗，新疆包邮不",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "同一款商品买三件有折扣吗",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "发票抬头开个人的可以吗",
+      "truth": "faq",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "我这个月的消费记录在哪里看",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我昨天下的单子还没付钱吧",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "帮我看看我买过几箱酸奶",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "我有几笔交易还没有完成",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我下过的单子给我列一下",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "那笔买给妈妈的蜂蜜帮我找找",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我上次买东西花了多少钱",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "订单 AGS202610050017 现在是什么情况",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "我申请退款的那笔单子订单号是多少",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "昨天在你们这儿买了两单，第一单是什么",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "看看我最近一次成交的时间和金额",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我在你们家总共消费了多少钱",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "帮我确认一下那单大闸蟹扣款成功了没",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我买过的那袋东北大米是什么规格来着",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "能不能把我全部购买记录导出发给我",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "我买的东西走到哪座城市了",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "包裹今天能到我家吗",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "东西寄出来了没有",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我那个件三天没动静了",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "什么时候上门取件",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "派送员的电话能给我吗",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "我下的那单是从哪个城市发出来的",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "签收记录上显示是谁签收的",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "还有多久才能到我这儿",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "快递现在是不是卡在分拨中心了",
+      "truth": "logistics",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "能改成周末再送吗",
+      "truth": "logistics",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "从山东到上海一般走几天",
+      "truth": "logistics",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "那单换新的寄出来了吗",
+      "truth": "after_sales",
+      "pred": "logistics",
+      "feature": "semantic"
+    },
+    {
+      "q": "坏了一个能给我补发吗",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "说好的三个工作日到账，现在第五天了",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我那个仅退款是被驳回了是吗",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "售后单 AS202610080002 处理到哪了",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "东西我已经寄回去了，接下来怎么走",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "理赔什么时候打款",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "退款已经发起但我还没收到",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "帮我撤销之前的退货申请",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "那单说好了给我补发，到现在没信儿",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "买的水果烂了三成，这个怎么算",
+      "truth": "after_sales",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "早啊",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "有人在么",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "哈哈，和你聊得挺开心",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我先去忙了哈",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "你是真人还是智能助手",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "你怎么称呼",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "今天可真热啊",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "谢谢啦，帮大忙了",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "行，我知道怎么弄了",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我刚吃完饭回来啦",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "你会讲笑话不",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "随便看看，先熟悉一下这个小程序",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "别自动回复了，让人来看",
+      "truth": "human",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "再不解决我要打 12315 了",
+      "truth": "human",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我要你们给我一个书面答复",
+      "truth": "human",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "这已经是第三次了，我不接受机器答复",
+      "truth": "human",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "把你们负责人的电话给我",
+      "truth": "human",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "家里来客人了，买点什么水果合适",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "有没有适合减脂期吃的粗粮",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "给孩子补维生素买什么好",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "预算八十块，能配一箱什么",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "甜的、水分大的那种橘子有吗",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "办公室当零食的东西推荐点",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "有没有比上次那款更耐放的油",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "过年走亲戚拎点什么体面",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "想买点下饭的小菜",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "帮我挑个不太甜的茶叶",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "有没有新上市的应季果子",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "30 块钱左右能买到什么坚果",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "第一次做饭，买点什么厨房常备",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "你帮我看看哪种红薯蒸着更糯",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "lexical"
+    },
+    {
+      "q": "送孕妇吃什么合适",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "有没有做辅食用的南瓜",
+      "truth": "recommend",
+      "pred": "__error__",
+      "feature": "semantic"
+    }
+  ],
+  "by_feature": {
+    "lexical": {
+      "total": 32,
+      "correct": 7,
+      "accuracy": 0.2188
+    },
+    "semantic": {
+      "total": 77,
+      "correct": 22,
+      "accuracy": 0.2857
+    }
+  },
+  "order_no_accuracy": 1.0
+}

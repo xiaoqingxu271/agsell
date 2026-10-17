@@ -1,6 +1,6 @@
 """推荐召回评估：热销榜 vs 关键词 LIKE vs 向量语义召回（商品索引，生产一级通道）
 
-对 38 条人工标注导购问句（覆盖全部主营类目；标注 = 相关二级类目 + 可选价格上限），
+对 40 条人工标注导购问句（覆盖全部主营类目；标注 = 相关二级类目 + 可选价格上限），
 在同一在售商品池上跑三条召回通道，取各自 top-5 计算 Hit@1 / Hit@5 / P@5 / MRR，
 并统计类目覆盖率。关键词通道模拟生产二级降级路径（品类词 LIKE 商品名/副标题）；
 向量通道为真实 bge-small-zh + Chroma(product) 索引，与线上 ProductStore 完全同参。
@@ -15,6 +15,7 @@
 输出：控制台报告 + scripts/eval_results/recommend_eval.json
 """
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -24,6 +25,9 @@ sys.path.insert(0, str(PROJECT_ROOT))
 RESULT_DIR = PROJECT_ROOT / "scripts" / "eval_results"
 
 TOP_K_METRIC = 5
+
+
+from _provenance import provenance  # noqa: E402  统一溯源字段
 
 # 标注集：(问句, [相关二级类目], 关键词通道用的品类词(模拟抽取结果, None=无关键词), 价格上限)
 TESTSET: list[tuple[str, list[str], str | None, float | None]] = [
@@ -103,10 +107,18 @@ def lane_keyword(catalog, query, keyword, max_price):
 
 
 def lane_vector(store, catalog, query, keyword, max_price):
-    """真实语义召回（top 8），价格上限与 Java 二级一致：召回后按价过滤"""
+    """真实语义召回（top 8）+ 线上同款 min-score 闸门；价格上限与 Java 二级一致：召回后按价过滤
+
+    闸门必须与 recommend 节点一致，否则评测衡量的是"线上不会走的那条通道"。
+    """
+    from app.config import settings
+
     by_id = {p["id"]: p for p in catalog}
-    ids = store.search_ids(query, top_k=8)
-    out = [by_id[i] for i in ids if i in by_id]
+    hits = [
+        h for h in store.search(query, top_k=8)
+        if h["score"] >= settings.REC_SEARCH_MIN_SCORE
+    ]
+    out = [by_id[h["id"]] for h in hits if h["id"] in by_id]
     if max_price is not None:
         out = [p for p in out if p["price"] <= max_price]
     return out
@@ -162,21 +174,28 @@ def evaluate_personalization_replay(store, catalog, items):
 
     对每条问句取向量召回 top-8，找"语义相关但排在第 4~8 名"的候选作目标商品
     （即纯语义通道错过 top-5 的商品）；模拟一个近期连购 3 件该商品同类目的用户
-    （偏好权重 1.0），同一份召回候选分别经 无偏好（基线）/ 有偏好（个性化）
-    的 final_scores 重排，对比目标商品进入 top-5 的比例与平均名次变化。
+    （偏好权重 1.0），同一份召回候选分别经 无偏好（基线）/ 有偏好（个性化）重排，
+    对比目标商品进入 top-5 的比例与平均名次变化。
 
-    与线上重排完全同公式（personalize.final_scores），差异仅在是否叠加历史偏好。
+    与线上重排完全同函数（personalize.score_products，三条链路共用的唯一实现），
+    差异仅在是否叠加历史偏好；口碑/新鲜度数据不在离线池里，两侧同为常数，不影响名次对比。
     """
     from app.config import settings
-    from app.rag.personalize import final_scores
+    from app.rag.personalize import score_products
 
     by_id = {p["id"]: p for p in catalog}
+    # 与线上同口径：销量按全库在售最大销量归一，而非当前候选集内部最大值
+    sales_max = max((p["sales"] for p in catalog), default=0)
     eligible = 0
     promoted = 0
     rank_deltas = []
     details = []
     for q, cats, kw, mp in items:
-        hits = store.search(q, top_k=8)
+        # 与线上同款闸门：低于阈值的召回线上根本不会进重排，模拟时也要先滤掉
+        hits = [
+            h for h in store.search(q, top_k=8)
+            if h["score"] >= settings.REC_SEARCH_MIN_SCORE
+        ]
         relevant_ranked = [
             h for h in hits
             if h["id"] in by_id
@@ -195,14 +214,14 @@ def evaluate_personalization_replay(store, catalog, items):
         sem = {h["id"]: h["score"] for h in hits}
 
         cat_of = {p["id"]: p["category"] for p in cand}
-        base_scores = final_scores(cand, sem, {}, cat_of)
-        pers_scores = final_scores(cand, sem, {tcat: 1.0}, cat_of)
 
-        def rank_at(scores):
-            order = sorted(cand, key=lambda p: -scores[p["id"]])
-            return [p["id"] for p in order].index(tid) + 1
+        def rank_at(pref):
+            ranked = score_products(
+                cand, sem_by_id=sem, pref_by_cat=pref, cat_by_id=cat_of, sales_max=sales_max
+            )
+            return [i["id"] for i in ranked].index(tid) + 1
 
-        r_base, r_pers = rank_at(base_scores), rank_at(pers_scores)
+        r_base, r_pers = rank_at({}), rank_at({tcat: 1.0})
         rank_deltas.append(r_base - r_pers)
         hit_now = r_pers <= TOP_K_METRIC
         promoted += 1 if hit_now else 0
@@ -218,6 +237,10 @@ def evaluate_personalization_replay(store, catalog, items):
         return {"samples": 0, "note": "测试集中无'语义第4~8名相关候选'可作重放样本"}
     return {
         "samples": n,
+        "nature": "机制验证（合成行为）：证明重排公式能把偏好类目商品推入 top-5，"
+                  "不构成个性化效果评估——目标商品由合成历史自身类目决定，"
+                  "被优化信号与判定标准同源，基线 0.0 是构造使然而非实测。"
+                  "效果口径需 A/B 或线上点击数据，本系统未采集。",
         "method": "模拟同类目连购3件的用户历史；同公式仅切换是否叠加偏好项",
         "hit_at_5_baseline": 0.0,  # 构造使然：目标商品基线全部在 top-5 之外
         "hit_at_5_personalized": round(promoted / n, 4),
@@ -253,9 +276,14 @@ def main():
         print_replay(replay)
         RESULT_DIR.mkdir(parents=True, exist_ok=True)
         out = RESULT_DIR / "recommend_eval.json"
-        out.write_text(json.dumps({"catalog_size": len(catalog), "results": results,
-                                   "personalization_replay": replay},
-                                  ensure_ascii=False, indent=2), encoding="utf-8")
+        out.write_text(json.dumps({
+            **provenance(),
+            "catalog_size": len(catalog),
+            "testset": {"queries": len(TESTSET), "authoring": "人工为每条查询标注可接受类目集合（单一 gold 集合，"
+                         "同类目下任意商品均计为命中；跨类目合理替代不计分）"},
+            "results": results,
+            "personalization_replay": replay,
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"\n结果已写入：{out}")
     finally:
         session.close()

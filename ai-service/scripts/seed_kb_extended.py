@@ -7,7 +7,9 @@
 2. category_knowledge —— 每个二级类目 1 条：该类目在售商品与价格带汇总。
 
 写 MySQL 后全量重建 FAQ 向量索引（与 POST /v1/admin/kb/index 同路径）。
-管理端 FAQ CRUD UI 现成，可按 category 筛出来逐条修订或停用。
+条目可通过 ai-service 的 /v1/admin/kb/faqs?category=product_knowledge 按类筛出逐条修订或停用；
+注意：管理后台（agsell-frontend）**尚无知识库维护页**，Java 侧也没有代理接口，
+目前只能通过该 HTTP 接口或本脚本维护。
 
 用法（ai-service 目录下）：
     DATABASE_URL="mysql+pymysql://root:root@127.0.0.1:3306/agsell?charset=utf8mb4" \

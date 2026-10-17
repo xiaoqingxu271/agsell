@@ -1,5 +1,15 @@
 {
+  "measured_at": "2026-10-17T16:14:52",
+  "git_commit": "6a7cf8f",
+  "worktree_dirty": true,
+  "dirty_files": 67,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "kb_gate": {
+    "out_of_domain_top1_mean": 0.3924,
+    "out_of_domain_top1_max": 0.5958
+  },
   "threshold": 0.5,
+  "threshold_margin": -0.0958,
   "out_of_domain": {
     "queries": 12,
     "refused": 11,
@@ -84,5 +94,199 @@
     "false_refused": 0,
     "false_refusal_rate": 0.0,
     "detail": []
+  },
+  "rec_gate": {
+    "search_lane_min_score": 0.35,
+    "chat_lane_min_score": 0.47,
+    "chat_lane_ood_leak_rate": 0.0,
+    "chat_lane_in_domain_recall": 0.9,
+    "threshold_curve": [
+      {
+        "min_score": 0.35,
+        "ood_leak_rate": 0.6,
+        "in_domain_recall": 1.0
+      },
+      {
+        "min_score": 0.4,
+        "ood_leak_rate": 0.4,
+        "in_domain_recall": 1.0
+      },
+      {
+        "min_score": 0.45,
+        "ood_leak_rate": 0.3,
+        "in_domain_recall": 0.9
+      },
+      {
+        "min_score": 0.47,
+        "ood_leak_rate": 0.0,
+        "in_domain_recall": 0.9
+      },
+      {
+        "min_score": 0.5,
+        "ood_leak_rate": 0.0,
+        "in_domain_recall": 0.9
+      },
+      {
+        "min_score": 0.55,
+        "ood_leak_rate": 0.0,
+        "in_domain_recall": 0.8
+      }
+    ],
+    "out_of_domain": {
+      "queries": 10,
+      "leaked": 6,
+      "leak_rate": 0.6,
+      "top1_mean": 0.373,
+      "detail": [
+        {
+          "q": "推荐一部好看的电影",
+          "top1_score": 0.2621,
+          "top1_name": "带壳毛豆",
+          "passed": 0,
+          "leaked": false
+        },
+        {
+          "q": "有没有什么好用的手机壳",
+          "top1_score": 0.4532,
+          "top1_name": "带壳毛豆",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "帮我推荐几本考研的书",
+          "top1_score": 0.3271,
+          "top1_name": "章丘大葱",
+          "passed": 0,
+          "leaked": false
+        },
+        {
+          "q": "想买台笔记本电脑，选哪个",
+          "top1_score": 0.355,
+          "top1_name": "烟台红富士苹果",
+          "passed": 3,
+          "leaked": true
+        },
+        {
+          "q": "推荐个附近的健身房",
+          "top1_score": 0.4338,
+          "top1_name": "鸡胸肉 低脂",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "有没有好看的冬天外套",
+          "top1_score": 0.465,
+          "top1_name": "河套雪花粉",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "帮我挑一支口红",
+          "top1_score": 0.46,
+          "top1_name": "丹东红颜草莓",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "推荐几首好听的歌",
+          "top1_score": 0.2995,
+          "top1_name": "五常大米 东北稻花香",
+          "passed": 0,
+          "leaked": false
+        },
+        {
+          "q": "买什么牌子的好看电视剧",
+          "top1_score": 0.2825,
+          "top1_name": "夏威夷果",
+          "passed": 0,
+          "leaked": false
+        },
+        {
+          "q": "推荐一双跑步鞋",
+          "top1_score": 0.3916,
+          "top1_name": "金华火腿",
+          "passed": 8,
+          "leaked": true
+        }
+      ]
+    },
+    "in_domain_control": {
+      "queries": 10,
+      "leaked": 10,
+      "leak_rate": 1.0,
+      "top1_mean": 0.5533,
+      "detail": [
+        {
+          "q": "有什么水果推荐",
+          "top1_score": 0.5578,
+          "top1_name": "奉化水蜜桃",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "推荐点适合减脂期吃的粗粮",
+          "top1_score": 0.6362,
+          "top1_name": "芝麻糖",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "帮我挑个不太甜的茶叶",
+          "top1_score": 0.5594,
+          "top1_name": "云南普洱熟茶饼",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "有没有新上市的应季果子",
+          "top1_score": 0.5852,
+          "top1_name": "夏威夷果",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "30 块钱左右能买到什么坚果",
+          "top1_score": 0.5795,
+          "top1_name": "夏威夷果",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "送礼的茶叶哪种好",
+          "top1_score": 0.5372,
+          "top1_name": "云南普洱熟茶饼",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "想买点下饭的小菜",
+          "top1_score": 0.5585,
+          "top1_name": "梅干菜",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "过年走亲戚拎点什么体面",
+          "top1_score": 0.4152,
+          "top1_name": "手工空心挂面",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "有没有做辅食用的南瓜",
+          "top1_score": 0.5518,
+          "top1_name": "莜面 燕麦面",
+          "passed": 8,
+          "leaked": true
+        },
+        {
+          "q": "办公室当零食的东西推荐点",
+          "top1_score": 0.552,
+          "top1_name": "芝麻糖",
+          "passed": 8,
+          "leaked": true
+        }
+      ]
+    }
   }
 }

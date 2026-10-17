@@ -1,5 +1,11 @@
 {
+  "measured_at": "2026-10-17T14:43:26",
+  "git_commit": "6a7cf8f",
   "catalog_size": 202,
+  "testset": {
+    "queries": 40,
+    "authoring": "人工为每条查询标注可接受类目集合（单一 gold 集合，同类目下任意商品均计为命中；跨类目合理替代不计分）"
+  },
   "results": [
     {
       "channel": "hot",
@@ -4343,6 +4349,7 @@
   ],
   "personalization_replay": {
     "samples": 20,
+    "nature": "机制验证（合成行为）：证明重排公式能把偏好类目商品推入 top-5，不构成个性化效果评估——目标商品由合成历史自身类目决定，被优化信号与判定标准同源，基线 0.0 是构造使然而非实测。效果口径需 A/B 或线上点击数据，本系统未采集。",
     "method": "模拟同类目连购3件的用户历史；同公式仅切换是否叠加偏好项",
     "hit_at_5_baseline": 0.0,
     "hit_at_5_personalized": 0.95,
@@ -4535,8 +4542,8 @@
           "name": "鲍鱼 鲜货",
           "category": "贝类"
         },
-        "rank_baseline": 4,
-        "rank_personalized": 3,
+        "rank_baseline": 5,
+        "rank_personalized": 4,
         "entered_top5": true,
         "alpha": 0.25
       },

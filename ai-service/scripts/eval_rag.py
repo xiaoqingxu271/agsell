@@ -1,7 +1,15 @@
 """RAG 检索命中率评估：向量单路 vs 关键词单路 vs 双路合并（生产路径）
 
-对知识库中每条 FAQ 构造 2 条同义改写问句（共 72 条查询），
-分别测 hit@1 / hit@3 / MRR，另附 5 条域外问题验证相似度可分性。
+两个评测层（分开报告，不与彼此混算）：
+  platform_faq —— 对 36 条平台规则类 FAQ 逐条人工改写的 2 条同义问句（72 条查询）。
+                   人工改写刻意避开原句词面，难度高，是论文主口径。
+  product_kb   —— 知识库扩容后新增的商品域条目（202 条 product_knowledge + 42 条
+                   category_knowledge）的模板化查询。原实验只覆盖 36/280 条（13% 覆盖率），
+                   扩容后若不补测，"RAG 命中率"这个指标实际上描述的是一个 13% 子集。
+                   模板查询围绕答案字段（产地/储存/类目构成）构造，难度低于人工改写，
+                   数值天然偏高，只能作为覆盖率证据，不能与 platform_faq 混成一个数。
+
+另附域外问题观察 top-1 相似度可分性，并给出与拒答阈值的安全余量。
 
 用法（在 ai-service 目录下；本地开发请覆盖 DATABASE_URL 指向 127.0.0.1）：
     DATABASE_URL="mysql+pymysql://root:root@127.0.0.1:3306/agsell?charset=utf8mb4" \
@@ -11,6 +19,7 @@
 """
 import json
 import statistics
+import subprocess
 import sys
 from pathlib import Path
 
@@ -19,7 +28,11 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 RESULT_DIR = PROJECT_ROOT / "scripts" / "eval_results"
 
-# 每条 FAQ 的同义改写（下标 = ai_faq.id，生产库共 36 条）
+
+from _provenance import provenance  # noqa: E402  统一溯源字段
+
+
+# 每条 FAQ 的同义改写（下标 = ai_faq.id，平台规则类共 36 条）
 PARAPHRASES: dict[int, list[str]] = {
     1: ["这个平台是干嘛用的", "介绍一下你们平台是做什么的"],
     2: ["人工客服电话多少", "怎么找到真人服务"],
@@ -76,9 +89,30 @@ def load_faqs_from_db() -> list[dict]:
     with SessionLocal() as session:
         rows = faq_repo.list_enabled(session)
         return [
-            {"id": f.id, "question": f.question, "answer": f.answer, "keywords": f.keywords or ""}
+            {"id": f.id, "question": f.question, "answer": f.answer,
+             "category": f.category, "keywords": f.keywords or ""}
             for f in rows
         ]
+
+
+def check_paraphrase_ids_still_valid(faqs: list[dict]) -> list[str]:
+    """PARAPHRASES 是按 ai_faq.id 硬编码的，id 一旦漂移（重建库、雪花 ID 迁移、手工删行）
+    这份评测就会静默地"用 A 的问句去考 B 的答案"，Hit@1 数字看着正常但完全无意义。
+    因此每次运行前先比对：平台规则类条目的 id 集合是否与标注集一致，漂移就直接报错而不是出数。
+    """
+    by_id = {f["id"]: f for f in faqs}
+    problems: list[str] = []
+    for fid in PARAPHRASES:
+        f = by_id.get(fid)
+        if f is None:
+            problems.append(f"标注集引用的 id={fid} 在库中不存在（已被删除或未启用）")
+            continue
+        if f["category"] in ("product_knowledge", "category_knowledge"):
+            problems.append(
+                f"id={fid} 现在是 {f['category']}（「{f['question'][:24]}…」），"
+                f"但标注集仍按平台规则类问句考它——PARAPHRASES 的 id 已漂移"
+            )
+    return problems
 
 
 def keyword_channel(query: str, faqs: list[dict]) -> list[dict]:
@@ -103,14 +137,18 @@ def rank_metrics(ranked_ids: list[int], expected: int, k: int = 3) -> dict:
     return {"hit1": hit1, "hit3": hitk, "mrr": mrr}
 
 
-def channel_eval(name: str, rank_fn) -> dict:
+def channel_eval(name: str, rank_fn, mapping: dict[int, list[str]] | None = None) -> dict:
+    mapping = mapping if mapping is not None else PARAPHRASES
     rows = []
-    for fid, questions in PARAPHRASES.items():
+    for fid, questions in mapping.items():
         for q in questions:
             ranked = rank_fn(q)
             m = rank_metrics(ranked, fid)
             rows.append({"id": fid, "q": q, **m})
     n = len(rows)
+    if not n:
+        return {"channel": name, "queries": 0, "hit_at_1": None, "hit_at_3": None,
+                "mrr": None, "misses": []}
     return {
         "channel": name,
         "queries": n,
@@ -123,14 +161,49 @@ def channel_eval(name: str, rank_fn) -> dict:
     }
 
 
+def build_kb_lanes(faqs: list[dict]) -> dict[str, dict[int, list[str]]]:
+    """把知识库按 seed 脚本的条目形态切成两个评测层。
+
+    商品域条目的问句由模板生成（围绕答案实际字段：储存方式 / 产地 / 类目构成），
+    刻意不复用入库原句「「X」这个商品有什么特点？」，否则等于用原句检索原句。
+    """
+    import re
+
+    product: dict[int, list[str]] = {}
+    category: dict[int, list[str]] = {}
+    for f in faqs:
+        m = re.match(r"^「(.+)」这个商品有什么特点？$", f["question"])
+        if m:
+            name = m.group(1)
+            product[f["id"]] = [f"{name}怎么储存比较好", f"{name}是哪里产的"]
+            continue
+        m = re.match(r"^「(.+)」类目都有哪些商品？$", f["question"])
+        if m:
+            cat = m.group(1)
+            category[f["id"]] = [f"你们{cat}有多少种", f"{cat}这一类有什么可以选的"]
+    return {"product_kb": product, "category_kb": category}
+
+
 def main():
     from app.config import settings
     from app.rag.retriever import Retriever
     from app.rag.vectorstore import VectorStore
 
     faqs = load_faqs_from_db()
+    drift = check_paraphrase_ids_still_valid(faqs)
+    if drift:
+        print("⚠ 标注集 id 与知识库不一致，本次命中率数字不可用：")
+        for d in drift[:10]:
+            print("  -", d)
+        raise SystemExit(2)
     by_id = {f["id"]: f for f in faqs}
-    print(f"知识库 FAQ 数量：{len(faqs)}，改写查询：{sum(len(v) for v in PARAPHRASES.values())} 条")
+    lanes = build_kb_lanes(faqs)
+    kb_lanes = {"platform_faq": PARAPHRASES, **lanes}
+    covered = set(PARAPHRASES) | set(lanes["product_kb"]) | set(lanes["category_kb"])
+    print(
+        f"知识库启用条目：{len(faqs)} 条；评测覆盖 {len(covered)} 条"
+        f"（覆盖率 {len(covered) / len(faqs):.1%}）"
+    )
 
     vector_store = VectorStore(path=settings.VECTOR_DB_PATH, model=settings.EMBEDDING_MODEL)
     print(f"向量索引条数：{vector_store.count()}")
@@ -149,50 +222,84 @@ def main():
     def merged_ids(q: str) -> list[int]:
         return [h["id"] for h in retriever.retrieve(q, top_k=5)]
 
-    results = [
-        channel_eval("vector_only", vector_ids),
-        channel_eval("keyword_only", keyword_ids),
-        channel_eval("merged_dual_channel", merged_ids),
-    ]
-
+    results = {}
     print("\n## RAG 检索命中率评估\n")
-    print("| 召回通道 | 查询数 | Hit@1 | Hit@3 | MRR |")
-    print("|---|---|---|---|---|")
-    for r in results:
-        print(f"| {r['channel']} | {r['queries']} | {r['hit_at_1']:.1%} | {r['hit_at_3']:.1%} | {r['mrr']:.3f} |")
+    for lane, mapping in kb_lanes.items():
+        if not mapping:
+            continue
+        rows = [
+            channel_eval("vector_only", vector_ids, mapping),
+            channel_eval("keyword_only", keyword_ids, mapping),
+            channel_eval("merged_dual_channel", merged_ids, mapping),
+        ]
+        results[lane] = rows
+        note = "人工改写，论文主口径" if lane == "platform_faq" else "模板构造，覆盖率证据（难度低于人工改写）"
+        print(f"### {lane}（{note}）\n")
+        print("| 召回通道 | 查询数 | Hit@1 | Hit@3 | MRR |")
+        print("|---|---|---|---|---|")
+        for r in rows:
+            print(
+                f"| {r['channel']} | {r['queries']} | {r['hit_at_1']:.1%} | "
+                f"{r['hit_at_3']:.1%} | {r['mrr']:.3f} |"
+            )
 
-    # 域外相似度可分性
+    # 域外相似度可分性 + 与阈值的安全余量（知识库扩容后分布会上移，余量必须重新测）
     neg_scores = []
     pos_scores = []
     for q in NEGATIVE_QUERIES:
         hits = vector_store.query(q, top_k=1)
         if hits:
-            neg_scores.append(hits[0]["score"])
+            neg_scores.append((q, hits[0]["score"]))
     for qs in PARAPHRASES.values():
         hits = vector_store.query(qs[0], top_k=1)
         if hits:
             pos_scores.append(hits[0]["score"])
+    separability = None
     if neg_scores:
+        neg_vals = [s for _, s in neg_scores]
+        threshold = settings.KB_SCORE_THRESHOLD
+        above = [(q, s) for q, s in neg_scores if s >= threshold]
         print(
             f"\n域内查询 top-1 相似度均值：{statistics.mean(pos_scores):.3f}；"
-            f"域外查询 top-1 相似度均值：{statistics.mean(neg_scores):.3f}"
+            f"域外查询 top-1 相似度均值：{statistics.mean(neg_vals):.3f}，"
+            f"最大 {max(neg_vals):.3f}（阈值 {threshold}）"
         )
-        print("→ 两者分布可分，可据此设定拒答阈值（知识库不覆盖时引导转人工/重新提问）。")
+        if above:
+            print("→ ⚠ 域外问题 top-1 已达/超阈值：" +
+                  "；".join(f"「{q}」{s:.3f}" for q, s in above))
+        margin = threshold - max(neg_vals)
+        warn = "（余量已被知识库扩容吃掉，闸门处在临界状态）" if margin < 0.05 else ""
+        print(f"→ 阈值安全余量：{margin:.3f}{warn}")
+        separability = {
+            "in_domain_top1_mean": round(statistics.mean(pos_scores), 4),
+            "out_domain_top1_mean": round(statistics.mean(neg_vals), 4),
+            "out_domain_top1_max": round(max(neg_vals), 4),
+            "threshold": threshold,
+            "margin": round(margin, 4),
+            "above_threshold": [{"q": q, "score": round(s, 4)} for q, s in above],
+        }
 
-    for r in results:
-        if r["misses"]:
-            print(f"\n[{r['channel']}] 未命中样本（{len(r['misses'])} 条，最多展示 10 条）：")
-            for m in r["misses"][:10]:
-                print(f"  - [{m['id']}] {m['q']} → 期望命中「{by_id[m['id']]['question']}」")
+    for lane, rows in results.items():
+        for r in rows:
+            if r["misses"]:
+                print(f"\n[{lane}/{r['channel']}] 未命中样本（{len(r['misses'])} 条，最多展示 8 条）：")
+                for m in r["misses"][:8]:
+                    print(f"  - [{m['id']}] {m['q']} → 期望命中「{by_id[m['id']]['question']}」")
 
     RESULT_DIR.mkdir(exist_ok=True)
     out_path = RESULT_DIR / "rag_eval.json"
-    payload = {"faq_count": len(faqs), "channels": results}
-    if neg_scores:
-        payload["separability"] = {
-            "in_domain_top1_mean": round(statistics.mean(pos_scores), 4),
-            "out_domain_top1_mean": round(statistics.mean(neg_scores), 4),
-        }
+    payload = {
+            **provenance(),
+        "faq_count": len(faqs),
+        "covered_count": len(covered),
+        "coverage": round(len(covered) / len(faqs), 4),
+        "embedding_model": settings.EMBEDDING_MODEL,
+        "channels": results["platform_faq"],
+        "product_channels": results.get("product_kb", []),
+        "category_channels": results.get("category_kb", []),
+    }
+    if separability:
+        payload["separability"] = separability
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n结果已写入：{out_path}")
 

@@ -6,9 +6,9 @@
 
 | 组成 | 技术栈 | 说明 |
 |---|---|---|
-| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，32 个接口控制器，22 张数据表 |
-| 管理后台 | Vue 3 · Element Plus · Pinia · ECharts · Vite | 商品/订单/用户/营销/系统 15 个页面 |
-| 用户端 | uni-app（H5 + 微信小程序双端） | 23 个页面，完整购物与售后流程 |
+| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，35 个接口控制器，23 张数据表 |
+| 管理后台 | Vue 3 · Element Plus · Pinia · ECharts · Vite | 商品/订单/用户/营销/系统 15 个功能页（另含登录页与框架布局页） |
+| 用户端 | uni-app（H5 + 微信小程序双端） | 26 个页面，完整购物与售后流程 |
 | AI 智能客服 | FastAPI · LangGraph · RAG（ChromaDB + bge-small-zh）· OpenAI 兼容 LLM | 独立 Python 服务，SSE 流式回复 + 评价情感分析 |
 
 ## 系统架构
@@ -28,7 +28,7 @@
        ▼              ▼
 ┌────────────┐  ┌────────────┐
 │  MySQL 8   │  │   Redis    │
-│  20 张表    │  │ token/秒杀库存/优惠券 │
+│  23 张表    │  │ token/秒杀库存/优惠券 │
 └────────────┘  └────────────┘
 ```
 
@@ -121,23 +121,46 @@ uvicorn app.main:app --port 8000 --reload
 ## 测试
 
 ```bash
-# 后端：单元 + 并发集成测试（秒杀/优惠券超卖/支付并发防重复、售后全流程、短信/评价边界），共 29 个测试类 226+ 用例
+# 后端：单元 + 并发集成测试（秒杀/优惠券超卖/支付并发防重复、售后全流程、短信/评价边界），
+# 37 个测试类 / 286 个 @Test 用例（数字为静态计数，全量执行见 CI 的 ./mvnw -B verify）
 ./mvnw test
 
-# AI 服务：图路由 / RAG / 会话记忆 / SSE 流式接口 / 情感分析
+# AI 服务：图路由 / RAG / 会话记忆 / SSE 流式接口 / 情感分析 / 个性化重排
+# 2026-10-17 实测：138 passed（Python 3.14.6 + requirements.txt 全新 venv）
 cd ai-service && .venv/Scripts/python -m pytest tests -q
 ```
 
+> `.venv` 与创建它的解释器路径绑定：若换机器、换 Python 安装位置，或在别的目录下创建过，
+> `.venv/Scripts/python.exe` 会报 `did not find executable`（本项目 2026-10-17 就踩到过）。
+> 重建只需三步，不需要改代码：
+> ```bash
+> cd ai-service && rm -rf .venv && python -m venv .venv
+> .venv/Scripts/python -m pip install -r requirements.txt
+> # 本地跑实验还要覆盖 DATABASE_URL（.env 里的 host 是 Docker 专用的 host.docker.internal）
+> ```
+
 ### 量化实验（论文数据）
 
-四项核心指标的实测数据与结论见 [doc/量化实验报告.md](doc/量化实验报告.md)：
+六项核心指标的实测数据与结论见 [doc/量化实验报告.md](doc/量化实验报告.md)：秒杀高并发、意图识别准确率（含 hold-out 集与规则/大模型/生产三通道消融）、RAG 检索命中率（知识库全量 280 条覆盖）、AI 流式响应性能（含导购分支 3 次串行调用）、反幻觉闸门（知识库 + 导购两道，附阈值-风险曲线）、智能导购召回与个性化。所有 JSON 存档带 `measured_at` 与 `git_commit`，正文数字与存档同源。
 
 ```bash
-# 秒杀压测（100/500 并发 + HTTP 层，防超卖与 QPS，需本地 MySQL/Redis）
-./mvnw test "-Dtest=SeckillConcurrencyIT#concurrent_100users_vs_50stock+concurrent_500users_vs_200stock" -DfailIfNoTests=false
+# 秒杀压测（防超卖与 QPS，需本地 MySQL + Redis）
+# 注意：类名是 SeckillConcurrencyTest（不是 *IT，已纳入 mvnw verify）；
+# 500 并发档带 @EnabledIfSystemProperty(stress.test=true)，不加该参数不会执行
+./mvnw test -Dtest=SeckillConcurrencyTest -Dstress.test=true
 
-# 意图识别准确率 / RAG 命中率 / AI 流式延迟（脚本在 ai-service/scripts/eval_*.py）
-cd ai-service && .venv/Scripts/python scripts/eval_intent.py --mode keyword
+# AI 侧五项实验（脚本在 ai-service/scripts/eval_*.py）
+# 本地跑需覆盖 DATABASE_URL（.env 里的 host 是 Docker 专用的 host.docker.internal）
+cd ai-service
+export DATABASE_URL="mysql+pymysql://root:<密码>@127.0.0.1:3306/agsell?charset=utf8mb4"
+.venv/Scripts/python scripts/eval_intent.py --testset holdout --mode keyword    # 纯规则通道
+.venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm_only --workers 1   # 纯大模型
+.venv/Scripts/python scripts/eval_intent.py --testset holdout --mode ll --workers 1         # 生产路径
+.venv/Scripts/python scripts/eval_rag.py        # RAG 命中率（知识库全覆盖 280 条）
+.venv/Scripts/python scripts/eval_refusal.py    # 拒答率 + 导购闸门泄漏率
+.venv/Scripts/python scripts/eval_recommend.py  # 导购召回三通道 + 个性化重排回放
+# 流式延迟需先起服务：.venv/Scripts/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+.venv/Scripts/python scripts/eval_latency.py --rounds 2
 ```
 
 ## 目录结构
