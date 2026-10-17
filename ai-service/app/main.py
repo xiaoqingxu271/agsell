@@ -172,6 +172,15 @@ def health() -> HealthResponse:
     return HealthResponse(status="ok", model=settings.AGNES_MODEL)
 
 
+def _thread_id(req: ChatRequest) -> str:
+    """会话状态键：userId 命名空间 + 客户端会话号。
+
+    userId 由 Java 从 JWT 解析后携带（游客为空 → 'anon'），客户端无法伪造他人身份；
+    同一串 sessionId 在不同用户名下是两个互不可见的 thread。
+    """
+    return f"{req.userId if req.userId is not None else 'anon'}:{req.sessionId}"
+
+
 @app.post("/v1/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=None)) -> ChatResponse:
     # 阶段五：服务间鉴权——仅允许 Java 主系统（携带 X-Internal-Key）转发；
@@ -189,8 +198,10 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
                 "messages": [HumanMessage(content=req.message)],
                 "userId": req.userId,
             },
-            # 阶段四：以 sessionId 为 thread_id，多轮对话共享上下文
-            config={"configurable": {"thread_id": req.sessionId or "default"}},
+            # 阶段四：以 sessionId 为 thread_id，多轮对话共享上下文。
+            # 按服务端可信的 userId 加命名空间：sessionId 由客户端携带，
+            # 不加前缀时带上别人的 sessionId 就能接走对方的多轮上下文（含订单号、金额）。
+            config={"configurable": {"thread_id": _thread_id(req)}},
         )
         # 去除回复首尾空白（Agnes 常带前导换行，避免客户端气泡顶部空白）
         reply = (result["messages"][-1].content or "").strip()
@@ -198,7 +209,8 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
         return ChatResponse(sessionId=req.sessionId, reply=reply, suggestions=suggestions)
     except Exception as e:  # LLM 调用失败等
         logger.exception("AI 服务调用失败")
-        raise HTTPException(status_code=502, detail=f"AI 服务调用失败: {e}") from e
+        # 不带原始异常文本：这段 detail 会被 Java 记日志并可能转成用户可见文案
+        raise HTTPException(status_code=502, detail="AI 服务调用失败") from e
 
 
 # ---------- 阶段六：SSE 流式对话 ----------
@@ -287,8 +299,10 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
             "suggestions": suggestions,
         })
     except Exception as e:
+        # 错误帧只发 code：原始异常含模型名/网关/上游 URL，客户端按 code 查白名单文案，
+        # 细节只进服务端日志（logger.exception）
         logger.exception("AI 流式服务调用失败")
-        yield _sse("error", {"message": f"AI 服务暂时不可用，请稍后重试（{e}）"})
+        yield _sse("error", {"code": "ai_upstream"})
 
 
 @app.post("/v1/chat/stream")
@@ -302,7 +316,7 @@ async def chat_stream(req: ChatRequest, x_internal_key: str | None = Header(defa
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-    thread_config = {"configurable": {"thread_id": req.sessionId or "default"}}
+    thread_config = {"configurable": {"thread_id": _thread_id(req)}}
     return StreamingResponse(
         _chat_stream_events(req, thread_config),
         media_type="text/event-stream",

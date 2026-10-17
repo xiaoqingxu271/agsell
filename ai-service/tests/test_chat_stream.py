@@ -11,7 +11,7 @@ import os
 
 from fastapi.testclient import TestClient
 from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 
 from app.agent.graph import build_graph
@@ -114,3 +114,59 @@ def test_stream_fallback_when_llm_fails(monkeypatch):
     token_text = "".join(d.get("content", "") for e, d in events if e == "token")
     assert token_text.strip(), "降级场景下气泡不应为空"
     assert [e for e, _ in events][-1] == "done"
+
+
+def test_thread_id_namespaced_by_trusted_user(monkeypatch):
+    """同一 sessionId 落在不同用户名下必须是两个互不可见的 thread。
+
+    sessionId 由客户端携带，thread key 若不含服务端可信 userId，旁人带上别人的
+    会话号就能接走对方的多轮上下文（其中可能已有订单号、金额、售后状态）。
+    """
+    import app.main as main_mod
+    from app.schemas.chat import ChatRequest
+
+    assert main_mod._thread_id(ChatRequest(sessionId="s1", message="m")) == "anon:s1"
+    assert main_mod._thread_id(ChatRequest(sessionId="s1", message="m", userId=7)) == "7:s1"
+
+    graph = build_graph(
+        llm=GenericFakeChatModel(messages=iter([
+            AIMessage(content=INTENT_FAQ), AIMessage(content=REPLY_TEXT),  # 用户 7 一轮
+            AIMessage(content=INTENT_FAQ), AIMessage(content=REPLY_TEXT),  # 用户 8 一轮
+        ])),
+        retriever=_StubRetriever(),
+        checkpointer=MemorySaver(),
+    )
+    monkeypatch.setattr(main_mod, "get_graph", lambda: graph)
+    client = TestClient(main_mod.app)
+
+    _read_sse(client, {"sessionId": "shared", "message": "运费怎么算", "userId": 7})
+    _read_sse(client, {"sessionId": "shared", "message": "运费怎么算", "userId": 8})
+
+    def _humans(thread_id: str) -> int:
+        snapshot = graph.get_state({"configurable": {"thread_id": thread_id}})
+        return sum(1 for m in (snapshot.values or {}).get("messages", []) if isinstance(m, HumanMessage))
+
+    assert _humans("7:shared") == 1  # 各自只有本轮，未吸入对方的历史
+    assert _humans("8:shared") == 1
+
+
+def test_stream_error_frame_carries_only_code(monkeypatch):
+    """error 事件只发 code：异常文本（模型/网关/内部地址）绝不进用户端。
+
+    红线：依赖故障必须静默降级 + 友好话术，前端按 code 查白名单文案。
+    """
+
+    class BoomRetriever:
+        def retrieve(self, question, top_k=5):
+            raise RuntimeError("chroma 连接失败 http://127.0.0.1:8000/bge-large-zh 429")
+
+    llm = GenericFakeChatModel(messages=iter([AIMessage(content=INTENT_FAQ)]))
+    client = _client(monkeypatch, llm, checkpointer=MemorySaver(), retriever=BoomRetriever())
+
+    raw = _read_sse(client, {"sessionId": "t_err", "message": "运费怎么算", "userId": None})
+    events = _parse_events(raw)
+
+    err = next(d for e, d in events if e == "error")
+    assert err["code"] == "ai_upstream"
+    for leak in ("chroma", "127.0.0.1", "429", "bge-large"):
+        assert leak not in raw, f"内部细节泄漏到用户端：{leak}"
