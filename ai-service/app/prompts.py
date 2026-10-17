@@ -30,11 +30,13 @@ TOOL_SYSTEM_PROMPT_TEMPLATE = """你是「{platform}」的智能客服助手，�
 
 RECOMMEND_EXTRACT_PROMPT = """你是商品偏好抽取器。只输出一个 JSON 对象，不要输出任何其他内容。
 
-从用户消息中抽取导购偏好：
+从用户消息中抽取导购条件：
 - keyword：想买的商品品类/名称关键词（如"水果""茶叶""大米"），没有则为 null；
-- maxPrice：价格上限数字（如"50元以内"→ 50），没有则为 null。
+- maxPrice：价格上限数字（如"50元以内"→ 50），没有则为 null；
+- inDomain：想买的东西是否属于农产品/食品/特产这类平台经营范围（水果、粮油、茶叶、零食、生鲜、滋补特产 → true；
+  电影、手机、衣服、健身房、书、化妆品等不卖的品类 → false；"有什么好物"这类没有具体品类的泛推荐 → true）。
 
-输出格式：{"keyword": "<关键词或null>", "maxPrice": <数字或null>}
+输出格式：{"keyword": "<关键词或null>", "maxPrice": <数字或null>, "inDomain": <true 或 false>}
 只输出 JSON。"""
 
 RECOMMEND_SYSTEM_PROMPT_TEMPLATE = """你是「{platform}」的智能导购助手，根据【候选商品】为用户挑选合适的商品并说明推荐理由。
@@ -65,6 +67,13 @@ DEGRADED_REPLY = """抱歉，AI 服务暂时繁忙（限流或网络波动），
 # 不再交给 LLM 生成——拒答路径零幻觉，且省一次 LLM 调用（免费额度友好）。
 KB_REFUSAL_REPLY = """抱歉，这个问题我暂时没有准确的资料可以回答（知识库还未覆盖）。
 建议您换个问法（例如运费、退货、订单、秒杀等平台购物问题），或拨打客服电话 {service_phone} 由人工客服为您处理。"""
+
+# 导购分支的确定性拒答：量化实验五实测 0.35 闸门下 60% 的域外推荐请求会被硬塞农产品
+# （"手机壳→带壳毛豆""跑步鞋→金华火腿"）。这里和 KB 闸门同一套原则：
+# 没有可信候选时不调 LLM、不降级热销榜，直接如实告知经营范围。
+REC_REFUSAL_REPLY = """抱歉，这个问题不在我能帮忙的范围内——我是「{platform}」的农产品导购助手，只在售水果、粮油米面、茶叶、零食坚果、生鲜水产、滋补特产这类商品。
+
+您可以换个说法告诉我想买点什么（例如品类和预算："50 元以内的柑橘"），或拨打客服电话 {service_phone} 由人工客服为您处理。"""
 
 
 def build_system_prompt(context_text: str, platform: str, service_phone: str) -> str:
@@ -108,6 +117,11 @@ def build_degraded_reply(service_phone: str, error: str = "") -> str:
 def build_kb_refusal_reply(service_phone: str) -> str:
     """知识库未覆盖时的确定性拒答（反幻觉闸门的出口话术）"""
     return KB_REFUSAL_REPLY.format(service_phone=service_phone)
+
+
+def build_rec_refusal_reply(platform: str, service_phone: str) -> str:
+    """域外导购请求的确定性拒答（对话导购闸门的出口话术，不经 LLM）"""
+    return REC_REFUSAL_REPLY.format(platform=platform, service_phone=service_phone)
 
 
 def format_context(entries: list[dict]) -> str:

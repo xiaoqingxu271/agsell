@@ -1,11 +1,13 @@
-"""LangGraph 节点（阶段三；阶段六新增智能导购；导购升级为 RAG 商品召回优先）
+"""LangGraph 节点（阶段三 + 阶段六导购；本轮：偏好随意图一次产出 + 导购闸门与拒答出口）
 
 图结构：intent → 条件路由：
   faq        → faq_retrieve → generate
   order      → order_query → generate
   logistics  → logistics_query → generate
   after_sales→ after_sales_query → generate
-  recommend  → recommend_query → generate（导购：商品向量召回 → 关键词搜索 → 热销榜 三级降级）
+  recommend  → recommend_query → generate
+               （导购四级：商品向量语义召回 ≥REC_MIN_SCORE → 品类词 LIKE →
+                 明确域外则确定性拒答 → 否则热销榜兜底）
   smalltalk  → smalltalk → END
   human      → human_fallback → END
 
@@ -23,12 +25,13 @@ from langchain_core.messages import (
     trim_messages,
 )
 
-from app.agent.intent import classify_intent
+from app.agent.intent import classify_full
 from app.config import settings
 from app.prompts import (
     build_degraded_reply,
     build_human_fallback_reply,
     build_kb_refusal_reply,
+    build_rec_refusal_reply,
     build_recommend_extract_prompt,
     build_recommend_system_prompt,
     build_smalltalk_prompt,
@@ -41,13 +44,25 @@ from app.tools import java_api
 logger = logging.getLogger("agsell.ai.nodes")
 
 
-# ---------- 意图识别 ----------
+# ---------- 意图识别（同一次调用产出路由 + 导购偏好）----------
 def make_intent_node(llm):
     def intent_node(state: dict) -> dict:
         last = state["messages"][-1]
         question = last.content if isinstance(last, HumanMessage) else str(last.content)
-        intent, order_no = classify_intent(question, llm)
-        return {"intent": intent, "order_no": order_no}
+        d = classify_full(question, llm)
+        # 工具与偏好产物都是「本轮临时数据」，但 state 经 checkpointer 按 thread_id 跨轮持久化：
+        # 不在此重置，本轮走 FAQ 分支时 generate 会先读到上一轮的订单/推荐 JSON 当
+        # system prompt，既答非所问又会把上一轮隐私复述进无关话题。
+        return {
+            "intent": d.intent,
+            "order_no": d.order_no,
+            "tool_result": "",
+            "tool_type": "",
+            # 导购偏好随意图产出：省掉导购分支的一次串行 LLM 调用（实测首 token 19.2 s 的主因）
+            "rec_keyword": d.keyword,
+            "rec_max_price": d.max_price,
+            "rec_in_domain": d.in_domain,
+        }
 
     return intent_node
 
@@ -148,10 +163,16 @@ def make_after_sales_query_node(java_api_module=None):
     return after_sales_query_node
 
 
-# ---------- 智能导购（阶段六；步骤一升级为 RAG 商品召回优先）----------
-def _extract_preferences(question: str, llm) -> tuple[str | None, float | None]:
-    """从用户消息抽取（品类关键词, 价格上限）。LLM 失败返回 (None, None)，
-    导购节点随即降级为"按销量推荐热销商品"，路由与回复不中断。"""
+# ---------- 智能导购（语义召回 → 品类 LIKE → 域外拒答 → 热销兜底）----------
+def _extract_preferences(question: str, llm) -> tuple[str | None, float | None, bool | None]:
+    """独立偏好抽取——**仅作节点被单独调用时的兜底**。
+
+    生产链路里导购条件已随意图一次产出（见 make_intent_node），不再走这里；保留本函数是为了
+    ① 单测直接构造 recommend 节点时仍可用，② 意图节点被跳过时不至于没有偏好。
+    LLM 失败返回 (None, None, None)，语义是"没有判定"——下游按原三级降级处理，绝不据此拒答。
+    """
+    if llm is None:
+        return None, None, None
     try:
         response = llm.invoke([SystemMessage(content=build_recommend_extract_prompt(question))])
         text = (response.content or "").strip()
@@ -160,9 +181,10 @@ def _extract_preferences(question: str, llm) -> tuple[str | None, float | None]:
         keyword = data.get("keyword") or None
         max_price = data.get("maxPrice")
         max_price = float(max_price) if isinstance(max_price, (int, float)) else None
-        return (str(keyword).strip() or None) if keyword else None, max_price
+        in_domain = data.get("inDomain") if isinstance(data.get("inDomain"), bool) else None
+        return (str(keyword).strip() or None) if keyword else None, max_price, in_domain
     except Exception:
-        return None, None
+        return None, None, None
 
 
 def _reorder_by_recall(products: list[dict], recalled_ids: list[int]) -> list[dict]:
@@ -177,15 +199,24 @@ def make_recommend_node(java_api_module=None, llm=None, product_store=None, pers
     def recommend_query_node(state: dict) -> dict:
         last = state["messages"][-1]
         question = last.content if isinstance(last, HumanMessage) else str(last.content)
-        keyword, max_price = _extract_preferences(question, llm) if llm else (None, None)
 
-        # 一级：商品向量语义召回（整句进索引，"适合送礼的柑橘"这类描述也能命中）；
-        # 命中 id 后仍经 Java 接口取详情——在售过滤、价格区间与口碑注入口径与原来一致。
-        # 登录用户在召回序上叠加个性化重排（偏好/销量/好评）。
-        # 索引为空/召回失败不阻断，逐级降级到下方关键词/热销路径。
+        # 导购偏好优先取意图节点同轮产出；state 里没有这些键（节点被单独调用）才回退独立抽取
+        if "rec_in_domain" in state:
+            keyword = state.get("rec_keyword")
+            max_price = state.get("rec_max_price")
+            in_domain = state.get("rec_in_domain")
+        else:
+            keyword, max_price, in_domain = _extract_preferences(question, llm)
+
+        # ① 一级：商品向量语义召回（整句进索引，"适合送礼的柑橘"这类描述也能命中）。
+        #    对话侧用独立闸门 REC_MIN_SCORE（0.47），不是搜索框的 0.35——搜索框空结果能退回
+        #    全文检索，导购分支没有退路，阈值一松就把"手机壳"召回成"带壳毛豆"
+        #    （量化实验五实测：0.35 下 10 条域外推荐请求放行 6 条）。
+        #    命中 id 后仍经 Java 取详情（在售过滤/价格区间/口碑注入口径不变）；
+        #    登录用户叠加个性化重排；索引为空或召回失败不阻断，逐级降级。
         if product_store is not None:
             try:
-                hits = product_store.search(question)
+                hits = [h for h in product_store.search(question) if h["score"] >= settings.REC_MIN_SCORE]
                 recalled = [h["id"] for h in hits]
                 sem_by_id = {h["id"]: h["score"] for h in hits}
                 if recalled:
@@ -199,20 +230,34 @@ def make_recommend_node(java_api_module=None, llm=None, product_store=None, pers
             except Exception as e:
                 logger.warning("商品向量召回不可用，降级关键词/热销路径：%s", e)
 
-        # 二级：关键词 LIKE 搜索；三级：热销榜兜底
+        # ② 二级：品类词 LIKE。命中即推荐——"库里的确有这件商品"是正面证据，
+        #    优先于模型的经营域判断（宁可少拒一次，也不能把在卖的商品拒掉）。
         try:
-            products = api.search_products(keyword=keyword, max_price=max_price)
-            if not products and keyword:
-                # 品类词 LIKE 无命中（用户说"水果"，商品名是"赣南脐橙"）→ 降级热销榜，
-                # 并在上下文中注明原因，由生成节点如实引导
-                products = api.search_products(max_price=max_price)
+            if keyword:
+                products = api.search_products(keyword=keyword, max_price=max_price)
                 if products:
-                    note = f"（未找到与「{keyword}」直接匹配的商品，以下为热销候选，请如实向用户说明并引导其换个说法）"
-                    return {"tool_result": note + "\n" + api.format_payload(products), "tool_type": "recommend"}
+                    return {"tool_result": api.format_payload(products), "tool_type": "recommend"}
+        except java_api.JavaApiError as e:
+            return {"tool_result": f"查询商品失败：{e}", "tool_type": "error"}
+
+        # ③ 三级：大模型明确判定不属于本平台经营范围 → 确定性拒答。
+        #    不经 LLM、不降级热销榜（旧行为会给"推荐一双跑步鞋"硬端上金华火腿）。
+        #    in_domain 为 None（没拿到判定，例如 LLM 故障）时不拒答，行为与改动前一致。
+        if in_domain is False:
+            return {"tool_result": "", "tool_type": "recommend_refused"}
+
+        # ④ 四级：热销榜兜底
+        try:
+            products = api.search_products(max_price=max_price)
         except java_api.JavaApiError as e:
             return {"tool_result": f"查询商品失败：{e}", "tool_type": "error"}
         if not products:
             return {"tool_result": "未找到符合偏好的在售商品", "tool_type": "recommend"}
+        if keyword:
+            # 品类词 LIKE 无命中（用户说"水果"，商品名是"赣南脐橙"）→ 降级热销榜，
+            # 并在上下文中注明原因，由生成节点如实引导
+            note = f"（未找到与「{keyword}」直接匹配的商品，以下为热销候选，请如实向用户说明并引导其换个说法）"
+            return {"tool_result": note + "\n" + api.format_payload(products), "tool_type": "recommend"}
         return {"tool_result": api.format_payload(products), "tool_type": "recommend"}
 
     return recommend_query_node
@@ -266,6 +311,15 @@ def _build_messages(system_prompt: str, history: list, max_chars: int | None = N
 # ---------- 生成 ----------
 def make_generate_node(llm):
     def generate_node(state: dict) -> dict:
+        # 导购域外拒答：与知识库闸门同一套原则——没有可信候选时不经 LLM、不硬凑商品，
+        # 直接输出确定性话术（零幻觉、省一次调用、也不会编造商品）
+        if state.get("tool_type") == "recommend_refused":
+            return {
+                "messages": [AIMessage(content=build_rec_refusal_reply(
+                    platform=settings.PLATFORM_NAME, service_phone=settings.SERVICE_PHONE
+                ))],
+                "suggestions": list(_SUGGESTIONS["recommend"]),
+            }
         if state.get("tool_result"):
             if state.get("tool_type") == "recommend":
                 system_prompt = build_recommend_system_prompt(

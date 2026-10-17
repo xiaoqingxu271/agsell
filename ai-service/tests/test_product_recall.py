@@ -11,6 +11,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from app.agent.nodes import make_recommend_node
+from app.config import settings
 from app.rag.product_store import PRODUCT_COLLECTION, ProductStore, build_entry
 from app.rag.vectorstore import VectorStore
 
@@ -178,3 +179,79 @@ def test_recommend_falls_back_when_recall_raises():
     assert out["tool_type"] == "recommend"
     assert "五常大米" in out["tool_result"]  # 热销兜底，路由不中断
     assert any(c["ids"] is None for c in api.calls)
+
+
+class WeakScorePStore:
+    """相似度全在闸门之下：模拟"推荐部电影"这类域外问法（向量索引仍会给分）"""
+
+    def __init__(self, floor=None):
+        self.floor = floor if floor is not None else 0.2
+
+    def search(self, question, top_k=None):
+        return [{"id": 1, "score": self.floor}, {"id": 2, "score": round(self.floor - 0.03, 4)}]
+
+
+def test_recommend_gates_off_domain_query_out_of_vector_lane():
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore())
+    out = _run_node(node, question="推荐一部电影")
+    # 低于 REC_MIN_SCORE 的召回不作为语义命中：不进 id 通道，降级关键词/热销
+    assert all(c["ids"] is None for c in api.calls)
+    assert out["tool_type"] == "recommend"
+    assert "五常大米" in out["tool_result"]  # 无判定→热销兜底，绝不硬推语义无关商品
+
+
+def test_recommend_refuses_when_model_marks_out_of_domain():
+    """语义无强命中 + LIKE 无命中 + inDomain=false → 确定性拒答，不再降级热销榜。
+
+    量化实验五：0.35 闸门下 10 条域外推荐请求放行 6 条（"手机壳→带壳毛豆"）。
+    对话侧闸门独立为 0.47，并补上这个拒答出口。
+    """
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore(floor=0.44))
+    out = node({
+        "messages": [_Human("有没有好看的冬天外套")],
+        "rec_keyword": None, "rec_max_price": None, "rec_in_domain": False,
+    })
+    assert out["tool_type"] == "recommend_refused"
+    assert out["tool_result"] == ""
+    assert api.calls == []  # 一个商品都没查，没有把无关农产品端上桌
+
+
+def test_recommend_uses_chat_gate_not_search_gate():
+    """0.44 落在搜索框闸门(0.35)之上、对话闸门(0.47)之下：对话侧必须判为未命中。
+
+    两个闸门必须分开——搜索框空结果能退回全文检索，导购分支没有退路。
+    """
+    assert settings.REC_MIN_SCORE > settings.REC_SEARCH_MIN_SCORE
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore(floor=0.44))
+    out = _run_node(node, question="有什么好米推荐")
+    assert all(c["ids"] is None for c in api.calls)  # 未走语义 id 通道
+    assert out["tool_type"] == "recommend"  # 无判定 → 热销兜底
+
+
+def test_recommend_keeps_hits_at_or_above_gate():
+    api = ApiStub()
+
+    class EdgeStore:
+        def search(self, question, top_k=None):
+            floor = settings.REC_MIN_SCORE
+            return [{"id": 2, "score": floor}, {"id": 1, "score": round(floor - 0.01, 4)}]
+
+    node = make_recommend_node(api, llm=None, product_store=EdgeStore())
+    out = _run_node(node)
+    assert api.calls[0]["ids"] == [2]  # 阈值本身算命中（>=），临界下一档被滤掉
+    assert "赣南脐橙" in out["tool_result"]
+
+
+def test_recommend_prefers_like_hit_over_domain_label():
+    """品类词 LIKE 命中 = 库里确实在卖 → 即使模型说 inDomain=false 也照常推荐"""
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore())
+    out = node({
+        "messages": [_Human("推荐个附近的健身房")],
+        "rec_keyword": "水果", "rec_max_price": None, "rec_in_domain": False,
+    })
+    assert out["tool_type"] == "recommend"
+    assert "赣南脐橙" in out["tool_result"]

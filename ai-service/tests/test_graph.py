@@ -134,9 +134,12 @@ def test_keyword_fallback_classify():
 
 # ---------- 阶段六：智能导购 ----------
 def test_recommend_route_calls_java_api():
-    """导购：偏好抽取（水果/50元）→ 搜索 → 候选商品进入生成节点"""
+    """导购：偏好与意图同一次产出（水果/50 元）→ 搜索 → 候选商品进入生成节点"""
     api = FakeJavaApi()
-    result = _run_with_api("recommend", "帮我推荐50元以内的水果", api)
+    result = _run_with_api(
+        "recommend", "帮我推荐50元以内的水果", api,
+        prefs={"keyword": "水果", "maxPrice": 50, "inDomain": True},
+    )
     assert result["tool_type"] == "recommend"
     assert "赣南脐橙" in result["tool_result"]
     # 偏好被正确抽取并透传给搜索接口
@@ -147,39 +150,122 @@ def test_recommend_route_calls_java_api():
 
 
 def test_recommend_empty_result():
-    """品类词无命中 → 回退热销榜并在上下文注明原因（而非直接返回空）"""
+    """品类词无命中但属经营范围 → 回退热销榜并在上下文注明原因（而非直接返回空）"""
 
     class EmptyApi(FakeJavaApi):
         def search_products(self, keyword=None, min_price=None, max_price=None, limit=6):
             self.last_search = {"keyword": keyword, "min_price": min_price, "max_price": max_price, "limit": limit}
-            if keyword:  # 任何品类词都无命中（stub 抽取器返回 keyword="水果"）
+            if keyword:  # 任何品类词都无命中
                 return []
             return [{"id": 1, "name": "赣南脐橙", "price": 39.9, "sales": 500, "origin": "江西赣州"}]
 
     api = EmptyApi()
-    result = _run_with_api("recommend", "推荐点不存在的品类", api)
+    result = _run_with_api(
+        "recommend", "推荐点不存在的品类", api,
+        prefs={"keyword": "不存在的品类", "maxPrice": None, "inDomain": True},
+    )
     assert result["tool_type"] == "recommend"
     assert "未找到" in result["tool_result"]  # 原因说明
     assert "赣南脐橙" in result["tool_result"]  # 热销候选兜底
     assert api.last_search["keyword"] is None  # 第二次搜索已去掉品类词
 
 
-def test_recommend_prefs_fallback_when_llm_fails():
-    """偏好抽取 LLM 失败 → 降级为按销量推荐热销商品（keyword=None），路由不中断"""
+def test_recommend_out_of_domain_returns_deterministic_refusal():
+    """域外导购请求（"推荐一双跑步鞋"）：语义无命中 + LIKE 无命中 + 模型判定不属经营范围
+    → 确定性拒答，不经 LLM、不降级热销榜。
 
-    class NoPrefsLLM:
+    这是量化实验五的直接回归：0.35 闸门下 10 条域外请求放行 6 条，
+    旧行为会把"金华火腿"当跑步鞋推荐给用户。
+    """
+    calls = []
+
+    class RefuseApi(FakeJavaApi):
+        def search_products(self, keyword=None, min_price=None, max_price=None, limit=6):
+            calls.append(keyword)
+            return []  # 跑步鞋 LIKE 无命中
+
+    class ExplodingGenerateLLM:
+        """生成节点若被调用就炸——用来证明拒答路径一次 LLM 都没花"""
+
+        def invoke(self, messages):
+            for m in messages:
+                if isinstance(m, SystemMessage) and "意图识别器" in m.content:
+                    return AIMessage(content='{"intent": "recommend", "order_no": null,'
+                                             ' "keyword": "跑步鞋", "maxPrice": null, "inDomain": false}')
+            raise AssertionError("拒答路径不应调用生成 LLM")
+
+    graph = build_graph(
+        llm=ExplodingGenerateLLM(), retriever=StubRetriever(),
+        java_api_module=RefuseApi(), checkpointer=None,
+    )
+    result = graph.invoke({"messages": [HumanMessage(content="推荐一双跑步鞋")], "userId": 1})
+
+    assert result["tool_type"] == "recommend_refused"
+    assert calls == ["跑步鞋"]  # 查过 LIKE，确认库里没有
+    reply = result["messages"][-1].content
+    assert "农产品导购助手" in reply and "400-000-0000" in reply
+    assert "金华火腿" not in reply and "赣南脐橙" not in reply  # 绝不硬塞商品
+
+
+def test_recommend_no_judgement_keeps_hot_fallback():
+    """没有拿到经营域判定（inDomain 缺失/为 null，如 LLM 故障走兜底）时不得拒答，
+    行为与改动前一致：热销榜兜底，路由不中断。"""
+    api = FakeJavaApi()
+    result = _run_with_api("recommend", "推荐点东西", api)  # 意图 JSON 不含任何偏好字段
+    assert result["tool_type"] == "recommend"
+    assert api.last_search["keyword"] is None
+    assert "赣南脐橙" in result["tool_result"]
+
+
+def test_recommend_in_domain_vague_request_still_gets_hot_list():
+    """泛推荐需求（"有什么好物"，inDomain=true 且无品类词）属正常业务，继续给热销榜"""
+    api = FakeJavaApi()
+    result = _run_with_api(
+        "recommend", "有什么好物", api,
+        prefs={"keyword": None, "maxPrice": None, "inDomain": True},
+    )
+    assert result["tool_type"] == "recommend"
+    assert "赣南脐橙" in result["tool_result"]
+    assert "未找到" not in result["tool_result"]  # 没有品类词就不该编造"未找到"说明
+
+
+def test_recommend_like_hit_wins_over_out_of_domain_label():
+    """模型判 inDomain=false，但 LIKE 确实在卖这件商品 → 以正面证据为准，正常推荐不拒答"""
+
+    class SellsItApi(FakeJavaApi):
+        def search_products(self, keyword=None, min_price=None, max_price=None, limit=6):
+            self.last_search = {"keyword": keyword, "min_price": min_price, "max_price": max_price, "limit": limit}
+            if keyword == "鸡胸肉":
+                return [{"id": 3, "name": "鸡胸肉 低脂", "price": 25.0, "sales": 80, "origin": "山东"}]
+            return []
+
+    api = SellsItApi()
+    result = _run_with_api(
+        "recommend", "推荐个附近的健身房", api,
+        prefs={"keyword": "鸡胸肉", "maxPrice": None, "inDomain": False},
+    )
+    assert result["tool_type"] == "recommend"
+    assert "鸡胸肉 低脂" in result["tool_result"]
+
+
+def test_recommend_prefs_fallback_when_llm_fails():
+    """意图 LLM 整体失败 → 关键词兜底给出 recommend，偏好字段全空（= 没有判定）
+    → 按销量推荐热销商品，路由与回复都不中断（故障期行为与合并前一致）。"""
+
+    class BadLLM:
         def invoke(self, messages):
             content = m.content if isinstance(m := messages[0], SystemMessage) else ""
             if "意图识别器" in content:
-                return AIMessage(content='{"intent": "recommend", "order_no": null}')
+                raise RuntimeError("429 Too Many Requests")
             if "智能导购" in content:
                 return AIMessage(content="recommend_generated")
-            raise RuntimeError("偏好抽取挂了")
+            return AIMessage(content="no_context")
 
     api = FakeJavaApi()
-    graph = build_graph(llm=NoPrefsLLM(), retriever=StubRetriever(), java_api_module=api, checkpointer=None)
-    result = graph.invoke({"messages": [HumanMessage(content="推荐点东西")], "userId": 1})
-    assert api.last_search["keyword"] is None
+    graph = build_graph(llm=BadLLM(), retriever=StubRetriever(), java_api_module=api, checkpointer=None)
+    result = graph.invoke({"messages": [HumanMessage(content="有什么水果推荐")], "userId": 1})
+    assert result["intent"] == "recommend"  # 由关键词兜底保住路由
+    assert api.last_search["keyword"] is None  # 没有偏好判定
     assert "赣南脐橙" in result["tool_result"]
 
 
@@ -192,9 +278,12 @@ def test_recommend_keyword_fallback_classify():
     assert intent == "recommend"
 
 
-def _run_with_api(intent: str, message: str, api) -> dict:
+def _run_with_api(intent: str, message: str, api, prefs: dict | None = None) -> dict:
+    """prefs：导购偏好，现与意图在**同一次 LLM 调用**里产出（合并前是独立第二次调用）"""
+    payload = {"intent": intent, "order_no": None}
+    payload.update(prefs or {})
     graph = build_graph(
-        llm=make_llm(json.dumps({"intent": intent, "order_no": None}, ensure_ascii=False)),
+        llm=make_llm(json.dumps(payload, ensure_ascii=False)),
         retriever=StubRetriever(),
         java_api_module=api,
         checkpointer=None,
@@ -311,3 +400,48 @@ def test_llm_retry_param_present():
 
     assert settings.LLM_MAX_RETRIES >= 1
     assert settings.LLM_TIMEOUT > 0
+
+
+# ---------- 跨轮工具结果隔离（持久化 checkpointer 下的状态污染回归）----------
+def test_tool_result_not_carried_into_next_faq_turn():
+    """上一轮订单 JSON 不得污染下一轮 FAQ 问答：
+    state 经 checkpointer 按 thread_id 持久化，intent 节点若不清理 tool_result/tool_type，
+    FAQ 轮的生成节点会先读到上一轮订单数据当 system prompt（答非所问 + 复述上一轮隐私）。
+    """
+    from langgraph.checkpoint.memory import MemorySaver
+
+    prompts: list[str] = []
+
+    class TurnAwareLLM:
+        def invoke(self, messages):
+            last_human = [m for m in messages if isinstance(m, HumanMessage)][-1].content
+            for m in messages:
+                if not isinstance(m, SystemMessage):
+                    continue
+                if "意图识别器" in m.content:
+                    intent = "order" if "订单" in last_human else "faq"
+                    return AIMessage(content=json.dumps({"intent": intent, "order_no": None}))
+                if "知识库内容" in m.content or "查询结果" in m.content:
+                    prompts.append(m.content)
+                    return AIMessage(content="generated")
+            return AIMessage(content="generated")
+
+    graph = build_graph(
+        llm=TurnAwareLLM(),
+        retriever=StubRetriever(),
+        java_api_module=FakeJavaApi(),
+        checkpointer=MemorySaver(),
+    )
+    config = {"configurable": {"thread_id": "cross-turn"}}
+
+    r1 = graph.invoke({"messages": [HumanMessage(content="我的订单什么情况")], "userId": 1}, config)
+    assert r1["tool_type"] == "order"
+    assert "AGS202609180001" in r1["tool_result"]
+
+    prompts.clear()
+    r2 = graph.invoke({"messages": [HumanMessage(content="运费怎么算的")], "userId": 1}, config)
+    assert r2["intent"] == "faq"
+    assert not r2["tool_result"]  # 本轮无工具产物，不得残留上一轮
+    assert prompts and "知识库内容" in prompts[0]  # 生成节点用的是 FAQ 上下文
+    assert all("AGS202609180001" not in p for p in prompts)  # 订单号不进入本轮 prompt
+
