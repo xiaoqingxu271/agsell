@@ -197,6 +197,7 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
             {
                 "messages": [HumanMessage(content=req.message)],
                 "userId": req.userId,
+                "productId": req.productId,
             },
             # 阶段四：以 sessionId 为 thread_id，多轮对话共享上下文。
             # 按服务端可信的 userId 加命名空间：sessionId 由客户端携带，
@@ -206,7 +207,12 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
         # 去除回复首尾空白（Agnes 常带前导换行，避免客户端气泡顶部空白）
         reply = (result["messages"][-1].content or "").strip()
         suggestions = result.get("suggestions") or []
-        return ChatResponse(sessionId=req.sessionId, reply=reply, suggestions=suggestions)
+        return ChatResponse(
+            sessionId=req.sessionId,
+            reply=reply,
+            suggestions=suggestions,
+            items=result.get("rec_items") or [],
+        )
     except Exception as e:  # LLM 调用失败等
         logger.exception("AI 服务调用失败")
         # 不带原始异常文本：这段 detail 会被 Java 记日志并可能转成用户可见文案
@@ -244,6 +250,7 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
     """
     collected: list[str] = []
     suggestions: list[str] = []
+    items: list[dict] = []
     intent: str | None = None
     try:
         graph = get_graph()
@@ -251,6 +258,7 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
             {
                 "messages": [HumanMessage(content=req.message)],
                 "userId": req.userId,
+                "productId": req.productId,
             },
             thread_config,
             stream_mode=["messages", "updates"],
@@ -278,6 +286,11 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                         })
                     elif node_name in _STAGE_EVENTS:
                         yield _sse("status", {"stage": node_name})
+                        # 导购候选已确定：立刻下发结构化商品卡，让卡片与回复文本并行呈现，
+                        # 用户不用等 LLM 把话说完才能点进商品
+                        if out.get("rec_items"):
+                            items = out["rec_items"]
+                            yield _sse("items", {"items": items})
                     elif node_name in ("generate", "smalltalk", "human_fallback"):
                         if out.get("suggestions"):
                             suggestions = out["suggestions"]
@@ -292,11 +305,15 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
             if text:
                 collected.append(text)
                 yield _sse("token", {"content": text})
+            if not items:
+                items = (snapshot.values or {}).get("rec_items") or []
 
         yield _sse("done", {
             "sessionId": req.sessionId,
             "intent": intent,
             "suggestions": suggestions,
+            # done 也带一份：前端只监听 done 也能拿到卡片（items 事件可能被中途断开漏掉）
+            "items": items,
         })
     except Exception as e:
         # 错误帧只发 code：原始异常含模型名/网关/上游 URL，客户端按 code 查白名单文案，

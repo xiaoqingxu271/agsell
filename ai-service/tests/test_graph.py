@@ -445,3 +445,26 @@ def test_tool_result_not_carried_into_next_faq_turn():
     assert prompts and "知识库内容" in prompts[0]  # 生成节点用的是 FAQ 上下文
     assert all("AGS202609180001" not in p for p in prompts)  # 订单号不进入本轮 prompt
 
+
+
+# ---------- 提示词约束：语言与卡片顺序（端到端实测踩到的两个坑）----------
+def test_prompts_require_simplified_chinese():
+    """E2E 实测：商品问答首轮回复跑成了俄汉混排——新模板漏了语言约束。
+    生成类 prompt 必须显式要求简体中文，否则上游模型会随事实文本的语言漂移。"""
+    from app.prompts import (
+        PRODUCT_QA_SYSTEM_TEMPLATE,
+        RECOMMEND_SYSTEM_PROMPT_TEMPLATE,
+        SYSTEM_PROMPT_TEMPLATE,
+    )
+
+    for name, tpl in (("商品问答", PRODUCT_QA_SYSTEM_TEMPLATE),
+                      ("导购推荐", RECOMMEND_SYSTEM_PROMPT_TEMPLATE),
+                      ("知识库问答", SYSTEM_PROMPT_TEMPLATE)):
+        assert "简体中文" in tpl, name
+
+
+def test_recommend_prompt_requires_candidate_order():
+    """卡片按服务端相关度原序渲染，LLM 若跳着讲，用户看到的顺序就和话术对不上。"""
+    from app.prompts import RECOMMEND_SYSTEM_PROMPT_TEMPLATE
+
+    assert "候选顺序一致" in RECOMMEND_SYSTEM_PROMPT_TEMPLATE

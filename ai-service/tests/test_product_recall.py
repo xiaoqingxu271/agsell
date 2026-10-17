@@ -95,10 +95,18 @@ def test_product_store_rebuild_and_search(monkeypatch, tmp_path):
 
 
 # ---------- recommend 节点三级降级 ----------
+_DEFAULT_PRODUCT_ROW = {
+    "id": 900, "name": "赣南脐橙 10斤", "subtitle": "皮薄多汁", "price": 19.9,
+    "sales": 500, "origin": "江西赣州", "storage": "阴凉干燥处", "shelfLife": "7天",
+    "mainImage": "https://img/900.jpg",
+}
+
+
 class ApiStub:
-    def __init__(self, on_sale=True):
+    def __init__(self, product_row=_DEFAULT_PRODUCT_ROW):
         self.calls = []
-        self.on_sale = on_sale
+        # 商详页咨询上下文用：productId → 该商品的事实（None 表示已下架/不存在）
+        self.product_row = product_row
 
     def search_products(self, keyword=None, min_price=None, max_price=None, limit=6, ids=None):
         self.calls.append({"keyword": keyword, "max_price": max_price, "ids": ids})
@@ -114,6 +122,11 @@ class ApiStub:
         if keyword:
             return []
         return [{"id": 1, "name": "五常大米"}]  # 热销榜
+
+    def fetch_product(self, product_id):
+        """商详页进客服：Java 侧已过滤仅在售，下架/不存在返回 None"""
+        self.calls.append({"fetch_product": product_id})
+        return self.product_row
 
     def format_payload(self, data):
         return json.dumps(data, ensure_ascii=False)
@@ -255,3 +268,139 @@ def test_recommend_prefers_like_hit_over_domain_label():
     })
     assert out["tool_type"] == "recommend"
     assert "赣南脐橙" in out["tool_result"]
+
+
+# ---------- 结构化商品卡（rec_items）与商详页咨询上下文（product_qa）----------
+def _state(question="有什么好米推荐", **kw):
+    base = {"messages": [_Human(question)], "rec_keyword": None,
+            "rec_max_price": None, "rec_in_domain": None,
+            "product_context": "", "product_item": None, "rec_items": []}
+    base.update(kw)
+    return base
+
+
+def test_recommend_returns_structured_items_for_cards():
+    """导购命中时除文本外必须给出卡片数据：图片/价格/id 进了 LLM 文本就丢了，
+    用户看完推荐还得自己再搜一遍，导购链路在 UI 上等于断掉。"""
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=PStoreStub(ids=[2, 1]))
+    out = node(_state())
+    assert out["tool_type"] == "recommend"
+    assert [p["id"] for p in out["rec_items"]] == [2, 1]  # 与召回序一致，供前端按序渲染
+    assert '"五常大米"' in out["tool_result"]            # 文本仍是 LLM 组话术的依据
+
+
+def test_recommend_refusal_carries_no_items():
+    """域外拒答不能带任何商品卡——带了就等于把"跑步鞋→金华火腿"重新塞回去。"""
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore(floor=0.44))
+    out = node(_state("推荐一双跑步鞋", rec_in_domain=False))
+    assert out["tool_type"] == "recommend_refused"
+    assert out["rec_items"] == []
+
+
+def test_browsing_product_falls_to_product_qa_with_card():
+    """商详页进客服问"这个能放多久"：既无语义命中又无品类词，
+    默认指代就是他手上这件——按商品事实回答并给出该商品卡片，而不是热销榜或拒答。"""
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore())
+    out = node(_state("这个能放多久", productId=900))
+    assert out["tool_type"] == "product_qa"
+    assert [p["id"] for p in out["rec_items"]] == [900]
+    assert "储存方式：阴凉干燥处" in out["tool_result"]
+    assert "保质期：7天" in out["tool_result"]
+    assert {"fetch_product": 900} in api.calls
+
+
+def test_product_qa_beats_refusal_even_when_model_says_out_of_domain():
+    """有明确指代对象时优先回答这件商品，不因 inDomain=false 就拒答。"""
+    api = ApiStub()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore())
+    out = node(_state("这个适合送人吗", productId=900, rec_in_domain=False))
+    assert out["tool_type"] == "product_qa"
+
+
+def test_off_sale_product_falls_back_to_normal_lane():
+    """商品已下架（Java 过滤后为 None）→ 当作没有上下文，走原有三级降级，绝不报错。"""
+    api = ApiStub(product_row=None)
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore())
+    out = node(_state("这个能放多久", productId=900))
+    assert out["tool_type"] == "recommend"        # 无判定 → 热销兜底
+    assert out["product_item"] is None
+    assert out["rec_items"]
+
+
+def test_product_context_failure_is_silent():
+    """Java 取上下文失败不能拖垮聊天链路：降级为无商品上下文继续问答。"""
+
+    class BoomApi(ApiStub):
+        def fetch_product(self, product_id):
+            raise RuntimeError("java down")
+
+    api = BoomApi()
+    node = make_recommend_node(api, llm=None, product_store=WeakScorePStore())
+    out = node(_state("这个能放多久", productId=900))
+    assert out["product_context"] == ""
+    assert out["tool_type"] == "recommend"        # 退回热销兜底，用户无感
+
+
+# ---------- 生成节点：商品事实可以顶替"检索为空即拒答" ----------
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
+
+class _LLM:
+    def __init__(self):
+        self.seen = []
+
+    def invoke(self, messages):
+        self.seen = [m.content for m in messages if isinstance(m, SystemMessage)]
+        return AIMessage(content="generated")
+
+
+def test_faq_empty_but_browsing_product_answers_instead_of_refusing():
+    """知识库里查不到"这个能放多久"，但答案就在当前商品的事实里——
+    此时确定性拒答会把正确答案挡在门外，应改为基于商品事实由 LLM 回答。"""
+    from app.agent.nodes import make_generate_node
+
+    llm = _LLM()
+    node = make_generate_node(llm)
+    out = node({
+        "messages": [HumanMessage(content="这个能放多久")],
+        "intent": "faq", "tool_result": "", "tool_type": "",
+        "faq_context": [],
+        "product_context": "名称：赣南脐橙 10斤｜储存方式：阴凉干燥处｜保质期：7天",
+    })
+    assert out["messages"][-1].content == "generated"
+    assert "保质期：7天" in llm.seen[0]
+    assert "当前商品信息" in llm.seen[0]
+
+
+def test_faq_empty_and_no_product_still_refuses_deterministically():
+    """回归保护：没有商品上下文时，检索为空依旧是确定性拒答、不调 LLM。"""
+    from app.agent.nodes import make_generate_node
+
+    llm = _LLM()
+    node = make_generate_node(llm)
+    out = node({
+        "messages": [HumanMessage(content="今天股市怎么样")],
+        "intent": "faq", "tool_result": "", "tool_type": "",
+        "faq_context": [], "product_context": "",
+    })
+    assert "知识库还未覆盖" in out["messages"][-1].content
+    assert llm.seen == []          # 一次 LLM 都没花
+
+
+def test_faq_hit_prompt_carries_product_context():
+    """知识库命中且有商品上下文时，两者一起进 prompt，让"这个"有指代对象。"""
+    from app.agent.nodes import make_generate_node
+
+    llm = _LLM()
+    node = make_generate_node(llm)
+    node({
+        "messages": [HumanMessage(content="这个包邮吗")],
+        "intent": "faq", "tool_result": "", "tool_type": "",
+        "faq_context": [{"id": 1, "question": "运费怎么算？", "answer": "满 39 包邮", "score": 0.8}],
+        "product_context": "名称：赣南脐橙 10斤｜售价：19.9 元",
+    })
+    assert "满 39 包邮" in llm.seen[0]
+    assert "用户当前正在浏览的商品" in llm.seen[0]

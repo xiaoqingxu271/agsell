@@ -10,6 +10,14 @@
       </template>
     </NavBar>
 
+    <!-- 从商详页进线：明确告诉用户"这个"指的是哪件，并能一键取消该上下文 -->
+    <view v-if="contextProduct" class="ctx-bar">
+      <image class="ctx-img" :src="contextProduct.mainImage || '/static/default-product.png'" mode="aspectFill" />
+      <text class="ctx-label">正在咨询</text>
+      <text class="ctx-name">{{ contextProduct.name }}</text>
+      <text class="ctx-clear" @click="clearContext" role="button" aria-label="取消咨询该商品">✕</text>
+    </view>
+
     <!-- 消息列表（首屏即含欢迎消息：作为第一条 AI 消息保存，带客服头像） -->
     <scroll-view class="msg-list" scroll-y :scroll-into-view="scrollInto" scroll-with-animation>
       <text class="msg-date">{{ sessionTimeLabel }}</text>
@@ -33,6 +41,42 @@
             </view>
             <text v-else class="bubble-text" user-select>{{ msg.content }}</text>
             <text v-if="msg.streaming && msg.content" class="stream-cursor">▍</text>
+          </view>
+
+          <!-- 导购推荐结果：可点击商品卡（图片/价格/产地/口碑），点卡进详情、点＋直接加购。
+               没有卡片时用户看完推荐还得自己再去搜一遍，导购链路在 UI 上等于断掉。 -->
+          <view v-if="msg.items && msg.items.length" class="rec-list">
+            <view
+              v-for="p in msg.items"
+              :key="p.id"
+              class="rec-card"
+              hover-class="rec-card-hover"
+              :hover-stay-time="120"
+              @click="goProduct(p)"
+              role="button"
+              :aria-label="'查看 ' + p.name"
+            >
+              <image class="rec-img" :src="p.mainImage || '/static/default-product.png'" mode="aspectFill" lazy-load />
+              <view class="rec-in">
+                <text class="rec-nm">{{ p.name }}</text>
+                <view class="rec-tags">
+                  <text v-if="p.origin" class="rec-tag tg">{{ p.origin }}</text>
+                  <!-- 口碑只在确有评价时展示，零评价商品不谎称"好评率高" -->
+                  <text v-if="p.reviewCount && p.positiveRate" class="rec-tag tr">{{ p.positiveRate }}% 好评</text>
+                  <text v-for="(k, i) in (p.topKeywords || []).slice(0, 2)" :key="i" class="rec-tag tk">{{ k }}</text>
+                </view>
+                <view class="rec-prow">
+                  <view class="rec-p">
+                    <text class="rec-p-i">¥</text>
+                    <text class="rec-p-b">{{ p.price }}</text>
+                  </view>
+                  <view class="rec-add" @click.stop="quickAdd(p)" role="button" aria-label="加入购物车">
+                    <wd-icon name="add" size="24rpx" custom-class="rec-add-ic" />
+                  </view>
+                </view>
+                <text class="rec-sold">已售 {{ p.sales || 0 }}</text>
+              </view>
+            </view>
           </view>
 
           <!-- 问题③：客服回答后的下一轮询问小贴士（气泡外 chips） -->
@@ -83,7 +127,9 @@ import { ref, computed, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../components/NavBar/NavBar.vue'
 import { sendAiChatStream } from '../../api/ai'
-import { isLoggedIn } from '../../utils/request'
+import { getProductDetail } from '../../api/product'
+import { addToCart } from '../../api/cart'
+import { isLoggedIn, wxLogin } from '../../utils/request'
 
 const messages = ref([])
 const draft = ref('')
@@ -91,6 +137,10 @@ const sending = ref(false)
 const scrollInto = ref('')
 const sessionId = ref('')
 const sessionTimeLabel = ref('')
+
+// 商详页进线时携带的商品上下文：整个会话期间随每条消息一起发给服务端，
+// 用户问"这个能放多久/适合送人吗"时才有明确指代对象
+const contextProduct = ref(null)
 
 // 会话号按登录身份持久化：服务端多轮记忆以 (userId, sessionId) 为 thread key，
 // 每次进页重随机会让历史 thread 永远命中不到，等于没有会话记忆
@@ -114,7 +164,7 @@ const userAvatar = computed(() => {
   return '/static/default-avatar.png'
 })
 
-onLoad(() => {
+onLoad((options) => {
   // 会话 ID：同一登录用户复用上次会话（服务端记忆以 userId+sessionId 为键）
   sessionId.value = resolveSessionId()
   const now = new Date()
@@ -126,7 +176,62 @@ onLoad(() => {
     content: '您好，我是 agsell AI 客服助手\n可以问我订单、物流、售后、平台规则等问题～',
     suggestions: [...quickQuestions]
   })
+  // 从商品详情页进来：先立起"正在咨询"条，再给一条该商品的快捷问题
+  const pid = String(options?.productId || '')
+  if (pid && pid !== 'undefined' && pid !== 'null') loadContextProduct(pid)
 })
+
+/**
+ * 取当前咨询商品（仅需登录外的公开详情接口）。
+ * 失败/下架一律静默忽略——聊天本身照常可用，绝不能因为上下文没取到就给用户报错。
+ */
+async function loadContextProduct(pid) {
+  try {
+    const res = await getProductDetail(pid)
+    if (res && res.code === 0 && res.data) {
+      contextProduct.value = {
+        id: res.data.id,
+        name: res.data.name,
+        mainImage: res.data.mainImage
+      }
+      const first = messages.value[0]
+      if (first && Array.isArray(first.suggestions)) {
+        first.suggestions = ['这个商品怎么样？', ...first.suggestions]
+      }
+    }
+  } catch (e) {
+    console.warn('商品上下文加载失败，按普通咨询继续', e)
+  }
+}
+
+function clearContext() {
+  contextProduct.value = null
+}
+
+/** 卡片点击：进对应商品详情页（与服务端下发的 id 一致，不自己拼链接格式） */
+function goProduct(p) {
+  if (!p || !p.id) return
+  uni.navigateTo({ url: `/pages/product/product?id=${p.id}` })
+}
+
+/** 卡片加购：与首页商卡同一接口，规格由后端取默认；未登录先静默登录 */
+async function quickAdd(p) {
+  if (!p || !p.id) return
+  try {
+    if (!isLoggedIn()) {
+      const ok = await wxLogin()
+      if (!ok) return
+    }
+    const res = await addToCart({ productId: p.id, specId: null, quantity: 1 })
+    uni.showToast({
+      title: res && res.code === 0 ? '已加入购物车' : (res && res.message) || '加购失败',
+      icon: res && res.code === 0 ? 'success' : 'none'
+    })
+  } catch (e) {
+    // 加购是聊天里的附加动作：网络/服务异常只提示，不打断对话
+    uni.showToast({ title: '网络异常，请稍后再试', icon: 'none' })
+  }
+}
 
 /** 当前登录身份键：换账号或登出后旧会话作废（绝不复用别人的 thread） */
 function currentOwnerKey() {
@@ -192,7 +297,7 @@ async function onSend() {
 
   sending.value = true
   // 预插入 AI 气泡：首 token 前显示打字动画，token 到达后逐字渲染
-  messages.value.push({ role: 'ai', content: '', suggestions: null, streaming: true })
+  messages.value.push({ role: 'ai', content: '', suggestions: null, items: null, streaming: true })
   const msg = messages.value[messages.value.length - 1]
 
   try {
@@ -206,6 +311,13 @@ async function onSend() {
         // 内部阶段事件（检索/业务查询中）不向用户展示，仅保持流解析完整
         scrollToBottom()
       },
+      // 候选一确定就渲染卡片，用户不用等 LLM 把话说完才能点进商品
+      onItems: (items) => {
+        if (items && items.length) {
+          msg.items = items
+          scrollToBottom()
+        }
+      },
       onDone: (d) => {
         msg.streaming = false
         // 兜底：流正常收尾但无内容（不应发生，防御性处理）
@@ -213,6 +325,8 @@ async function onSend() {
         if (d && d.suggestions && d.suggestions.length) {
           msg.suggestions = d.suggestions
         }
+        // items 事件若因中途断流没收到，done 里还有一份
+        if (!msg.items && d && d.items && d.items.length) msg.items = d.items
         scrollToBottom()
       },
       onError: (e) => {
@@ -224,7 +338,7 @@ async function onSend() {
         }
         scrollToBottom()
       }
-    })
+    }, contextProduct.value ? contextProduct.value.id : null)
   } catch (e) {
     console.warn('AI 客服流式请求失败', e)
     // 传输失败 / 业务失败（token 失效 40100 等）
@@ -344,6 +458,171 @@ async function onSend() {
   color: $uni-text-color;
   border-top-left-radius: 4rpx;
   box-shadow: $uni-shadow-sm;
+}
+
+/* 商详页咨询上下文条（品质电商风：细边框 + 缩略图，不抢消息区视觉） */
+.ctx-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 24rpx;
+  background: $uni-bg-color;
+  border-bottom: 2rpx solid $uni-border-color-divider;
+}
+
+.ctx-img {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 8rpx;
+  background: $uni-bg-color-img;
+  flex-shrink: 0;
+}
+
+.ctx-label {
+  font-size: 22rpx;
+  color: $uni-text-color-placeholder;
+  flex-shrink: 0;
+}
+
+.ctx-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: $uni-text-color;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ctx-clear {
+  font-size: 26rpx;
+  color: $uni-text-color-placeholder;
+  padding: 0 8rpx;
+}
+
+/* 导购推荐商品卡 */
+.rec-list {
+  width: 100%;
+  margin-top: 12rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.rec-card {
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx;
+  background: $uni-bg-color;
+  border: 2rpx solid $uni-border-color;
+  border-radius: 16rpx;
+  box-shadow: $uni-shadow-sm;
+}
+
+.rec-card-hover {
+  background: $uni-bg-color-hover;
+}
+
+.rec-img {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 12rpx;
+  background: $uni-bg-color-img;
+  flex-shrink: 0;
+}
+
+.rec-in {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.rec-nm {
+  font-size: 26rpx;
+  line-height: 36rpx;
+  color: $uni-text-color;
+  font-weight: 600;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.rec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+/* 标签配色沿用首页商卡同一套 token（描边式，不另造一套视觉语言）：
+   产地/服务=服务绿，好评率=品牌红，口碑词=灰 */
+.rec-tag {
+  font-size: 20rpx;
+  line-height: 28rpx;
+  padding: 0 8rpx;
+  border: 2rpx solid $uni-border-color;
+  border-radius: 6rpx;
+}
+
+.rec-tag.tg {
+  color: $uni-color-service;
+  border-color: $uni-color-service-100;
+}
+
+.rec-tag.tr {
+  color: $uni-color-primary;
+  border-color: $uni-color-primary-100;
+}
+
+.rec-tag.tk {
+  color: $uni-text-color-grey;
+  border-color: $uni-border-color;
+}
+
+.rec-prow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.rec-p {
+  display: flex;
+  align-items: baseline;
+  color: $uni-color-primary;
+}
+
+.rec-p-i {
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.rec-p-b {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.rec-add {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 10rpx;
+  background: $uni-color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+:deep(.rec-add-ic) {
+  color: $uni-text-color-inverse;
+}
+
+.rec-sold {
+  font-size: 20rpx;
+  color: $uni-text-color-placeholder;
 }
 
 /* 下一轮询问小贴士（气泡外 chips） */

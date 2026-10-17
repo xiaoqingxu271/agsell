@@ -364,8 +364,13 @@ function onGoCart() {
   uni.switchTab({ url: '/pages/cart/cart' })
 }
 
+/**
+ * 进客服并带上当前商品：用户在详情页点"客服"，问的几乎一定是"这个"——
+ * 不带 productId 时服务端无从知道"这个"是哪件，只能回一句知识库没覆盖。
+ */
 function onGoService() {
-  uni.navigateTo({ url: '/pages/ai-chat/chat' })
+  const id = productId.value
+  uni.navigateTo({ url: id ? `/pages/ai-chat/chat?productId=${id}` : '/pages/ai-chat/chat' })
 }
 
 function formatDate(dateStr) {

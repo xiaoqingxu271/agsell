@@ -31,6 +31,7 @@ from app.prompts import (
     build_degraded_reply,
     build_human_fallback_reply,
     build_kb_refusal_reply,
+    build_product_qa_prompt,
     build_rec_refusal_reply,
     build_recommend_extract_prompt,
     build_recommend_system_prompt,
@@ -62,6 +63,10 @@ def make_intent_node(llm):
             "rec_keyword": d.keyword,
             "rec_max_price": d.max_price,
             "rec_in_domain": d.in_domain,
+            # 商品上下文与卡片候选同样逐轮重置：上一轮咨询的商品不能渗进本轮无关问题
+            "product_context": "",
+            "product_item": None,
+            "rec_items": [],
         }
 
     return intent_node
@@ -85,13 +90,38 @@ def route_by_intent(state: dict) -> str:
     return "faq_retrieve"  # faq 及默认
 
 
+# ---------- 商详页咨询上下文（"这个"的指代对象）----------
+def load_product_context(state: dict, api_module) -> tuple[str, dict | None]:
+    """按 state.productId 取该在售商品的事实。
+
+    没有 productId、商品已下架、或 Java 侧不可用时一律返回 ("", None)——
+    聊天链路绝不因为"取上下文失败"而报错给用户，退回常规问答即可。
+    """
+    pid = state.get("productId")
+    if not pid:
+        return "", None
+    try:
+        item = api_module.fetch_product(int(pid))
+    except Exception as e:
+        logger.warning("商品上下文获取失败（忽略，退回常规问答）：productId=%s, %s", pid, e)
+        return "", None
+    if not item:
+        return "", None
+    return java_api.format_product_facts(item), item
+
+
 # ---------- FAQ 检索 ----------
-def make_faq_retrieve_node(retriever):
+def make_faq_retrieve_node(retriever, java_api_module=None):
+    api = java_api_module or java_api
+
     def faq_retrieve_node(state: dict) -> dict:
         last = state["messages"][-1]
         question = last.content if isinstance(last, HumanMessage) else str(last.content)
         entries = retriever.retrieve(question)
-        return {"faq_context": entries}
+        # 商品上下文与知识库检索无关，但必须在本轮取好：
+        # generate 靠它判断"检索为空"是真的没资料，还是用户在问手里这件商品
+        facts, item = load_product_context(state, api)
+        return {"faq_context": entries, "product_context": facts, "product_item": item}
 
     return faq_retrieve_node
 
@@ -208,6 +238,23 @@ def make_recommend_node(java_api_module=None, llm=None, product_store=None, pers
         else:
             keyword, max_price, in_domain = _extract_preferences(question, llm)
 
+        facts, item = load_product_context(state, api)
+
+        def _recommend(products: list[dict], note: str = "") -> dict:
+            """统一出口：文本给 LLM 组话术，结构化 rec_items 给小程序画可点击卡片。
+
+            只给文本是不够的——图片/价格/跳转 id 进了 prompt 就丢了，用户看完推荐
+            还得自己去搜一遍，导购链路在 UI 上等于断掉。
+            """
+            payload = api.format_payload(products)
+            return {
+                "tool_result": (note + "\n" + payload) if note else payload,
+                "tool_type": "recommend",
+                "rec_items": products,
+                "product_context": facts,
+                "product_item": item,
+            }
+
         # ① 一级：商品向量语义召回（整句进索引，"适合送礼的柑橘"这类描述也能命中）。
         #    对话侧用独立闸门 REC_MIN_SCORE（0.47），不是搜索框的 0.35——搜索框空结果能退回
         #    全文检索，导购分支没有退路，阈值一松就把"手机壳"召回成"带壳毛豆"
@@ -226,7 +273,7 @@ def make_recommend_node(java_api_module=None, llm=None, product_store=None, pers
                     if products:
                         if personalizer is not None:
                             products = personalizer.rerank(state.get("userId"), products, sem_by_id)
-                        return {"tool_result": api.format_payload(products), "tool_type": "recommend"}
+                        return _recommend(products)
             except Exception as e:
                 logger.warning("商品向量召回不可用，降级关键词/热销路径：%s", e)
 
@@ -236,29 +283,47 @@ def make_recommend_node(java_api_module=None, llm=None, product_store=None, pers
             if keyword:
                 products = api.search_products(keyword=keyword, max_price=max_price)
                 if products:
-                    return {"tool_result": api.format_payload(products), "tool_type": "recommend"}
+                    return _recommend(products)
         except java_api.JavaApiError as e:
-            return {"tool_result": f"查询商品失败：{e}", "tool_type": "error"}
+            return {"tool_result": f"查询商品失败：{e}", "tool_type": "error", "rec_items": []}
 
-        # ③ 三级：大模型明确判定不属于本平台经营范围 → 确定性拒答。
+        # ③ 三级：正在浏览某件商品时，"这个/这款"的默认指代就是它。
+        #    既无语义命中又无品类词，最可能的诉求就是"评价/适配这件商品"，
+        #    所以拿它自己当唯一候选来回答并附上卡片——而不是硬凑热销榜或直接拒答。
+        if item:
+            return {
+                "tool_result": facts,
+                "tool_type": "product_qa",
+                "rec_items": [item],
+                "product_context": facts,
+                "product_item": item,
+            }
+
+        # ④ 四级：大模型明确判定不属于本平台经营范围 → 确定性拒答。
         #    不经 LLM、不降级热销榜（旧行为会给"推荐一双跑步鞋"硬端上金华火腿）。
         #    in_domain 为 None（没拿到判定，例如 LLM 故障）时不拒答，行为与改动前一致。
         if in_domain is False:
-            return {"tool_result": "", "tool_type": "recommend_refused"}
+            return {"tool_result": "", "tool_type": "recommend_refused", "rec_items": []}
 
-        # ④ 四级：热销榜兜底
+        # ⑤ 五级：热销榜兜底
         try:
             products = api.search_products(max_price=max_price)
         except java_api.JavaApiError as e:
-            return {"tool_result": f"查询商品失败：{e}", "tool_type": "error"}
+            return {"tool_result": f"查询商品失败：{e}", "tool_type": "error", "rec_items": []}
         if not products:
-            return {"tool_result": "未找到符合偏好的在售商品", "tool_type": "recommend"}
+            return {
+                "tool_result": "未找到符合偏好的在售商品",
+                "tool_type": "recommend",
+                "rec_items": [],
+                "product_context": facts,
+                "product_item": item,
+            }
         if keyword:
             # 品类词 LIKE 无命中（用户说"水果"，商品名是"赣南脐橙"）→ 降级热销榜，
             # 并在上下文中注明原因，由生成节点如实引导
             note = f"（未找到与「{keyword}」直接匹配的商品，以下为热销候选，请如实向用户说明并引导其换个说法）"
-            return {"tool_result": note + "\n" + api.format_payload(products), "tool_type": "recommend"}
-        return {"tool_result": api.format_payload(products), "tool_type": "recommend"}
+            return _recommend(products, note=note)
+        return _recommend(products)
 
     return recommend_query_node
 
@@ -311,17 +376,28 @@ def _build_messages(system_prompt: str, history: list, max_chars: int | None = N
 # ---------- 生成 ----------
 def make_generate_node(llm):
     def generate_node(state: dict) -> dict:
+        tool_type = state.get("tool_type")
+        product_context = state.get("product_context") or ""
+
         # 导购域外拒答：与知识库闸门同一套原则——没有可信候选时不经 LLM、不硬凑商品，
         # 直接输出确定性话术（零幻觉、省一次调用、也不会编造商品）
-        if state.get("tool_type") == "recommend_refused":
+        if tool_type == "recommend_refused":
             return {
                 "messages": [AIMessage(content=build_rec_refusal_reply(
                     platform=settings.PLATFORM_NAME, service_phone=settings.SERVICE_PHONE
                 ))],
                 "suggestions": list(_SUGGESTIONS["recommend"]),
             }
-        if state.get("tool_result"):
-            if state.get("tool_type") == "recommend":
+
+        # 用户在商详页问"这个"：候选就是他正在看的这件商品，按商品事实回答
+        if tool_type == "product_qa":
+            system_prompt = build_product_qa_prompt(
+                facts=state.get("tool_result") or product_context,
+                platform=settings.PLATFORM_NAME,
+                service_phone=settings.SERVICE_PHONE,
+            )
+        elif state.get("tool_result"):
+            if tool_type == "recommend":
                 system_prompt = build_recommend_system_prompt(
                     context_text=state["tool_result"],
                     platform=settings.PLATFORM_NAME,
@@ -336,16 +412,27 @@ def make_generate_node(llm):
         else:
             context = state.get("faq_context") or []
             if not context:
-                # 反幻觉闸门：检索零命中/全部低于阈值 → 确定性拒答，不经 LLM、零幻觉、省额度
-                return {
-                    "messages": [AIMessage(content=build_kb_refusal_reply(settings.SERVICE_PHONE))],
-                    "suggestions": _suggestions_for(state),
-                }
-            system_prompt = build_system_prompt(
-                context_text=format_context(context),
-                platform=settings.PLATFORM_NAME,
-                service_phone=settings.SERVICE_PHONE,
-            )
+                # 反幻觉闸门：检索零命中/全部低于阈值 → 确定性拒答，不经 LLM、零幻觉、省额度。
+                # 例外：用户手里正看着一件商品（有商品事实可依据）时不该拒答——
+                # "这个能放多久"在知识库里查不到，但答案确实在手上这件商品的信息里。
+                if product_context:
+                    system_prompt = build_product_qa_prompt(
+                        facts=product_context,
+                        platform=settings.PLATFORM_NAME,
+                        service_phone=settings.SERVICE_PHONE,
+                    )
+                else:
+                    return {
+                        "messages": [AIMessage(content=build_kb_refusal_reply(settings.SERVICE_PHONE))],
+                        "suggestions": _suggestions_for(state),
+                    }
+            else:
+                system_prompt = build_system_prompt(
+                    context_text=format_context(context),
+                    platform=settings.PLATFORM_NAME,
+                    service_phone=settings.SERVICE_PHONE,
+                    product_context=product_context,
+                )
         messages = _build_messages(system_prompt, state["messages"])
         try:
             response = llm.invoke(messages)

@@ -227,6 +227,8 @@ public class AiInternalController {
             vo.setSales(p.getSales());
             vo.setOrigin(p.getOrigin());
             vo.setHarvestDate(p.getHarvestDate());
+            vo.setStorage(p.getStorage());
+            vo.setShelfLife(p.getShelfLife());
             vo.setMainImage(p.getMainImage());
             ReviewSummaryVO summary = ReviewSummaryVO.of(reviewsByProduct.get(p.getId()));
             vo.setReviewCount(summary.getTotal());

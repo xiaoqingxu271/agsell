@@ -170,3 +170,90 @@ def test_stream_error_frame_carries_only_code(monkeypatch):
     assert err["code"] == "ai_upstream"
     for leak in ("chroma", "127.0.0.1", "429", "bge-large"):
         assert leak not in raw, f"内部细节泄漏到用户端：{leak}"
+
+
+# ---------- 结构化商品卡：items 事件与 done.items ----------
+INTENT_RECOMMEND = json.dumps(
+    {"intent": "recommend", "order_no": None, "keyword": "水果", "maxPrice": None, "inDomain": True},
+    ensure_ascii=False,
+)
+_CARD = [{"id": 2, "name": "赣南脐橙", "price": 19.9, "mainImage": "https://img/2.jpg",
+          "origin": "江西赣州", "sales": 500, "reviewCount": 12, "positiveRate": 98.5}]
+
+
+class _RecommendApi:
+    def __init__(self):
+        self.search_calls = []
+
+    def search_products(self, keyword=None, min_price=None, max_price=None, limit=6, ids=None):
+        self.search_calls.append({"keyword": keyword, "ids": ids})
+        return list(_CARD)
+
+    def fetch_product(self, product_id):
+        return None
+
+    def format_payload(self, data):
+        return json.dumps(data, ensure_ascii=False)
+
+
+def _recommend_client(monkeypatch, api):
+    import app.main as main_mod
+
+    llm = GenericFakeChatModel(messages=iter([
+        AIMessage(content=INTENT_RECOMMEND),   # intent（含偏好，不再二次抽取）
+        AIMessage(content="给你挑了赣南脐橙"),   # generate
+    ]))
+    graph = build_graph(
+        llm=llm, retriever=_StubRetriever(), java_api_module=api,
+        checkpointer=MemorySaver(),
+    )
+    monkeypatch.setattr(main_mod, "get_graph", lambda: graph)
+    return TestClient(main_mod.app)
+
+
+def test_stream_emits_items_event_and_done_payload(monkeypatch):
+    """推荐命中时：候选一确定就下发 items 事件（卡片不必等 LLM 说完），done 也带一份兜底。"""
+    api = _RecommendApi()
+    client = _recommend_client(monkeypatch, api)
+
+    raw = _read_sse(client, {"sessionId": "t_items", "message": "有什么水果推荐", "userId": None})
+    events = _parse_events(raw)
+
+    items_events = [d for e, d in events if e == "items"]
+    assert items_events, "应有一条 items 事件"
+    assert items_events[0]["items"][0]["name"] == "赣南脐橙"
+    assert items_events[0]["items"][0]["mainImage"] == "https://img/2.jpg"
+
+    done = next(d for e, d in events if e == "done")
+    assert done["items"][0]["id"] == 2, "done 也带一份，前端只监听 done 也能渲染卡片"
+
+    # 卡片应在回复说完之前就到位：items 事件位置早于最后一个 token
+    names = [e for e, _ in events]
+    last_token_idx = max(i for i, e in enumerate(names) if e == "token")
+    assert names.index("items") < last_token_idx
+
+
+def test_sync_chat_returns_items(monkeypatch):
+    """同步接口同口径：非流式调用也要拿到 items，否则两条路会给出不同能力的回复。"""
+    api = _RecommendApi()
+    client = _recommend_client(monkeypatch, api)
+    os.environ["ALLOW_ANON_CHAT"] = "1"
+    try:
+        resp = client.post("/v1/chat", json={"sessionId": "t_sync", "message": "有什么水果推荐"})
+        assert resp.status_code == 200
+        body = resp.json()
+    finally:
+        os.environ.pop("ALLOW_ANON_CHAT", None)
+    assert body["items"][0]["name"] == "赣南脐橙"
+    assert "赣南脐橙" in body["reply"]
+
+
+def test_stream_no_items_for_non_recommend(monkeypatch):
+    """FAQ 分支不该出现 items 事件：卡片只属于导购结果，混进去会误导用户。"""
+    llm = GenericFakeChatModel(messages=iter([
+        AIMessage(content=INTENT_FAQ), AIMessage(content=REPLY_TEXT),
+    ]))
+    client = _client(monkeypatch, llm)
+    raw = _read_sse(client, {"sessionId": "t_faq_no_items", "message": "运费怎么算"})
+    names = [e for e, _ in _parse_events(raw)]
+    assert "items" not in names

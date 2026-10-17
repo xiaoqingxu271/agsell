@@ -8,6 +8,10 @@ class ChatRequest(BaseModel):
     sessionId: str = Field(..., description="会话 ID，由 Java 侧生成")
     message: str = Field(..., min_length=1, max_length=2000, description="用户消息")
     userId: int | None = Field(default=None, description="用户 ID（阶段三起使用）")
+    productId: int | None = Field(
+        default=None,
+        description="从商品详情页进客服时携带的商品 ID；Python 侧会复核该商品仅在售才作为问答上下文，下架即忽略",
+    )
 
 
 class ChatResponse(BaseModel):
@@ -15,6 +19,8 @@ class ChatResponse(BaseModel):
     reply: str
     # 阶段四：下一轮建议问题（小贴士），点击可直接发送
     suggestions: list[str] = Field(default_factory=list, description="下一轮建议问题")
+    # 导购推荐的结构化商品卡（与流式接口的 items 事件同口径），供前端渲染可点击卡片
+    items: list[dict] = Field(default_factory=list, description="推荐商品卡；非导购分支为空")
 
 
 class HealthResponse(BaseModel):

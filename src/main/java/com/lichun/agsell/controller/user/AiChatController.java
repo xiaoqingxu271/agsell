@@ -93,6 +93,11 @@ public class AiChatController {
         if (userId != null) {
             payload.set("userId", userId);
         }
+        // 商详页进客服时带上正在浏览的商品，Python 侧据此注入商品事实，
+        // "这个能放多久/适合送礼吗"这类指代问题才有依据可答
+        if (request.getProductId() != null) {
+            payload.set("productId", request.getProductId());
+        }
 
         // cn.hutool 的 HttpRequest 与 java.net.http.HttpRequest 简名冲突，这里用全限定名
         try (cn.hutool.http.HttpResponse response = cn.hutool.http.HttpRequest.post(aiBaseUrl + "/v1/chat")
@@ -124,6 +129,11 @@ public class AiChatController {
                     }
                 }
                 vo.setSuggestions(suggestions);
+            }
+            // 导购商品卡：结构原样透传（图片/价格/id 是给前端渲染用的，不进 LLM 文本）
+            cn.hutool.json.JSONArray itemArr = json.getJSONArray("items");
+            if (itemArr != null && !itemArr.isEmpty()) {
+                vo.setItems(new java.util.ArrayList<>(itemArr));
             }
             return ResultUtils.success(vo);
         } catch (BusinessException e) {
@@ -158,6 +168,11 @@ public class AiChatController {
         payload.set("message", request.getMessage());
         if (userId != null) {
             payload.set("userId", userId);
+        }
+        // 商详页进客服时带上正在浏览的商品，Python 侧据此注入商品事实，
+        // "这个能放多久/适合送礼吗"这类指代问题才有依据可答
+        if (request.getProductId() != null) {
+            payload.set("productId", request.getProductId());
         }
 
         SseEmitter emitter = new SseEmitter(SSE_TIMEOUT_MS);

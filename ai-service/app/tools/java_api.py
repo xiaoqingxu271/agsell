@@ -93,6 +93,48 @@ def search_products(
     return data or []
 
 
+def fetch_product(product_id: int) -> dict | None:
+    """取单个在售商品的事实（商详页进客服时的上下文来源）。
+
+    复用导购搜索接口的 ids 通道：Java 侧已过滤"仅在售"，因此下架/不存在的商品返回 None，
+    聊天页随之退回到"无商品上下文"的常规问答，不会拿着一个买不到的商品跟用户聊。
+    """
+    if not product_id:
+        return None
+    items = search_products(ids=[product_id], limit=1)
+    return items[0] if items else None
+
+
+def format_product_facts(item: dict) -> str:
+    """商品 VO → 给 LLM 看的一行事实（严禁编造的锚点，也是"这个"的指代对象）。
+
+    只带可核对的字段：名称/价格/产地/销量/采摘日期/储存/保质期/口碑。
+    口碑遵循既有诚实口径：reviewCount 为 0/缺失时不输出好评率，避免把先验当实测宣称。
+    """
+    if not item:
+        return ""
+    parts = [f"名称：{item.get('name')}"]
+    if item.get("price") is not None:
+        parts.append(f"售价：{item.get('price')} 元")
+    if item.get("subtitle"):
+        parts.append(f"卖点：{item.get('subtitle')}")
+    if item.get("origin"):
+        parts.append(f"产地：{item.get('origin')}")
+    if item.get("harvestDate"):
+        parts.append(f"采摘/收获日期：{item.get('harvestDate')}")
+    if item.get("storage"):
+        parts.append(f"储存方式：{item.get('storage')}")
+    if item.get("shelfLife"):
+        parts.append(f"保质期：{item.get('shelfLife')}")
+    if item.get("sales") is not None:
+        parts.append(f"销量：{item.get('sales')}")
+    if item.get("reviewCount"):
+        parts.append(f"买家评价 {item.get('reviewCount')} 条，好评率 {item.get('positiveRate')}%")
+        if item.get("topKeywords"):
+            parts.append(f"买家高频好评词：{'、'.join(str(k) for k in item['topKeywords'])}")
+    return "｜".join(str(p) for p in parts)
+
+
 def format_payload(data: Any) -> str:
     """把工具结果转成给 LLM 看的紧凑 JSON 文本"""
     if data is None:

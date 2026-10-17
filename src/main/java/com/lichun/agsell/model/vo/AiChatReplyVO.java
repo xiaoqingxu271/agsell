@@ -19,4 +19,11 @@ public class AiChatReplyVO {
 
     /** 下一轮建议问题（小贴士），点击可直接发送 */
     private List<String> suggestions;
+
+    /**
+     * 导购推荐的结构化商品卡（id/名称/价格/主图/产地/销量/好评率/好评词）。
+     * 只有 reply 文本时，用户看完推荐还得自己去搜——导购链路在 UI 上等于断掉；
+     * 流式接口走 SSE 的 items 事件下发，本字段是同步接口的同口径出口。
+     */
+    private List<Object> items;
 }

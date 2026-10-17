@@ -42,7 +42,9 @@ def build_graph(llm, retriever=None, java_api_module=None, checkpointer=_DEFAULT
     """
     builder = StateGraph(AgentState)
     builder.add_node("intent", make_intent_node(llm))
-    builder.add_node("faq_retrieve", make_faq_retrieve_node(retriever))
+    # FAQ 分支也要能取商详页上下文（用户看着一件商品问"这个能放多久"），
+    # 因此把 Java 内部接口注入进来——取不到就退回常规问答，绝不因此报错
+    builder.add_node("faq_retrieve", make_faq_retrieve_node(retriever, java_api_module))
     builder.add_node("order_query", make_order_query_node(java_api_module))
     builder.add_node("logistics_query", make_logistics_query_node(java_api_module))
     builder.add_node("after_sales_query", make_after_sales_query_node(java_api_module))
