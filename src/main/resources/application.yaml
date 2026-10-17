@@ -86,4 +86,12 @@ ai-service:
   base-url: ${AI_SERVICE_BASE_URL:http://127.0.0.1:8000} # Python AI 服务地址
   # 必须由环境变量 AI_INTERNAL_KEY 注入，无默认值（缺失则启动失败，避免静默使用公开密钥）
   internal-key: ${AI_INTERNAL_KEY}
+  # AI 端点固定窗口限流（按登录用户，游客按客户端 IP）：Agnes 免费额度与 Python 单实例全站共享，
+  # 一个循环脚本即可在几十秒内烧光额度并拖垮演示，故在网关层设硬上限，超额不再转发。
+  # Redis 不可用时放行（限流是保护层，不阻断业务）；阈值可按演示需要上调，无需改代码。
+  rate-limit:
+    window-seconds: ${AI_RATE_LIMIT_WINDOW_SECONDS:60} # 窗口长度
+    chat-limit: ${AI_RATE_LIMIT_CHAT:20} # 对话（含流式）每主体每窗口次数
+    feed-limit: ${AI_RATE_LIMIT_FEED:60} # 首页推荐 feed（下拉刷新会连续触发，放宽）
+    view-limit: ${AI_RATE_LIMIT_VIEW:120} # 浏览足迹上报
 

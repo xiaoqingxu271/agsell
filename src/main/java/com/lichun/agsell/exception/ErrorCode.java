@@ -53,7 +53,9 @@ public enum ErrorCode {
     COUPON_SECKILL_FORBIDDEN(50026, "秒杀订单不可使用优惠券"),
     COUPON_SCOPE_NOT_MET(50027, "该优惠券仅限指定商品使用"),
     COUPON_DISCOUNT_INVALID(50028, "折扣券折扣率必须在 0~1 之间"),
-    COUPON_PRODUCT_EMPTY(50029, "品类券至少选择一个适用商品");
+    COUPON_PRODUCT_EMPTY(50029, "品类券至少选择一个适用商品"),
+    // AI 端点频控（Agnes 免费额度共享，超限提示要能直接展示给用户）
+    AI_RATE_LIMITED(42900, "发送有点频繁，请稍后再试");
 
     /**
      * 状态码
