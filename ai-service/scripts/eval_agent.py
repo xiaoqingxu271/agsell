@@ -238,11 +238,16 @@ def main():
         if len(cases) < len(scored) else ""
     )
 
-    # .env 里 DATABASE_URL 的 host.docker.internal 是 Docker 专用口径，本机直连要覆盖，
-    # 且必须在 app.config 被导入之前设置（settings 是模块级单例）
+    # .env 的 DATABASE_URL 里 host 是 Docker 专用的 host.docker.internal，本机直连要换掉。
+    # 只改 host、凭证一律沿用 .env——脚本里不写死任何账号密码，缺配置就直接拒绝出数而不是猜一份
     import os
 
-    os.environ["DATABASE_URL"] = "mysql+pymysql://root:root@127.0.0.1:3306/agsell?charset=utf8mb4"
+    from dotenv import load_dotenv
+
+    load_dotenv(PROJECT_ROOT / ".env")
+    if not os.environ.get("DATABASE_URL"):
+        raise SystemExit("缺少 DATABASE_URL：请在 ai-service/.env 里配置（本机跑要把 host 换成 127.0.0.1）")
+    os.environ["DATABASE_URL"] = os.environ["DATABASE_URL"].replace("host.docker.internal", "127.0.0.1")
     llm, retriever, product_store, personalizer = build_stack()
     from langchain_core.messages import HumanMessage
 
