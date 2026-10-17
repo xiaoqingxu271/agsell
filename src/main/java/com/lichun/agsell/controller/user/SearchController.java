@@ -7,8 +7,10 @@ import com.lichun.agsell.model.vo.ProductSearchVO;
 import com.lichun.agsell.service.HotWordService;
 import com.lichun.agsell.service.SearchService;
 import com.lichun.agsell.utils.ResultUtils;
+import com.lichun.agsell.utils.UserContextResolver;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,11 +27,15 @@ public class SearchController {
 
     private final SearchService searchService;
     private final HotWordService hotWordService;
+    private final UserContextResolver userContextResolver;
 
     @Operation(summary = "商品搜索（全文检索+高亮）")
     @GetMapping("/search")
-    public BaseResponse<Page<ProductSearchVO>> search(SearchRequest request) {
-        return ResultUtils.success(searchService.search(request));
+    public BaseResponse<Page<ProductSearchVO>> search(SearchRequest request, HttpServletRequest httpRequest) {
+        // /api/product/search 在 JWT 白名单里（游客可用），个性化用户必须取自 JWT 而非请求参数，
+        // 否则任何客户端都能带别人的 userId 蹭其偏好
+        Long userId = userContextResolver.resolveUserId(httpRequest);
+        return ResultUtils.success(searchService.search(request, userId));
     }
 
     @Operation(summary = "热门搜索词")

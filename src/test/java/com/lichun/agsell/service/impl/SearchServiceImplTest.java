@@ -68,7 +68,7 @@ class SearchServiceImplTest {
     void blankKeywordRejected() {
         for (String kw : new String[]{null, "", "   "}) {
             BusinessException ex = assertThrows(BusinessException.class,
-                    () -> searchService.search(buildRequest(kw)));
+                    () -> searchService.search(buildRequest(kw), null));
             assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
         }
         verifyNoInteractions(hotWordService);
@@ -81,7 +81,7 @@ class SearchServiceImplTest {
     void tooLongKeywordRejected() {
         String kw = "橙".repeat(51);
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> searchService.search(buildRequest(kw)));
+                () -> searchService.search(buildRequest(kw), null));
         assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
     }
 
@@ -95,7 +95,7 @@ class SearchServiceImplTest {
         when(productMapper.selectPage(any(Page.class), any())).thenReturn(page);
         when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = searchService.search(buildRequest("橙"));
+        Page<ProductSearchVO> result = searchService.search(buildRequest("橙"), null);
 
         assertEquals(1, result.getTotal());
         verify(productMapper).selectPage(any(Page.class), any());
@@ -108,79 +108,79 @@ class SearchServiceImplTest {
     @DisplayName("双字符关键词：走 FULLTEXT（searchByFulltext + countByFulltext）")
     void multiCharUsesFulltext() {
         Product p = mockProduct();
-        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12)))
+        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), anyList()))
                 .thenReturn(Collections.singletonList(p));
-        when(productSearchMapper.countByFulltext("脐橙", null)).thenReturn(1L);
+        when(productSearchMapper.countByFulltext("脐橙", null, List.of())).thenReturn(1L);
         when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"));
+        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"), null);
 
         assertEquals(1, result.getTotal());
         assertEquals(1, result.getRecords().size());
-        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12));
-        verify(productSearchMapper).countByFulltext("脐橙", null);
+        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), eq(List.of()));
+        verify(productSearchMapper).countByFulltext("脐橙", null, List.of());
         verifyNoInteractions(productMapper);
     }
 
     @Test
     @DisplayName("分页规整：pageNum<1 归 1，pageSize>50 压到 50，pageSize=0 归默认12")
     void paginationNormalized() {
-        when(productSearchMapper.countByFulltext(anyString(), any())).thenReturn(0L);
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(0L);
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
                 .thenReturn(Collections.emptyList());
 
         SearchRequest req = buildRequest("脐橙");
         req.setPageNum(0);
         req.setPageSize(999);
-        searchService.search(req);
+        searchService.search(req, null);
         // pageNum=0→1 => offset=0；pageSize=999→50
-        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(50));
+        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(50), eq(List.of()));
 
         SearchRequest req2 = buildRequest("脐橙");
         req2.setPageSize(0);
-        searchService.search(req2);
-        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12));
+        searchService.search(req2, null);
+        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), eq(List.of()));
     }
 
     @Test
     @DisplayName("分类过滤透传：categoryId 进入全文检索条件")
     void categoryIdPassed() {
-        when(productSearchMapper.countByFulltext(anyString(), any())).thenReturn(0L);
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(0L);
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
                 .thenReturn(Collections.emptyList());
 
         SearchRequest req = buildRequest("脐橙");
         req.setCategoryId(209L);
-        searchService.search(req);
+        searchService.search(req, null);
 
-        verify(productSearchMapper).searchByFulltext(eq("脐橙"), eq(209L), eq(""), eq(0L), eq(12));
-        verify(productSearchMapper).countByFulltext("脐橙", 209L);
+        verify(productSearchMapper).searchByFulltext(eq("脐橙"), eq(209L), eq(""), eq(0L), eq(12), eq(List.of()));
+        verify(productSearchMapper).countByFulltext("脐橙", 209L, List.of());
     }
 
     @Test
     @DisplayName("排序透传：sortBy=hot 进入全文检索")
     void sortByPassed() {
-        when(productSearchMapper.countByFulltext(anyString(), any())).thenReturn(0L);
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(0L);
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
                 .thenReturn(Collections.emptyList());
 
         SearchRequest req = buildRequest("脐橙");
         req.setSortBy("hot");
-        searchService.search(req);
+        searchService.search(req, null);
 
-        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq("hot"), eq(0L), eq(12));
+        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq("hot"), eq(0L), eq(12), eq(List.of()));
     }
 
     @Test
     @DisplayName("结果高亮：name/subtitle 命中关键词被 em 包裹")
     void highlightGenerated() {
         Product p = mockProduct();
-        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12)))
+        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), anyList()))
                 .thenReturn(List.of(p));
-        when(productSearchMapper.countByFulltext("脐橙", null)).thenReturn(1L);
+        when(productSearchMapper.countByFulltext("脐橙", null, List.of())).thenReturn(1L);
         when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"));
+        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"), null);
         ProductSearchVO vo = result.getRecords().get(0);
 
         assertEquals("赣南<em>脐橙</em> 新鲜当季", vo.getNameHighlight());
@@ -197,15 +197,15 @@ class SearchServiceImplTest {
         ftHit.setId(9L);
         ftHit.setName("普通橙子");
 
-        when(aiSearchClient.semanticProductIds("脐橙", 12)).thenReturn(List.of(1L));
+        when(aiSearchClient.semanticProductIds(eq("脐橙"), eq(12), isNull())).thenReturn(List.of(1L));
         when(productMapper.selectBatchIds(List.of(1L))).thenReturn(List.of(semHit));
         // 语义仅 1 条 < pageSize，用全文补足（id=9 不在语义集）
-        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12)))
+        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), isNull()))
                 .thenReturn(List.of(ftHit));
-        when(productSearchMapper.countByFulltext("脐橙", null)).thenReturn(5L);
+        when(productSearchMapper.countByFulltext(eq("脐橙"), isNull(), isNull())).thenReturn(5L);
         when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"));
+        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"), null);
 
         assertEquals(2, result.getRecords().size());
         assertEquals(1L, result.getRecords().get(0).getId());  // 语义命中排在前
@@ -216,29 +216,75 @@ class SearchServiceImplTest {
     @Test
     @DisplayName("AI 语义全空：完全退回全文检索路径")
     void semanticEmptyFallsBackToFulltext() {
-        when(aiSearchClient.semanticProductIds("脐橙", 12)).thenReturn(Collections.emptyList());
+        when(aiSearchClient.semanticProductIds(eq("脐橙"), eq(12), isNull())).thenReturn(Collections.emptyList());
         Product p = mockProduct();
-        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12)))
+        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), anyList()))
                 .thenReturn(List.of(p));
-        when(productSearchMapper.countByFulltext("脐橙", null)).thenReturn(1L);
+        when(productSearchMapper.countByFulltext("脐橙", null, List.of())).thenReturn(1L);
         when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"));
+        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"), null);
 
         assertEquals(1, result.getRecords().size());
         verify(productMapper, never()).selectBatchIds(anyList());
     }
 
     @Test
-    @DisplayName("翻页（pageNum>1）不走语义，直接全文检索")
-    void nextPageSkipsSemantic() {
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+    @DisplayName("翻页：语义不再置顶，但要拿语义首页那几条去重并把偏移回退")
+    void nextPageDeduplicatesSemanticHead() {
+        Product semHit = mockProduct();
+        semHit.setId(1L);
+        when(aiSearchClient.semanticProductIds(eq("脐橙"), eq(12), isNull())).thenReturn(List.of(1L));
+        when(productMapper.selectBatchIds(List.of(1L))).thenReturn(List.of(semHit));
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
                 .thenReturn(Collections.emptyList());
-        when(productSearchMapper.countByFulltext(anyString(), any())).thenReturn(0L);
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(23L);
 
         SearchRequest req = buildRequest("脐橙");
         req.setPageNum(2);
-        searchService.search(req);
+        req.setPageSize(12);
+        Page<ProductSearchVO> result = searchService.search(req, null);
+
+        // 虚拟列表 = 语义 k=1 条 + 全文去掉这 1 条；第 2 页偏移 = 12-1 = 11，并排除 id=1
+        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(11L), eq(12), eq(List.of(1L)));
+        verify(productSearchMapper).countByFulltext("脐橙", null, List.of(1L));
+        // total 口径与虚拟列表一致：1 + 23
+        assertEquals(24, result.getTotal());
+    }
+
+    @Test
+    @DisplayName("翻页时 AI 服务不可用：退回纯全文口径，不去重也不报错")
+    void nextPageWithoutAiKeepsPlainFulltext() {
+        when(aiSearchClient.semanticProductIds(eq("脐橙"), eq(12), isNull())).thenReturn(Collections.emptyList());
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
+                .thenReturn(Collections.emptyList());
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(24L);
+
+        SearchRequest req = buildRequest("脐橙");
+        req.setPageNum(2);
+        req.setPageSize(12);
+        Page<ProductSearchVO> result = searchService.search(req, null);
+
+        verify(productSearchMapper).searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(12L), eq(12), eq(List.of()));
+        assertEquals(24, result.getTotal());
+    }
+
+    @Test
+    @DisplayName("第 2 页起带分类过滤/排序：判据与首页一致，不触发语义去重")
+    void nonSemanticLanePagesDoNotCallAi() {
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
+                .thenReturn(Collections.emptyList());
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(0L);
+
+        SearchRequest byCategory = buildRequest("脐橙");
+        byCategory.setPageNum(2);
+        byCategory.setCategoryId(209L);
+        searchService.search(byCategory, null);
+
+        SearchRequest bySort = buildRequest("脐橙");
+        bySort.setPageNum(3);
+        bySort.setSortBy("hot");
+        searchService.search(bySort, null);
 
         verifyNoInteractions(aiSearchClient);
     }
@@ -246,13 +292,13 @@ class SearchServiceImplTest {
     @Test
     @DisplayName("带分类过滤时不走语义叠加，保持全文+分类口径")
     void categoryFilterSkipsSemantic() {
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
                 .thenReturn(Collections.emptyList());
-        when(productSearchMapper.countByFulltext(anyString(), any())).thenReturn(0L);
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(0L);
 
         SearchRequest req = buildRequest("脐橙");
         req.setCategoryId(209L);
-        searchService.search(req);
+        searchService.search(req, null);
 
         verifyNoInteractions(aiSearchClient);
     }
@@ -262,23 +308,23 @@ class SearchServiceImplTest {
     void hotWordFailureIsolated() {
         doThrow(new RuntimeException("db down")).when(hotWordService).record(anyString());
         Product p = mockProduct();
-        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12)))
+        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), anyList()))
                 .thenReturn(Collections.singletonList(p));
-        when(productSearchMapper.countByFulltext("脐橙", null)).thenReturn(1L);
+        when(productSearchMapper.countByFulltext("脐橙", null, List.of())).thenReturn(1L);
         when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"));
+        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"), null);
         assertEquals(1, result.getTotal());
     }
 
     @Test
     @DisplayName("无结果：返回空列表且 total=0，不抛异常")
     void emptyResult() {
-        when(productSearchMapper.countByFulltext(anyString(), any())).thenReturn(0L);
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+        when(productSearchMapper.countByFulltext(anyString(), any(), anyList())).thenReturn(0L);
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
                 .thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = searchService.search(buildRequest("不存在的商品"));
+        Page<ProductSearchVO> result = searchService.search(buildRequest("不存在的商品"), null);
         assertEquals(0, result.getTotal());
         assertTrue(result.getRecords().isEmpty());
     }
@@ -287,7 +333,7 @@ class SearchServiceImplTest {
     @DisplayName("全文检索异常（如 FULLTEXT 索引缺失）：降级 LIKE，绝不向上抛给接口层")
     void fulltextFailureFallsBackToLike() {
         // 模拟真实故障：MATCH AGAINST 报 "Can't find FULLTEXT index matching the column list"
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), anyList()))
                 .thenThrow(new RuntimeException("Can't find FULLTEXT index matching the column list"));
         Product p = mockProduct();
         Page<Product> likePage = new Page<>(1, 12);
@@ -298,7 +344,7 @@ class SearchServiceImplTest {
 
         SearchRequest req = buildRequest("脐橙");
         req.setSortBy("hot");
-        Page<ProductSearchVO> result = assertDoesNotThrow(() -> searchService.search(req));
+        Page<ProductSearchVO> result = assertDoesNotThrow(() -> searchService.search(req, null));
 
         assertEquals(1, result.getTotal());
         assertEquals(1, result.getRecords().size());
@@ -309,17 +355,33 @@ class SearchServiceImplTest {
     @DisplayName("语义首页补足失败：保住语义命中结果，不影响当页返回")
     void semanticBackfillFailureKeepsSemanticHits() {
         Product semHit = mockProduct();
-        when(aiSearchClient.semanticProductIds("送礼", 12)).thenReturn(Collections.singletonList(1L));
+        when(aiSearchClient.semanticProductIds(eq("送礼"), eq(12), isNull())).thenReturn(Collections.singletonList(1L));
         when(productMapper.selectBatchIds(Collections.singletonList(1L))).thenReturn(Collections.singletonList(semHit));
-        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt()))
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), any()))
                 .thenThrow(new RuntimeException("Can't find FULLTEXT index matching the column list"));
-        when(productSearchMapper.countByFulltext(anyString(), any()))
+        when(productSearchMapper.countByFulltext(anyString(), any(), any()))
                 .thenThrow(new RuntimeException("Can't find FULLTEXT index matching the column list"));
         when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
 
-        Page<ProductSearchVO> result = assertDoesNotThrow(() -> searchService.search(buildRequest("送礼")));
+        Page<ProductSearchVO> result = assertDoesNotThrow(() -> searchService.search(buildRequest("送礼"), null));
 
         assertEquals(1, result.getRecords().size());
         assertEquals(1, result.getTotal());
+    }
+
+    @Test
+    @DisplayName("登录用户搜索：userId 透传给语义召回（否则 Python 侧偏好分支恒空，个性化形同虚设）")
+    void userIdPassedIntoSemanticRecallRequest() {
+        Product semHit = mockProduct();
+        when(aiSearchClient.semanticProductIds(eq("脐橙"), eq(12), eq(7L))).thenReturn(List.of(1L));
+        when(productMapper.selectBatchIds(List.of(1L))).thenReturn(List.of(semHit));
+        when(productSearchMapper.countByFulltext(eq("脐橙"), isNull(), isNull())).thenReturn(1L);
+        when(productSearchMapper.searchByFulltext(anyString(), any(), anyString(), anyLong(), anyInt(), isNull()))
+                .thenReturn(Collections.emptyList());
+        when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
+
+        searchService.search(buildRequest("脐橙"), 7L);
+
+        verify(aiSearchClient).semanticProductIds("脐橙", 12, 7L);
     }
 }

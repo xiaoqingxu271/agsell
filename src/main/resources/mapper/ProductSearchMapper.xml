@@ -8,7 +8,8 @@
       1. MATCH 列必须与 FULLTEXT 索引 (name, subtitle) 完全一致；
       2. WHERE 中不能引用 SELECT 别名，因此 ft_score 需重复计算；
       3. deleted = 0 与 MyBatis-Plus 逻辑删除口径一致（XML 手写 SQL 需显式带出）；
-      4. 排序走 <choose> 映射，默认按相关度分数倒序。
+      4. 排序走 <choose> 映射，默认按相关度分数倒序；
+      5. excludeIds 为语义首页已展示的商品，翻页时整体排除，保证跨页不重复。
     -->
     <select id="searchByFulltext" resultType="com.lichun.agsell.model.entity.Product">
         SELECT id, name, subtitle, category_id, price, original_price, stock, sales,
@@ -20,6 +21,12 @@
           AND status = 1
         <if test="categoryId != null">
           AND category_id = #{categoryId}
+        </if>
+        <if test="excludeIds != null and excludeIds.size() > 0">
+          AND id NOT IN
+          <foreach collection="excludeIds" item="excludeId" open="(" separator="," close=")">
+              #{excludeId}
+          </foreach>
         </if>
           AND MATCH(name, subtitle) AGAINST (#{keyword} IN NATURAL LANGUAGE MODE)
         <choose>
@@ -39,6 +46,12 @@
           AND status = 1
         <if test="categoryId != null">
           AND category_id = #{categoryId}
+        </if>
+        <if test="excludeIds != null and excludeIds.size() > 0">
+          AND id NOT IN
+          <foreach collection="excludeIds" item="excludeId" open="(" separator="," close=")">
+              #{excludeId}
+          </foreach>
         </if>
           AND MATCH(name, subtitle) AGAINST (#{keyword} IN NATURAL LANGUAGE MODE)
     </select>

@@ -44,7 +44,7 @@ public class SearchServiceImpl implements SearchService {
     private final AiSearchClient aiSearchClient;
 
     @Override
-    public Page<ProductSearchVO> search(SearchRequest request) {
+    public Page<ProductSearchVO> search(SearchRequest request, Long userId) {
         String keyword = StrUtil.trim(request.getKeyword());
         ThrowUtils.throwIf(StrUtil.isBlank(keyword), ErrorCode.PARAMS_ERROR, "搜索关键词不能为空");
         ThrowUtils.throwIf(keyword.length() > MAX_KEYWORD_LENGTH,
@@ -64,11 +64,13 @@ public class SearchServiceImpl implements SearchService {
         List<Product> products;
         long total;
 
-        // ① 首页·默认相关度排序·无分类过滤·关键词≥2：优先 AI 向量语义召回重排，命中则置顶
+        // 语义通道只在"首页 + 默认相关度排序 + 无分类过滤 + 关键词≥2"时接管；翻页去重要用同一判据
+        boolean semanticLane = keyword.length() >= 2 && request.getCategoryId() == null && sortBy.isEmpty();
+
+        // ① 首页：优先 AI 向量语义召回重排，命中则置顶
         List<Product> semantic = null;
-        if (keyword.length() >= 2 && pageNum == 1
-                && request.getCategoryId() == null && sortBy.isEmpty()) {
-            List<Long> semIds = aiSearchClient.semanticProductIds(keyword, pageSize);
+        if (semanticLane && pageNum == 1) {
+            List<Long> semIds = aiSearchClient.semanticProductIds(keyword, pageSize, userId);
             List<Product> semProducts = fetchOnSaleByIdsInOrder(semIds);
             if (!semProducts.isEmpty()) {
                 semantic = mergeSemanticBackfill(semProducts, keyword, pageSize);
@@ -78,17 +80,30 @@ public class SearchServiceImpl implements SearchService {
         if (semantic != null) {
             products = semantic;
             // 语义首页：总数以全文命中口径兜底，翻页自动回退全文检索
-            total = Math.max(products.size(), safeCountFulltext(keyword));
+            total = Math.max(products.size(), safeCountFulltext(keyword, null));
         } else if (keyword.length() < 2) {
             // 单字符：bigram 索引无法可靠命中，降级 LIKE
             Page<Product> page = selectByLike(keyword, request.getCategoryId(), sortBy, pageNum, pageSize);
             products = page.getRecords();
             total = page.getTotal();
         } else {
-            long offset = (long) (pageNum - 1) * pageSize;
+            // ② 全文检索。语义首页把 k 条 AI 命中顶到最前面，其后接"全文结果去掉这 k 条"，
+            //    因此第 2 页起既要把这 k 条排除（否则同件商品跨页重复），
+            //    又要把偏移回退 k（否则拼接处漏掉 k 条商品）。
+            List<Long> excludeIds = List.of();
+            long head = 0;
+            if (semanticLane && pageNum > 1) {
+                List<Product> semHead = fetchOnSaleByIdsInOrder(aiSearchClient.semanticProductIds(keyword, pageSize, userId));
+                if (!semHead.isEmpty()) {
+                    head = semHead.size();
+                    excludeIds = semHead.stream().map(Product::getId).collect(Collectors.toList());
+                }
+            }
+            long offset = (long) (pageNum - 1) * pageSize - head;
             try {
-                products = productSearchMapper.searchByFulltext(keyword, request.getCategoryId(), sortBy, offset, pageSize);
-                total = productSearchMapper.countByFulltext(keyword, request.getCategoryId());
+                products = productSearchMapper.searchByFulltext(keyword, request.getCategoryId(), sortBy,
+                        offset, pageSize, excludeIds);
+                total = head + productSearchMapper.countByFulltext(keyword, request.getCategoryId(), excludeIds);
             } catch (Exception e) {
                 // 全文索引缺失/SQL 异常时降级 LIKE：搜索主链路绝不因检索层故障对用户报"系统错误"
                 log.warn("全文检索不可用，降级 LIKE 兜底：keyword={}, cause={}", keyword, e.toString());
@@ -138,7 +153,7 @@ public class SearchServiceImpl implements SearchService {
         Set<Long> have = semProducts.stream().map(Product::getId).collect(Collectors.toCollection(HashSet::new));
         List<Product> merged = new ArrayList<>(semProducts);
         try {
-            List<Product> fulltext = productSearchMapper.searchByFulltext(keyword, null, "", 0, pageSize);
+            List<Product> fulltext = productSearchMapper.searchByFulltext(keyword, null, "", 0, pageSize, null);
             for (Product p : fulltext) {
                 if (merged.size() >= pageSize) {
                     break;
@@ -167,9 +182,9 @@ public class SearchServiceImpl implements SearchService {
         return productMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
     }
 
-    private long safeCountFulltext(String keyword) {
+    private long safeCountFulltext(String keyword, List<Long> excludeIds) {
         try {
-            return productSearchMapper.countByFulltext(keyword, null);
+            return productSearchMapper.countByFulltext(keyword, null, excludeIds);
         } catch (Exception e) {
             log.warn("全文总数统计失败: {}", keyword, e);
             return 0L;

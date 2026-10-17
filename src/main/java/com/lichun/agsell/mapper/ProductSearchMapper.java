@@ -21,16 +21,19 @@ public interface ProductSearchMapper {
      * @param sortBy     排序：空/hot/new/price_asc/price_desc
      * @param offset     分页偏移
      * @param pageSize   每页数量
+     * @param excludeIds 需要从结果集中排除的商品 id（语义首页已展示过的），可为 null/空
      */
     List<Product> searchByFulltext(@Param("keyword") String keyword,
                                    @Param("categoryId") Long categoryId,
                                    @Param("sortBy") String sortBy,
                                    @Param("offset") long offset,
-                                   @Param("pageSize") int pageSize);
+                                   @Param("pageSize") int pageSize,
+                                   @Param("excludeIds") List<Long> excludeIds);
 
     /**
-     * 全文检索命中总数（分页用，口径与 searchByFulltext 完全一致）
+     * 全文检索命中总数（分页用，口径与 searchByFulltext 完全一致，含同样的排除集）
      */
     long countByFulltext(@Param("keyword") String keyword,
-                         @Param("categoryId") Long categoryId);
+                         @Param("categoryId") Long categoryId,
+                         @Param("excludeIds") List<Long> excludeIds);
 }

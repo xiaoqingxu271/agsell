@@ -30,15 +30,19 @@ public class AiSearchClient {
     /**
      * 语义召回商品 id（相似度降序 + 偏好/销量/好评混合重排）。
      *
-     * @param query 搜索框原始词
-     * @param topK  期望候选数
+     * @param query  搜索框原始词
+     * @param topK   期望候选数
+     * @param userId 登录用户（来自 JWT，非前端可控）；null 表示游客，Python 侧不叠加偏好
      * @return 命中 id 有序列表；服务不可用或被 min-score 闸门全部过滤时返回空列表
      */
-    public List<Long> semanticProductIds(String query, int topK) {
+    public List<Long> semanticProductIds(String query, int topK, Long userId) {
         try {
             JSONObject payload = new JSONObject();
             payload.set("query", query);
             payload.set("limit", Math.min(Math.max(topK, 1), 100));
+            if (userId != null) {
+                payload.set("userId", userId);
+            }
             try (HttpResponse response = cn.hutool.http.HttpRequest.post(aiBaseUrl + "/v1/rec/search")
                     .header("Content-Type", "application/json")
                     .header("X-Internal-Key", internalKey)
