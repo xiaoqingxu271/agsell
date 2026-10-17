@@ -59,7 +59,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         config.addExposedHeader("Authorization");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
+        // 必须注册 "/**" 而不是 "/api/**"：本服务有 server.context-path=/api，
+        // UrlBasedCorsConfigurationSource 匹配的是 getPathWithinApplication()——已经去掉 context-path
+        // 的路径（如 "/system/config"）。写 "/api/**" 会一条都不命中，结果是对任何 Origin
+        // 都不回 Access-Control-Allow-Origin 头，跨域预检全部静默失败。
+        // 此前没暴露是因为 H5 调试走 vite 同源代理、小程序请求不受 CORS 约束。
+        source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 }
