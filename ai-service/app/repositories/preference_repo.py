@@ -3,9 +3,9 @@
 数据源三类信号（同一 MySQL 主库，ai-service 只读不写）：
 - 订单：order_item × product 类目，非取消订单按件数计权（已验证的真实选择）；
 - 好评：rating>=4 的评价按商品类目计数；
-- 浏览：user_product_view 近 REC_BROWSE_DAYS 天足迹，按天去重后做指数时间衰减
-  （半衰期 REC_BROWSE_HALF_LIFE），当天浏览权重最高——所以"刚看过几件腊味"
-  能在一次下拉刷新内改变推荐排序。
+- 浏览：user_product_view 近 REC_BROWSE_DAYS 天足迹（「用户×商品×自然日」去重），
+  逐条做指数时间衰减后按类目累加（半衰期 REC_BROWSE_HALF_LIFE），
+  当天浏览权重最高——所以"刚看过几件腊味"能在一次下拉刷新内改变推荐排序。
 各自归一化后按 REC_ORDER_WEIGHT / REC_REVIEW_WEIGHT / REC_BROWSE_WEIGHT 合并，
 输出 {category_id: 0~1}。
 """
@@ -15,7 +15,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.rag.recency import decay_weight
+from app.rag import recency
 
 # 浏览足迹单次读取上限（行）：已是 用户×商品×日 粒度，7 天窗口内正常远低于此
 BROWSE_ROWS_LIMIT = 500
@@ -62,8 +62,8 @@ def review_category_weights(session: Session, user_id: int) -> dict[int, float]:
 def browse_category_weights(session: Session, user_id: int, today: date | None = None) -> dict[int, float]:
     """近 REC_BROWSE_DAYS 天的浏览足迹 → {category_id: 衰减后权重 0~1}
 
-    表已是 用户×商品×自然日 唯一粒度，故每条记录代表"那天看过这个商品"，
-    同日重复浏览天然不叠加。
+    累加与衰减的具体口径只有一个实现（rag/recency.py）：表按「用户×商品×自然日」去重，
+    故同日反复刷同一件商品不叠加，而同日看同类目的不同商品会各自累加。
     """
     day = today or date.today()
     since = day - timedelta(days=settings.REC_BROWSE_DAYS - 1)
@@ -79,13 +79,9 @@ def browse_category_weights(session: Session, user_id: int, today: date | None =
         ),
         {"uid": user_id, "since": since, "lim": BROWSE_ROWS_LIMIT},
     ).all()
-    weights: dict[int, float] = {}
-    for cat, view_date in rows:
-        age_days = (day - view_date).days
-        weights[int(cat)] = weights.get(int(cat), 0.0) + decay_weight(
-            age_days, settings.REC_BROWSE_HALF_LIFE
-        )
-    return _normalize(weights)
+    return _normalize(
+        recency.browse_category_weights(rows, day, settings.REC_BROWSE_HALF_LIFE)
+    )
 
 
 def preference_with_browse(
@@ -93,7 +89,7 @@ def preference_with_browse(
 ) -> tuple[dict[int, float], dict[int, float]]:
     """一次查库返回 (合并偏好权重, 纯浏览权重)。
 
-    纯浏览权重不并入排序、仅供可解释理由判定"你最近看过「某类目」"——
+    纯浏览权重不并入排序、仅供可解释理由判定"最近看过「某类目」"——
     它已作为第三路信号进了 merged，重复计入会让 score 与 breakdown 不一致。
     """
     today = date.today()

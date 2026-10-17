@@ -1,4 +1,4 @@
-"""浏览行为时间衰减：半衰期语义、跨日累计、边界值"""
+"""浏览行为时间衰减：半衰期语义、同日/跨日累计口径、边界值"""
 from datetime import date, timedelta
 
 import pytest
@@ -34,11 +34,18 @@ def test_same_category_across_days_accumulates():
     assert out[10] == _approx(1.5)
 
 
-def test_same_day_repeat_views_are_one_row():
-    """表粒度为 用户×商品×自然日，同日多次浏览只落一条记录，故不会自叠加"""
-    rows = [(10, TODAY), (10, TODAY - timedelta(days=1))]
+def test_same_day_different_products_accumulate():
+    """同日看同类目的不同商品各自累加：连看三件腊味的意图强于只看一件（表按商品×日落行）"""
+    rows = [(10, TODAY), (10, TODAY), (10, TODAY)]
     out = browse_category_weights(rows, TODAY, half_life_days=3)
-    assert out[10] == _approx(1.0 + decay_weight(1, 3))
+    assert out[10] == _approx(3.0)
+
+
+def test_repeat_view_of_same_product_never_self_multiplies():
+    """同日反复刷同一件商品由 user_product_view 唯一键压成一行，衰减层只会收到一条记录"""
+    rows = [(10, TODAY)]  # 当天刷 5 次 → SQL 里仍只有这一行
+    out = browse_category_weights(rows, TODAY, half_life_days=3)
+    assert out[10] == _approx(1.0)
 
 
 def test_recent_browse_outranks_old_browse():

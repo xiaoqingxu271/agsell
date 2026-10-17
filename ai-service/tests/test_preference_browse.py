@@ -59,7 +59,7 @@ def test_preference_with_browse_merges_three_signals():
     # cat10: 0.5*1 + 0.3*1 = 0.8；cat20: 0.2*1 = 0.2 → 归一 cat10=1.0, cat20=0.25
     assert merged[10] == pytest.approx(1.0)
     assert merged[20] == pytest.approx(0.25, abs=1e-6)
-    # 纯浏览信号单列，供"你最近看过"理由标签
+    # 纯浏览信号单列，供"最近看过"理由标签
     assert browse == {20: 1.0}
 
 
