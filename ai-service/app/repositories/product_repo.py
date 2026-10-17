@@ -1,5 +1,5 @@
 """product 仓储（只读）：商品向量召回索引的数据源查询"""
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.models.product import Product, ProductCategory
@@ -42,3 +42,27 @@ def category_by_ids(session: Session, product_ids: list[int]) -> dict[int, int]:
         select(Product.id, Product.category_id).where(Product.id.in_(product_ids))
     ).all()
     return {int(r[0]): int(r[1]) for r in rows}
+
+
+def max_sales(session: Session) -> int:
+    """全库在售商品的最大销量，作销量归一的固定基准。
+
+    基准必须与"本次候选集"无关：按候选集内 max 归一时，同一件商品在首页 feed
+    （全库候选）和导购召回（8 件候选）里拿到的销量分不同，排序随入口漂移。
+    """
+    value = session.execute(
+        text("select coalesce(max(sales), 0) from product where status = 1 and deleted = 0")
+    ).scalar()
+    return int(value or 0)
+
+
+def harvest_by_ids(session: Session, product_ids: list[int]) -> dict[int, tuple]:
+    """商品 id → (harvest_date, shelf_life)，供新鲜度引擎打分（只取在售商品）"""
+    if not product_ids:
+        return {}
+    rows = session.execute(
+        select(Product.id, Product.harvest_date, Product.shelf_life).where(
+            Product.id.in_(product_ids), Product.status == 1, Product.deleted == 0
+        )
+    ).all()
+    return {int(r[0]): (r[1], r[2]) for r in rows}

@@ -28,11 +28,21 @@ class _NullSessionCtx:
 
 @pytest.fixture
 def stub_repos(monkeypatch):
-    state = {"pref": {}, "browse": {}, "rates": {1: 50.0, 2: 100.0}}
+    # rates：已收缩过的逐商品好评率；prior：全站好评先验，缺失评价的商品按它兜底
+    state = {
+        "pref": {},
+        "browse": {},
+        "rates": {1: 50.0, 2: 100.0},
+        "prior": 66.67,
+        "sales_max": 100,
+    }
 
     monkeypatch.setattr(rec_feed.product_repo, "list_on_sale", lambda s: PRODUCTS)
     monkeypatch.setattr(rec_feed.product_repo, "category_by_ids", lambda s, ids: {1: 10, 2: 20, 3: 30})
-    monkeypatch.setattr(rec_feed.review_repo, "positive_rates", lambda s: state["rates"])
+    monkeypatch.setattr(rec_feed.product_repo, "max_sales", lambda s: state["sales_max"])
+    monkeypatch.setattr(
+        rec_feed.review_repo, "positive_rates", lambda s: (state["rates"], state["prior"])
+    )
     monkeypatch.setattr(
         rec_feed.preference_repo,
         "preference_with_browse",
@@ -69,17 +79,37 @@ def test_breakdown_sums_to_score(stub_repos):
 
 def test_signals_are_raw_unweighted(stub_repos):
     items = {i["id"]: i for i in _call()["items"]}
-    assert set(items[1]["signals"]) == {"pref", "sales", "rate", "fresh", "browse"}
-    # 游客无偏好、FakeProduct 无 harvest → pref/fresh 原始信号恒 0
+    assert set(items[1]["signals"]) == {"sem", "pref", "sales", "rate", "fresh", "browse", "rate_conf"}
+    # 首页 feed 无语义查询场景 → sem 恒 0；游客无偏好、FakeProduct 无 harvest → pref/fresh 恒 0
     for it in items.values():
+        assert it["signals"]["sem"] == 0.0
         assert it["signals"]["pref"] == 0.0
         assert it["signals"]["fresh"] == 0.0
-    # 原始 sales/rate 未乘权重：销量最高的雪梨(id1) sales 归一=1.0；好评率 id2=100%→1.0, id1=50%→0.5
+    # 原始 sales/rate 未乘权重：销量并列全库最高的雪梨(id1) sales 归一=1.0；好评率 id2=100%→1.0, id1=50%→0.5
     assert items[1]["signals"]["sales"] == pytest.approx(1.0)
     assert items[1]["signals"]["rate"] == pytest.approx(0.5)
     assert items[2]["signals"]["rate"] == pytest.approx(1.0)
     # breakdown 贡献 = 原始信号 × 权重（≤原始值）
     assert items[1]["breakdown"]["rate"] == pytest.approx(0.10 * items[1]["signals"]["rate"])
+
+
+def test_zero_review_product_uses_global_prior(stub_repos):
+    """无评价 ≠ 零好评：大米(id3) 没有评价记录，好评信号取全站先验而非 0，并标记为无评价证据"""
+    items = {i["id"]: i for i in _call()["items"]}
+    assert items[3]["signals"]["rate"] == pytest.approx(0.6667)
+    # rate_conf 给理由端用：先验值是中性常数，不能让 Java 把它打成"好评率高"
+    assert items[3]["signals"]["rate_conf"] == 0.0
+    assert items[1]["signals"]["rate_conf"] == 1.0
+    assert items[2]["signals"]["rate_conf"] == 1.0
+
+
+def test_sales_norm_uses_whole_catalog_base_not_candidate_max(stub_repos):
+    """销量归一基准取全库而非当前候选集：候选集里只有低销商品时，归一值应整体压低而非顶到 1.0"""
+    stub_repos["sales_max"] = 1000
+    items = {i["id"]: i for i in _call()["items"]}
+    assert items[1]["signals"]["sales"] < 1.0
+    # 同一条商品在全库基准下的分，不随候选集内相对销量排名变化而失真
+    assert items[1]["signals"]["sales"] > items[3]["signals"]["sales"]
 
 
 def test_limit_and_candidates(stub_repos):
@@ -118,7 +148,7 @@ def test_missing_harvest_zero_freshness(stub_repos):
 
 
 def test_browse_signal_for_reason(stub_repos):
-    """浏览强度单列在 signals.browse：只服务"你最近看过"理由标签，不额外进 breakdown"""
+    """浏览强度单列在 signals.browse：只服务"最近看过"理由标签，不额外进 breakdown"""
     stub_repos["pref"] = {10: 1.0}
     stub_repos["browse"] = {10: 1.0, 30: 0.4}
     items = {i["id"]: i for i in _call(user_id=7)["items"]}

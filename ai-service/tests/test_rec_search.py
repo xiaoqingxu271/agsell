@@ -38,11 +38,18 @@ class FakeStore:
 
 @pytest.fixture
 def stub(monkeypatch):
-    state = {"pref": {}, "browse": {}, "hits": [
-        {"id": 1, "score": 0.6},
-        {"id": 2, "score": 0.6},
-        {"id": 3, "score": 0.2},  # 低于 0.35 闸门，应被过滤
-    ]}
+    state = {
+        "pref": {},
+        "browse": {},
+        "rates": {1: 50.0, 2: 100.0},
+        "prior": 66.67,
+        "sales_max": 100,
+        "hits": [
+            {"id": 1, "score": 0.6},
+            {"id": 2, "score": 0.6},
+            {"id": 3, "score": 0.2},  # 低于 0.35 闸门，应被过滤
+        ]
+    }
 
     monkeypatch.setattr(
         main_mod, "get_product_store", lambda: FakeStore(state["hits"])
@@ -53,7 +60,10 @@ def stub(monkeypatch):
         lambda s, ids: [BY_ID[i] for i in ids if i in BY_ID],
     )
     monkeypatch.setattr(rec_feed.product_repo, "category_by_ids", lambda s, ids: {1: 10, 2: 20, 3: 30})
-    monkeypatch.setattr(rec_feed.review_repo, "positive_rates", lambda s: {1: 50.0, 2: 100.0})
+    monkeypatch.setattr(rec_feed.product_repo, "max_sales", lambda s: state["sales_max"])
+    monkeypatch.setattr(
+        rec_feed.review_repo, "positive_rates", lambda s: (state["rates"], state["prior"])
+    )
     monkeypatch.setattr(
         rec_feed.preference_repo,
         "preference_with_browse",
