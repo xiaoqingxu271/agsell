@@ -23,6 +23,15 @@ export function sendAiChat(sessionId, message) {
  *   - onError(err)             上游 error 事件（err.message 为提示文案）
  * @returns {Promise<void>} 流结束 resolve；传输失败 / 非 SSE 响应（如 token 失效 40100）reject
  */
+/**
+ * 上游 error 事件的 code → 用户可读话术（白名单在前端，绝不定位到服务端文案）：
+ * 服务端只发 code，异常详情仅进日志，避免 429/网关/模型信息直出气泡
+ */
+const AI_ERROR_TEXT = {
+  ai_upstream: 'AI 服务这会儿有点忙，请稍后再试',
+  ai_unavailable: '服务暂时不可用，请稍后再试'
+}
+
 export function sendAiChatStream(sessionId, message, handlers = {}) {
   const token = uni.getStorageSync('token')
   const header = {}
@@ -41,7 +50,8 @@ export function sendAiChatStream(sessionId, message, handlers = {}) {
       } else if (event === 'done') {
         handlers.onDone && handlers.onDone(data || {})
       } else if (event === 'error') {
-        const err = new Error(data.message || 'AI 服务异常')
+        const err = new Error(AI_ERROR_TEXT[data && data.code] || '抱歉，服务开小差了，请稍后再试')
+        err.code = (data && data.code) || 'ai_unknown'
         handlers.onError && handlers.onError(err)
       }
     }

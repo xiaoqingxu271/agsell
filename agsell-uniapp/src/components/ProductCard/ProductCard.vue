@@ -153,10 +153,10 @@ function tagClass(tag) {
   margin: 4rpx 0 10rpx;
   padding: 2rpx 10rpx 2rpx 4rpx;
   border-radius: 6rpx;
-  background: #FFF3EF;
+  background: $uni-color-primary-50;
 }
 
-.reason-ic {
+.reason-badge {
   font-size: 16rpx;
   font-weight: 700;
   line-height: 1;

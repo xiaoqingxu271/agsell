@@ -92,6 +92,10 @@ const scrollInto = ref('')
 const sessionId = ref('')
 const sessionTimeLabel = ref('')
 
+// 会话号按登录身份持久化：服务端多轮记忆以 (userId, sessionId) 为 thread key，
+// 每次进页重随机会让历史 thread 永远命中不到，等于没有会话记忆
+const SESSION_KEY = 'aiChatSession'
+
 const quickQuestions = [
   '怎么申请退款？',
   '运费怎么算的？',
@@ -111,8 +115,8 @@ const userAvatar = computed(() => {
 })
 
 onLoad(() => {
-  // 会话 ID：页面级生成，多轮对话共用（服务端记忆以 sessionId 为 key）
-  sessionId.value = 'wx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+  // 会话 ID：同一登录用户复用上次会话（服务端记忆以 userId+sessionId 为键）
+  sessionId.value = resolveSessionId()
   const now = new Date()
   const p = (n) => (n < 10 ? '0' + n : '' + n)
   sessionTimeLabel.value = `今天 ${p(now.getHours())}:${p(now.getMinutes())} · 会话已开始`
@@ -123,6 +127,35 @@ onLoad(() => {
     suggestions: [...quickQuestions]
   })
 })
+
+/** 当前登录身份键：换账号或登出后旧会话作废（绝不复用别人的 thread） */
+function currentOwnerKey() {
+  if (!isLoggedIn()) return 'anon'
+  try {
+    const info = uni.getStorageSync('userInfo')
+    if (info && info.userId !== undefined && info.userId !== null) return `u_${info.userId}`
+  } catch (e) {
+    /* ignore */
+  }
+  return 'u_unknown'
+}
+
+function resolveSessionId() {
+  const owner = currentOwnerKey()
+  try {
+    const saved = uni.getStorageSync(SESSION_KEY)
+    if (saved && saved.owner === owner && saved.sessionId) return saved.sessionId
+  } catch (e) {
+    /* ignore */
+  }
+  const sid = 'wx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+  try {
+    uni.setStorageSync(SESSION_KEY, { owner, sessionId: sid })
+  } catch (e) {
+    /* ignore */
+  }
+  return sid
+}
 
 function onBack() {
   // 从"我的"页 navigateTo 进入，delta=1 返回上一页
@@ -183,7 +216,8 @@ async function onSend() {
         scrollToBottom()
       },
       onError: (e) => {
-        // 上游 error 事件：展示服务端文案；气泡已有内容时保留已生成的部分
+        // 上游 error 事件：文案由 api/ai.js 按 code 查白名单得到（不含服务端异常细节）；
+        // 气泡已有内容时保留已生成的部分
         msg.streaming = false
         if (!msg.content) {
           msg.content = (e && e.message) || '抱歉，服务开小差了，请稍后再试。'
@@ -198,6 +232,9 @@ async function onSend() {
     if (!msg.content) {
       if (e?.code === 40100 || e?.code === 10001) {
         msg.content = '登录状态已失效，请重新登录后再试。'
+      } else if (e?.code === 42900) {
+        // 网关限流：请求没进 AI 服务，稍后再发即可，历史上下文不受影响
+        msg.content = '发送有点频繁，请稍后再试。'
       } else {
         msg.content = '网络异常，请检查网络后重试。'
       }
