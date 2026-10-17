@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 用户端-AI 智能客服接口
@@ -82,7 +83,8 @@ public class AiChatController {
         Long userId = resolveUserId(httpRequest);
         String sessionId = request.getSessionId();
         if (sessionId == null || sessionId.isBlank()) {
-            sessionId = "s_" + System.currentTimeMillis();
+            // 服务端派发会话 ID：毫秒时间戳可猜测，旁人能撞库接走别人的多轮上下文
+            sessionId = "s_" + UUID.randomUUID().toString().replace("-", "");
         }
 
         JSONObject payload = new JSONObject();
@@ -100,12 +102,12 @@ public class AiChatController {
                 .timeout(60000)  // Agnes 生成 + 业务查询可能较慢，读超时放宽到 60s
                 .execute()) {
             if (response.getStatus() != 200) {
-                log.error("AI 服务返回异常状态: status={}, body={}", response.getStatus(), response.body());
+                log.error("AI 服务返回异常状态: status={}, body={}", response.getStatus(), brief(response.body()));
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 服务响应异常，请稍后重试");
             }
             String body = response.body();
             if (!JSONUtil.isJson(body)) {
-                log.error("AI 服务返回非 JSON: {}", body);
+                log.error("AI 服务返回非 JSON: {}", brief(body));
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 服务响应异常，请稍后重试");
             }
             JSONObject json = JSONUtil.parseObj(body);
@@ -147,7 +149,8 @@ public class AiChatController {
         Long userId = resolveUserId(httpRequest);
         String sessionId = request.getSessionId();
         if (sessionId == null || sessionId.isBlank()) {
-            sessionId = "s_" + System.currentTimeMillis();
+            // 服务端派发会话 ID：毫秒时间戳可猜测，旁人能撞库接走别人的多轮上下文
+            sessionId = "s_" + UUID.randomUUID().toString().replace("-", "");
         }
 
         JSONObject payload = new JSONObject();
@@ -179,7 +182,10 @@ public class AiChatController {
             HttpResponse<java.io.InputStream> response =
                     HTTP_CLIENT.send(aiRequest, HttpResponse.BodyHandlers.ofInputStream());
             if (response.statusCode() != 200) {
-                sendErrorEvent(emitter, "AI 服务响应异常（HTTP " + response.statusCode() + "）");
+                log.error("AI 服务返回异常状态: status={}, body={}", response.statusCode(),
+                        truncateForLog(response));
+                // 只下发 code + 固定话术：状态码与上游响应体属于内部信息，不进用户端
+                sendErrorEvent(emitter, "ai_upstream", "AI 服务暂时不可用，请稍后重试");
                 return;
             }
             try (BufferedReader reader = new BufferedReader(
@@ -204,20 +210,39 @@ public class AiChatController {
             emitter.complete();
         } catch (Exception e) {
             log.error("AI 流式转发失败", e);
-            sendErrorEvent(emitter, "AI 服务暂时不可用，请稍后重试");
+            sendErrorEvent(emitter, "ai_unavailable", "AI 服务暂时不可用，请稍后重试");
         }
     }
 
-    /** 下发 error 事件并收尾；客户端已断开时静默忽略 */
-    private void sendErrorEvent(SseEmitter emitter, String message) {
+    /** 下发 error 事件（code 供客户端查白名单文案）并收尾；客户端已断开时静默忽略 */
+    private void sendErrorEvent(SseEmitter emitter, String code, String message) {
         try {
             JSONObject err = new JSONObject();
+            err.set("code", code);
             err.set("message", message);
             emitter.send(SseEmitter.event().name("error").data(toUtf8Bytes(err.toString())));
             emitter.complete();
         } catch (Exception ignored) {
             // 连接已断开，无需处理
         }
+    }
+
+    /** 上游错误响应体截断后入日志：便于定位，又不把整段会话数据写进日志文件 */
+    private static String truncateForLog(HttpResponse<java.io.InputStream> response) {
+        try {
+            String body = new String(response.body().readAllBytes(), StandardCharsets.UTF_8);
+            return body.length() > 500 ? body.substring(0, 500) : body;
+        } catch (Exception e) {
+            return "(上游响应体不可读)";
+        }
+    }
+
+    /** 同步接口上游响应体截断入日志 */
+    private static String brief(String body) {
+        if (body == null) {
+            return "(空响应体)";
+        }
+        return body.length() > 500 ? body.substring(0, 500) : body;
     }
 
     private static byte[] toUtf8Bytes(String s) {
