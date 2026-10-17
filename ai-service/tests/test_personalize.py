@@ -5,14 +5,14 @@
 - score_products：语义 + α·偏好 + β·销量 + γ·好评率 + δ·新鲜度 的相对序与分项一致性
 - 零评价商品按全站均值兜底，不再被当成"口碑最差"
 - Personalizer.rerank：正常重排 / 游客不叠加偏好 / 任意异常回退召回原序
-- recommend 节点：向量召回命中后经 personalizer 重排后再进生成上下文
+- product_search 执行器：向量召回命中后经 personalizer 重排再给出卡片与资料
 """
 import math
 from datetime import date, timedelta
 
 import pytest
 
-from app.agent.nodes import make_recommend_node
+from app.agent.executors import ToolContext, run_tool
 from app.config import settings
 from app.rag.personalize import Personalizer, sales_norm, score_products
 
@@ -259,17 +259,21 @@ class _Human:
 
 def test_node_applies_personalized_order():
     rer = RerankStub(order=[2, 1])
-    node = make_recommend_node(ApiStub(), llm=None, product_store=PStoreStub(), personalizer=rer)
-    out = node({"messages": [_Human("买点米")], "userId": 9})
+    ctx = ToolContext(product_store=PStoreStub(), personalizer=rer, java_api_module=ApiStub())
+    obs = run_tool(ctx, {"messages": [_Human("买点米")], "userId": 9}, "product_search",
+                   {"query": "买点米"})
     assert rer.seen_user == 9
     import json
 
-    assert [p["id"] for p in json.loads(out["tool_result"])] == [2, 1]
+    # 卡片序与给 LLM 的资料序必须是同一份重排结果，否则"说的话"和"点的卡片"对不上
+    assert [p["id"] for p in obs.items] == [2, 1]
+    assert [p["id"] for p in json.loads(obs.payload)] == [2, 1]
 
 
 def test_node_without_personalizer_keeps_recall_order():
-    node = make_recommend_node(ApiStub(), llm=None, product_store=PStoreStub())
-    out = node({"messages": [_Human("买点米")], "userId": 9})
+    ctx = ToolContext(product_store=PStoreStub(), java_api_module=ApiStub())
+    obs = run_tool(ctx, {"messages": [_Human("买点米")], "userId": 9}, "product_search",
+                   {"query": "买点米"})
     import json
 
-    assert [p["id"] for p in json.loads(out["tool_result"])] == [1, 2]
+    assert [p["id"] for p in json.loads(obs.payload)] == [1, 2]

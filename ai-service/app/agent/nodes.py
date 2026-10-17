@@ -1,72 +1,75 @@
-"""LangGraph 节点（阶段三 + 阶段六导购；本轮：偏好随意图一次产出 + 导购闸门与拒答出口）
+"""LangGraph 节点（智能体版）
 
-图结构：intent → 条件路由：
-  faq        → faq_retrieve → generate
-  order      → order_query → generate
-  logistics  → logistics_query → generate
-  after_sales→ after_sales_query → generate
-  recommend  → recommend_query → generate
-               （导购四级：商品向量语义召回 ≥REC_MIN_SCORE → 品类词 LIKE →
-                 明确域外则确定性拒答 → 否则热销榜兜底）
-  smalltalk  → smalltalk → END
-  human      → human_fallback → END
+图结构：intent（仅高置信规则前置，零 LLM）→ 条件路由：
+  smalltalk      → smalltalk → END
+  human_fallback → human_fallback → END
+  agent          → agent（bind_tools 有界工具编排）→ generate → END
 
-依赖注入：llm / retriever / java_api / product_store，均为可测试接口。
+agent 节点把"调哪个工具"交给大模型 function calling：一轮可并行多个诉求、空结果回灌
+观察后允许改写重试，步数与调用数由 settings.AGENT_MAX_STEPS / AGENT_MAX_TOOL_CALLS 封顶。
+把关逻辑一律留在 app/agent/executors.py（量化实验实测出来的闸门，重构不动）。
+
+旧业务节点（faq_retrieve/order_query/logistics_query/after_sales_query/recommend_query）
+继续保留注册：既有单测直接构造它们验证闸门，功能上与执行器等价。
+依赖注入：llm / retriever / java_api / product_store / personalizer，均为可测试接口。
 """
 import json
 import logging
-import re
 
 from langchain_core.messages import (
     AIMessage,
     AnyMessage,
     HumanMessage,
     SystemMessage,
+    ToolMessage,
     trim_messages,
 )
 
-from app.agent.intent import classify_full
+from app.agent.executors import load_product_context, run_tool
+from app.agent.intent import _extract_order_no, _hard_rule, classify_full
+from app.agent.tool_defs import TOOL_SCHEMAS
 from app.config import settings
 from app.prompts import (
+    AGENT_PLAN_BROWSING_NOTE,
+    build_agent_answer_prompt,
+    build_agent_plan_prompt,
     build_degraded_reply,
     build_human_fallback_reply,
     build_kb_refusal_reply,
     build_product_qa_prompt,
     build_rec_refusal_reply,
-    build_recommend_extract_prompt,
-    build_recommend_system_prompt,
     build_smalltalk_prompt,
-    build_system_prompt,
-    build_tool_system_prompt,
-    format_context,
 )
-from app.tools import java_api
 
 logger = logging.getLogger("agsell.ai.nodes")
 
+# 规划器看的对话历史上限（条）：它的任务只是补全指代与选工具，不需要整段会话
+_PLANNER_HISTORY_TURNS = 6
 
-# ---------- 意图识别（同一次调用产出路由 + 导购偏好）----------
-def make_intent_node(llm):
+
+# ---------- 规则前置：零成本短路（转人工/纯寒暄），其余交给智能体 ----------
+def make_intent_node():
+    """只做高置信、零成本、不需要取数的判断：human 与小寒暄在此定案，直接少一次 LLM 往返。
+
+    实测（实验二分特征交叉）：规则通道在 hold-out 全集只有 37.6%、无词面线索子集 23.4%，
+    所以它不能当语义分类器；但 human 强诉求词与纯寒暄这两类是它真正擅长的位置
+    （高置信 + 毫秒级 + 省额度）。业务意图一律不再由词表决定，改由 agent 的工具选择决定。
+    """
+
     def intent_node(state: dict) -> dict:
         last = state["messages"][-1]
         question = last.content if isinstance(last, HumanMessage) else str(last.content)
-        d = classify_full(question, llm)
-        # 工具与偏好产物都是「本轮临时数据」，但 state 经 checkpointer 按 thread_id 跨轮持久化：
-        # 不在此重置，本轮走 FAQ 分支时 generate 会先读到上一轮的订单/推荐 JSON 当
-        # system prompt，既答非所问又会把上一轮隐私复述进无关话题。
+
+        # 工具产物与观察都是「本轮临时数据」，但 state 经 checkpointer 按 thread_id 跨轮持久化：
+        # 不在此重置，本轮会读到上一轮的订单/推荐 JSON 当上下文，既答非所问又会串隐私。
         return {
-            "intent": d.intent,
-            "order_no": d.order_no,
-            "tool_result": "",
-            "tool_type": "",
-            # 导购偏好随意图产出：省掉导购分支的一次串行 LLM 调用（实测首 token 19.2 s 的主因）
-            "rec_keyword": d.keyword,
-            "rec_max_price": d.max_price,
-            "rec_in_domain": d.in_domain,
-            # 商品上下文与卡片候选同样逐轮重置：上一轮咨询的商品不能渗进本轮无关问题
+            "intent": _hard_rule(question) or "",
+            "order_no": _extract_order_no(question),
+            "observations": [],
+            "rec_items": [],
             "product_context": "",
             "product_item": None,
-            "rec_items": [],
+            "human_fallback": False,
         }
 
     return intent_node
@@ -74,258 +77,200 @@ def make_intent_node(llm):
 
 # ---------- 路由 ----------
 def route_by_intent(state: dict) -> str:
-    intent = state.get("intent") or "faq"
-    if intent == "order":
-        return "order_query"
-    if intent == "logistics":
-        return "logistics_query"
-    if intent == "after_sales":
-        return "after_sales_query"
-    if intent == "recommend":
-        return "recommend_query"
+    """规则前置命中高置信短路意图时直达对应节点；其余一律交给智能体规划工具。
+
+    旧版在此按 argmax 单标签把消息送进某一个工具节点，一条消息带多个诉求时只能答一半；
+    现在只有 human/smalltalk 这两类"零成本、高置信、无需取数"的判断继续走短路，
+    其它一律进 agent，由大模型决定调用哪些工具（可并行多个）。
+    """
+    intent = state.get("intent") or ""
     if intent == "smalltalk":
         return "smalltalk"
     if intent == "human":
         return "human_fallback"
-    return "faq_retrieve"  # faq 及默认
+    return "agent"
 
 
-# ---------- 商详页咨询上下文（"这个"的指代对象）----------
-def load_product_context(state: dict, api_module) -> tuple[str, dict | None]:
-    """按 state.productId 取该在售商品的事实。
+# ---------- 智能体：有界工具编排（bind_tools + 去重 + 反思重试 + 故障降级）----------
+# 意图标签 → 降级时要调用的工具。LLM 规划失败时用，保证"最坏情况仍有一次取证"而不是空手回答。
+_INTENT_TO_TOOL = {
+    "faq": ("kb_search", lambda s, q: {"question": q}),
+    "recommend": ("product_search", lambda s, q: {"query": q}),
+    "order": ("order_query", lambda s, q: {"orderNo": s.get("order_no") or ""}),
+    "logistics": ("logistics_query", lambda s, q: {"orderNo": s.get("order_no") or ""}),
+    "after_sales": ("after_sales_query", lambda s, q: {}),
+    "human": ("escalate_human", lambda s, q: {"reason": "规则兜底判定为需人工"}),
+    # smalltalk 不在表里：寒暄不需要取证，_legacy_plan 直接返回空观察，
+    # 由生成节点走"本轮无资料"的引导式分支（拿 kb_search 查问候语是纯浪费）
+}
 
-    没有 productId、商品已下架、或 Java 侧不可用时一律返回 ("", None)——
-    聊天链路绝不因为"取上下文失败"而报错给用户，退回常规问答即可。
+
+def _tool_feedback(obs) -> str:
+    """回灌给规划器的观察摘要：只给"够不够用"的信号，不把大段资料再喂一遍。
+
+    规划器不需要读资料原文（作答由 generate 节点看完整观察），少喂一坨文本既省 token
+    也更有利于收敛——实测把完整结果原样回灌时，模型有概率把同样的调用再来一遍。
     """
-    pid = state.get("productId")
-    if not pid:
-        return "", None
+    out: dict = {"tool": obs.tool, "status": obs.status}
+    if obs.items:
+        out["count"] = len(obs.items)
+        out["names"] = [str(i.get("name", ""))[:20] for i in obs.items[:3]]
+    elif obs.payload:
+        out["chars"] = len(obs.payload)
+    if obs.hint:
+        out["hint"] = obs.hint
+    elif obs.status in ("empty", "error", "need_login"):
+        out["hint"] = "本次没有取到可用资料：可换一个检索表述或品类词重试一次，否则就此如实说明"
+    return json.dumps(out, ensure_ascii=False)
+
+
+def _resolve_planner(llm, schemas):
+    """能力协商：上游支持 function calling 才走智能体，否则退回"规则分类 + 单工具"。
+
+    不是偷懒的兼容层——Agnes 这类免费网关今天支持、明天换型号就可能不支持，
+    此时整条客服链不能报错，只能降级成改造前的行为（慢一点、一次只答一个诉求）。
+    降级会打 WARNING，避免"以为在用智能体、其实一直在跑降级路径"这种静默退化。
+    """
     try:
-        item = api_module.fetch_product(int(pid))
-    except Exception as e:
-        logger.warning("商品上下文获取失败（忽略，退回常规问答）：productId=%s, %s", pid, e)
-        return "", None
-    if not item:
-        return "", None
-    return java_api.format_product_facts(item), item
-
-
-# ---------- FAQ 检索 ----------
-def make_faq_retrieve_node(retriever, java_api_module=None):
-    api = java_api_module or java_api
-
-    def faq_retrieve_node(state: dict) -> dict:
-        last = state["messages"][-1]
-        question = last.content if isinstance(last, HumanMessage) else str(last.content)
-        entries = retriever.retrieve(question)
-        # 商品上下文与知识库检索无关，但必须在本轮取好：
-        # generate 靠它判断"检索为空"是真的没资料，还是用户在问手里这件商品
-        facts, item = load_product_context(state, api)
-        return {"faq_context": entries, "product_context": facts, "product_item": item}
-
-    return faq_retrieve_node
-
-
-# ---------- 业务工具（回调 Java）----------
-def _user_id_or_error(state: dict) -> str | None:
-    user_id = state.get("userId")
-    if user_id:
+        return llm.bind_tools(schemas)
+    except (NotImplementedError, AttributeError, TypeError):
+        logger.warning("上游模型不支持 function calling，智能体降级为规则分类 + 单工具路由")
         return None
-    return "暂时无法确认您的登录身份，请到小程序登录后咨询，或拨打客服电话 " + settings.SERVICE_PHONE + " 处理。"
+    except Exception:  # noqa: BLE001
+        logger.warning("bind_tools 初始化失败，智能体降级为规则分类 + 单工具路由", exc_info=True)
+        return None
 
 
-def make_order_query_node(java_api_module=None):
-    api = java_api_module or java_api
+def _legacy_plan(state: dict, question: str, ctx, run_tool, llm) -> list:
+    """降级/兜底路径：一次 LLM 调用做意图分类（含导购偏好），只执行匹配的那一个工具。
 
-    def order_query_node(state: dict) -> dict:
-        err = _user_id_or_error(state)
-        if err:
-            return {"tool_result": err, "tool_type": "error"}
-        order_no = state.get("order_no")
-        try:
-            if order_no:
-                data = api.query_order_detail(state["userId"], order_no)
-                return {"tool_result": api.format_payload(data), "tool_type": "order"}
-            data = api.query_orders(state["userId"])
-            return {"tool_result": api.format_payload(data), "tool_type": "order"}
-        except java_api.JavaApiError as e:
-            return {"tool_result": f"查询订单失败：{e}", "tool_type": "error"}
-
-    return order_query_node
-
-
-def make_logistics_query_node(java_api_module=None):
-    api = java_api_module or java_api
-
-    def logistics_query_node(state: dict) -> dict:
-        err = _user_id_or_error(state)
-        if err:
-            return {"tool_result": err, "tool_type": "error"}
-        order_no = state.get("order_no")
-        try:
-            # 未指定订单号时取最近一笔订单查物流
-            if not order_no:
-                orders = api.query_orders(state["userId"])
-                if not orders:
-                    return {"tool_result": "该用户暂无订单", "tool_type": "logistics"}
-                order_no = orders[0]["orderNo"]
-            data = api.query_logistics(state["userId"], order_no)
-            return {"tool_result": api.format_payload(data), "tool_type": "logistics"}
-        except java_api.JavaApiError as e:
-            return {"tool_result": f"查询物流失败：{e}", "tool_type": "error"}
-
-    return logistics_query_node
-
-
-def make_after_sales_query_node(java_api_module=None):
-    api = java_api_module or java_api
-
-    def after_sales_query_node(state: dict) -> dict:
-        err = _user_id_or_error(state)
-        if err:
-            return {"tool_result": err, "tool_type": "error"}
-        try:
-            data = api.query_after_sales(state["userId"])
-            return {"tool_result": api.format_payload(data), "tool_type": "after_sales"}
-        except java_api.JavaApiError as e:
-            return {"tool_result": f"查询售后失败：{e}", "tool_type": "error"}
-
-    return after_sales_query_node
-
-
-# ---------- 智能导购（语义召回 → 品类 LIKE → 域外拒答 → 热销兜底）----------
-def _extract_preferences(question: str, llm) -> tuple[str | None, float | None, bool | None]:
-    """独立偏好抽取——**仅作节点被单独调用时的兜底**。
-
-    生产链路里导购条件已随意图一次产出（见 make_intent_node），不再走这里；保留本函数是为了
-    ① 单测直接构造 recommend 节点时仍可用，② 意图节点被跳过时不至于没有偏好。
-    LLM 失败返回 (None, None, None)，语义是"没有判定"——下游按原三级降级处理，绝不据此拒答。
+    等价于改造前的「intent → 单分支 → 单工具」，保证上游模型不支持 function calling、
+    或规划调用直接抛异常时功能不回退（慢一点、一次只答一个诉求，但仍给出有依据的答案）。
+    classify_full 内部已含「高置信规则前置 → LLM → 关键词兜底」三级，永不自异常。
     """
-    if llm is None:
-        return None, None, None
-    try:
-        response = llm.invoke([SystemMessage(content=build_recommend_extract_prompt(question))])
-        text = (response.content or "").strip()
-        text = re.sub(r"^```(?:json)?|```$", "", text, flags=re.MULTILINE).strip()
-        data = json.loads(text)
-        keyword = data.get("keyword") or None
-        max_price = data.get("maxPrice")
-        max_price = float(max_price) if isinstance(max_price, (int, float)) else None
-        in_domain = data.get("inDomain") if isinstance(data.get("inDomain"), bool) else None
-        return (str(keyword).strip() or None) if keyword else None, max_price, in_domain
-    except Exception:
-        return None, None, None
+    d = classify_full(question, llm)
+    intent = d.intent if d.intent in _INTENT_TO_TOOL else "faq"
+    if d.intent == "smalltalk":
+        return []
+    name, arg_fn = _INTENT_TO_TOOL[intent]
+    args = arg_fn(state, question)
+    if name == "product_search":
+        # 偏好随那次分类调用一次产出，这里只是换成执行器认识的参数形态
+        args = {"query": question, "keyword": d.keyword,
+                "maxPrice": d.max_price, "inDomain": d.in_domain}
+    return [run_tool(ctx, state, name, args)]
 
 
-def _reorder_by_recall(products: list[dict], recalled_ids: list[int]) -> list[dict]:
-    """按向量召回顺序重排 Java 返回的商品列表（Java 侧默认销量降序，这里恢复语义相关度序）"""
-    rank = {pid: i for i, pid in enumerate(recalled_ids)}
-    return sorted(products, key=lambda p: rank.get(p.get("id"), len(recalled_ids)))
+def make_agent_node(llm, ctx, tool_schemas=None):
+    """规划 → 执行 → （必要时）反思重试，最多 settings.AGENT_MAX_STEPS 步。
 
+    只负责取证，不产出面向用户的文字：实测模型拿到工具结果后可能不收敛（再发一遍同样的
+    调用），所以"结束"由步数上限决定，最终回复交给 generate 节点基于观察组织。
+    """
+    schemas = tool_schemas or TOOL_SCHEMAS
+    planner = _resolve_planner(llm, schemas)
 
-def make_recommend_node(java_api_module=None, llm=None, product_store=None, personalizer=None):
-    api = java_api_module or java_api
-
-    def recommend_query_node(state: dict) -> dict:
+    def agent_node(state: dict) -> dict:
         last = state["messages"][-1]
         question = last.content if isinstance(last, HumanMessage) else str(last.content)
 
-        # 导购偏好优先取意图节点同轮产出；state 里没有这些键（节点被单独调用）才回退独立抽取
-        if "rec_in_domain" in state:
-            keyword = state.get("rec_keyword")
-            max_price = state.get("rec_max_price")
-            in_domain = state.get("rec_in_domain")
-        else:
-            keyword, max_price, in_domain = _extract_preferences(question, llm)
+        # 商详页上下文整轮只取一次，回填进 state 副本供各执行器复用（避免重复回调 Java）
+        facts, item = load_product_context(state, ctx.api)
+        state = {**state, "product_context": facts, "product_item": item}
 
-        facts, item = load_product_context(state, api)
+        if planner is None:  # 降级：规则分类 + 单工具
+            obs = _legacy_plan(state, question, ctx, run_tool, llm)
+            return _collapse_observations(obs, facts=facts, item=item)
 
-        def _recommend(products: list[dict], note: str = "") -> dict:
-            """统一出口：文本给 LLM 组话术，结构化 rec_items 给小程序画可点击卡片。
+        # 历史只给最近几条：规划器的任务是"决定调哪个工具"，不需要整段对话
+        history = [m for m in list(state["messages"])[:-1]][-_PLANNER_HISTORY_TURNS:]
+        plan_system = build_agent_plan_prompt(settings.PLATFORM_NAME, settings.AGENT_MAX_STEPS)
+        if facts:
+            # 不告诉它"这个"是什么，模型会因为指代补不出来而干脆不调工具（E2E 实测：反问用户"您指哪款"）
+            plan_system = AGENT_PLAN_BROWSING_NOTE.format(facts=facts) + plan_system
+        messages = [SystemMessage(content=plan_system)]
+        messages += history
+        messages.append(HumanMessage(content=question))
 
-            只给文本是不够的——图片/价格/跳转 id 进了 prompt 就丢了，用户看完推荐
-            还得自己去搜一遍，导购链路在 UI 上等于断掉。
-            """
-            payload = api.format_payload(products)
-            return {
-                "tool_result": (note + "\n" + payload) if note else payload,
-                "tool_type": "recommend",
-                "rec_items": products,
-                "product_context": facts,
-                "product_item": item,
-            }
-
-        # ① 一级：商品向量语义召回（整句进索引，"适合送礼的柑橘"这类描述也能命中）。
-        #    对话侧用独立闸门 REC_MIN_SCORE（0.47），不是搜索框的 0.35——搜索框空结果能退回
-        #    全文检索，导购分支没有退路，阈值一松就把"手机壳"召回成"带壳毛豆"
-        #    （量化实验五实测：0.35 下 10 条域外推荐请求放行 6 条）。
-        #    命中 id 后仍经 Java 取详情（在售过滤/价格区间/口碑注入口径不变）；
-        #    登录用户叠加个性化重排；索引为空或召回失败不阻断，逐级降级。
-        if product_store is not None:
+        obs: list = []
+        seen: set = set()
+        calls = 0
+        for _step in range(settings.AGENT_MAX_STEPS):
+            if calls >= settings.AGENT_MAX_TOOL_CALLS:
+                break
             try:
-                hits = [h for h in product_store.search(question) if h["score"] >= settings.REC_MIN_SCORE]
-                recalled = [h["id"] for h in hits]
-                sem_by_id = {h["id"]: h["score"] for h in hits}
-                if recalled:
-                    products = _reorder_by_recall(
-                        api.search_products(ids=recalled, max_price=max_price), recalled
-                    )
-                    if products:
-                        if personalizer is not None:
-                            products = personalizer.rerank(state.get("userId"), products, sem_by_id)
-                        return _recommend(products)
-            except Exception as e:
-                logger.warning("商品向量召回不可用，降级关键词/热销路径：%s", e)
+                resp = planner.invoke(messages)
+            except Exception:  # noqa: BLE001 规划失败也要给用户答案：降级到规则选定的单个工具
+                logger.warning("工具规划 LLM 调用失败，降级规则路由", exc_info=True)
+                obs = _legacy_plan(state, question, ctx, run_tool, llm)
+                break
+            tool_calls = list(getattr(resp, "tool_calls", None) or [])
+            if not tool_calls:
+                break  # 模型认为资料已够，或直接可以作答
+            messages.append(resp)
+            step_obs: list = []
+            for tc in tool_calls:
+                if calls >= settings.AGENT_MAX_TOOL_CALLS:
+                    logger.warning("单轮工具调用数达上限 %s，截断剩余调用", settings.AGENT_MAX_TOOL_CALLS)
+                    break
+                name = tc.get("name") or ""
+                args = tc.get("args") or {}
+                try:
+                    key = (name, json.dumps(args, ensure_ascii=False, sort_keys=True))
+                except Exception:  # noqa: BLE001 参数不可序列化时退化为按工具名去重
+                    key = (name, str(args))
+                if key in seen:
+                    # 模型原地打转：不再重复执行，只回一条"已查过"的观察让它继续往下走
+                    logger.info("模型重复调用同样工具与参数：%s（跳过执行）", name)
+                    messages.append(ToolMessage(content=json.dumps(
+                        {"tool": name, "status": "already_called", "hint": "该查询已执行过，请勿重复调用"},
+                        ensure_ascii=False), tool_call_id=tc.get("id") or f"{name}_dup", name=name))
+                    # 同一步里重复 = 模型已经不会往前走了，继续执行/继续规划只会白烧额度
+                    break
+                o = run_tool(ctx, state, name, args)
+                obs.append(o)
+                step_obs.append(o)
+                calls += 1
+                seen.add(key)
+                messages.append(ToolMessage(content=_tool_feedback(o),
+                                            tool_call_id=tc.get("id") or f"{name}_{calls}",
+                                            name=name))
 
-        # ② 二级：品类词 LIKE。命中即推荐——"库里的确有这件商品"是正面证据，
-        #    优先于模型的经营域判断（宁可少拒一次，也不能把在卖的商品拒掉）。
-        try:
-            if keyword:
-                products = api.search_products(keyword=keyword, max_price=max_price)
-                if products:
-                    return _recommend(products)
-        except java_api.JavaApiError as e:
-            return {"tool_result": f"查询商品失败：{e}", "tool_type": "error", "rec_items": []}
+            # 反思边只在"缺证据"时才走：这一步取到的资料全部可用，或已经落到确定性出口
+            # （域外拒答、未登录引导——再问一次模型也改变不了），就不要再花一次规划：
+            # 实测网关单次规划 6~15 s，白跑一轮等于首 token 延迟翻倍。
+            # 只有 empty/error 才留一次改写重试（模型可换检索表述或换品类词）。
+            if step_obs and all(o.status in ("ok", "refused", "need_login") for o in step_obs):
+                break
 
-        # ③ 三级：正在浏览某件商品时，"这个/这款"的默认指代就是它。
-        #    既无语义命中又无品类词，最可能的诉求就是"评价/适配这件商品"，
-        #    所以拿它自己当唯一候选来回答并附上卡片——而不是硬凑热销榜或直接拒答。
-        if item:
-            return {
-                "tool_result": facts,
-                "tool_type": "product_qa",
-                "rec_items": [item],
-                "product_context": facts,
-                "product_item": item,
-            }
+        return _collapse_observations(obs, facts=facts, item=item)
 
-        # ④ 四级：大模型明确判定不属于本平台经营范围 → 确定性拒答。
-        #    不经 LLM、不降级热销榜（旧行为会给"推荐一双跑步鞋"硬端上金华火腿）。
-        #    in_domain 为 None（没拿到判定，例如 LLM 故障）时不拒答，行为与改动前一致。
-        if in_domain is False:
-            return {"tool_result": "", "tool_type": "recommend_refused", "rec_items": []}
+    return agent_node
 
-        # ⑤ 五级：热销榜兜底
-        try:
-            products = api.search_products(max_price=max_price)
-        except java_api.JavaApiError as e:
-            return {"tool_result": f"查询商品失败：{e}", "tool_type": "error", "rec_items": []}
-        if not products:
-            return {
-                "tool_result": "未找到符合偏好的在售商品",
-                "tool_type": "recommend",
-                "rec_items": [],
-                "product_context": facts,
-                "product_item": item,
-            }
-        if keyword:
-            # 品类词 LIKE 无命中（用户说"水果"，商品名是"赣南脐橙"）→ 降级热销榜，
-            # 并在上下文中注明原因，由生成节点如实引导
-            note = f"（未找到与「{keyword}」直接匹配的商品，以下为热销候选，请如实向用户说明并引导其换个说法）"
-            return _recommend(products, note=note)
-        return _recommend(products)
 
-    return recommend_query_node
+def _collapse_observations(obs: list, facts: str = "", item: dict | None = None) -> dict:
+    """工具观察 → 图状态：卡片数据、商品上下文、是否转人工。
+
+    observations 是唯一的"本轮取到了什么"表示——不再另存一份 tool_type/tool_result 视图：
+    两处表示同一事实必然漂开，而多工具一轮取证本来就没有"单一 tool_type"可言。
+    """
+    items: list = []
+    kinds: list[str] = []
+    for o in obs:
+        if o.items:
+            items = items + o.items
+        if o.kind == "product_qa" and not facts:
+            facts = o.payload
+        kinds.append(o.kind or o.tool)
+    return {
+        "observations": [o.as_dict() for o in obs],
+        "rec_items": items,
+        # 商品上下文：优先用本轮 agent 预取的事实（整轮只回调 Java 一次）
+        "product_context": facts or "",
+        "product_item": item,
+        "human_fallback": any(k == "human" for k in kinds),
+    }
+
 
 
 # ---------- 多轮历史窗口截断（阶段七）----------
@@ -373,81 +318,102 @@ def _build_messages(system_prompt: str, history: list, max_chars: int | None = N
     return messages
 
 
-# ---------- 生成 ----------
+# ---------- 生成：本轮取到的资料 → 回复（唯一的作答出口）----------
 def make_generate_node(llm):
+    """只依据本轮工具观察作答；一条观察都没取到时不硬答，也没有"资料缺失却照常生成"的口子。
+
+    五类确定性出口，顺序即优先级（都是量化实验实测出来的闸门）：
+    转人工话术 → 域外拒答（不经 LLM）→ 未登录引导 → 商品事实问答 → 取数故障友好降级
+    → 知识库未覆盖拒答；只有真的取到 status=ok 的资料时才交给 LLM 组织回复。
+    """
+    platform = settings.PLATFORM_NAME
+    phone = settings.SERVICE_PHONE
+
     def generate_node(state: dict) -> dict:
-        tool_type = state.get("tool_type")
+        obs = state.get("observations") or []
         product_context = state.get("product_context") or ""
 
-        # 导购域外拒答：与知识库闸门同一套原则——没有可信候选时不经 LLM、不硬凑商品，
-        # 直接输出确定性话术（零幻觉、省一次调用、也不会编造商品）
-        if tool_type == "recommend_refused":
+        # 规划器一个工具都没调：多半是礼貌回应或纯追问，本轮不需要事实取证。
+        # 此时不能按"知识库没覆盖"拒答（根本没查过，拒得不成立），改为引导式回复——
+        # 该提示词明确要求不编造业务信息，具体业务问题让用户直接提问
+        if not obs:
+            return _invoke_and_finish(llm, build_smalltalk_prompt(platform), state)
+
+        # 只有 status=ok 的观察才算"取到资料"：error 的 payload 一律为空（异常细节只在日志），
+        # empty/refused/need_login 也不得进上下文——否则内网地址、集合名这类字样有概率被复述给用户
+        usable = [o for o in obs if (o.get("payload") or o.get("items")) and o.get("status") == "ok"]
+        statuses = {o.get("status") for o in obs}
+        # 转人工本身没有资料，但它是必须告知用户的事实（"已为您转人工"），要一起进上下文
+        human_obs = [o for o in obs if o.get("kind") == "human"]
+
+        if not usable and not human_obs:
+            if "human" in {o.get("kind") for o in obs}:
+                # 智能体判定必须人工跟进：直接给转人工话术（与规则前置同一出口），
+                # 不能让"本轮没取到资料"被误判成"知识库未覆盖"
+                return {
+                    "messages": [AIMessage(content=build_human_fallback_reply(phone))],
+                    "suggestions": list(_SUGGESTIONS["human"]),
+                }
+            if "refused" in statuses:
+                # 域外导购：与知识库闸门同一套原则——没有可信候选时不经 LLM、不硬凑商品
+                return {
+                    "messages": [AIMessage(content=build_rec_refusal_reply(
+                        platform=platform, service_phone=phone))],
+                    "suggestions": list(_SUGGESTIONS["recommend"]),
+                }
+            login = next((o for o in obs if o.get("status") == "need_login"), None)
+            if login:
+                # 未登录：直接输出引导话术，不经 LLM 复述（省一次调用，也不会编造订单）
+                return {
+                    "messages": [AIMessage(content=login.get("payload") or build_degraded_reply(phone))],
+                    "suggestions": list(_SUGGESTIONS["order"]),
+                }
+            if product_context:
+                # 检索为空但用户手上正看着一件商品：答案在商品事实里，不该按"知识库没覆盖"拒答
+                return _invoke_and_finish(llm, build_product_qa_prompt(
+                    facts=product_context, platform=platform, service_phone=phone), state)
+            if "error" in statuses:
+                # 取数依赖故障（Java/向量库/检索器不可用）：友好降级话术，绝不裸露系统细节
+                return {
+                    "messages": [AIMessage(content=build_degraded_reply(phone))],
+                    "suggestions": _suggestions_for(state),
+                }
             return {
-                "messages": [AIMessage(content=build_rec_refusal_reply(
-                    platform=settings.PLATFORM_NAME, service_phone=settings.SERVICE_PHONE
-                ))],
-                "suggestions": list(_SUGGESTIONS["recommend"]),
+                "messages": [AIMessage(content=build_kb_refusal_reply(phone))],
+                "suggestions": _suggestions_for(state),
             }
 
-        # 用户在商详页问"这个"：候选就是他正在看的这件商品，按商品事实回答
-        if tool_type == "product_qa":
-            system_prompt = build_product_qa_prompt(
-                facts=state.get("tool_result") or product_context,
-                platform=settings.PLATFORM_NAME,
-                service_phone=settings.SERVICE_PHONE,
-            )
-        elif state.get("tool_result"):
-            if tool_type == "recommend":
-                system_prompt = build_recommend_system_prompt(
-                    context_text=state["tool_result"],
-                    platform=settings.PLATFORM_NAME,
-                    service_phone=settings.SERVICE_PHONE,
-                )
-            else:
-                system_prompt = build_tool_system_prompt(
-                    context_text=state["tool_result"],
-                    platform=settings.PLATFORM_NAME,
-                    service_phone=settings.SERVICE_PHONE,
-                )
-        else:
-            context = state.get("faq_context") or []
-            if not context:
-                # 反幻觉闸门：检索零命中/全部低于阈值 → 确定性拒答，不经 LLM、零幻觉、省额度。
-                # 例外：用户手里正看着一件商品（有商品事实可依据）时不该拒答——
-                # "这个能放多久"在知识库里查不到，但答案确实在手上这件商品的信息里。
-                if product_context:
-                    system_prompt = build_product_qa_prompt(
-                        facts=product_context,
-                        platform=settings.PLATFORM_NAME,
-                        service_phone=settings.SERVICE_PHONE,
-                    )
-                else:
-                    return {
-                        "messages": [AIMessage(content=build_kb_refusal_reply(settings.SERVICE_PHONE))],
-                        "suggestions": _suggestions_for(state),
-                    }
-            else:
-                system_prompt = build_system_prompt(
-                    context_text=format_context(context),
-                    platform=settings.PLATFORM_NAME,
-                    service_phone=settings.SERVICE_PHONE,
-                    product_context=product_context,
-                )
-        messages = _build_messages(system_prompt, state["messages"])
-        try:
-            response = llm.invoke(messages)
-        except Exception as e:  # 阶段五：Agnes 限流/超时/断网 → 降级话术，不白屏
-            logger.warning("生成节点 LLM 调用失败，降级话术：%s: %s", type(e).__name__, e)
-            response = AIMessage(
-                content=build_degraded_reply(settings.SERVICE_PHONE, error=str(e))
-            )
-        return {
-            "messages": [response],
-            # 阶段四：按上一轮意图给下一轮建议问题（小贴士）
-            "suggestions": _suggestions_for(state),
-        }
+        # 只取到"用户正在浏览的这件商品"：改用商品问答提示词——它明确要求把"这个/这款"
+        # 当指代对象，通用作答提示词没这条，模型有概率反问"您指的是哪一件"
+        if usable and all(o.get("kind") == "product_qa" for o in usable):
+            return _invoke_and_finish(llm, build_product_qa_prompt(
+                facts=usable[0].get("payload") or product_context,
+                platform=platform, service_phone=phone), state)
+
+        # 多意图并行取证时这里有多条资料，一次回答全部诉求（旧的单分支路由做不到）
+        return _invoke_and_finish(llm, build_agent_answer_prompt(
+            context_text=json.dumps(usable + human_obs, ensure_ascii=False),
+            platform=platform, service_phone=phone,
+            product_context=product_context), state)
 
     return generate_node
+
+
+def _invoke_and_finish(llm, system_prompt: str, state: dict) -> dict:
+    """统一的"调用 + 降级 + 小贴士"出口：LLM 故障一律回降级话术，绝不白屏也不抛异常。"""
+    messages = _build_messages(system_prompt, state["messages"])
+    try:
+        response = llm.invoke(messages)
+    except Exception as e:  # 阶段五：Agnes 限流/超时/断网 → 降级话术，不白屏
+        logger.warning("生成节点 LLM 调用失败，降级话术：%s: %s", type(e).__name__, e)
+        response = AIMessage(
+            content=build_degraded_reply(settings.SERVICE_PHONE, error=str(e))
+        )
+    return {
+        "messages": [response],
+        # 阶段四：按上一轮意图/本轮取到的资料给下一轮建议问题（小贴士）
+        "suggestions": _suggestions_for(state),
+    }
 
 
 # ---------- 闲聊 ----------
@@ -494,6 +460,21 @@ _SUGGESTIONS = {
 
 
 def _suggestions_for(state: dict) -> list[str]:
+    obs = state.get("observations") or []
+    if obs:
+        # 智能体路径没有单一 intent，按本轮实际取到的资料类型给建议
+        kinds = {o.get("kind") for o in obs}
+        if "recommend" in kinds or "product_qa" in kinds:
+            return list(_SUGGESTIONS["recommend"])
+        if "order" in kinds:
+            return list(_SUGGESTIONS["order"])
+        if "logistics" in kinds:
+            return list(_SUGGESTIONS["logistics"])
+        if "after_sales" in kinds:
+            return list(_SUGGESTIONS["after_sales"])
+        if "human" in kinds:
+            return list(_SUGGESTIONS["human"])
+        return list(_SUGGESTIONS["faq"])
     intent = state.get("intent") or "faq"
     if intent == "order":
         order_no = state.get("order_no")

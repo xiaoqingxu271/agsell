@@ -59,6 +59,10 @@ class Settings(BaseSettings):
     # 域外泄漏率降到 0%、域内召回仍保持 90%。故对话侧取 0.47。
     REC_MIN_SCORE: float = 0.47
 
+    # 对话里导购卡片的条数上限。E2E 实测：语义召回按 top_k 整批回传，聊天气泡下面一次冒出
+    # 8 张卡（还混进夏威夷果），用户不会往下翻——卡片少而准比"看起来给得多"更有用。
+    REC_CARD_LIMIT: int = 4
+
     # 混合排序（feed / 语义搜索 / 对话导购共用一套口径，实现见 rag/personalize.score_products）：
     #   final = 语义分 + α·类目偏好 + β·销量归一 + γ·好评率 + δ·新鲜度
     # 无查询场景（首页 feed）语义分恒为 0，其余四项与另外两条链路完全同权重——
@@ -80,6 +84,15 @@ class Settings(BaseSettings):
     # 浏览行为回看窗口与指数衰减半衰期（天）：半衰期 3 天=3 天前的浏览只剩一半权重
     REC_BROWSE_DAYS: int = 7
     REC_BROWSE_HALF_LIFE: int = 3
+
+    # 智能体（工具编排）：有界 ReAct 循环
+    # 实测（Agnes agnes-2.5-flash）：bind_tools 可用，且一条消息里的多个诉求会在一轮内
+    # **并行**发出多个 tool_calls——这是"多意图只能走一支"的解法。
+    # 但同样实测到：把工具结果喂回去后模型可能**不收敛**（再发一遍同样的调用），
+    # 因此步数必须硬上限，且按 (工具,参数) 去重防止原地打转；最终回复由独立的
+    # generate 节点基于工具观察作答，不依赖模型自觉停止调用。
+    AGENT_MAX_STEPS: int = 2        # 每轮对话最多让模型规划几次（每次都可并行多工具）
+    AGENT_MAX_TOOL_CALLS: int = 4   # 单轮最多执行的工具调用总数（含并行），防额度被一条消息打满
 
     # 运行时
     LOG_LEVEL: str = "INFO"

@@ -221,11 +221,13 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
 
 # ---------- 阶段六：SSE 流式对话 ----------
 
-# 仅这两个节点的 LLM 输出面向用户，token 才下发；intent 节点内部的分类调用必须过滤
+# 只有这两个节点的 LLM 输出面向用户，token 才下发；其余一律过滤——
+# 特别是 agent 节点内部的规划往返（tool_calls 与"资料够了"的空回复），那是编排中间过程
 _STREAMING_NODES = ("generate", "smalltalk")
 
-# 业务查询节点 → 前端阶段提示（如"正在查询订单…"）
-_STAGE_EVENTS = ("faq_retrieve", "order_query", "logistics_query", "after_sales_query", "recommend_query")
+# 业务取数节点 → 前端阶段提示（如"正在查询订单…"）。改造后取数只有 agent 一个节点，
+# 具体查了哪几件事由事件里的 tools 数组表示（工具名即 kb_search/product_search/…）
+_STAGE_EVENTS = ("agent",)
 
 
 def _sse(event: str, data: dict) -> str:
@@ -278,6 +280,8 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                     if not out:
                         continue
                     if node_name == "intent":
+                        # intent 只带高置信规则前置的标签（smalltalk/human），业务问题留空：
+                        # 改造后"要办哪件事"由 agent 的工具选择决定，见下面 agent 事件的 tools
                         intent = out.get("intent")
                         yield _sse("status", {
                             "stage": "intent",
@@ -285,7 +289,8 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                             "orderNo": out.get("order_no"),
                         })
                     elif node_name in _STAGE_EVENTS:
-                        yield _sse("status", {"stage": node_name})
+                        tools = [o.get("tool") for o in (out.get("observations") or []) if o.get("tool")]
+                        yield _sse("status", {"stage": node_name, "tools": tools})
                         # 导购候选已确定：立刻下发结构化商品卡，让卡片与回复文本并行呈现，
                         # 用户不用等 LLM 把话说完才能点进商品
                         if out.get("rec_items"):

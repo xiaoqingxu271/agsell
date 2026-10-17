@@ -1,7 +1,8 @@
-"""阶段五：持久化会话记忆测试（SqliteSaver）
+"""持久化会话记忆测试（SqliteSaver）
 
 核心验收：服务"重启"后同一 thread_id 的会话可恢复 ——
 用两个独立的 AsyncSqliteSaver 实例连接同一 SQLite 文件，模拟重启前后的两个进程。
+断言看"本轮问答确实按知识库资料作答"，不再看 intent 标签（智能体改造后业务意图由工具选择体现）。
 """
 import asyncio
 import os
@@ -19,6 +20,8 @@ class StubRetriever:
 
 
 def _make_llm(intent_json: str):
+    """不支持 bind_tools 的替身：故意走"分类 + 单工具"降级路径，
+    这样本文件只测持久化这一件事，不与智能体编排测试重叠。"""
     class _LLM:
         def invoke(self, messages):
             from langchain_core.messages import AIMessage, SystemMessage
@@ -27,7 +30,7 @@ def _make_llm(intent_json: str):
                 if isinstance(m, SystemMessage):
                     if "意图识别器" in m.content:
                         return AIMessage(content=intent_json)
-                    if "知识库内容" in m.content:
+                    if "已取到的资料" in m.content:  # 智能体作答提示词
                         return AIMessage(content="faq_generated")
             return AIMessage(content="no_context")
 
@@ -55,7 +58,8 @@ def test_sqlite_checkpointer_persists_across_restart():
             checkpointer=saver1,
         )
         r1 = _run(graph1, "客服电话是多少", "thread-restart-1")
-        assert r1["intent"] == "faq"
+        assert [o["tool"] for o in r1["observations"]] == ["kb_search"]  # 降级路径：分类→单工具
+        assert r1["messages"][-1].content == "faq_generated"
 
     # 第二次"进程"（模拟服务重启）：同一 thread_id 追问，messages 应包含上一轮
     with SqliteSaver.from_conn_string(db_path) as saver2:
@@ -107,6 +111,6 @@ def test_sqlite_checkpointer_async_api():
                 {"messages": [HumanMessage(content="运费怎么算")], "userId": 1},
                 config={"configurable": {"thread_id": "async-t1"}},
             )
-            assert result["intent"] == "faq"
+            assert result["messages"][-1].content == "faq_generated"
 
     asyncio.run(_run_async())
