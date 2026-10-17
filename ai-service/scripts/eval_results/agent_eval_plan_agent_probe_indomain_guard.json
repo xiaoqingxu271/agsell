@@ -1,0 +1,240 @@
+{
+  "mode": "plan",
+  "testset": "agent_probe_indomain_guard",
+  "measured_at": "2026-10-17T19:36:26",
+  "git_commit": "585d2a4",
+  "worktree_dirty": true,
+  "dirty_files": 28,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "valid": true,
+  "sampled": false,
+  "sample_of_total": "11/11",
+  "sample_seed": 20261017,
+  "tool_execution": "stub（Java 未参与；测规划层选择与延迟）",
+  "llm_calls": {
+    "plan": 12,
+    "answer": 0
+  },
+  "llm_errors": 0,
+  "rate_limited_calls": 2,
+  "accuracy": 0.7273,
+  "by_intent": {
+    "recommend": {
+      "total": 11,
+      "correct": 8,
+      "recall": 0.7273
+    }
+  },
+  "by_feature": {
+    "semantic": {
+      "total": 11,
+      "correct": 8,
+      "accuracy": 0.7273
+    }
+  },
+  "latency_ms": {
+    "avg": 9854,
+    "p50": 3677,
+    "p95": 8393,
+    "max": 69627
+  },
+  "over_call": {
+    "kb_search": 2
+  },
+  "cases": [
+    {
+      "q": "推荐一部好看的电影",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "refused"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 4275,
+      "reply": ""
+    },
+    {
+      "q": "今天股市行情怎么样",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1131,
+      "reply": ""
+    },
+    {
+      "q": "帮我写一首关于秋天的诗",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 6676,
+      "reply": ""
+    },
+    {
+      "q": "周杰伦新歌什么时候发",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1571,
+      "reply": ""
+    },
+    {
+      "q": "我的护照怎么办",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "kb_search",
+        "product_search",
+        "kb_search"
+      ],
+      "statuses": [
+        "empty",
+        "refused",
+        "empty"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [
+        "kb_search",
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 8393,
+      "reply": ""
+    },
+    {
+      "q": "有什么好物推荐",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 5931,
+      "reply": ""
+    },
+    {
+      "q": "第一次买不知道买什么好",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2760,
+      "reply": ""
+    },
+    {
+      "q": "50元以内有什么水果",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2041,
+      "reply": ""
+    },
+    {
+      "q": "帮我挑个送礼的",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3677,
+      "reply": ""
+    },
+    {
+      "q": "哪种茶叶比较好",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 69627,
+      "reply": ""
+    },
+    {
+      "q": "有没有便宜又好吃的水果",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2311,
+      "reply": ""
+    }
+  ],
+  "probes": []
+}

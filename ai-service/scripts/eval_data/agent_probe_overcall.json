@@ -1,0 +1,26 @@
+{
+  "说明": "智能体 over-call 定向探针集（2026-10-17）。用途：prompt 修订后的**干净复测**——这里的句子全部新写，未参与 hold-out 集的任何规则/prompt 调试，因此'寒暄不调用工具'的达标率不受泄漏影响。hold-out 集上的 smalltalk 类在修订后不再是无泄漏口径，两个数字要分开引用。",
+  "小样背景": "首轮 hold-out（109 条）实测工具选择 86.2%，最弱一类是 smalltalk 57.1%（6/14 被硬塞了 kb_search）。这不是标注歧义，而是编排层缺一条'没有问题就不要取证'的约束。",
+  "cases": [
+    {"q": "嘿，你今天忙不忙", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "刚下班，随便聊聊", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "外面下雨了呢", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "吃了没", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "你挺逗的", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "先这样吧，我看看别的", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "行吧行吧", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "今天星期几呀", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "哈喽哈喽", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "我这边信号不好，等下再说", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "嗯嗯，晓得了", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "你是怎么学会说话的", "intent": "smalltalk", "feature": "semantic"},
+    {"q": "开发票要什么手续", "intent": "faq", "feature": "semantic"},
+    {"q": "订单能改成货到付款吗", "intent": "faq", "feature": "semantic"},
+    {"q": "我最近买过哪些东西", "intent": "order", "feature": "semantic"},
+    {"q": "帮我看看包裹走到哪一步了", "intent": "logistics", "feature": "lexical"},
+    {"q": "我的换货申请审到哪个环节了", "intent": "after_sales", "feature": "lexical"},
+    {"q": "有没有适合煮粥的豆类", "intent": "recommend", "feature": "semantic"},
+    {"q": "给孩子买点零食，别太甜的", "intent": "recommend", "feature": "semantic"},
+    {"q": "客服态度让我很不满，请给个处理方案", "intent": "human", "feature": "semantic"}
+  ]
+}

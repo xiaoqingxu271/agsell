@@ -1,0 +1,71 @@
+{
+  "说明": "inDomain 设为必填之后的回归集：前 5 条是已在 hold-out 探针里出现过的域外句（只作回归，不作收益口径），后 6 条是域内泛推荐（无品类词或品类宽泛），用来确认必填字段不会把正常导购误拒。",
+  "cases": [
+    {
+      "q": "推荐一部好看的电影",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "ood_repeat"
+    },
+    {
+      "q": "今天股市行情怎么样",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "ood_repeat"
+    },
+    {
+      "q": "帮我写一首关于秋天的诗",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "ood_repeat"
+    },
+    {
+      "q": "周杰伦新歌什么时候发",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "ood_repeat"
+    },
+    {
+      "q": "我的护照怎么办",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "ood_repeat"
+    },
+    {
+      "q": "有什么好物推荐",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "in_domain"
+    },
+    {
+      "q": "第一次买不知道买什么好",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "in_domain"
+    },
+    {
+      "q": "50元以内有什么水果",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "in_domain"
+    },
+    {
+      "q": "帮我挑个送礼的",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "in_domain"
+    },
+    {
+      "q": "哪种茶叶比较好",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "in_domain"
+    },
+    {
+      "q": "有没有便宜又好吃的水果",
+      "intent": "recommend",
+      "feature": "semantic",
+      "group": "in_domain"
+    }
+  ]
+}

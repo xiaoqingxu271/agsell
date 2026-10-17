@@ -1,0 +1,14 @@
+{
+  "说明": "域外导购闸门探针集（2026-10-17，C 轮）。全部句子新写，与 hold-out 的 5 条域外探针零重合——用来验证'inDomain 设为必填'之后的泄漏率，不拿被观测过的那批题报收益。",
+  "口径": "泄漏 = 域外请求最终拿到了商品卡片（items>0）。期望是 refused（确定性拒答）或压根不调 product_search。",
+  "cases": [
+    {"q": "推荐一部好看的美剧", "intent": "recommend", "feature": "semantic"},
+    {"q": "帮我润色一下简历", "intent": "recommend", "feature": "semantic"},
+    {"q": "我想买个相机拍风景", "intent": "recommend", "feature": "semantic"},
+    {"q": "附近哪家健身房年卡便宜", "intent": "recommend", "feature": "semantic"},
+    {"q": "给我推荐一支口红吧", "intent": "recommend", "feature": "semantic"},
+    {"q": "该给孩子报什么兴趣班", "intent": "recommend", "feature": "semantic"},
+    {"q": "有什么好用的洗地机", "intent": "recommend", "feature": "semantic"},
+    {"q": "我的猫最近不吃东西怎么办", "intent": "recommend", "feature": "semantic"}
+  ]
+}

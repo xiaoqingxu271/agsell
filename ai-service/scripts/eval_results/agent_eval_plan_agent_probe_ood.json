@@ -1,0 +1,173 @@
+{
+  "mode": "plan",
+  "testset": "agent_probe_ood",
+  "measured_at": "2026-10-17T19:33:59",
+  "git_commit": "585d2a4",
+  "worktree_dirty": true,
+  "dirty_files": 26,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "valid": true,
+  "sampled": false,
+  "sample_of_total": "8/8",
+  "sample_seed": 20261017,
+  "tool_execution": "stub（Java 未参与；测规划层选择与延迟）",
+  "llm_calls": {
+    "plan": 9,
+    "answer": 0
+  },
+  "llm_errors": 0,
+  "rate_limited_calls": 0,
+  "accuracy": 0.25,
+  "by_intent": {
+    "recommend": {
+      "total": 8,
+      "correct": 2,
+      "recall": 0.25
+    }
+  },
+  "by_feature": {
+    "semantic": {
+      "total": 8,
+      "correct": 2,
+      "accuracy": 0.25
+    }
+  },
+  "latency_ms": {
+    "avg": 3156,
+    "p50": 3257,
+    "p95": 3910,
+    "max": 5216
+  },
+  "over_call": {
+    "kb_search": 1
+  },
+  "cases": [
+    {
+      "q": "推荐一部好看的美剧",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "empty"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 5216,
+      "reply": ""
+    },
+    {
+      "q": "帮我润色一下简历",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3143,
+      "reply": ""
+    },
+    {
+      "q": "我想买个相机拍风景",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "refused"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3726,
+      "reply": ""
+    },
+    {
+      "q": "附近哪家健身房年卡便宜",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3910,
+      "reply": ""
+    },
+    {
+      "q": "给我推荐一支口红吧",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2330,
+      "reply": ""
+    },
+    {
+      "q": "该给孩子报什么兴趣班",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3257,
+      "reply": ""
+    },
+    {
+      "q": "有什么好用的洗地机",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "refused"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1329,
+      "reply": ""
+    },
+    {
+      "q": "我的猫最近不吃东西怎么办",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2339,
+      "reply": ""
+    }
+  ],
+  "probes": []
+}

@@ -1,0 +1,418 @@
+{
+  "mode": "plan",
+  "testset": "agent_probe_overcall",
+  "measured_at": "2026-10-17T19:03:09",
+  "git_commit": "585d2a4",
+  "worktree_dirty": true,
+  "dirty_files": 20,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "valid": true,
+  "sampled": false,
+  "sample_of_total": "20/20",
+  "sample_seed": 20261017,
+  "tool_execution": "stub（Java 未参与；测规划层选择与延迟）",
+  "llm_calls": {
+    "plan": 21,
+    "answer": 0
+  },
+  "llm_errors": 0,
+  "rate_limited_calls": 4,
+  "accuracy": 0.9,
+  "by_intent": {
+    "after_sales": {
+      "total": 1,
+      "correct": 1,
+      "recall": 1.0
+    },
+    "faq": {
+      "total": 2,
+      "correct": 2,
+      "recall": 1.0
+    },
+    "human": {
+      "total": 1,
+      "correct": 1,
+      "recall": 1.0
+    },
+    "logistics": {
+      "total": 1,
+      "correct": 1,
+      "recall": 1.0
+    },
+    "order": {
+      "total": 1,
+      "correct": 1,
+      "recall": 1.0
+    },
+    "recommend": {
+      "total": 2,
+      "correct": 2,
+      "recall": 1.0
+    },
+    "smalltalk": {
+      "total": 12,
+      "correct": 10,
+      "recall": 0.8333
+    }
+  },
+  "by_feature": {
+    "lexical": {
+      "total": 2,
+      "correct": 2,
+      "accuracy": 1.0
+    },
+    "semantic": {
+      "total": 18,
+      "correct": 16,
+      "accuracy": 0.8889
+    }
+  },
+  "latency_ms": {
+    "avg": 9563,
+    "p50": 2007,
+    "p95": 68378,
+    "max": 73818
+  },
+  "over_call": {
+    "kb_search": 2,
+    "product_search": 1,
+    "order_query": 1,
+    "after_sales_query": 1
+  },
+  "cases": [
+    {
+      "q": "嘿，你今天忙不忙",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1546,
+      "reply": ""
+    },
+    {
+      "q": "刚下班，随便聊聊",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1195,
+      "reply": ""
+    },
+    {
+      "q": "外面下雨了呢",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 5060,
+      "reply": ""
+    },
+    {
+      "q": "吃了没",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2007,
+      "reply": ""
+    },
+    {
+      "q": "你挺逗的",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1275,
+      "reply": ""
+    },
+    {
+      "q": "先这样吧，我看看别的",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [
+        "kb_search",
+        "product_search"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "items": 8,
+      "hit": false,
+      "extra_tools": [
+        "kb_search",
+        "product_search"
+      ],
+      "route": "agent",
+      "latency_ms": 3125,
+      "reply": ""
+    },
+    {
+      "q": "行吧行吧",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1769,
+      "reply": ""
+    },
+    {
+      "q": "今天星期几呀",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1791,
+      "reply": ""
+    },
+    {
+      "q": "哈喽哈喽",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 6075,
+      "reply": ""
+    },
+    {
+      "q": "我这边信号不好，等下再说",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2573,
+      "reply": ""
+    },
+    {
+      "q": "嗯嗯，晓得了",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [
+        "kb_search",
+        "order_query",
+        "after_sales_query"
+      ],
+      "statuses": [
+        "empty",
+        "ok",
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search",
+        "order_query",
+        "after_sales_query"
+      ],
+      "route": "agent",
+      "latency_ms": 73818,
+      "reply": ""
+    },
+    {
+      "q": "你是怎么学会说话的",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 4479,
+      "reply": ""
+    },
+    {
+      "q": "开发票要什么手续",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1491,
+      "reply": ""
+    },
+    {
+      "q": "订单能改成货到付款吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1235,
+      "reply": ""
+    },
+    {
+      "q": "我最近买过哪些东西",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1310,
+      "reply": ""
+    },
+    {
+      "q": "帮我看看包裹走到哪一步了",
+      "intent": "logistics",
+      "feature": "lexical",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1757,
+      "reply": ""
+    },
+    {
+      "q": "我的换货申请审到哪个环节了",
+      "intent": "after_sales",
+      "feature": "lexical",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1324,
+      "reply": ""
+    },
+    {
+      "q": "有没有适合煮粥的豆类",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 8,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 8216,
+      "reply": ""
+    },
+    {
+      "q": "给孩子买点零食，别太甜的",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 8,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2832,
+      "reply": ""
+    },
+    {
+      "q": "客服态度让我很不满，请给个处理方案",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 68378,
+      "reply": ""
+    }
+  ],
+  "probes": []
+}

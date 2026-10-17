@@ -1,0 +1,2242 @@
+{
+  "mode": "plan",
+  "testset": "holdout",
+  "measured_at": "2026-10-17T19:31:09",
+  "git_commit": "585d2a4",
+  "worktree_dirty": true,
+  "dirty_files": 24,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "valid": true,
+  "sampled": false,
+  "sample_of_total": "109/109",
+  "sample_seed": 20261017,
+  "tool_execution": "stub（Java 未参与；测规划层选择与延迟）",
+  "llm_calls": {
+    "plan": 121,
+    "answer": 0
+  },
+  "llm_errors": 0,
+  "rate_limited_calls": 19,
+  "accuracy": 0.8624,
+  "by_intent": {
+    "after_sales": {
+      "total": 15,
+      "correct": 14,
+      "recall": 0.9333
+    },
+    "faq": {
+      "total": 20,
+      "correct": 17,
+      "recall": 0.85
+    },
+    "human": {
+      "total": 14,
+      "correct": 12,
+      "recall": 0.8571
+    },
+    "logistics": {
+      "total": 15,
+      "correct": 11,
+      "recall": 0.7333
+    },
+    "order": {
+      "total": 15,
+      "correct": 13,
+      "recall": 0.8667
+    },
+    "recommend": {
+      "total": 16,
+      "correct": 16,
+      "recall": 1.0
+    },
+    "smalltalk": {
+      "total": 14,
+      "correct": 11,
+      "recall": 0.7857
+    }
+  },
+  "by_feature": {
+    "lexical": {
+      "total": 32,
+      "correct": 30,
+      "accuracy": 0.9375
+    },
+    "semantic": {
+      "total": 77,
+      "correct": 64,
+      "accuracy": 0.8312
+    }
+  },
+  "latency_ms": {
+    "avg": 7529,
+    "p50": 2249,
+    "p95": 27850,
+    "max": 32423
+  },
+  "over_call": {
+    "product_search": 5,
+    "kb_search": 9,
+    "after_sales_query": 2,
+    "order_query": 5
+  },
+  "cases": [
+    {
+      "q": "下单以后还能改收货地址吗",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2844,
+      "reply": ""
+    },
+    {
+      "q": "你们支持几天无理由退换",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 4066,
+      "reply": ""
+    },
+    {
+      "q": "一个订单可以拆成几个包裹寄吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1702,
+      "reply": ""
+    },
+    {
+      "q": "生鲜是全程冷链吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search",
+        "kb_search"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1866,
+      "reply": ""
+    },
+    {
+      "q": "优惠券可以和秒杀价同时用吗",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1501,
+      "reply": ""
+    },
+    {
+      "q": "新人第一单有优惠吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1577,
+      "reply": ""
+    },
+    {
+      "q": "你们对入驻产地有资质审核吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1842,
+      "reply": ""
+    },
+    {
+      "q": "农药残留的检测报告能给我看看吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 32423,
+      "reply": ""
+    },
+    {
+      "q": "一箱苹果大概是多重",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": false,
+      "extra_tools": [
+        "product_search"
+      ],
+      "route": "agent",
+      "latency_ms": 5311,
+      "reply": ""
+    },
+    {
+      "q": "现在买的车厘子是进口还是国产的",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": false,
+      "extra_tools": [
+        "product_search"
+      ],
+      "route": "agent",
+      "latency_ms": 2017,
+      "reply": ""
+    },
+    {
+      "q": "退货的运费由谁承担",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 26360,
+      "reply": ""
+    },
+    {
+      "q": "签收之后发现坏了还能申请退款吗",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1574,
+      "reply": ""
+    },
+    {
+      "q": "平台上有带有机认证的商品吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 1,
+      "hit": false,
+      "extra_tools": [
+        "product_search"
+      ],
+      "route": "agent",
+      "latency_ms": 1927,
+      "reply": ""
+    },
+    {
+      "q": "起订数量有要求吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1951,
+      "reply": ""
+    },
+    {
+      "q": "预售的商品什么时候才发货",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3896,
+      "reply": ""
+    },
+    {
+      "q": "支付方式里有花呗吗",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2203,
+      "reply": ""
+    },
+    {
+      "q": "可以备注不要放小票吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1238,
+      "reply": ""
+    },
+    {
+      "q": "你们发全国吗，新疆包邮不",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 23977,
+      "reply": ""
+    },
+    {
+      "q": "同一款商品买三件有折扣吗",
+      "intent": "faq",
+      "feature": "semantic",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1824,
+      "reply": ""
+    },
+    {
+      "q": "发票抬头开个人的可以吗",
+      "intent": "faq",
+      "feature": "lexical",
+      "expected_tool": "kb_search",
+      "tools": [
+        "kb_search",
+        "kb_search"
+      ],
+      "statuses": [
+        "empty",
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 27347,
+      "reply": ""
+    },
+    {
+      "q": "我这个月的消费记录在哪里看",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 1692,
+      "reply": ""
+    },
+    {
+      "q": "我昨天下的单子还没付钱吧",
+      "intent": "order",
+      "feature": "lexical",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1094,
+      "reply": ""
+    },
+    {
+      "q": "帮我看看我买过几箱酸奶",
+      "intent": "order",
+      "feature": "lexical",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 4209,
+      "reply": ""
+    },
+    {
+      "q": "我有几笔交易还没有完成",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1445,
+      "reply": ""
+    },
+    {
+      "q": "我下过的单子给我列一下",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1738,
+      "reply": ""
+    },
+    {
+      "q": "那笔买给妈妈的蜂蜜帮我找找",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 20561,
+      "reply": ""
+    },
+    {
+      "q": "我上次买东西花了多少钱",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1332,
+      "reply": ""
+    },
+    {
+      "q": "订单 AGS202610050017 现在是什么情况",
+      "intent": "order",
+      "feature": "lexical",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2558,
+      "reply": ""
+    },
+    {
+      "q": "我申请退款的那笔单子订单号是多少",
+      "intent": "order",
+      "feature": "lexical",
+      "expected_tool": "order_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "after_sales_query"
+      ],
+      "route": "agent",
+      "latency_ms": 5949,
+      "reply": ""
+    },
+    {
+      "q": "昨天在你们这儿买了两单，第一单是什么",
+      "intent": "order",
+      "feature": "lexical",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 27850,
+      "reply": ""
+    },
+    {
+      "q": "看看我最近一次成交的时间和金额",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 5772,
+      "reply": ""
+    },
+    {
+      "q": "我在你们家总共消费了多少钱",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3290,
+      "reply": ""
+    },
+    {
+      "q": "帮我确认一下那单大闸蟹扣款成功了没",
+      "intent": "order",
+      "feature": "semantic",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1481,
+      "reply": ""
+    },
+    {
+      "q": "我买过的那袋东北大米是什么规格来着",
+      "intent": "order",
+      "feature": "lexical",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1325,
+      "reply": ""
+    },
+    {
+      "q": "能不能把我全部购买记录导出发给我",
+      "intent": "order",
+      "feature": "lexical",
+      "expected_tool": "order_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1796,
+      "reply": ""
+    },
+    {
+      "q": "我买的东西走到哪座城市了",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 26683,
+      "reply": ""
+    },
+    {
+      "q": "包裹今天能到我家吗",
+      "intent": "logistics",
+      "feature": "lexical",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1842,
+      "reply": ""
+    },
+    {
+      "q": "东西寄出来了没有",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1621,
+      "reply": ""
+    },
+    {
+      "q": "我那个件三天没动静了",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2043,
+      "reply": ""
+    },
+    {
+      "q": "什么时候上门取件",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "after_sales_query"
+      ],
+      "route": "agent",
+      "latency_ms": 23946,
+      "reply": ""
+    },
+    {
+      "q": "派送员的电话能给我吗",
+      "intent": "logistics",
+      "feature": "lexical",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 5323,
+      "reply": ""
+    },
+    {
+      "q": "我下的那单是从哪个城市发出来的",
+      "intent": "logistics",
+      "feature": "lexical",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "order_query"
+      ],
+      "route": "agent",
+      "latency_ms": 1069,
+      "reply": ""
+    },
+    {
+      "q": "签收记录上显示是谁签收的",
+      "intent": "logistics",
+      "feature": "lexical",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 32230,
+      "reply": ""
+    },
+    {
+      "q": "还有多久才能到我这儿",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1534,
+      "reply": ""
+    },
+    {
+      "q": "快递现在是不是卡在分拨中心了",
+      "intent": "logistics",
+      "feature": "lexical",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1546,
+      "reply": ""
+    },
+    {
+      "q": "这两件是一起寄过来的吗",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2791,
+      "reply": ""
+    },
+    {
+      "q": "我的那箱芒果今天派送了没",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1534,
+      "reply": ""
+    },
+    {
+      "q": "为什么显示运输中又退回发件地了",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "logistics_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2232,
+      "reply": ""
+    },
+    {
+      "q": "能改成周末再送吗",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "order_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "order_query"
+      ],
+      "route": "agent",
+      "latency_ms": 2249,
+      "reply": ""
+    },
+    {
+      "q": "从山东到上海一般走几天",
+      "intent": "logistics",
+      "feature": "semantic",
+      "expected_tool": "logistics_query",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 25303,
+      "reply": ""
+    },
+    {
+      "q": "我提的申请有人处理吗",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1209,
+      "reply": ""
+    },
+    {
+      "q": "钱退回我卡里了没有",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3118,
+      "reply": ""
+    },
+    {
+      "q": "那单换新的寄出来了吗",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query",
+        "order_query"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [
+        "order_query"
+      ],
+      "route": "agent",
+      "latency_ms": 32354,
+      "reply": ""
+    },
+    {
+      "q": "坏了一个能给我补发吗",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 1752,
+      "reply": ""
+    },
+    {
+      "q": "我上传的凭证审核了吗",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3245,
+      "reply": ""
+    },
+    {
+      "q": "退款进度帮我查一下",
+      "intent": "after_sales",
+      "feature": "lexical",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1903,
+      "reply": ""
+    },
+    {
+      "q": "说好的三个工作日到账，现在第五天了",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2824,
+      "reply": ""
+    },
+    {
+      "q": "我那个仅退款是被驳回了是吗",
+      "intent": "after_sales",
+      "feature": "lexical",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 6335,
+      "reply": ""
+    },
+    {
+      "q": "售后单 AS202610080002 处理到哪了",
+      "intent": "after_sales",
+      "feature": "lexical",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2033,
+      "reply": ""
+    },
+    {
+      "q": "东西我已经寄回去了，接下来怎么走",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 25958,
+      "reply": ""
+    },
+    {
+      "q": "理赔什么时候打款",
+      "intent": "after_sales",
+      "feature": "lexical",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1930,
+      "reply": ""
+    },
+    {
+      "q": "退款已经发起但我还没收到",
+      "intent": "after_sales",
+      "feature": "lexical",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1917,
+      "reply": ""
+    },
+    {
+      "q": "帮我撤销之前的退货申请",
+      "intent": "after_sales",
+      "feature": "lexical",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 26602,
+      "reply": ""
+    },
+    {
+      "q": "那单说好了给我补发，到现在没信儿",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3072,
+      "reply": ""
+    },
+    {
+      "q": "买的水果烂了三成，这个怎么算",
+      "intent": "after_sales",
+      "feature": "semantic",
+      "expected_tool": "after_sales_query",
+      "tools": [
+        "kb_search",
+        "after_sales_query"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 2948,
+      "reply": ""
+    },
+    {
+      "q": "早啊",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1128,
+      "reply": ""
+    },
+    {
+      "q": "有人在么",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1050,
+      "reply": ""
+    },
+    {
+      "q": "哈哈，和你聊得挺开心",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1416,
+      "reply": ""
+    },
+    {
+      "q": "我先去忙了哈",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "empty"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 30845,
+      "reply": ""
+    },
+    {
+      "q": "你是真人还是智能助手",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "rule_shortcut",
+      "latency_ms": 0,
+      "reply": ""
+    },
+    {
+      "q": "你怎么称呼",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2534,
+      "reply": ""
+    },
+    {
+      "q": "今天可真热啊",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [
+        "kb_search",
+        "product_search",
+        "kb_search",
+        "product_search"
+      ],
+      "statuses": [
+        "empty",
+        "ok",
+        "empty",
+        "refused"
+      ],
+      "items": 4,
+      "hit": false,
+      "extra_tools": [
+        "kb_search",
+        "product_search",
+        "kb_search",
+        "product_search"
+      ],
+      "route": "agent",
+      "latency_ms": 31299,
+      "reply": ""
+    },
+    {
+      "q": "谢谢啦，帮大忙了",
+      "intent": "smalltalk",
+      "feature": "lexical",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "rule_shortcut",
+      "latency_ms": 0,
+      "reply": ""
+    },
+    {
+      "q": "行，我知道怎么弄了",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1046,
+      "reply": ""
+    },
+    {
+      "q": "我刚吃完饭回来啦",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3074,
+      "reply": ""
+    },
+    {
+      "q": "你会讲笑话不",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "empty"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search"
+      ],
+      "route": "agent",
+      "latency_ms": 6921,
+      "reply": ""
+    },
+    {
+      "q": "随便看看，先熟悉一下这个小程序",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2151,
+      "reply": ""
+    },
+    {
+      "q": "晚安",
+      "intent": "smalltalk",
+      "feature": "lexical",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "rule_shortcut",
+      "latency_ms": 0,
+      "reply": ""
+    },
+    {
+      "q": "你都能帮我做些什么呀",
+      "intent": "smalltalk",
+      "feature": "semantic",
+      "expected_tool": null,
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1936,
+      "reply": ""
+    },
+    {
+      "q": "我不想跟机器说了，找个活人",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 27619,
+      "reply": ""
+    },
+    {
+      "q": "再不处理我就发到网上去",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2470,
+      "reply": ""
+    },
+    {
+      "q": "你们这是虚假宣传",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1985,
+      "reply": ""
+    },
+    {
+      "q": "东西少了三分之一，我要你们给个交代",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "kb_search",
+        "order_query"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [
+        "kb_search",
+        "order_query"
+      ],
+      "route": "agent",
+      "latency_ms": 26436,
+      "reply": ""
+    },
+    {
+      "q": "给我接一个有权限处理的人",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1324,
+      "reply": ""
+    },
+    {
+      "q": "我要向市场监管部门反映情况",
+      "intent": "human",
+      "feature": "lexical",
+      "expected_tool": "escalate_human",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "rule_shortcut",
+      "latency_ms": 0,
+      "reply": ""
+    },
+    {
+      "q": "这单我要找你们老板谈",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2213,
+      "reply": ""
+    },
+    {
+      "q": "客服态度极其恶劣，我要反馈",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1602,
+      "reply": ""
+    },
+    {
+      "q": "你们涉嫌缺斤短两",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 8417,
+      "reply": ""
+    },
+    {
+      "q": "别自动回复了，让人来看",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1058,
+      "reply": ""
+    },
+    {
+      "q": "再不解决我要打 12315 了",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "rule_shortcut",
+      "latency_ms": 0,
+      "reply": ""
+    },
+    {
+      "q": "我要你们给我一个书面答复",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": false,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2094,
+      "reply": ""
+    },
+    {
+      "q": "这已经是第三次了，我不接受机器答复",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 32043,
+      "reply": ""
+    },
+    {
+      "q": "把你们负责人的电话给我",
+      "intent": "human",
+      "feature": "semantic",
+      "expected_tool": "escalate_human",
+      "tools": [],
+      "statuses": [],
+      "items": 0,
+      "hit": true,
+      "extra_tools": [],
+      "route": "rule_shortcut",
+      "latency_ms": 0,
+      "reply": ""
+    },
+    {
+      "q": "家里来客人了，买点什么水果合适",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2204,
+      "reply": ""
+    },
+    {
+      "q": "有没有适合减脂期吃的粗粮",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1965,
+      "reply": ""
+    },
+    {
+      "q": "给孩子补维生素买什么好",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 26245,
+      "reply": ""
+    },
+    {
+      "q": "预算八十块，能配一箱什么",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2137,
+      "reply": ""
+    },
+    {
+      "q": "甜的、水分大的那种橘子有吗",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 5125,
+      "reply": ""
+    },
+    {
+      "q": "办公室当零食的东西推荐点",
+      "intent": "recommend",
+      "feature": "lexical",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 6351,
+      "reply": ""
+    },
+    {
+      "q": "有没有比上次那款更耐放的油",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "order_query",
+        "product_search"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [
+        "order_query"
+      ],
+      "route": "agent",
+      "latency_ms": 4232,
+      "reply": ""
+    },
+    {
+      "q": "过年走亲戚拎点什么体面",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 3,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3372,
+      "reply": ""
+    },
+    {
+      "q": "想买点下饭的小菜",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 3386,
+      "reply": ""
+    },
+    {
+      "q": "帮我挑个不太甜的茶叶",
+      "intent": "recommend",
+      "feature": "lexical",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 24552,
+      "reply": ""
+    },
+    {
+      "q": "有没有新上市的应季果子",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 10164,
+      "reply": ""
+    },
+    {
+      "q": "30 块钱左右能买到什么坚果",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1599,
+      "reply": ""
+    },
+    {
+      "q": "第一次做饭，买点什么厨房常备",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 4138,
+      "reply": ""
+    },
+    {
+      "q": "你帮我看看哪种红薯蒸着更糯",
+      "intent": "recommend",
+      "feature": "lexical",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 2378,
+      "reply": ""
+    },
+    {
+      "q": "送孕妇吃什么合适",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 6476,
+      "reply": ""
+    },
+    {
+      "q": "有没有做辅食用的南瓜",
+      "intent": "recommend",
+      "feature": "semantic",
+      "expected_tool": "product_search",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "items": 4,
+      "hit": true,
+      "extra_tools": [],
+      "route": "agent",
+      "latency_ms": 1858,
+      "reply": ""
+    }
+  ],
+  "probes": [
+    {
+      "kind": "multi_intent",
+      "q": "上次买的蜂蜜物流到哪了，另外再帮我推荐一款更甜的",
+      "note": "含 logistics + recommend 两个诉求，现有图只能走一支",
+      "tools": [
+        "logistics_query",
+        "product_search"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "args": [
+        {},
+        {
+          "query": "更甜的蜂蜜推荐",
+          "inDomain": true,
+          "keyword": "蜂蜜"
+        }
+      ],
+      "items": 4
+    },
+    {
+      "kind": "multi_intent",
+      "q": "我要退款，顺便告诉我运费怎么算",
+      "note": "after_sales + faq",
+      "tools": [
+        "kb_search",
+        "kb_search"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "args": [
+        {
+          "question": "cara mengajukan refund/pengecualian uang untuk pesanan农产品 di platform"
+        },
+        {
+          "question": "biaya pengiriman/ongkos kirim dihitung bagaimana untuk pesanan农产品"
+        }
+      ],
+      "items": 0
+    },
+    {
+      "kind": "multi_intent",
+      "q": "帮我看看订单，再教我怎么领优惠券",
+      "note": "order + faq",
+      "tools": [
+        "order_query",
+        "kb_search"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "args": [
+        {},
+        {
+          "question": "优惠券的领取和使用方法"
+        }
+      ],
+      "items": 0
+    },
+    {
+      "kind": "context_dependent",
+      "q": "有没有便宜点的",
+      "note": "需继承上一轮品类；当前 recommend 节点只取最后一句原文召回",
+      "tools": [
+        "product_search",
+        "kb_search"
+      ],
+      "statuses": [
+        "ok",
+        "ok"
+      ],
+      "args": [
+        {
+          "inDomain": true,
+          "query": "便宜点的农产品推荐",
+          "maxPrice": 30
+        },
+        {
+          "question": "平台有哪些促销活动或特价商品"
+        }
+      ],
+      "items": 4
+    },
+    {
+      "kind": "context_dependent",
+      "q": "换一个牌子看看",
+      "note": "同上，指代省略",
+      "tools": [],
+      "statuses": [],
+      "args": [],
+      "items": 0
+    },
+    {
+      "kind": "context_dependent",
+      "q": "这个适合送礼吗",
+      "note": "需商详页商品上下文，小程序入口未携带 productId",
+      "tools": [
+        "product_search"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "args": [
+        {
+          "inDomain": true,
+          "query": "适合送礼的农产品"
+        }
+      ],
+      "items": 4
+    },
+    {
+      "kind": "context_dependent",
+      "q": "那第二个呢，多少钱",
+      "note": "需结构化候选（聊天页当前无商品卡片，用户与系统不同屏）",
+      "tools": [],
+      "statuses": [],
+      "args": [],
+      "items": 0
+    },
+    {
+      "kind": "out_of_domain",
+      "q": "推荐一部好看的电影",
+      "note": "观察导购分支是否有域外拒答闸门（REC_SEARCH_MIN_SCORE=0.35 借自搜索场景）",
+      "tools": [],
+      "statuses": [],
+      "args": [],
+      "items": 0
+    },
+    {
+      "kind": "out_of_domain",
+      "q": "今天股市行情怎么样",
+      "note": "同上",
+      "tools": [
+        "kb_search"
+      ],
+      "statuses": [
+        "empty"
+      ],
+      "args": [
+        {
+          "question": "今天股市行情怎么样"
+        }
+      ],
+      "items": 0
+    },
+    {
+      "kind": "out_of_domain",
+      "q": "帮我写一首关于秋天的诗",
+      "note": "同上",
+      "tools": [
+        "kb_search",
+        "product_search"
+      ],
+      "statuses": [
+        "empty",
+        "ok"
+      ],
+      "args": [
+        {
+          "question": "秋天的诗"
+        },
+        {
+          "query": "秋天的诗"
+        }
+      ],
+      "items": 1
+    },
+    {
+      "kind": "out_of_domain",
+      "q": "周杰伦新歌什么时候发",
+      "note": "原实验五中曾穿透关键词豁免通道的样本类型",
+      "tools": [],
+      "statuses": [],
+      "args": [],
+      "items": 0
+    },
+    {
+      "kind": "out_of_domain",
+      "q": "我的护照怎么办",
+      "note": "同上",
+      "tools": [
+        "escalate_human"
+      ],
+      "statuses": [
+        "ok"
+      ],
+      "args": [
+        {
+          "reason": "用户咨询护照办理问题，不属于本平台农产品销售业务范围"
+        }
+      ],
+      "items": 0
+    }
+  ]
+}

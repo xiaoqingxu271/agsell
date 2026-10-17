@@ -1,9 +1,12 @@
-"""AI 客服响应性能测量：SSE 流式链路 TTFB / 意图耗时 / 整轮耗时
+"""AI 客服响应性能测量：SSE 流式链路 TTFB / 取证阶段 / 整轮耗时
 
-前置：ai-service 已启动（uvicorn app.main:app --port 8000）。
+前置：ai-service 已启动（uvicorn app.main:app --port 8000），Java 主系统在 8080
+（导购/订单类问题要回调 Java，缺它这些分支会走故障降级，延迟数字就不可比）。
 用法：.venv/Scripts/python scripts/eval_latency.py [--rounds 1]
 
 输出：控制台报告 + scripts/eval_results/latency_eval.json
+⚠ 智能体改造后 status 事件不再带业务意图标签，而是带本轮真实调用的工具（tools）；
+   报告里按"取证工具组合"分组，直接暴露一句多诉求要花几次调用。
 """
 import argparse
 import json
@@ -24,9 +27,9 @@ RESULT_DIR = PROJECT_ROOT / "scripts" / "eval_results"
 
 from _provenance import provenance  # noqa: E402  统一溯源字段
 
-# 覆盖三条主路由：smalltalk（1 次 LLM）/ faq（检索 + 1 次 LLM）/
-# recommend（导购：意图分类 + 偏好抽取 + 生成，**3 次串行 LLM**，线上最慢也最该测的一支，
-# 原实验四漏测——论文主角分支的延迟此前没有任何实测数据）
+# 覆盖四类链路（改造后每条都是"规划 → 执行 → 作答"，差别只在调了几个工具）：
+#   smalltalk 规则前置直出（1 次 LLM）；faq / recommend 各 2 次（规划 + 作答）；
+#   multi_intent 一句两个诉求：旧架构只能答一半，现在仍只 2 次 LLM（工具并行）
 QUESTIONS = [
     ("smalltalk", "你好"),
     ("smalltalk", "在吗"),
@@ -42,13 +45,18 @@ QUESTIONS = [
     ("recommend", "50 元以内有什么好物"),
     ("recommend", "哪种茶叶比较好"),
     ("recommend", "帮我挑个送礼的"),
+    ("multi_intent", "怎么申请退款？另外有没有 50 元以内的橙子"),
+    ("multi_intent", "运费怎么算，顺便看看有什么坚果"),
+    ("multi_intent", "我想查订单，另外秒杀活动怎么参加"),
 ]
 
 
 def measure_one(base_url: str, headers: dict, question: str) -> dict:
     t0 = time.perf_counter()
-    t_first_status = t_first_token = t_done = None
+    t_first_status = t_first_token = t_done = t_evidence = None
     intent = None
+    tools: list[str] = []
+    items = 0
     reply_chars = 0
 
     resp = requests.post(
@@ -73,19 +81,28 @@ def measure_one(base_url: str, headers: dict, question: str) -> dict:
                 if payload.get("stage") == "intent":
                     intent = payload.get("intent")
                     t_first_status = t_first_status or now
+                elif payload.get("stage") == "agent":
+                    # 取证完成的时刻：智能体节点一次性返回，tools 即本轮真实调用
+                    tools = payload.get("tools") or []
+                    t_evidence = now
             elif event == "token":
                 t_first_token = t_first_token or now
                 reply_chars += len(json.loads(data).get("content", ""))
+            elif event == "items":
+                items = len(json.loads(data).get("items") or [])
             elif event == "done":
                 t_done = now
     t_end = time.perf_counter()
     return {
         "question": question,
         "intent": intent,
+        "tools": tools,
+        "evidence_ms": round((t_evidence - t0) * 1000) if t_evidence else None,
         "ttfb_status_ms": round((t_first_status - t0) * 1000) if t_first_status else None,
         "ttfb_token_ms": round((t_first_token - t0) * 1000) if t_first_token else None,
         "total_ms": round(((t_done or t_end) - t0) * 1000),
         "reply_chars": reply_chars,
+        "item_cards": items,
     }
 
 
@@ -126,8 +143,10 @@ def main():
             row["round"] = round_no
             rows.append(row)
             print(
-                f"  [r{round_no}][{group}] {q!r} → intent={row['intent']} "
-                f"首token={row['ttfb_token_ms']}ms 整轮={row['total_ms']}ms 回复{row['reply_chars']}字"
+                f"  [r{round_no}][{group}] {q!r} → 规则标签={row['intent']!r} "
+                f"工具={row['tools']} 取证={row['evidence_ms']}ms "
+                f"首token={row['ttfb_token_ms']}ms 整轮={row['total_ms']}ms "
+                f"卡片={row['item_cards']} 回复{row['reply_chars']}字"
             )
 
     groups = sorted({r["group"] for r in rows})
@@ -150,7 +169,13 @@ def main():
             {
             **provenance(),
                 "rounds": args.rounds,
-                "llm_calls_per_branch": {"smalltalk": 1, "faq": 2, "recommend": 3},
+                # smalltalk 由规则前置直出；其余两支各"规划 + 作答"两次 LLM——
+                # 一句多诉求仍是 2 次（工具在同一规划步里并行），这是改造的关键收益
+                "llm_calls_per_branch": {
+                    "smalltalk": 1, "faq": 2, "recommend": 2,
+                    "recommend_pre_refactor": 3, "multi_intent_pre_refactor": "只能答一半",
+                },
+                "tool_execution": "真实（Java 8080 在跑，回调取数）",
                 "detail": rows,
                 "summary": summary,
             },
