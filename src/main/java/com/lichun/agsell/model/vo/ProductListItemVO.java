@@ -37,7 +37,7 @@ public class ProductListItemVO implements Serializable {
 
     private String mainImage;
 
-    /** AI 推荐可解释理由（如"你常买「粮油米面」""日期新鲜"），仅个性化 feed 命中时填充 */
+    /** AI 推荐可解释理由（如"偏爱「乌龙普洱」""日期新鲜"），仅个性化 feed 命中时填充 */
     private String recommendReason;
 
     private Integer status;

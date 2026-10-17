@@ -22,8 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 用户端-AI 个性化推荐接口
@@ -96,13 +99,30 @@ public class AiRecommendController {
         if (orderedIds == null || orderedIds.isEmpty()) {
             return ResultUtils.success(productService.listHotProducts(n));
         }
-        List<ProductListItemVO> products = productService.listProductsByIds(orderedIds);
+        List<ProductListItemVO> products = new ArrayList<>(productService.listProductsByIds(orderedIds));
         if (products.isEmpty()) {
             return ResultUtils.success(productService.listHotProducts(n));
         }
         // 附可解释理由：取 AI 原始信号（0~1）最强者作为"为什么推荐给你"标签
         Map<Long, JSONObject> sigRef = signalsById;
         products.forEach(vo -> vo.setRecommendReason(buildReason(sigRef.get(vo.getId()), vo.getCategoryName())));
+
+        // AI 候选池小于 limit、或商品在取数与展示之间被下架时，推荐位会缺几格：用热销榜补齐到整页。
+        // 回填项没有 AI 信号，buildReason 自然返回 null，不会给它们编造"符合你的偏好"。
+        if (products.size() < n) {
+            Set<Long> shown = products.stream()
+                    .map(ProductListItemVO::getId)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            for (ProductListItemVO hot : productService.listHotProducts(n)) {
+                if (products.size() >= n) {
+                    break;
+                }
+                if (shown.add(hot.getId())) {
+                    hot.setRecommendReason(buildReason(sigRef.get(hot.getId()), hot.getCategoryName()));
+                    products.add(hot);
+                }
+            }
+        }
         return ResultUtils.success(products);
     }
 
@@ -114,24 +134,26 @@ public class AiRecommendController {
         double sem = signals.getDouble("sem", 0.0);
         double pref = signals.getDouble("pref", 0.0);
         double sales = signals.getDouble("sales", 0.0);
-        double rate = signals.getDouble("rate", 0.0);
         double fresh = signals.getDouble("fresh", 0.0);
         double browse = signals.getDouble("browse", 0.0);
+        // 零评价商品的 rate 拿到的是全站先验（中性常数）：排序可以继续用它兜底，但对用户宣称
+        // "好评率高"就是虚假口碑。只有 rate_conf=1（该商品确有已分析评价）才让口碑项参与择优。
+        boolean reviewed = signals.getDouble("rate_conf", 0.0) > 0.0;
+        double rate = reviewed ? signals.getDouble("rate", 0.0) : 0.0;
         double max = Math.max(Math.max(Math.max(sem, pref), Math.max(sales, rate)), Math.max(fresh, browse));
         if (max <= 0.0) {
             return null;
         }
+        String cat = friendlyCategory(categoryName);
         // 并列时优先级：搜索相关 > 最近浏览 > 长期偏好 > 时令 > 口碑 > 销量
         if (sem == max) {
             return "与你的搜索高度相关";
         }
         if (browse == max) {
-            return (categoryName != null && !categoryName.isBlank())
-                    ? "你最近看过「" + categoryName + "」" : "符合你最近的浏览";
+            return cat != null ? "最近看过「" + cat + "」" : "符合你最近的浏览";
         }
         if (pref == max) {
-            return (categoryName != null && !categoryName.isBlank())
-                    ? "你常买「" + categoryName + "」" : "符合你的偏好";
+            return cat != null ? "偏爱「" + cat + "」" : "符合你的偏好";
         }
         if (fresh == max) {
             return "日期新鲜";
@@ -140,5 +162,20 @@ public class AiRecommendController {
             return "好评率高";
         }
         return "热销爆款";
+    }
+
+    /** 类目名进文案时去掉"××类"的归类后缀：「浆果类」→「浆果」，卡片上更像人话；其余名称原样保留 */
+    private static String friendlyCategory(String categoryName) {
+        if (categoryName == null) {
+            return null;
+        }
+        String name = categoryName.trim();
+        if (name.isEmpty()) {
+            return null;
+        }
+        if (name.length() >= 3 && name.endsWith("类")) {
+            return name.substring(0, name.length() - 1);
+        }
+        return name;
     }
 }
