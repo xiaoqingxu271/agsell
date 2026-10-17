@@ -472,4 +472,28 @@ pytest                    # 实测 9.1.1
 
 ---
 
+## 架构演进（2026-10-17）：从意图路由工作流到工具编排智能体
+
+上面阶段二/三那张框图与"意图识别节点 + 业务工具节点"的写法是**当时的实现记录**，现已改造，
+论文与答辩请按本节口径描述：
+
+- **旧**：`intent` 节点用一次 LLM 调用输出单一意图标签 → `route_by_intent` 按 argmax 走一个固定分支
+  → 调一个工具 → 生成。一句话两个诉求只能答一半；"调什么"完全写在人工 if-else 里。
+  实测该规则/分类通道在 hold-out 集只有 37.6%（语义子集 23.4%），本来就当不了语义分类器。
+- **新**：6 个能力注册成 function schema（`app/agent/tool_defs.py`），`llm.bind_tools()` 让模型自己
+  决定调用哪些工具（`app/agent/nodes.py:make_agent_node`），一轮可并行多个，最多
+  `AGENT_MAX_STEPS=2` 步、`AGENT_MAX_TOOL_CALLS=4` 次调用，按 (工具, 参数) 去重，
+  出现 empty/error 才允许改写重试一次；`intent` 节点只保留高置信规则前置（human / 纯寒暄直出，零 LLM）。
+- **闸门位置不变**：知识库阈值拒答、导购 `REC_MIN_SCORE=0.47`、LIKE 命中优先于域判定、
+  商详指代通路，全部在 `app/agent/executors.py` 一处实现。架构改造只换"谁决定调用什么"，
+  不改"调用之后怎么把关"，否则量化实验的结论会随重构失效。
+- **降级不是口号**：上游模型不支持 function calling、或规划调用抛异常时，
+  `_resolve_planner` 会退回"分类 + 单工具"并打 WARNING，链路继续可用。
+  演示前确认日志无该 WARNING，否则跑的是降级路径。
+- **旧的 5 个业务节点与 `tool_type/tool_result/faq_context` 状态字段已删除**；
+  本轮工具选择实测（hold-out n=109：86.2%，语义子集 81.8%）与端到端延迟见
+  `doc/量化实验报告.md` §5.4、§8。
+
+---
+
 *本文档事实核实来源：LangChain 官方博客与 Changelog、PyPI（torch/chromadb）、FastAPI 官方文档、Agnes AI 官方文档（wiki.agnes-ai.com）、BAAI bge-m3 与 Qwen3-Embedding 公开资料。*
