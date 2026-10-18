@@ -30,13 +30,19 @@ uvicorn app.main:app --port 8000
 | ------ | ------------------------ | ---------------------------------------------------------------------------- |
 | GET    | `/health`                | 健康检查                                                                         |
 | POST   | `/v1/chat`               | 客服对话（意图路由 + 业务工具 + RAG + Agnes）：`{"sessionId":"s_001","message":"我的订单到哪了","userId":2095531860995977217}` |
-| GET    | `/v1/admin/kb/stats`     | 知识库统计（FAQ 数 / 索引数 / 模型）                                                      |
-| POST   | `/v1/admin/kb/index`     | 全量重建索引（MySQL → 向量化 → Chroma）                                                 |
+| GET    | `/v1/admin/kb/stats`     | 知识库统计（FAQ 数 / FAQ 索引数 / 商品索引数 / 模型）                                          |
+| POST   | `/v1/admin/kb/index`     | 全量重建 FAQ 索引（MySQL → 向量化 → Chroma）                                             |
+| POST   | `/v1/admin/kb/products/index` | 全量重建商品召回索引（兜底修复用，日常靠下面的 upsert）                                                |
+| POST   | `/v1/admin/kb/products/upsert`  | 商品变更后的增量同步：`{"productIds":[...]}`，在售→写入索引、查不到（下架/删除）→从索引除名                      |
 | GET    | `/v1/admin/kb/faqs`      | FAQ 列表（分页 / 分类）                                                              |
-| POST   | `/v1/admin/kb/faqs`      | 新增 FAQ                                                                       |
-| PUT    | `/v1/admin/kb/faqs/{id}` | 更新 FAQ（阶段七起自动增量同步索引；置为停用则自动从索引下架）                                                  |
-| DELETE | `/v1/admin/kb/faqs/{id}` | 删除 FAQ                                                                       |
+| POST   | `/v1/admin/kb/faqs`      | 新增 FAQ，**201** + `{"id":..,"indexed":..}`（`indexed=false` = 已存库但索引没跟上）         |
+| PUT    | `/v1/admin/kb/faqs/{id}` | 更新 FAQ（PATCH 语义，只送非 null 字段；置为停用则自动从索引下架）；返回 `indexed`，含除名成功                  |
+| DELETE | `/v1/admin/kb/faqs/{id}` | 删除 FAQ（同时从索引除名）                                                               |
 | GET    | `/docs`                  | Swagger 文档                                                                   |
+
+> 管理端七个接口只允许 Java 主系统调用：请求头 `X-Internal-Key` 必须等于 `JAVA_INTERNAL_KEY`；
+> **未配置该密钥时一律 503 拒绝（fail-closed）**，不因"本地没配"而放行——这里能改 RAG 的答案来源。
+> 浏览器不直连本服务，管理后台走 `agsell-frontend` → Java `/api/admin/ai/kb/*` 代理。
 
 ## 架构（智能体版）
 
@@ -110,11 +116,11 @@ ai-service/
 │   │   ├── executors.py     # 工具执行器 + Observation：已实测生效的闸门全在这里（唯一实现）
 │   │   ├── nodes.py         # intent（规则前置）/ agent（bind_tools 有界编排）/ generate / smalltalk / human_fallback
 │   │   └── graph.py         # LangGraph 图（build_graph(llm, retriever, java_api_module, product_store, personalizer)；默认 MemorySaver checkpointer）
-│   └── api/admin_kb.py      # 知识库管理接口（stats/index/faqs，X-Internal-Key 鉴权预留）
+│   └── api/admin_kb.py      # 知识库管理接口（stats/index/faqs/products，X-Internal-Key 强制且缺配置即 503）
 ├── scripts/
 │   ├── seed_data.py         # 36 条种子 FAQ（基于 agsell 真实业务规则）
 │   └── init_faq.py          # 建表 + 种子写入 + 重建索引（--force/--index）
-├── tests/                   # pytest 173 个用例（智能体编排 + 工具闸门 + 降级/拒答 + 召回，stub 不依赖网络/LLM）
+├── tests/                   # pytest 201 个用例（智能体编排 + 工具闸门 + 降级/拒答 + 召回 + 知识库鉴权 + 口碑模板，stub 不依赖网络/LLM）
 ├── data/                    # Chroma 本地数据（gitignore）
 ├── requirements.txt
 └── .env / .env.example
@@ -128,12 +134,12 @@ ai-service/
 | 建表 + 种子 | `ai_faq` 36 条（平台 / 账号 / 商品 / 订单 / 物流 / 售后 / 评价 / 溯源 / 秒杀） |
 | 索引 | 36 条入 Chroma（cosine, bge-small-zh-v1.5） |
 | 检索召回 | 5 个问题 Top1 全部命中（退款 / 运费 / 发货 / 客服电话 / 坏果） |
-| pytest | 173/173 通过（智能体工具编排 + 执行器闸门 + 降级出口，stub 不依赖网络/LLM） |
+| pytest | 201/201 通过（智能体工具编排 + 执行器闸门 + 降级出口 + 知识库管理接口鉴权 + 口碑句子模板，stub 不依赖网络/LLM）；2026-10-18 实测 |
 | Java 内部接口鉴权 | 无 Key → 40101「内部接口鉴权失败」；带 Key → 正常返回；他人订单 detail → 40400 |
 | 端到端对话（阶段三，2026-09-18） | ①"我的订单现在是什么状态？"→ 真实 5 笔订单状态汇总；②"订单 AGS2097951729641160704 到哪了？"→ 待发货 + 引导；③"我申请过退款吗？"→ 4 笔已同意 + 1 笔已拒绝明细；④"你好"→ 闲聊回复；⑤未登录查订单/退款 → 引导登录话术；⑥"客服电话是多少？"→ 400-000-0000 |
 | 阶段四联调（2026-09-18） | Java AiChatController + 小程序聊天页全链路 10 用例通过：游客 FAQ 4 问、JWT 登录态订单/售后/物流 3 问、多轮上下文 2 问、空消息边界 1 问（详见 doc 设计文档 §14 联调报告）；uniapp `build:h5` 通过 |
 | 阶段五加固（2026-09-18） | ① 会话记忆持久化 SqliteSaver：**跨重启实测**（"我叫小明"→ 重启 →"我是谁"答"你是小明呀"）+ SQLite 落盘 28 条链；② Agnes 限流退避 max_retries=2 + 降级话术（FailingLLM stub 验证不白屏）；③ pytest **19/19**；④ Dockerfile + docker-compose（python:3.14-slim + redis-stack）；⑤ 安全复查：`/v1/chat` 新增 X-Internal-Key 鉴权（无 Key 401/带 Key 200），密钥不入 git，越权/隐私/Prompt 注入逐项通过 |
-| 阶段七加固（2026-10-10） | ① 意图规则通道（硬规则前置 + 关键词扩充）103 题准确率 **73.8%→96.1%**：smalltalk 50%→100%、human 64%→100%、recommend 60%→100%、logistics 80%→100%、after_sales 73%→100%，人工/寒暄类**零 LLM 调用**、单条≈0ms（剩余 4 条强歧义由 LLM few-shot 覆盖）；② `trim_messages` 历史窗口截断（system 常驻/保留最近/当前问题不丢）；③ Chroma 增量索引 upsert 幂等、delete 忽略不存在 id（fake embedder + 临时目录实测）；④ pytest **50/50**。注：LLM 通道 few-shot 增益需配置 `AGNES_API_KEY` 后跑 `scripts/eval_intent.py --mode llm` 复测 |
+| 阶段七加固（2026-10-10） | ① 意图规则通道（硬规则前置 + 关键词扩充）103 题准确率 **73.8%→96.1%**：smalltalk 50%→100%、human 64%→100%、recommend 60%→100%、logistics 80%→100%、after_sales 73%→100%，人工/寒暄类**零 LLM 调用**、单条≈0ms（剩余 4 条强歧义由 LLM few-shot 覆盖）；② `trim_messages` 历史窗口截断（system 常驻/保留最近/当前问题不丢）；③ Chroma 增量索引 upsert 幂等、delete 忽略不存在 id（fake embedder + 临时目录实测）；④ pytest **50/50**。注：LLM 通道 few-shot 增益需配置 `AGNES_API_KEY` 后跑 `scripts/eval_intent.py --mode llm` 复测。**该 96.1% 后被证伪**：那是调参集上的过拟合读数，同一套规则在 hold-out 只有 **37.6%**（见 `doc/量化实验报告.md` 实验二），本行只作阶段留痕 |
 
 ## 阶段规划
 

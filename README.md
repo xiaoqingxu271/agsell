@@ -6,8 +6,8 @@
 
 | 组成 | 技术栈 | 说明 |
 |---|---|---|
-| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，35 个接口控制器，23 张数据表 |
-| 管理后台 | Vue 3 · Element Plus · Pinia · ECharts · Vite | 商品/订单/用户/营销/系统 15 个功能页（另含登录页与框架布局页） |
+| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，36 个接口控制器，23 张数据表 |
+| 管理后台 | Vue 3 · Element Plus · Pinia · ECharts · Vite | 商品/订单/用户/营销/AI 知识库/系统 16 个功能页（另含登录页与框架布局页） |
 | 用户端 | uni-app（H5 + 微信小程序双端） | 26 个页面，完整购物与售后流程 |
 | AI 智能客服 | FastAPI · LangGraph · RAG（ChromaDB + bge-small-zh）· OpenAI 兼容 LLM | 独立 Python 服务，SSE 流式回复 + 评价情感分析 |
 
@@ -32,15 +32,15 @@
 └────────────┘  └────────────┘
 ```
 
-**AI 客服流式链路**：小程序 → Java `/ai/chat/stream`（SseEmitter 转发）→ Python `/v1/chat/stream`（LangGraph 双通道流）→ 意图识别后路由到 FAQ 检索 / 订单 / 物流 / 售后 / 商品导购查询，回复逐字下发，业务查询阶段实时提示。
+**AI 客服流式链路**：小程序 → Java `/ai/chat/stream`（SseEmitter 转发）→ Python `/v1/chat/stream`（LangGraph 双通道流）→ 高置信规则前置后由大模型规划工具（FAQ 检索 / 商品导购 / 订单 / 物流 / 售后 / 转人工）→ 取证结果交生成节点，回复逐字下发，业务查询阶段实时提示。
 
 ## 功能总览
 
 **用户端（小程序/H5）**：首页运营位 · 分类浏览 · 搜索（热词/高亮）· 商品详情（口碑摘要条：好评率/好评关键词）· 购物车 · 下单（运费预览）· 模拟支付 · 订单状态机（待付款→待发货→待收货→已完成 / 超时自动取消）· 评价（带情感标签）· 售后退款 · 优惠券领取与核销 · 秒杀 · 产地溯源（扫码查看生产记录）· AI 客服（流式逐字回复 + 智能导购推荐）
 
-**管理后台**：数据仪表盘（ECharts，含评价口碑分布饼图与好评关键词）· 商品/规格/分类管理 · 订单发货 · 用户管理（RBAC：超级管理员/运营专员）· 评价管理（回复/口碑分析同步）· 轮播图运营 · 优惠券活动 · 秒杀活动 · 售后处理 · 溯源信息维护 · 热词管理 · 操作日志（SpEL 中文化）· 系统配置 · 通知中心
+**管理后台**：数据仪表盘（ECharts，含评价口碑分布饼图与好评关键词）· 商品/规格/分类管理 · 订单发货 · 用户管理（RBAC：超级管理员/运营专员）· 评价管理（回复/口碑分析同步）· 轮播图运营 · 优惠券活动 · 秒杀活动 · 售后处理 · 溯源信息维护 · 热词管理 · **AI 知识库维护**（FAQ 增删改查 + 两个向量索引的状态与全量重建，Java 鉴权代理转 Python）· 操作日志（SpEL 中文化）· 系统配置 · 通知中心
 
-**AI 客服**：意图识别（LLM 分类 + 关键词兜底）→ 条件路由（FAQ / 订单 / 物流 / 售后 / 智能导购 / 闲聊 / 转人工）→ RAG 知识库检索 / 商品搜索（偏好抽取：品类+预算，无命中自动回退热销榜）→ 生成回复；多轮会话记忆（SQLite 持久化）、LLM 限流自动重试与降级话术、SSE 流式输出。
+**AI 客服**：高置信规则前置（命中即短路，省一次大模型往返）→ 工具编排（`bind_tools` 有界循环：步数 2、调用 4、(工具,参数) 去重、空结果反思重试一次）→ 工具执行（FAQ 向量检索 / 商品语义召回+个性化重排 / 订单 / 物流 / 售后 / 转人工，闸门都在执行器里）→ 生成回复；多轮会话记忆（SQLite 持久化）、上游不支持 function calling 时自动降级为"分类 + 单工具"、LLM 限流自动重试与降级话术、SSE 流式输出。
 
 **评价情感分析**：领域词库 + 否定翻转 + 程度副词 + 评分先验的规则分析器（Python `/v1/sentiment/batch`，确定性输出零 LLM 成本）；管理端触发同步回写 review 表，商品详情接口聚合返回好评率与好评关键词标签。
 
@@ -122,12 +122,16 @@ uvicorn app.main:app --port 8000 --reload
 
 ```bash
 # 后端：单元 + 并发集成测试（秒杀/优惠券超卖/支付并发防重复、售后全流程、短信/评价边界），
-# 37 个测试类 / 286 个 @Test 用例（数字为静态计数，全量执行见 CI 的 ./mvnw -B verify）
+# 37 个测试类；2026-10-18 实测 `./mvnw test` = Tests run: 301, Failures: 0, Errors: 0, Skipped: 1
+# （Skipped 是 500 并发抢 180 库存那条放大档压测，手动全量压测：./mvnw verify -Dstress.test=true）
 ./mvnw test
 
-# AI 服务：图路由 / RAG / 会话记忆 / SSE 流式接口 / 情感分析 / 个性化重排
-# 2026-10-17 实测：138 passed（Python 3.14.6 + requirements.txt 全新 venv）
+# AI 服务：图路由 / RAG / 会话记忆 / SSE 流式接口 / 情感分析 / 个性化重排 / 工具编排 / 知识库管理接口
+# 2026-10-18 实测：201 passed（Python 3.14.6 + requirements.lock.txt）
 cd ai-service && .venv/Scripts/python -m pytest tests -q
+
+# 管理后台：vitest 11 passed；oxlint + eslint 0 error；vue-tsc 无错；vite build 通过
+cd agsell-frontend && npm run test && npm run lint && npm run type-check && npm run build
 ```
 
 > `.venv` 与创建它的解释器路径绑定：若换机器、换 Python 安装位置，或在别的目录下创建过，
@@ -141,7 +145,7 @@ cd ai-service && .venv/Scripts/python -m pytest tests -q
 
 ### 量化实验（论文数据）
 
-六项核心指标的实测数据与结论见 [doc/量化实验报告.md](doc/量化实验报告.md)：秒杀高并发、意图识别准确率（含 hold-out 集与规则/大模型/生产三通道消融）、RAG 检索命中率（知识库全量 280 条覆盖）、AI 流式响应性能（含导购分支 3 次串行调用）、反幻觉闸门（知识库 + 导购两道，附阈值-风险曲线）、智能导购召回与个性化。所有 JSON 存档带 `measured_at` 与 `git_commit`，正文数字与存档同源。
+七项核心指标的实测数据与结论见 [doc/量化实验报告.md](doc/量化实验报告.md)：秒杀高并发、意图识别准确率（含 hold-out 集与规则/大模型/生产三通道消融）、RAG 检索命中率（知识库全量 280 条覆盖）、AI 流式响应性能（含导购分支首 token 延迟复测）、反幻觉闸门（知识库 + 导购两道，附阈值-风险曲线）、智能导购召回与个性化、智能体工具编排（function calling 选型准确率与域外探针）。所有 JSON 存档带 `measured_at` 与 `git_commit`，正文数字与存档同源。
 
 ```bash
 # 秒杀压测（防超卖与 QPS，需本地 MySQL + Redis）
@@ -171,9 +175,10 @@ export DATABASE_URL="mysql+pymysql://root:<密码>@127.0.0.1:3306/agsell?charset
 ├── agsell-frontend/                    # 管理后台（Vue 3 + Element Plus）
 ├── agsell-uniapp/                      # 用户端（uni-app，H5 + 微信小程序）
 ├── ai-service/                         # AI 智能客服（FastAPI + LangGraph + RAG）
-│   ├── app/agent/                      #   意图识别 / 路由 / 节点 / 图编排
-│   ├── app/rag/                        #   向量库与 FAQ 检索
-│   └── scripts/init_faq.py             #   知识库初始化脚本
+│   ├── app/agent/                      #   规则前置 / 工具 schema / 执行器 / 有界循环 / 图编排
+│   ├── app/rag/                        #   向量库、FAQ 检索与商品召回索引（FAQ 280 条 / 商品 202 条）
+│   ├── app/api/admin_kb.py             #   知识库管理接口（Java 代理唯一后端）
+│   └── scripts/init_faq.py             #   知识库初始化脚本（日常维护走管理后台「AI 知识库」页）
 ├── doc/                                # 需求规格说明书 + 14 份模块开发文档 + 设计规范
 └── docker-compose.yml                  # mysql + redis + backend + frontend + ai-service
 ```
