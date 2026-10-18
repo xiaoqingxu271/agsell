@@ -105,11 +105,66 @@ def fetch_product(product_id: int) -> dict | None:
     return items[0] if items else None
 
 
+def reputation_text(item: dict | None) -> str:
+    """把口碑字段拼成一句可直接呈现的话——改进项 #22 的落点。
+
+    为什么必须由服务端拼：实测模型会把真数字安上错的指标名（66.67% 说成"口碑不错"、
+    topKeywords 的"回购"说成"回购率"、sales=1046 说成"1046 人回购"）。提示词禁句能压住
+    具体词，压不住同义改写。把这句话做成**唯一来源的成品文本**，卡片与作答都只能引用它，
+    形容词就越界不了。
+
+    诚实口径（与个性化侧 rate_conf 一致）：
+    - 零评价/缺字段 → "暂无评价数据"，绝不拿全站先验当实测好评率；
+    - 有评价 → 只陈述条数与好评率数值，不写"口碑好/高"这类结论；
+    - topKeywords 是评价文本里的词，用"买家提到"引出，不写成指标。
+    """
+    if not item:
+        return "暂无评价数据"
+    count = item.get("reviewCount")
+    try:
+        count = int(count) if count is not None else 0
+    except (TypeError, ValueError):
+        count = 0
+    if count <= 0:
+        return "暂无评价数据"
+
+    sentence = f"{count} 条买家评价"
+    rate = item.get("positiveRate")
+    try:
+        rate_val = float(rate) if rate is not None else None
+    except (TypeError, ValueError):
+        rate_val = None
+    if rate_val is not None:
+        sentence = f"{sentence}，好评率 {round(rate_val, 1)}%"
+    keywords = item.get("topKeywords") or []
+    picked = [str(k).strip() for k in keywords if str(k).strip()][:3]
+    if picked:
+        sentence = f"{sentence}，买家提到：{'、'.join(picked)}"
+    return sentence
+
+
+def annotate_reputation(items: list[dict] | None) -> list[dict]:
+    """给每个候选商品补一句服务端拼好的口碑话术（卡片字段与 LLM 资料同源）。
+
+    就地写入副本而不是改原对象：Java 返回的 VO 还会被其他地方（热销兜底、重排）复用，
+    污染它会让后续比较失去意义。
+    """
+    out = []
+    for it in items or []:
+        if not isinstance(it, dict):
+            out.append(it)
+            continue
+        enriched = dict(it)
+        enriched["reputation"] = reputation_text(it)
+        out.append(enriched)
+    return out
+
+
 def format_product_facts(item: dict) -> str:
     """商品 VO → 给 LLM 看的一行事实（严禁编造的锚点，也是"这个"的指代对象）。
 
     只带可核对的字段：名称/价格/产地/销量/采摘日期/储存/保质期/口碑。
-    口碑遵循既有诚实口径：reviewCount 为 0/缺失时不输出好评率，避免把先验当实测宣称。
+    口碑一律走 reputation_text 的成品句子，这里不再自己组织措辞。
     """
     if not item:
         return ""
@@ -128,10 +183,7 @@ def format_product_facts(item: dict) -> str:
         parts.append(f"保质期：{item.get('shelfLife')}")
     if item.get("sales") is not None:
         parts.append(f"销量：{item.get('sales')}")
-    if item.get("reviewCount"):
-        parts.append(f"买家评价 {item.get('reviewCount')} 条，好评率 {item.get('positiveRate')}%")
-        if item.get("topKeywords"):
-            parts.append(f"买家高频好评词：{'、'.join(str(k) for k in item['topKeywords'])}")
+    parts.append(f"口碑：{reputation_text(item)}")
     return "｜".join(str(p) for p in parts)
 
 

@@ -522,15 +522,21 @@ def test_agent_answer_prompt_requires_candidate_order():
 
 def test_answer_prompt_forbids_praise_in_place_of_numbers():
     """E2E 实测：3 条评价、好评率 66.7% 的商品被模型说成"口碑不错"。
-    演示文案里每一个评价性说法都必须能回到数值，替用户下结论就是编造。"""
+    演示文案里每一个评价性说法都必须能回到数值，替用户下结论就是编造。
+
+    现在更硬一层：口碑句子由服务端拼好放在 reputation 字段里，模型只能一字不改地引用
+    （见 app/tools/java_api.py:reputation_text 与 tests/test_reputation_text.py）。
+    """
     from app.prompts import AGENT_ANSWER_SYSTEM_TEMPLATE
 
-    assert "不要替用户下" in AGENT_ANSWER_SYSTEM_TEMPLATE
-    assert "口碑不错" in AGENT_ANSWER_SYSTEM_TEMPLATE      # 明确列为禁句，模型才知道边界在哪
+    assert "一字不改地引用" in AGENT_ANSWER_SYSTEM_TEMPLATE
+    assert "reputation" in AGENT_ANSWER_SYSTEM_TEMPLATE
+    assert "不得改写" in AGENT_ANSWER_SYSTEM_TEMPLATE      # 不许合并、不许换说法
+    assert "口碑不错" in AGENT_ANSWER_SYSTEM_TEMPLATE       # 明确列为禁句
+    assert "严禁编造" in AGENT_ANSWER_SYSTEM_TEMPLATE
     # E2E 实测第二轮：模型把 topKeywords 里的"回购"讲成"回购率也不错"——词不是指标
-    assert "topKeywords 是评价文本里提取的**词**，不是指标" in AGENT_ANSWER_SYSTEM_TEMPLATE
-    # E2E 实测第三轮：sales=1046 被讲成"1046 人回购"。销量与回购人数是两件事
-    assert "sales 是**销量**" in AGENT_ANSWER_SYSTEM_TEMPLATE
+    # 第三轮：sales=1046 被讲成"1046 人回购"。销量与回购人数是两件事
+    assert "已售 N 件" in AGENT_ANSWER_SYSTEM_TEMPLATE
 
 
 def test_plan_prompt_forbids_writing_the_reply():

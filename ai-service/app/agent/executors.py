@@ -162,7 +162,7 @@ def exec_product_search(ctx: ToolContext, state: dict, args: dict) -> Observatio
         lead_ids = {p.get("id") for p in (lead or [])}
         rest = _rank([p for p in products if p.get("id") not in lead_ids], sem)
         products = _rank(list(lead or []), sem) + rest
-        products = products[:settings.REC_CARD_LIMIT]
+        products = java_api.annotate_reputation(products[:settings.REC_CARD_LIMIT])
         payload = api.format_payload(products)
         return Observation("product_search", kind=kind,
                            payload=(note + "\n" + payload) if note else payload, items=products)
@@ -171,7 +171,8 @@ def exec_product_search(ctx: ToolContext, state: dict, args: dict) -> Observatio
     #    「它新鲜吗」0.526 / 8 条，而真品类问句「哪种茶叶比较好」也只有 0.558 / 8 条——
     #    两类分数完全重叠，靠调阈值分不开，只能用"有 productId 且无 keyword"这个结构判据。
     if item and not keyword:
-        return Observation("product_search", kind="product_qa", payload=facts, items=[item],
+        return Observation("product_search", kind="product_qa", payload=facts,
+                           items=java_api.annotate_reputation([item]),
                            hint="用户正在浏览这件商品，问题按指代它来处理；"
                                 "若他其实想问别的品类，请在下次调用时给出 keyword")
 
