@@ -86,6 +86,29 @@ class JwtAuthInterceptorTest {
     }
 
     @Test
+    @DisplayName("AI 知识库：ADMIN/SUPER_ADMIN 可写，OPERATOR 按前缀拒绝（运营专员不该改 RAG 的答案来源）")
+    void aiKbFollowsTheRoleMatrix() {
+        for (String role : new String[]{"ADMIN", "SUPER_ADMIN"}) {
+            String token = jwtUtils.generateAdminToken(1L, role);
+            MockHttpServletRequest request = buildRequest("/api/admin/ai/kb/faqs", token);
+            assertTrue(interceptor.preHandle(request, response, null), role + " 应能维护知识库");
+        }
+
+        String operatorToken = jwtUtils.generateAdminToken(2L, "OPERATOR");
+        // 这张禁止表是"显式禁止清单"：漏一行就等于默认放行，所以每个新管理模块都要在这儿补断言
+        for (String uri : new String[]{"/api/admin/ai/kb/faqs", "/api/admin/ai/kb/stats",
+                "/api/admin/ai/kb/products/index"}) {
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> interceptor.preHandle(buildRequest(uri, operatorToken), new MockHttpServletResponse(), null));
+            assertEquals(ErrorCode.ADMIN_NO_AUTH_ERROR.getCode(), ex.getCode(), uri + " 应拒绝运营专员");
+        }
+
+        // 反过来钉住"运营该能用的没被误伤"：/api/admin/ai 只挡 AI 模块，不挡商品
+        assertTrue(interceptor.preHandle(buildRequest("/api/admin/product/list", operatorToken),
+                new MockHttpServletResponse(), null));
+    }
+
+    @Test
     @DisplayName("管理员 token 访问用户端接口应被拒绝")
     void adminTokenCannotAccessUserApi() {
         String adminToken = jwtUtils.generateAdminToken(1L, "ADMIN");

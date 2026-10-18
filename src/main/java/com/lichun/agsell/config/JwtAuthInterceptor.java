@@ -79,7 +79,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/admin/trace",
             "/api/admin/seckill",
             "/api/admin/coupon",
-            "/api/admin/hot-word"
+            "/api/admin/hot-word",
+            // AI 知识库能改 RAG 的答案来源，运营专员不该碰（这张表是"显式禁止清单"，
+            // 新增管理模块时必须补一行，否则默认对所有管理员角色放行）
+            "/api/admin/ai"
     };
 
     /** 判断 uri 是否命中运营专员禁止访问的模块 */

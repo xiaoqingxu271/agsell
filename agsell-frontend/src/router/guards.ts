@@ -104,6 +104,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         meta: { title: '搜索热词' },
       },
       {
+        path: 'ai/kb',
+        name: 'AdminAiKb',
+        component: () => import('@/views/admin/ai/KnowledgeBaseView.vue'),
+        meta: { title: 'AI 知识库' },
+      },
+      {
         path: 'system/admin',
         name: 'AdminSystemAdmin',
         component: () => import('@/views/admin/list/AdminListView.vue'),

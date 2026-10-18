@@ -2,6 +2,11 @@ import request from '@/utils/request'
 import type {
   AdminInfoVO,
   SentimentStatsVO,
+  AiFaqCreateVO,
+  AiFaqPageVO,
+  AiFaqRequest,
+  AiKbStatsVO,
+  IdOrNum,
   AdminLoginRequest,
   AdminLoginVO,
   AdminUserListItemVO,
@@ -441,4 +446,48 @@ export function syncSentiment(productId?: number) {
 /** 全局口碑统计 */
 export function getSentimentStats() {
   return request.get<SentimentStatsVO>('/admin/review/sentiment/stats')
+}
+
+// ─── AI 知识库（RAG 维护） ────────────────────────────────────────────────────
+
+/** 知识库与索引状态（含"索引是否落后于在售商品"的判断） */
+export function kbStats() {
+  return request.get<AiKbStatsVO>('/admin/ai/kb/stats')
+}
+
+/** FAQ 列表（分页 + 分类筛选） */
+export function listKbFaqs(params: { category?: string; pageNum?: number; pageSize?: number }) {
+  return request.get<AiFaqPageVO>('/admin/ai/kb/faqs', { params })
+}
+
+/**
+ * 新增 FAQ：Python 保存后同步增量入向量索引。
+ * 返回 {id, indexed}，indexed=false 时前端不能报"已同步"，只能报"已保存 + 提示重建"。
+ */
+export function createKbFaq(data: AiFaqRequest) {
+  // 新条目 id 是 Long → 序列化成字符串，用之前 Number()
+  return request.post<AiFaqCreateVO>('/admin/ai/kb/faqs', data)
+}
+
+/**
+ * 编辑 FAQ（含启停）。返回 false 表示"内容已保存但索引同步失败"，
+ * 页面要提示点全量重建，而不是假装一切正常。
+ */
+export function updateKbFaq(id: number, data: AiFaqRequest) {
+  return request.put<boolean>(`/admin/ai/kb/faqs/${id}`, data)
+}
+
+/** 删除 FAQ（同时从向量索引除名） */
+export function deleteKbFaq(id: number) {
+  return request.delete<null>(`/admin/ai/kb/faqs/${id}`)
+}
+
+/** FAQ 向量索引全量重建，返回写入条数 */
+export function rebuildKbIndex() {
+  return request.post<IdOrNum>('/admin/ai/kb/index')
+}
+
+/** 商品召回索引全量重建（商品变更后有异步增量通知，这里是兜底修复） */
+export function rebuildKbProductIndex() {
+  return request.post<IdOrNum>('/admin/ai/kb/products/index')
 }

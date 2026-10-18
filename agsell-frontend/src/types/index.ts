@@ -575,3 +575,66 @@ export interface SysLogPageVO {
   /** 下一页游标：本页最后一条 id */
   cursorId: number | null
 }
+
+// ─── AI 知识库（RAG 维护页） ──────────────────────────────────────────────────
+
+/**
+ * Long/long 在本项目被 Jackson 统一序列化成字符串（避免 JS 精度丢失），
+ * 所以 id 与 total 的声明是 string | number，用之前一律 Number() 归一。
+ */
+export type IdOrNum = string | number
+
+/** FAQ 条目：字段与 ai-service 的 /v1/admin/kb/faqs 对齐（Java 代理已做驼峰映射） */
+export interface AiFaqVO {
+  id: IdOrNum
+  question: string
+  answer: string
+  category: string
+  keywords: string | null
+  status: number
+  updatedAt: string | null
+}
+
+/** FAQ 分页结果（Python 口径是 {total, items}，不是 MyBatis-Plus 的 records） */
+export interface AiFaqPageVO {
+  total: IdOrNum
+  items: AiFaqVO[]
+}
+
+/** 新增/编辑 FAQ 的请求体 */
+export interface AiFaqRequest {
+  id?: number
+  question?: string
+  answer?: string
+  category?: string
+  keywords?: string
+  status?: number
+}
+
+/**
+ * 新增 FAQ 的结果。indexed 是"向量索引同步是否成功"，不是"这条在不在索引里"
+ * （停用除名成功也返回 true）；false 时条目已在 MySQL 但 AI 还按旧知识库回答，
+ * 页面必须提示点「重建 FAQ 索引」，不能只弹一句"新增成功"。
+ */
+export interface AiFaqCreateVO {
+  id: IdOrNum
+  indexed: boolean
+}
+
+/**
+ * 知识库与索引状态。三个数分列是刻意的：只看 faqCount 会以为"知识都入库了"，
+ * 真正决定 AI 能不能答的是 indexedCount；productIndexedCount 落后于
+ * onSaleProductCount 就是"上了新品但 AI 召不到"。
+ */
+export interface AiKbStatsVO {
+  faqCount: IdOrNum
+  indexedCount: IdOrNum
+  productIndexedCount: IdOrNum
+  onSaleProductCount: IdOrNum
+  embeddingModel: string | null
+  topK: number | null
+  productTopK: number | null
+  /** 同步判断由 Java 侧算好后下发，前端不再自己比大小（避免字符串比较出错） */
+  faqSynced: boolean
+  productIndexSynced: boolean
+}

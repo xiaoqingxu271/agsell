@@ -25,6 +25,7 @@ import {
   Fold,
   Expand,
   Bell,
+  Reading,
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -35,8 +36,8 @@ const initial = computed(() => displayName.value.trim().charAt(0) || '管')
 
 // ── 角色 → 可见模块（对应 系统管理模块开发文档 §3.2 权限矩阵，与后端拦截器口径一致）──
 const roleModules: Record<string, string[]> = {
-  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'system'],
-  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord'],
+  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'system'],
+  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb'],
   OPERATOR: ['dashboard', 'categories', 'products', 'orders'],
 }
 const currentRole = computed(() => adminStore.adminInfo?.role ?? '')
@@ -207,6 +208,15 @@ async function handleLogout() {
           <el-menu-item v-if="canAccess('hotWord')" index="/admin/hot-word">
             <el-icon><Search /></el-icon>
             <span>搜索热词</span>
+          </el-menu-item>
+        </el-menu-item-group>
+
+        <!-- AI 能力：知识库是 RAG 的答案来源，运营专员不可见（后端同口径拦截） -->
+        <el-menu-item-group v-if="canAccess('aiKb')">
+          <template #title><span v-show="!isCollapse" class="nav-group-title">AI 能力</span></template>
+          <el-menu-item v-if="canAccess('aiKb')" index="/admin/ai/kb">
+            <el-icon><Reading /></el-icon>
+            <span>AI 知识库</span>
           </el-menu-item>
         </el-menu-item-group>
 

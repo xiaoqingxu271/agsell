@@ -1,6 +1,7 @@
 package com.lichun.agsell.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.lichun.agsell.client.AiKbClient;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.OrderItemMapper;
@@ -39,6 +40,12 @@ class ProductServiceImplTest {
     private ProductCategoryMapper categoryMapper;
     @Mock
     private OrderItemMapper orderItemMapper;
+    /**
+     * 商品写路径现在会通知 ai-service 更新召回索引。这个 mock 同时承担两件事：
+     * 让构造注入拿到非 null 依赖（否则删除/上下架会 NPE），并让下面的测试能验证"有没有通知"。
+     */
+    @Mock
+    private AiKbClient aiKbClient;
 
     @InjectMocks
     private ProductServiceImpl productService;
@@ -127,5 +134,46 @@ class ProductServiceImplTest {
 
         productService.deleteProduct(2L);
         verify(productMapper).deleteById(2L);
+        // 删除必须同步通知索引除名：留在向量库里，导购就会推出一件已经买不到的商品
+        verify(aiKbClient).notifyProductIndexAsync(2L);
+    }
+
+    @Test
+    @DisplayName("上下架后通知召回索引（上架进索引、下架除名由 Python 按在售状态判断）")
+    void statusChangeNotifiesProductIndex() {
+        Product exist = new Product();
+        exist.setId(5L);
+        when(productMapper.selectById(5L)).thenReturn(exist);
+        when(productMapper.updateById(any(Product.class))).thenReturn(1);
+
+        productService.updateProductStatus(5L, 1);
+        verify(aiKbClient).notifyProductIndexAsync(5L);
+    }
+
+    @Test
+    @DisplayName("新增商品成功后用新商品 id 通知索引（上新立刻可被 AI 召回）")
+    void createProductNotifiesIndexWithNewId() {
+        ProductCreateRequest request = buildValidRequest();
+        when(categoryMapper.selectById(1L)).thenReturn(new ProductCategory());
+        when(productMapper.insert(any(Product.class))).thenAnswer(invocation -> {
+            invocation.getArgument(0, Product.class).setId(88L);
+            return 1;
+        });
+
+        productService.saveOrUpdateProduct(request);
+        verify(aiKbClient).notifyProductIndexAsync(88L);
+    }
+
+    @Test
+    @DisplayName("编辑商品也要通知（名称/卖点/产地变化会改变语义召回结果）")
+    void updateProductNotifiesIndex() {
+        ProductCreateRequest request = buildValidRequest();
+        request.setId(66L);
+        when(categoryMapper.selectById(1L)).thenReturn(new ProductCategory());
+        when(productMapper.selectById(66L)).thenReturn(new Product());
+        when(productMapper.updateById(any(Product.class))).thenReturn(1);
+
+        productService.saveOrUpdateProduct(request);
+        verify(aiKbClient).notifyProductIndexAsync(66L);
     }
 }

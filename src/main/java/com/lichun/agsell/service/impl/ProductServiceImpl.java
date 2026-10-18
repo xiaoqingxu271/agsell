@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.lichun.agsell.client.AiKbClient;
 import com.lichun.agsell.common.BaseContext;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.ProductCategoryMapper;
@@ -51,6 +52,8 @@ public class ProductServiceImpl implements ProductService {
     private final TraceabilityInfoMapper traceabilityInfoMapper;
     private final ReviewSentimentService reviewSentimentService;
 
+    private final AiKbClient aiKbClient;
+
     @Override
     public Page<ProductListItemVO> listProducts(ProductQueryRequest request) {
         LambdaQueryWrapper<Product> wrapper = buildAdminQueryWrapper(request);
@@ -83,10 +86,15 @@ public class ProductServiceImpl implements ProductService {
             update.setId(request.getId());
             productMapper.updateById(update);
             saveOrUpdateSpecs(request.getId(), request.getSpecs());
+            // 商品名/卖点/产地变了都要重新向量化，否则"适合送礼的柑橘"这类语义召回仍按旧文案命中
+            aiKbClient.notifyProductIndexAsync(request.getId());
         } else {
             Product product = buildProduct(request);
             productMapper.insert(product);
             saveOrUpdateSpecs(product.getId(), request.getSpecs());
+            // 上新立刻进索引：这一步没做之前，管理员上的新品在首页推荐、搜索框语义召回、
+            // AI 导购三处都召不到（评估清单 2.3）
+            aiKbClient.notifyProductIndexAsync(product.getId());
         }
     }
 
@@ -104,6 +112,8 @@ public class ProductServiceImpl implements ProductService {
         productSpecMapper.delete(new LambdaQueryWrapper<ProductSpec>()
                 .eq(ProductSpec::getProductId, id));
         productMapper.deleteById(id);
+        // 删除后必须从召回索引除名：留着会让导购推出一件买不到的商品，比召不到更糟
+        aiKbClient.notifyProductIndexAsync(id);
     }
 
     @Override
@@ -119,6 +129,8 @@ public class ProductServiceImpl implements ProductService {
         update.setId(id);
         update.setStatus(status);
         productMapper.updateById(update);
+        // 上架 → 进索引；下架 → 除名。同一句"这个 id 变了"，方向由 Python 按在售与否判断
+        aiKbClient.notifyProductIndexAsync(id);
     }
 
     @Override

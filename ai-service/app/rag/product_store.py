@@ -48,6 +48,32 @@ class ProductStore:
         entries = [build_entry(p, cats.get(p.category_id, "")) for p in product_repo.list_on_sale(session)]
         return self._vs.rebuild(entries)
 
+    def upsert_ids(self, session: Session, product_ids: list[int]) -> dict:
+        """按商品 id 增量更新索引：在售的 upsert，已下架/已删除/查不到的从索引除名。
+
+        这是"管理员上新 → AI 立刻召得到"的那一步。除名和写入必须同时处理：
+        Java 只在商品变更后通知"这几个 id 变了"，并不会区分"上架"还是"下架"，
+        而 `list_by_ids` 只返回在售商品——不在结果里就是不该再被召回的商品。
+        下架商品留着会让导购推出一个买不到的东西，比召不到更糟。
+        """
+        ids = [int(i) for i in (product_ids or []) if i is not None]
+        if not ids:
+            return {"indexed": 0, "deindexed": 0}
+        cats = product_repo.category_name_map(session)
+        products = product_repo.list_by_ids(session, ids)
+        indexed = 0
+        if products:
+            entries = [build_entry(p, cats.get(p.category_id, "")) for p in products]
+            indexed = self._vs.upsert_many(entries)
+        found = {p.id for p in products}
+        missing = [i for i in ids if i not in found]
+        deindexed = self._vs.delete_ids(missing) if missing else 0
+        return {"indexed": indexed, "deindexed": deindexed}
+
+    def remove_ids(self, product_ids: list[int]) -> int:
+        """按 id 从索引除名（商品删除时走这里，不需要连 MySQL）"""
+        return self._vs.delete_ids([int(i) for i in (product_ids or []) if i is not None])
+
     def search(self, question: str, top_k: int | None = None) -> list[dict]:
         """语义召回 [{id, score}]（相似度降序）；索引为空返回 []"""
         k = top_k or settings.PRODUCT_TOP_K
