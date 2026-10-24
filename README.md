@@ -125,7 +125,7 @@ uvicorn app.main:app --port 8000 --reload
 ```bash
 # 后端：单元 + 并发集成测试（秒杀/优惠券超卖/支付并发防重复、售后全流程、短信/评价边界、
 # AI 工单/站内信/收藏），38 个测试类；
-# 2026-10-24 实测 `./mvnw test` = Tests run: 317, Failures: 0, Errors: 0, Skipped: 1
+# 2026-10-24 实测 `./mvnw test` = Tests run: 325, Failures: 0, Errors: 0, Skipped: 1
 # （Skipped 是 500 并发抢 180 库存那条放大档压测，手动全量压测：./mvnw verify -Dstress.test=true）
 ./mvnw test
 

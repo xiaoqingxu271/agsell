@@ -1,22 +1,64 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   listCategoryItems,
   saveOrUpdateCategory,
   deleteCategory,
   updateCategoryStatus,
+  saveCategorySort,
 } from '@/api/admin'
 import { uploadFile } from '@/api/upload'
+import Sortable from 'sortablejs'
+import type { SortableEvent } from 'sortablejs'
 import type { CategoryListItemVO, CategoryCreateRequest } from '@/types'
 import PageHeader from '@/components/admin/PageHeader.vue'
 
 const loading = ref(false)
 const list = ref<CategoryListItemVO[]>([])
+// 拖拽排序（P1 §5.4）：拖动行调整显示顺序，落点后整批提交 {id, sort}
+const tableRef = ref()
+let sortableInstance: Sortable | null = null
+const sortSaving = ref(false)
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
 const keyword = ref('')
+
+/** 拖拽落点：只调整当前页内的顺序；sort 值按页基址倒序排，跨页顺序保持（页码越大 sort 越小） */
+async function onDragEnd(evt: SortableEvent) {
+  const { oldIndex, newIndex } = evt
+  if (oldIndex == null || newIndex == null || oldIndex === newIndex) return
+  const rows = [...list.value]
+  const [moved] = rows.splice(oldIndex, 1)
+  if (!moved) return
+  rows.splice(newIndex, 0, moved)
+  const base = (page.value - 1) * pageSize.value
+  const items = rows.map((row, i) => ({ id: Number(row.id), sort: base + rows.length - i }))
+  sortSaving.value = true
+  try {
+    await saveCategorySort(items)
+    ElMessage.success('排序已保存')
+  } catch {
+    // 失败时回显服务端顺序
+  } finally {
+    sortSaving.value = false
+    fetchList()
+  }
+}
+
+/** 表格每次重渲染后重建 Sortable（el-table 的 tbody 会被 Vue 重绘） */
+function initDrag() {
+  sortableInstance?.destroy()
+  sortableInstance = null
+  const wrapper = tableRef.value?.$el?.querySelector('.el-table__body-wrapper tbody')
+  if (!wrapper) return
+  sortableInstance = Sortable.create(wrapper as HTMLElement, {
+    handle: '.drag-handle',
+    animation: 150,
+    onEnd: onDragEnd,
+  })
+}
 
 async function fetchList() {
   loading.value = true
@@ -27,6 +69,7 @@ async function fetchList() {
       : all
     const start = (page.value - 1) * pageSize.value
     list.value = filtered.slice(start, start + pageSize.value)
+    nextTick(initDrag)
     total.value = filtered.length
   } catch {
     // interceptor handles error
@@ -140,7 +183,10 @@ function formatTime(time: string): string {
   return time.replace('T', ' ').substring(0, 19)
 }
 
-onMounted(fetchList)
+onMounted(async () => {
+  await fetchList()
+  initDrag()
+})
 </script>
 
 <template>
@@ -184,7 +230,21 @@ onMounted(fetchList)
         </div>
       </template>
 
-      <el-table class="admin-table" :data="list" v-loading="loading" stripe :border="false" style="width: 100%">
+      <el-table
+        ref="tableRef"
+        class="admin-table"
+        :data="list"
+        v-loading="loading"
+        stripe
+        :border="false"
+        style="width: 100%"
+      >
+        <el-table-column width="46" align="center">
+          <template #header><span title="拖动调整顺序">⇅</span></template>
+          <template #default>
+            <span class="drag-handle" title="拖动调整顺序">⋮⋮</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="id" label="ID" width="200" align="center" show-overflow-tooltip />
         <el-table-column prop="name" label="分类名称" min-width="100" align="center" show-overflow-tooltip />
         <el-table-column label="分类图标" width="120" align="center">
@@ -326,3 +386,14 @@ onMounted(fetchList)
   color: #8A9A91;
 }
 </style>
+
+.drag-handle {
+  cursor: grab;
+  color: var(--el-text-color-secondary);
+  letter-spacing: -2px;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}

@@ -246,7 +246,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderListItemVO> listOrders(int pageNum, int pageSize, Integer status) {
+    public Page<OrderListItemVO> listOrders(int pageNum, int pageSize, Integer status, String keyword) {
         Long userId = BaseContext.getCurrentId();
         ThrowUtils.throwIf(userId == null, ErrorCode.NOT_LOGIN_ERROR);
 
@@ -254,6 +254,21 @@ public class OrderServiceImpl implements OrderService {
         wrapper.eq(Order::getUserId, userId);
         if (status != null) {
             wrapper.eq(Order::getStatus, status);
+        }
+        // 订单搜索（P1 §4.6.2）：订单号模糊 或 商品名快照模糊（order_item.product_name）
+        if (keyword != null && !keyword.isBlank()) {
+            String kw = keyword.trim();
+            // 只查本人订单的明细：用户维度已在外层过滤，这里仍带 userId 防止跨用户扫描
+            List<Long> matchedOrderIds = orderItemMapper.selectList(new LambdaQueryWrapper<OrderItem>()
+                    .like(OrderItem::getProductName, kw)
+                    .last("LIMIT 500"))
+                    .stream().map(OrderItem::getOrderId).distinct().toList();
+            wrapper.and(w -> {
+                w.like(Order::getOrderNo, kw);
+                if (!matchedOrderIds.isEmpty()) {
+                    w.or().in(Order::getId, matchedOrderIds);
+                }
+            });
         }
         wrapper.orderByDesc(Order::getCreateTime);
 

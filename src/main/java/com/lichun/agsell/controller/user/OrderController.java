@@ -41,8 +41,9 @@ public class OrderController {
     public BaseResponse<Page<OrderListItemVO>> listOrders(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(required = false) Integer status) {
-        return ResultUtils.success(orderService.listOrders(pageNum, pageSize, status));
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String keyword) {
+        return ResultUtils.success(orderService.listOrders(pageNum, pageSize, status, keyword));
     }
 
     @Operation(summary = "订单详情")

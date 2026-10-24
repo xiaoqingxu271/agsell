@@ -3,6 +3,7 @@ package com.lichun.agsell.service.impl;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.client.AiKbClient;
 import com.lichun.agsell.common.BaseContext;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -131,6 +133,51 @@ public class ProductServiceImpl implements ProductService {
         productMapper.updateById(update);
         // 上架 → 进索引；下架 → 除名。同一句"这个 id 变了"，方向由 Python 按在售与否判断
         aiKbClient.notifyProductIndexAsync(id);
+    }
+
+    @Override
+    public int batchUpdateStatus(List<Long> ids, Integer status) {
+        ThrowUtils.throwIf(ids == null || ids.isEmpty(), ErrorCode.PARAMS_ERROR, "请选择要操作的商品");
+        ThrowUtils.throwIf(ids.size() > 200, ErrorCode.PARAMS_ERROR, "单次最多批量操作 200 个商品");
+        ThrowUtils.throwIf(status == null || (status != 0 && status != 1),
+                ErrorCode.PARAMS_ERROR, "状态值不合法");
+        List<Long> distinctIds = ids.stream().filter(Objects::nonNull).distinct().toList();
+        ThrowUtils.throwIf(distinctIds.isEmpty(), ErrorCode.PARAMS_ERROR, "请选择要操作的商品");
+
+        // 整批一条条件 UPDATE（未存在/已删除的 id 自然不命中），索引通知整批一次
+        int updated = productMapper.update(null, new LambdaUpdateWrapper<Product>()
+                .in(Product::getId, distinctIds)
+                .set(Product::getStatus, status));
+        if (updated > 0) {
+            aiKbClient.notifyProductIndexAsync(distinctIds);
+        }
+        return updated;
+    }
+
+    @Override
+    public void quickEditPriceStock(Long id, BigDecimal price, Integer stock) {
+        ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR, "商品ID不能为空");
+        ThrowUtils.throwIf(price == null && stock == null,
+                ErrorCode.PARAMS_ERROR, "价格与库存至少填写一项");
+        if (price != null) {
+            ThrowUtils.throwIf(price.compareTo(BigDecimal.ZERO) < 0,
+                    ErrorCode.PARAMS_ERROR, "价格不能为负数");
+            ThrowUtils.throwIf(price.scale() > 2,
+                    ErrorCode.PARAMS_ERROR, "价格最多两位小数");
+        }
+        if (stock != null) {
+            ThrowUtils.throwIf(stock < 0, ErrorCode.PARAMS_ERROR, "库存不能为负数");
+        }
+
+        Product exist = productMapper.selectById(id);
+        ThrowUtils.throwIf(exist == null, ErrorCode.NOT_FOUND_ERROR, "商品不存在");
+
+        Product update = new Product();
+        update.setId(id);
+        update.setPrice(price);
+        update.setStock(stock);
+        productMapper.updateById(update);
+        // 价格/库存不在召回索引条目文本（名称/卖点/产地/储存/保质期）里，无需通知 AI 侧
     }
 
     @Override

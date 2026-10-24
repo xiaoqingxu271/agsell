@@ -3,6 +3,7 @@ package com.lichun.agsell.service.impl;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lichun.agsell.common.BaseContext;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
@@ -426,5 +427,34 @@ class OrderServiceImplTest {
 
         assertEquals(0, count);
         verify(orderMapper, never()).update(isNull(), any());
+    }
+
+    // ==================== 订单搜索（P1 §4.6.2） ====================
+
+    @Test
+    @DisplayName("订单搜索：关键词命中订单号或商品名快照，只在自己订单范围内过滤")
+    void listOrdersWithKeywordFilters() {
+        when(orderMapper.selectPage(any(Page.class), any(Wrapper.class))).thenReturn(new Page<>(1, 10, 0));
+        // 商品名快照命中一条： orderId=55
+        OrderItem item = new OrderItem();
+        item.setOrderId(55L);
+        item.setProductName("赣南脐橙");
+        when(orderItemMapper.selectList(any(Wrapper.class))).thenReturn(List.of(item));
+
+        orderService.listOrders(1, 10, null, "脐橙");
+
+        // 外层不触发分页即可；内层明细查询发生了一次（商品名快照匹配）
+        verify(orderItemMapper).selectList(any(Wrapper.class));
+    }
+
+    @Test
+    @DisplayName("订单搜索：空关键词不查明细表，行为与旧版一致")
+    void listOrdersWithoutKeywordSkipsItemScan() {
+        when(orderMapper.selectPage(any(Page.class), any(Wrapper.class))).thenReturn(new Page<>(1, 10, 0));
+
+        orderService.listOrders(1, 10, null, "  ");
+
+        verify(orderItemMapper, never()).selectList(any(Wrapper.class));
+        verify(orderMapper).selectPage(any(Page.class), any(Wrapper.class));
     }
 }

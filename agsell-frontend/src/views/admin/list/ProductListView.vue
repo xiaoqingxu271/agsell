@@ -5,6 +5,8 @@ import {
   listProducts,
   deleteProduct,
   updateProductStatus,
+  batchUpdateProductStatus,
+  quickEditProduct,
   saveOrUpdateProduct,
   getCategoryTree,
   getProductDetail,
@@ -82,6 +84,66 @@ function handleReset() {
 function handlePageChange(val: number) {
   page.value = val
   fetchList()
+}
+
+// ── 批量上下架（P1）：多选后整批提交 ──
+const selection = ref<ProductListItemVO[]>([])
+const tableRef = ref()
+const batchLoading = ref(false)
+
+async function handleBatchStatus(status: number) {
+  if (!selection.value.length) return
+  const actionText = status === 1 ? '上架' : '下架'
+  await ElMessageBox.confirm(
+    `确认批量${actionText}选中的 ${selection.value.length} 个商品？`,
+    '批量操作',
+    { type: 'warning', confirmButtonText: `确认${actionText}` },
+  )
+  batchLoading.value = true
+  try {
+    const updated = await batchUpdateProductStatus(
+      selection.value.map((row) => Number(row.id)), status)
+    ElMessage.success(`已${actionText} ${Number(updated)} 个商品`)
+    tableRef.value?.clearSelection()
+    fetchList()
+  } catch {
+    // interceptor handles error
+  } finally {
+    batchLoading.value = false
+  }
+}
+
+// ── 内联快速编辑价格/库存（P1）：点单元格出现输入框，回车/失焦保存 ──
+const editing = ref<{ id: number; field: 'price' | 'stock' } | null>(null)
+const editValue = ref(0)
+
+function isEditing(row: ProductListItemVO, field: 'price' | 'stock') {
+  return editing.value?.id === Number(row.id) && editing.value?.field === field
+}
+
+function startEdit(row: ProductListItemVO, field: 'price' | 'stock') {
+  editing.value = { id: Number(row.id), field }
+  editValue.value = Number(field === 'price' ? row.price : row.stock) || 0
+}
+
+async function saveEdit(row: ProductListItemVO, field: 'price' | 'stock') {
+  // 回车与失焦都会触发：保存成功后 editing 置空，第二次调用直接跳过
+  if (!editing.value || editing.value.id !== Number(row.id) || editing.value.field !== field) return
+  const val = editValue.value
+  if (val < 0) {
+    ElMessage.warning('不能为负数')
+    return
+  }
+  try {
+    await quickEditProduct(Number(row.id), field === 'price' ? { price: val } : { stock: Math.round(val) })
+    if (field === 'price') row.price = val
+    else row.stock = Math.round(val)
+    ElMessage.success('已保存')
+  } catch {
+    fetchList() // 失败时回显服务端值
+  } finally {
+    editing.value = null
+  }
 }
 
 async function handleStatusChange(row: ProductListItemVO, status: number) {
@@ -329,14 +391,38 @@ onMounted(() => {
       <template #header>
         <div class="admin-card-header">
           <span class="admin-card-title">商品列表</span>
-          <el-button type="primary" @click="openCreate">
+          <div class="batch-actions">
+            <el-button
+              v-if="selection.length"
+              type="success"
+              :loading="batchLoading"
+              @click="handleBatchStatus(1)"
+            >批量上架（{{ selection.length }}）</el-button>
+            <el-button
+              v-if="selection.length"
+              type="warning"
+              :loading="batchLoading"
+              @click="handleBatchStatus(0)"
+            >批量下架（{{ selection.length }}）</el-button>
+            <el-button type="primary" @click="openCreate">
 
-            新增商品
-          </el-button>
+              新增商品
+            </el-button>
+          </div>
         </div>
       </template>
 
-      <el-table class="admin-table" :data="productList" v-loading="loading" stripe :border="false" style="width: 100%">
+      <el-table
+        ref="tableRef"
+        class="admin-table"
+        :data="productList"
+        v-loading="loading"
+        stripe
+        :border="false"
+        style="width: 100%"
+        @selection-change="(rows: ProductListItemVO[]) => (selection = rows)"
+      >
+        <el-table-column type="selection" width="42" align="center" />
         <el-table-column prop="id" label="ID" width="190" align="center" show-overflow-tooltip />
         <el-table-column label="商品图片" width="120" align="center">
           <template #default="{ row }">
@@ -354,13 +440,45 @@ onMounted(() => {
         </el-table-column>
         <el-table-column prop="name" label="商品名称" min-width="180" align="center" show-overflow-tooltip />
         <el-table-column prop="categoryName" label="分类" width="120" align="center" show-overflow-tooltip />
-        <el-table-column label="价格" width="150" align="center">
+        <el-table-column label="价格（点击改）" width="150" align="center">
           <template #default="{ row }">
-            <span class="admin-price">¥{{ Number(row.price ?? 0).toFixed(2) }}</span>
-            <span v-if="row.originalPrice" class="admin-original-price">¥{{ Number(row.originalPrice).toFixed(2) }}</span>
+            <template v-if="isEditing(row as ProductListItemVO, 'price')">
+              <el-input-number
+                v-model="editValue"
+                :min="0"
+                :precision="2"
+                :step="1"
+                size="small"
+                style="width: 120px"
+                @keyup.enter="saveEdit(row as ProductListItemVO, 'price')"
+                @blur="saveEdit(row as ProductListItemVO, 'price')"
+              />
+            </template>
+            <template v-else>
+              <span class="admin-price admin-editable" @click="startEdit(row as ProductListItemVO, 'price')">
+                ¥{{ Number(row.price ?? 0).toFixed(2) }}
+              </span>
+              <span v-if="row.originalPrice" class="admin-original-price">¥{{ Number(row.originalPrice).toFixed(2) }}</span>
+            </template>
           </template>
         </el-table-column>
-        <el-table-column prop="stock" label="库存" width="100" align="center" />
+        <el-table-column label="库存（点击改）" width="120" align="center">
+          <template #default="{ row }">
+            <template v-if="isEditing(row as ProductListItemVO, 'stock')">
+              <el-input-number
+                v-model="editValue"
+                :min="0"
+                :precision="0"
+                :step="1"
+                size="small"
+                style="width: 110px"
+                @keyup.enter="saveEdit(row as ProductListItemVO, 'stock')"
+                @blur="saveEdit(row as ProductListItemVO, 'stock')"
+              />
+            </template>
+            <span v-else class="admin-editable" @click="startEdit(row as ProductListItemVO, 'stock')">{{ row.stock ?? 0 }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="sales" label="销量" width="100" align="center" />
         <el-table-column label="状态" width="200" align="center">
           <template #default="{ row }">
@@ -626,3 +744,17 @@ onMounted(() => {
   line-height: 1;
 }
 </style>
+
+.batch-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-editable {
+  cursor: pointer;
+}
+
+.admin-editable:hover {
+  color: var(--el-color-primary);
+  text-decoration: underline dotted;
+}

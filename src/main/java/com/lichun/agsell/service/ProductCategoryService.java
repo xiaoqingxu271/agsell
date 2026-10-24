@@ -32,4 +32,10 @@ public interface ProductCategoryService {
      * 更新分类状态
      */
     void updateCategoryStatus(Long id, Integer status);
+
+    /**
+     * 批量保存排序值（管理端拖拽排序后提交）。只允许改动同一次提交里的
+     * 已存在分类，越界/不存在的 id 报错；单次上限 200 条。
+     */
+    int saveSort(java.util.List<com.lichun.agsell.model.dto.CategorySortRequest.SortItem> items);
 }

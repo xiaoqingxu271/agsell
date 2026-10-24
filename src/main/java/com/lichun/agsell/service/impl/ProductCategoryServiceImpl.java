@@ -139,6 +139,28 @@ public class ProductCategoryServiceImpl extends ServiceImpl<ProductCategoryMappe
         updateById(update);
     }
 
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public int saveSort(List<com.lichun.agsell.model.dto.CategorySortRequest.SortItem> items) {
+        ThrowUtils.throwIf(items == null || items.isEmpty(),
+                ErrorCode.PARAMS_ERROR, "排序数据不能为空");
+        ThrowUtils.throwIf(items.size() > 200, ErrorCode.PARAMS_ERROR, "单次最多保存 200 条排序");
+
+        int updated = 0;
+        for (com.lichun.agsell.model.dto.CategorySortRequest.SortItem item : items) {
+            ThrowUtils.throwIf(item == null || item.getId() == null || item.getSort() == null,
+                    ErrorCode.PARAMS_ERROR, "排序数据不完整");
+            ProductCategory exist = getById(item.getId());
+            ThrowUtils.throwIf(exist == null, ErrorCode.NOT_FOUND_ERROR,
+                    "分类不存在或已被删除：" + item.getId());
+            ProductCategory update = new ProductCategory();
+            update.setId(item.getId());
+            update.setSort(item.getSort());
+            updated += updateById(update) ? 1 : 0;
+        }
+        return updated;
+    }
+
     private CategoryTreeVO convertToVO(ProductCategory category) {
         CategoryTreeVO vo = new CategoryTreeVO();
         vo.setId(category.getId());

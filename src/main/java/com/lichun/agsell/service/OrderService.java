@@ -24,7 +24,10 @@ public interface OrderService {
     /**
      * 我的订单列表
      */
-    Page<OrderListItemVO> listOrders(int pageNum, int pageSize, Integer status);
+    /**
+     * 我的订单分页（keyword 可选：按订单号模糊或商品名快照模糊匹配）
+     */
+    Page<OrderListItemVO> listOrders(int pageNum, int pageSize, Integer status, String keyword);
 
     /**
      * 订单详情

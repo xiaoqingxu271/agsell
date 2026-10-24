@@ -32,6 +32,18 @@ public interface ProductService {
     void updateProductStatus(Long id, Integer status);
 
     /**
+     * 批量上架/下架（管理列表多选操作）。返回实际更新条数；
+     * 整批一次 UPDATE，索引通知整批一次（方向由 Python 按在售与否判断）。
+     */
+    int batchUpdateStatus(List<Long> ids, Integer status);
+
+    /**
+     * 列表内联快速编辑价格/库存（只改传了的字段，不必打开完整编辑弹窗）。
+     * 价格/库存不在召回索引条目文本里，无需通知 AI 侧重建。
+     */
+    void quickEditPriceStock(Long id, java.math.BigDecimal price, Integer stock);
+
+    /**
      * 获取商品详情
      */
     ProductDetailVO getProductDetail(Long id);

@@ -47,6 +47,14 @@ public class AdminCategoryController {
         return ResultUtils.success(null);
     }
 
+    @Operation(summary = "批量保存排序（拖拽排序后提交）")
+    @PutMapping("/sort")
+    @com.lichun.agsell.annotation.OperationLog(module = "分类管理", action = "分类排序",
+            content = "拖拽调整分类排序 #{#request.items?.size()} 项")
+    public BaseResponse<Integer> saveSort(@RequestBody com.lichun.agsell.model.dto.CategorySortRequest request) {
+        return ResultUtils.success(categoryService.saveSort(request.getItems()));
+    }
+
     @Operation(summary = "更新分类状态")
     @PutMapping("/{id}/status")
     public BaseResponse<Void> updateCategoryStatus(@PathVariable Long id,

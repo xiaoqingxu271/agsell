@@ -11,14 +11,17 @@ import com.lichun.agsell.mapper.ProductSpecMapper;
 import com.lichun.agsell.model.dto.ProductCreateRequest;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.ProductCategory;
+import com.lichun.agsell.support.MpLambdaCache;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,6 +52,12 @@ class ProductServiceImplTest {
 
     @InjectMocks
     private ProductServiceImpl productService;
+
+    @org.junit.jupiter.api.BeforeAll
+    static void initLambdaCache() {
+        // 批量上下架用 LambdaUpdateWrapper.in(Product::getId, ...)，链式调用时即解析列名
+        MpLambdaCache.init(Product.class);
+    }
 
     private ProductCreateRequest buildValidRequest() {
         ProductCreateRequest request = new ProductCreateRequest();
@@ -175,5 +184,62 @@ class ProductServiceImplTest {
 
         productService.saveOrUpdateProduct(request);
         verify(aiKbClient).notifyProductIndexAsync(66L);
+    }
+
+    // ---------- 批量上下架（P1 §5.3.1） ----------
+
+    @Test
+    @DisplayName("批量上下架：整批一条 UPDATE，索引通知整批一次（去重去 null）")
+    void batchUpdateStatusUpdatesAndNotifiesOnce() {
+        when(productMapper.update(any(), any(Wrapper.class))).thenReturn(3);
+
+        int updated = productService.batchUpdateStatus(Arrays.asList(1L, 2L, 2L, null, 3L), 1);
+
+        assertEquals(3, updated);
+        verify(aiKbClient).notifyProductIndexAsync(List.of(1L, 2L, 3L));
+    }
+
+    @Test
+    @DisplayName("批量上下架：空选择/空入参/非法状态在服务层拒绝")
+    void batchUpdateStatusRejectsBadInput() {
+        assertThrows(BusinessException.class, () -> productService.batchUpdateStatus(List.of(), 1));
+        assertThrows(BusinessException.class, () -> productService.batchUpdateStatus(null, 1));
+        assertThrows(BusinessException.class, () -> productService.batchUpdateStatus(List.of(1L), 2));
+        verify(productMapper, never()).update(any(), any(Wrapper.class));
+        verify(aiKbClient, never()).notifyProductIndexAsync(anyList());
+    }
+
+    // ---------- 内联快速编辑价格/库存（P1 §5.3.1） ----------
+
+    @Test
+    @DisplayName("快速编辑：只改传了的字段；价格/库存不在索引文本里、不通知 AI 侧")
+    void quickEditUpdatesProvidedFieldsOnly() {
+        when(productMapper.selectById(1L)).thenReturn(new Product());
+        when(productMapper.updateById(any(Product.class))).thenReturn(1);
+
+        productService.quickEditPriceStock(1L, new BigDecimal("29.90"), null);
+
+        ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
+        verify(productMapper).updateById(captor.capture());
+        assertEquals(new BigDecimal("29.90"), captor.getValue().getPrice());
+        assertNull(captor.getValue().getStock());
+        verify(aiKbClient, never()).notifyProductIndexAsync(anyList());
+    }
+
+    @Test
+    @DisplayName("快速编辑：负价格/超两位小数/负库存/两项全空/商品不存在 → 拒绝")
+    void quickEditRejectsBadInput() {
+        assertThrows(BusinessException.class,
+                () -> productService.quickEditPriceStock(1L, null, null));
+        assertThrows(BusinessException.class,
+                () -> productService.quickEditPriceStock(1L, new BigDecimal("-1"), null));
+        assertThrows(BusinessException.class,
+                () -> productService.quickEditPriceStock(1L, new BigDecimal("9.999"), null));
+        assertThrows(BusinessException.class,
+                () -> productService.quickEditPriceStock(1L, null, -5));
+        when(productMapper.selectById(404L)).thenReturn(null);
+        assertThrows(BusinessException.class,
+                () -> productService.quickEditPriceStock(404L, new BigDecimal("9.90"), 10));
+        verify(productMapper, never()).updateById(any(Product.class));
     }
 }

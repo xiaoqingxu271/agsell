@@ -1,5 +1,18 @@
 ﻿<template>
   <view class="order-list-page">
+    <!-- 订单搜索（P1 §4.6.2）：按订单号或商品名模糊匹配 -->
+    <view class="search-bar">
+      <input
+        v-model="keyword"
+        class="search-input"
+        placeholder="搜索订单号 / 商品名"
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        @confirm="onSearch"
+      />
+      <view class="search-btn" role="button" aria-label="搜索订单" @click="onSearch">搜索</view>
+    </view>
+
     <view class="tabs">
       <view
         v-for="(tab, index) in tabs"
@@ -103,6 +116,7 @@ const tabs = [
 ]
 const currentTab = ref(0)
 const orders = ref([])
+const keyword = ref('')
 const pageNum = ref(1)
 const pageSize = ref(10)
 const loading = ref(false)
@@ -143,6 +157,13 @@ onShow(() => {
   loadOrders()
 })
 
+function onSearch() {
+  pageNum.value = 1
+  orders.value = []
+  hasMore.value = true
+  loadOrders()
+}
+
 async function loadOrders() {
   if (loading.value) return
   loading.value = true
@@ -150,7 +171,8 @@ async function loadOrders() {
   const res = await getOrderList({
     pageNum: pageNum.value,
     pageSize: pageSize.value,
-    status: currentTabValue
+    status: currentTabValue,
+    keyword: keyword.value.trim() || undefined
   })
   if (res.code === 0) {
     const { records, current, pages } = res.data
@@ -479,3 +501,38 @@ function onRepurchase(order) {
   font-size: 26rpx;
 }
 </style>
+
+/* 订单搜索条（P1）：与 tabs 同底色，输入框圆角胶囊 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 24rpx;
+  background: #fff;
+}
+
+.search-input {
+  flex: 1;
+  height: 64rpx;
+  background: #f6f7f9;
+  border-radius: 32rpx;
+  padding: 0 28rpx;
+  font-size: 26rpx;
+  color: $uni-text-color;
+}
+
+.search-placeholder {
+  color: $uni-text-color-placeholder;
+}
+
+.search-btn {
+  flex-shrink: 0;
+  padding: 0 28rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  border-radius: 32rpx;
+  background: $uni-color-primary;
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 600;
+}

@@ -145,6 +145,22 @@ export function updateProductStatus(id: number, status: number) {
 // ─── 订单 ─────────────────────────────────────────────────────────────────────
 
 /** 订单列表（分页+筛选） */
+
+/** 批量上架/下架（列表多选），返回实际更新条数 */
+export function batchUpdateProductStatus(ids: number[], status: number) {
+  return request.post<number>('/admin/product/batch', { ids, status })
+}
+
+/** 列表内联快速编辑价格/库存（只改传了的字段） */
+export function quickEditProduct(id: number, data: { price?: number; stock?: number }) {
+  return request.put<boolean>(`/admin/product/${id}/quick-edit`, data)
+}
+
+/** 分类排序批量保存（拖拽排序后提交） */
+export function saveCategorySort(items: { id: number; sort: number }[]) {
+  return request.put<number>('/admin/category/sort', { items })
+}
+
 export function listOrders(params: {
   pageNum?: number
   pageSize?: number
