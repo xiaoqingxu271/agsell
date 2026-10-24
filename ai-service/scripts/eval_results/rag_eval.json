@@ -1,8 +1,8 @@
 {
-  "measured_at": "2026-10-24T18:11:42",
-  "git_commit": "12d629a4",
+  "measured_at": "2026-10-24T18:38:18",
+  "git_commit": "d85437bf",
   "worktree_dirty": true,
-  "dirty_files": 1,
+  "dirty_files": 19,
   "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
   "faq_count": 280,
   "covered_count": 280,
@@ -89,15 +89,10 @@
     {
       "channel": "merged_dual_channel",
       "queries": 72,
-      "hit_at_1": 0.9028,
-      "hit_at_3": 0.9861,
-      "mrr": 0.9426,
-      "misses": [
-        {
-          "id": 12,
-          "q": "订单多久不付款会自动失效"
-        }
-      ]
+      "hit_at_1": 0.9722,
+      "hit_at_3": 1.0,
+      "mrr": 0.9861,
+      "misses": []
     }
   ],
   "product_channels": [

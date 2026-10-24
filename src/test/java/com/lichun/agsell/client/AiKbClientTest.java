@@ -104,4 +104,19 @@ class AiKbClientTest {
         assertFalse(AiKbClient.isSuccess(503));
         assertFalse(AiKbClient.isSuccess(199));
     }
+
+    @Test
+    @DisplayName("引用 Top 解析：有数据映射列表，无数据保持 null（前端区分没开与没数据）")
+    void parseStatsMapsRecentHitTop() {
+        String withData = "{\"faq_count\":280,\"indexed_count\":280,\"product_indexed_count\":202,"
+                + "\"recent_hit_top\":[{\"faqId\":19,\"question\":\"运费怎么计算？\",\"hits\":3}]}";
+        AiKbStatsVO vo = AiKbClient.parseStats(withData);
+        assertEquals(1, vo.getRecentHitTop().size());
+        assertEquals(19L, vo.getRecentHitTop().get(0).getFaqId());
+        assertEquals("运费怎么计算？", vo.getRecentHitTop().get(0).getQuestion());
+        assertEquals(3L, vo.getRecentHitTop().get(0).getHits());
+
+        String withoutData = "{\"faq_count\":280,\"indexed_count\":280,\"product_indexed_count\":202}";
+        assertEquals(null, AiKbClient.parseStats(withoutData).getRecentHitTop());
+    }
 }

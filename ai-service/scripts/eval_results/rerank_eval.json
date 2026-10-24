@@ -1,0 +1,45 @@
+{
+  "measured_at": "2026-10-24T18:29:39",
+  "git_commit": "d85437bf",
+  "worktree_dirty": true,
+  "dirty_files": 14,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "model": "BAAI/bge-reranker-base (Xenova quantized ONNX)",
+  "recall_depth": 20,
+  "platform_faq": {
+    "fusion": {
+      "channel": "fusion_top5",
+      "queries": 72,
+      "hit_at_1": 0.9028,
+      "hit_at_3": 0.9583,
+      "mrr": 0.938,
+      "misses": [
+        {
+          "id": 11,
+          "q": "提交订单要填哪些信息"
+        },
+        {
+          "id": 12,
+          "q": "订单多久不付款会自动失效"
+        },
+        {
+          "id": 32,
+          "q": "订单价格包含哪些部分"
+        }
+      ]
+    },
+    "rerank": {
+      "channel": "rerank_top5",
+      "queries": 72,
+      "hit_at_1": 0.9722,
+      "hit_at_3": 1.0,
+      "mrr": 0.9861,
+      "misses": []
+    }
+  },
+  "rerank_latency_ms": {
+    "p50": 218.5,
+    "p95": 657.6,
+    "max": 691.3
+  }
+}

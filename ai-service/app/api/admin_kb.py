@@ -81,6 +81,8 @@ def _check_admin_key(x_internal_key: str | None = Header(default=None)) -> None:
 
 @router.get("/stats")
 def stats(session: Session = Depends(get_session), _=Depends(_check_admin_key)):
+    from app import kb_hit_log  # 延迟导入避免循环依赖
+
     return {
         "faq_count": faq_repo.count_enabled(session),
         "indexed_count": _get_vectorstore().count(),
@@ -89,6 +91,12 @@ def stats(session: Session = Depends(get_session), _=Depends(_check_admin_key)):
         "vector_db_path": settings.VECTOR_DB_PATH,
         "top_k": settings.KB_TOP_K,
         "product_top_k": settings.PRODUCT_TOP_K,
+        # 近 7 日被 AI 引用 Top（运营视图：哪条知识真的被用过）；日志库缺失/无数据返回空
+        "recent_hit_top": kb_hit_log.recent_top(
+            settings.KB_HIT_LOG_PATH,
+            days=settings.KB_HIT_TOP_DAYS,
+            limit=settings.KB_HIT_TOP_LIMIT,
+        ),
     }
 
 

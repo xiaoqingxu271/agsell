@@ -228,3 +228,59 @@ def test_band_product_entry_with_keyword_evidence_survives():
     hits_out = r.retrieve("小榨菜籽油 5L怎么储存比较好")
     assert [h["id"] for h in hits_out] == [113]
     assert hits_out[0]["keyword_hit"] is True
+
+
+# ---------- 重排路径（实验八生产接入，默认开启；conftest 里默认关闭保证单测确定性）----------
+
+class _FakeReranker:
+    """按文档长度反序打分：把融合序整体倒过来，便于断言重排确实生效"""
+
+    def __init__(self, explode=False):
+        self._explode = explode
+
+    def rerank(self, query, entries, text_of, top_k):
+        if self._explode:
+            raise RuntimeError("onnx 模型缺失")
+        for e in entries:
+            e["_rerank"] = -len(text_of(e))
+        entries.sort(key=lambda x: x["_rerank"])  # _rerank 已是负长度，升序 = 长文本在前
+        out = entries[:top_k]
+        for e in out:
+            e.pop("_rerank", None)
+        return out
+
+
+def test_rerank_reorders_within_admitted_entries(monkeypatch):
+    """重排只调整已过闸门条目的先后；闸门剔除的条目不因重排复活"""
+    from app.config import settings
+
+    hits = [
+        {"id": 2, "question": "怎么退款？", "score": 0.85, "category": ""},
+        {"id": 1, "question": "怎么联系人工客服？很长很长的问法", "score": 0.6, "category": ""},
+    ]
+    faqs = [
+        {"id": 1, "question": "怎么联系人工客服？很长很长的问法", "answer": "电话 400", "keywords": "客服"},
+        {"id": 2, "question": "怎么退款？", "answer": "申请售后", "keywords": "退款"},
+    ]
+    r = Retriever(FakeVectorStore(hits), FakeFaqRepo(faqs), top_k=5,
+                  session_factory=lambda: _BrokenSession())
+    monkeypatch.setattr(settings, "RERANK_ENABLED", True)
+    import app.rag.reranker as reranker_mod
+    monkeypatch.setattr(reranker_mod, "get_reranker", lambda: _FakeReranker())
+
+    out = r.retrieve("怎么退款 客服")
+    # 融合序 id2 在前；假重排按文本长度倒序 → id1（长问法）被提到第一
+    assert [h["id"] for h in out][0] == 1
+
+
+def test_rerank_failure_falls_back_to_fusion_order(monkeypatch):
+    """重排模型缺失/异常 → 回退融合序，检索不报错"""
+    from app.config import settings
+
+    r = _retriever()
+    monkeypatch.setattr(settings, "RERANK_ENABLED", True)
+    import app.rag.reranker as reranker_mod
+    monkeypatch.setattr(reranker_mod, "get_reranker", lambda: _FakeReranker(explode=True))
+
+    hits = r.retrieve("客服电话是多少")
+    assert [h["id"] for h in hits][0] == 1  # 融合序原样返回

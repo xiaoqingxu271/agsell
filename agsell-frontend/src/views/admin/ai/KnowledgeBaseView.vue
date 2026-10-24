@@ -352,6 +352,23 @@ onMounted(reload)
       </p>
     </el-card>
 
+    <!-- 近 7 日被 AI 引用 Top：知识闭环的运营侧证据——哪条知识真的被用过。
+         为空说明近期没有知识问答命中（正常现象，不告警）。 -->
+    <el-card v-if="stats?.recentHitTop?.length" shadow="never" class="kb-hits">
+      <template #header>
+        <div class="admin-card-header">
+          <span class="admin-card-title">近 7 日被 AI 引用 Top</span>
+          <el-tag type="info" effect="plain" size="small">知识闭环 · 运营视图</el-tag>
+        </div>
+      </template>
+      <div class="kb-hit-list">
+        <div v-for="row in stats.recentHitTop" :key="row.faqId" class="kb-hit-row">
+          <span class="kb-hit-q">{{ row.question }}</span>
+          <el-tag size="small" effect="plain">{{ row.hits }} 次引用</el-tag>
+        </div>
+      </div>
+    </el-card>
+
     <el-card shadow="never" class="kb-list">
       <template #header>
         <div class="admin-card-header">
@@ -547,3 +564,26 @@ onMounted(reload)
   width: 100%;
 }
 </style>
+
+.kb-hit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kb-hit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kb-hit-q {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--el-text-color-primary);
+  font-size: 13px;
+}

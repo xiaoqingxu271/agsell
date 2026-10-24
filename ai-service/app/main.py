@@ -15,6 +15,7 @@
   过滤 intent 节点内部的分类调用），updates 模式捕获节点完成事件（意图/建议问题）；
 - 无 token 场景（转人工兜底、降级话术）从最终状态取完整回复一次性下发，保证气泡不为空。
 """
+import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
@@ -36,6 +37,7 @@ from app.db import SessionLocal
 from app.rag.retriever import Retriever
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
+from app import checkpoint_maintenance, kb_hit_log
 from app.schemas.chat import ChatRequest, ChatResponse, HealthResponse
 from app.security import check_service_key as _check_service_key
 from app.tools import tickets as _tickets
@@ -44,12 +46,39 @@ logger = logging.getLogger("agsell.ai")
 
 # 全局 checkpointer：lifespan 中初始化（SqliteSaver / RedisSaver / None→MemorySaver）
 _checkpointer = None
+# 记忆后端可观测状态：/health 直接暴露。sqlite/redis 初始化失败静默降级 MemorySaver
+# （重启丢多轮记忆）的工程债在此收口——演示前一眼确认，不再翻日志。
+_memory_status = {"backend": "unknown", "degraded": False}
+_maintenance_task: asyncio.Task | None = None
+
+
+async def _maintenance_loop() -> None:
+    """每日维护：清理超过 CHECKPOINT_TTL_DAYS 天未活跃的会话（启动即先跑一次）。"""
+    while True:
+        try:
+            deleted = await asyncio.to_thread(
+                checkpoint_maintenance.cleanup_expired,
+                settings.SQLITE_PATH, settings.CHECKPOINT_TTL_DAYS,
+            )
+            if deleted:
+                logger.info("会话记忆维护：清理 %s 个过期 thread", deleted)
+        except Exception:
+            logger.exception("会话记忆维护失败（忽略）")
+        await asyncio.sleep(max(settings.CHECKPOINT_CLEANUP_INTERVAL_HOURS, 1) * 3600)
+
+
+def _remember_thread(thread_id: str) -> None:
+    """thread 活跃登记：仅 sqlite 后端维护 seen 表（redis 由其自身生命周期管理）。"""
+    if settings.MEMORY_BACKEND != "sqlite":
+        return
+    checkpoint_maintenance.remember_thread(settings.SQLITE_PATH, thread_id)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _checkpointer
+    global _checkpointer, _maintenance_task
     _checkpointer = None
+    _memory_status.update(backend="unknown", degraded=False)
 
     backend = settings.MEMORY_BACKEND
     try:
@@ -59,6 +88,7 @@ async def lifespan(app: FastAPI):
             async with AsyncRedisSaver.from_conn_string(settings.REDIS_URL) as saver:
                 await saver.asetup()
                 _checkpointer = saver
+                _memory_status.update(backend="redis", degraded=False)
                 logger.info("会话记忆后端：RedisSaver（%s）", settings.REDIS_URL)
                 yield
             return
@@ -70,16 +100,35 @@ async def lifespan(app: FastAPI):
             async with AsyncSqliteSaver.from_conn_string(settings.SQLITE_PATH) as saver:
                 await saver.setup()
                 _checkpointer = saver
+                _memory_status.update(backend="sqlite", degraded=False)
                 logger.info("会话记忆后端：SqliteSaver（%s）", settings.SQLITE_PATH)
+                if settings.CHECKPOINT_TTL_DAYS > 0:
+                    _maintenance_task = asyncio.create_task(_maintenance_loop())
+                if settings.RERANK_ENABLED:
+                    # 预热重排模型（首次加载 ~1.7s）：不预热的话第一个知识问答请求独自承担
+                    try:
+                        from app.rag.reranker import get_reranker
+
+                        await asyncio.to_thread(get_reranker().score, "预热", ["预热"])
+                        logger.info("重排模型已预热")
+                    except Exception:
+                        logger.warning("重排模型预热失败（首个请求将承担加载）", exc_info=True)
                 yield
             return
     except Exception as e:  # 持久化后端初始化失败 → 降级进程内记忆
         _checkpointer = None
+        # degraded=True 上抛 /health：静默丢多轮记忆是演示事故，必须可观测
+        _memory_status.update(backend="memory", degraded=True)
         logger.warning("持久化后端 %s 初始化失败，降级 MemorySaver：%s", backend, e)
 
     # memory / 降级路径
+    if not _memory_status["degraded"]:
+        _memory_status.update(backend="memory", degraded=False)
     logger.info("会话记忆后端：MemorySaver（进程内）")
     yield
+    if _maintenance_task:
+        _maintenance_task.cancel()
+        _maintenance_task = None
 
 
 app = FastAPI(
@@ -170,7 +219,12 @@ app.include_router(rec_feed_router, prefix="/v1")
 
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", model=settings.AGNES_MODEL)
+    return HealthResponse(
+        status="ok",
+        model=settings.AGNES_MODEL,
+        memory_backend=_memory_status["backend"],
+        memory_degraded=_memory_status["degraded"],
+    )
 
 
 def _thread_id(req: ChatRequest) -> str:
@@ -193,6 +247,9 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
+    thread_id = _thread_id(req)
+    # TTL 维护的活跃登记：同步接口放工作线程，sub-ms 写入，失败不影响对话
+    await asyncio.to_thread(_remember_thread, thread_id)
     try:
         result = await graph.ainvoke(
             {
@@ -203,7 +260,7 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
             # 阶段四：以 sessionId 为 thread_id，多轮对话共享上下文。
             # 按服务端可信的 userId 加命名空间：sessionId 由客户端携带，
             # 不加前缀时带上别人的 sessionId 就能接走对方的多轮上下文（含订单号、金额）。
-            config={"configurable": {"thread_id": _thread_id(req)}},
+            config={"configurable": {"thread_id": thread_id}},
         )
         # 去除回复首尾空白（Agnes 常带前导换行，避免客户端气泡顶部空白）
         reply = (result["messages"][-1].content or "").strip()
@@ -213,6 +270,10 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
         _tickets.fire_async(_tickets.ticket_payload_from_state(
             req.message, req.userId, req.sessionId,
             result.get("observations") or [], bool(result.get("human_fallback"))))
+        # 知识库引用日志（管理页"近 7 日被引用 Top"的数据源）：state.references 已有，零额外成本
+        await asyncio.to_thread(
+            kb_hit_log.log_kb_hits, settings.KB_HIT_LOG_PATH, thread_id,
+            result.get("references") or [])
         return ChatResponse(
             sessionId=req.sessionId,
             reply=reply,
@@ -347,6 +408,10 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
         # 流收尾后再落工单（丢工作线程，不阻塞事件循环）：客户端已拿到完整回复
         _tickets.fire_async(_tickets.ticket_payload_from_state(
             req.message, req.userId, req.sessionId, escalation_obs, human_flag))
+        # 引用日志同走收尾：references 在 updates 循环里已收集
+        await asyncio.to_thread(
+            kb_hit_log.log_kb_hits, settings.KB_HIT_LOG_PATH,
+            thread_config["configurable"]["thread_id"], references)
     except Exception as e:
         # 错误帧只发 code：原始异常含模型名/网关/上游 URL，客户端按 code 查白名单文案，
         # 细节只进服务端日志（logger.exception）
@@ -365,7 +430,9 @@ async def chat_stream(req: ChatRequest, x_internal_key: str | None = Header(defa
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-    thread_config = {"configurable": {"thread_id": _thread_id(req)}}
+    thread_id = _thread_id(req)
+    await asyncio.to_thread(_remember_thread, thread_id)
+    thread_config = {"configurable": {"thread_id": thread_id}}
     return StreamingResponse(
         _chat_stream_events(req, thread_config),
         media_type="text/event-stream",

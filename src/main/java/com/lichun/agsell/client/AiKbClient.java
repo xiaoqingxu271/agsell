@@ -10,6 +10,7 @@ import com.lichun.agsell.model.vo.AiFaqCreateVO;
 import com.lichun.agsell.model.vo.AiFaqPageVO;
 import com.lichun.agsell.model.vo.AiFaqVO;
 import com.lichun.agsell.model.vo.AiKbStatsVO;
+import com.lichun.agsell.model.vo.KbHitTopVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -161,6 +162,20 @@ public class AiKbClient {
         vo.setEmbeddingModel(obj.getStr("embedding_model"));
         vo.setTopK(obj.getInt("top_k"));
         vo.setProductTopK(obj.getInt("product_top_k"));
+        // 近 7 日引用 Top：无日志数据时 Python 返回空数组，保持 null 以便前端区分"没开"与"没数据"
+        JSONArray hitArr = obj.getJSONArray("recent_hit_top");
+        if (hitArr != null && !hitArr.isEmpty()) {
+            List<KbHitTopVO> hitTop = new ArrayList<>();
+            for (int i = 0; i < hitArr.size(); i++) {
+                JSONObject row = hitArr.getJSONObject(i);
+                KbHitTopVO item = new KbHitTopVO();
+                item.setFaqId(row.getLong("faqId", 0L));
+                item.setQuestion(row.getStr("question"));
+                item.setHits(row.getLong("hits", 0L));
+                hitTop.add(item);
+            }
+            vo.setRecentHitTop(hitTop);
+        }
         return vo;
     }
 

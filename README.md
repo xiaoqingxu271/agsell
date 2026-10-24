@@ -9,7 +9,7 @@
 | 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，39 个接口控制器，27 张数据表 |
 | 管理后台 | Vue 3 · Element Plus · Pinia · ECharts · Vite | 商品/订单/用户/营销/AI 知识库与转人工工单/系统 17 个功能页（另含登录页与框架布局页） |
 | 用户端 | uni-app（H5 + 微信小程序双端） | 28 个页面，完整购物与售后流程 |
-| AI 智能客服 | FastAPI · LangGraph · RAG（ChromaDB + bge-small-zh + MySQL 全文 BM25）· OpenAI 兼容 LLM | 独立 Python 服务，SSE 流式回复 + 评价情感分析 |
+| AI 智能客服 | FastAPI · LangGraph · RAG（ChromaDB + bge-small-zh + MySQL 全文 BM25 + bge-reranker 重排）· OpenAI 兼容 LLM | 独立 Python 服务，SSE 流式回复 + 评价情感分析 |
 
 ## 系统架构
 
@@ -44,7 +44,7 @@
 
 **评价情感分析**：领域词库 + 否定翻转 + 程度副词 + 评分先验的规则分析器（Python `/v1/sentiment/batch`，确定性输出零 LLM 成本）；管理端触发同步回写 review 表，商品详情接口聚合返回好评率与好评关键词标签。
 
-**RAG 检索与个性化**：知识库三路召回（向量语义 + MySQL ngram 全文 BM25 + 关键词，线性加权融合；词面通道过校验保拒答语义，单通道故障自动退场）；导购个性化重排的类目偏好由六路信号合并——订单 / 收藏 / 好评 / 加购 / 浏览（时间衰减）/ 搜索词（关键词映射品类），多轮追问的召回串自动携带上文（历史感知改写）。
+**RAG 检索与个性化**：知识库三路召回（向量语义 + MySQL ngram 全文 BM25 + 关键词，线性加权融合 + bge-reranker 交叉编码重排，主口径 Hit@1 97.2%；词面通道过校验保拒答语义，单通道故障自动退场）；导购个性化重排的类目偏好由六路信号合并——订单 / 收藏 / 好评 / 加购 / 浏览（时间衰减）/ 搜索词（关键词映射品类），多轮追问的召回串自动携带上文（历史感知改写）。
 
 **工程化亮点**：乐观锁防超卖（支付/秒杀 Redis 预扣）、订单超时/优惠券过期定时任务、操作日志切面、并发集成测试、docker-compose 一键编排。
 
@@ -125,12 +125,12 @@ uvicorn app.main:app --port 8000 --reload
 ```bash
 # 后端：单元 + 并发集成测试（秒杀/优惠券超卖/支付并发防重复、售后全流程、短信/评价边界、
 # AI 工单/站内信/收藏），38 个测试类；
-# 2026-10-24 实测 `./mvnw test` = Tests run: 316, Failures: 0, Errors: 0, Skipped: 1
+# 2026-10-24 实测 `./mvnw test` = Tests run: 317, Failures: 0, Errors: 0, Skipped: 1
 # （Skipped 是 500 并发抢 180 库存那条放大档压测，手动全量压测：./mvnw verify -Dstress.test=true）
 ./mvnw test
 
-# AI 服务：图路由 / RAG / 会话记忆 / SSE 流式接口 / 情感分析 / 个性化重排 / 工具编排 / 知识库管理接口 / 转人工工单
-# 2026-10-24 实测：229 passed（Python 3.14.6 + requirements.lock.txt）
+# AI 服务：图路由 / RAG（含重排）/ 会话记忆 / SSE 流式接口 / 情感分析 / 个性化重排 / 工具编排 / 知识库管理接口 / 转人工工单
+# 2026-10-24 实测：242 passed（Python 3.14.6 + requirements.lock.txt）
 cd ai-service && .venv/Scripts/python -m pytest tests -q
 
 # 管理后台：vitest 11 passed；oxlint + eslint 0 error；vue-tsc 无错；vite build 通过
@@ -164,6 +164,7 @@ export DATABASE_URL="mysql+pymysql://root:<密码>@127.0.0.1:3306/agsell?charset
 .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm_only --workers 1   # 纯大模型
 .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode ll --workers 1         # 生产路径
 .venv/Scripts/python scripts/eval_rag.py        # RAG 命中率（知识库全覆盖 280 条）
+.venv/Scripts/python scripts/eval_rerank.py     # 重排增益与延迟（实验八）
 .venv/Scripts/python scripts/eval_refusal.py    # 拒答率 + 导购闸门泄漏率
 .venv/Scripts/python scripts/eval_recommend.py  # 导购召回三通道 + 个性化重排回放
 # 流式延迟需先起服务：.venv/Scripts/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000

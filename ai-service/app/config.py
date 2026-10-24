@@ -118,6 +118,23 @@ class Settings(BaseSettings):
     MEMORY_BACKEND: str = "sqlite"
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
     SQLITE_PATH: str = "data/checkpoints.db"
+    # 知识库引用日志（运营视图数据源，见 kb_hit_log.py）；与 checkpoints 同目录、独立库文件
+    KB_HIT_LOG_PATH: str = "data/kb_hits.db"
+    KB_HIT_TOP_DAYS: int = 7
+    KB_HIT_TOP_LIMIT: int = 10
+
+    # 知识库重排（实验八）：bge-reranker-base 量化 ONNX，本地 CPU 推理。
+    # 重排只调整已过闸门条目的先后，不放行新条目；实验八实测 platform_faq
+    # Hit@1 90.3%→97.2%、Hit@3 95.8%→100%，重排延迟 P50 219ms（20 候选），
+    # 对 9.6s 的 FAQ 首 token 路径占比 <3%，故默认打开；失败自动回退融合序。
+    RERANK_ENABLED: bool = True
+    RERANK_MODEL_PATH: str = "data/reranker"
+    RERANK_RECALL_DEPTH: int = 20   # 参与重排的召回候选数（检索器先召回这么多再重排截断）
+    # 会话 TTL（天）：超过 N 天未活跃的会话在启动与每日维护时从 checkpoints.db 清理。
+    # 0 = 关闭清理。依据：state.messages 随会话无限增长（发送侧 3000 字符截断只管提示词），
+    # 长期运行 checkpoints.db 膨胀（评估清单 §4 第 5 条的工程债）。
+    CHECKPOINT_TTL_DAYS: int = 7
+    CHECKPOINT_CLEANUP_INTERVAL_HOURS: int = 24
 
     # 阶段五：Agnes 调用重试与降级
     LLM_TIMEOUT: float = 30.0   # 单次 LLM 请求超时（秒）

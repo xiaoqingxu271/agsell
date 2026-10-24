@@ -30,3 +30,7 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     model: str
     version: str = "0.1.0"
+    # 会话记忆后端与降级标记：sqlite 配置初始化失败会静默退回进程内 MemorySaver
+    # （重启丢多轮记忆），此前没有任何可观测信号，演示前只能翻日志
+    memory_backend: str = "unknown"
+    memory_degraded: bool = False

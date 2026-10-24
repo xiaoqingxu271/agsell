@@ -33,6 +33,9 @@ public class AiKbStatsVO {
     /** 商品召回 top_k */
     private Integer productTopK;
 
+    /** 近 7 日被 AI 引用的知识 Top（Python kb_hit_log 聚合；无日志数据为 null） */
+    private java.util.List<KbHitTopVO> recentHitTop;
+
     /**
      * FAQ 是否已同步：启用条数与索引条数不一致就说明索引落后，
      * 管理页据此提示"点全量重建修复"。

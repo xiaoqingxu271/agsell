@@ -637,6 +637,8 @@ export interface AiKbStatsVO {
   /** 同步判断由 Java 侧算好后下发，前端不再自己比大小（避免字符串比较出错） */
   faqSynced: boolean
   productIndexSynced: boolean
+  /** 近 7 日被 AI 引用的知识 Top（Python kb_hit_log 聚合）；null = 无日志数据 */
+  recentHitTop: { faqId: IdOrNum; question: string; hits: number }[] | null
 }
 
 /** AI 转人工工单：Python 触发 escalate_human 后经内部接口落库，管理端查看并处理 */

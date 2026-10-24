@@ -17,7 +17,9 @@ category_knowledge）必须有词面佐证——2026-10-24 复测实证域内 to
 - 关键词（ai_faq.keywords 子串）：旧通道保留，每条命中 +0.5 分，停用词不豁免。
 
 融合方式：各通道分数归一线性加权（向量余弦分原样、关键词每命中 +0.5、全文相关度按本查询
-命中集归一到 0~1 后乘 0.3）。实测曾试过 RRF(k=60)：它把"两路排名相同"的条目分数压到
+命中集归一到 0~1 后乘 0.3）；RERANK_ENABLED 时在融合序之上做交叉编码重排
+（bge-reranker-base 量化 ONNX，本地 CPU：实验八实测 Hit@1 90.3%→97.2%、P50 219ms），
+重排失败自动回退融合序。重排只调整已过闸门条目的先后，不放行新条目。实测曾试过 RRF(k=60)：它把"两路排名相同"的条目分数压到
 几乎相等（0.0328 vs 0.0323），向量距离信息丢失，platform_faq 上生产路径 Hit@1 从
 90.3% 退化到 83.3%（正确条目被关键词多命中一条的同分对手挤到第二）——线性加权保住了
 分数差异，这是有存档对比的选型结论，不是随手的实现细节。
@@ -76,6 +78,9 @@ class Retriever:
         关键词/全文通道的条目有词面证据，始终保留。
         """
         k = top_k or self._top_k
+        # 重排开启时召回更深（融合分只作重排前的保底序），最终仍只返回 top_k
+        rerank_on = settings.RERANK_ENABLED
+        k_recall = max(k, settings.RERANK_RECALL_DEPTH) if rerank_on else k
 
         # ---------- 三通道各自召回，产出 {id: 条目} 与分数 ----------
         lane_members: list[list[dict]] = []  # 每通道一条按相关度降序的列表
@@ -85,7 +90,7 @@ class Retriever:
         #    词面佐证要等关键词/全文两通道算完才知道）
         vector_hits: list[dict] = []
         vector_categories: dict[int, str] = {}
-        for hit in self._vs.query(question, top_k=k * 2):
+        for hit in self._vs.query(question, top_k=k_recall * 2):
             if self._threshold and self._threshold > 0 and hit["score"] < self._threshold:
                 continue
             vector_hits.append({"id": hit["id"], "question": hit["question"], "score": hit["score"]})
@@ -163,7 +168,20 @@ class Retriever:
             })
 
         results.sort(key=lambda x: -x["score"])
-        return results[:k]
+        if not rerank_on:
+            return results[:k]
+        # 交叉编码重排：融合序是保底序（重排分同分时保持），失败回退融合序
+        try:
+            from app.rag.reranker import get_reranker
+
+            return get_reranker().rerank(
+                question, results,
+                text_of=lambda h: f"{h['question']}\n{h['answer']}",
+                top_k=k,
+            )
+        except Exception:
+            logger.warning("重排不可用，回退融合序", exc_info=True)
+            return results[:k]
 
     def _fulltext_lane(self, session, question: str) -> list[dict]:
         """MySQL ngram 全文召回 + 词面校验；任何故障都退场（不挡主链路）。
