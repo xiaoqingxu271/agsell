@@ -10,6 +10,7 @@ import com.lichun.agsell.model.vo.AiFaqCreateVO;
 import com.lichun.agsell.model.vo.AiFaqPageVO;
 import com.lichun.agsell.model.vo.AiFaqVO;
 import com.lichun.agsell.model.vo.AiKbStatsVO;
+import com.lichun.agsell.model.vo.AiOpsSummaryVO;
 import com.lichun.agsell.model.vo.KbHitTopVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * AI 服务知识库管理客户端（管理端「知识库维护」与商品索引增量同步的唯一出口）。
@@ -53,6 +55,11 @@ public class AiKbClient {
     /** 知识库与索引状态 */
     public AiKbStatsVO stats() {
         return parseStats(get("/v1/admin/kb/stats", CRUD_TIMEOUT_MS));
+    }
+
+    /** 近 N 日 AI 运营汇总（对话量/拒答率/工具分布/按日趋势） */
+    public AiOpsSummaryVO ops(int days) {
+        return parseOps(get("/v1/admin/kb/ops?days=" + Math.max(1, Math.min(days, 30)), CRUD_TIMEOUT_MS));
     }
 
     /** FAQ 分页列表；category 为空表示全部分类 */
@@ -152,6 +159,36 @@ public class AiKbClient {
     }
 
     // ---------- 解析（与 HTTP 分离，便于无服务单测） ----------
+
+    static AiOpsSummaryVO parseOps(String json) {
+        JSONObject obj = JSONUtil.parseObj(json);
+        AiOpsSummaryVO vo = new AiOpsSummaryVO();
+        vo.setDays(obj.getInt("days", 7));
+        vo.setTotalTurns(obj.getLong("totalTurns", 0L));
+        vo.setRefusedTurns(obj.getLong("refusedTurns", 0L));
+        vo.setRefusalRate(obj.getDouble("refusalRate", 0.0));
+        Map<String, Long> byTool = new java.util.LinkedHashMap<>();
+        JSONObject toolObj = obj.getJSONObject("byTool");
+        if (toolObj != null) {
+            for (String key : toolObj.keySet()) {
+                byTool.put(key, toolObj.getLong(key, 0L));
+            }
+        }
+        vo.setByTool(byTool);
+        List<AiOpsSummaryVO.DailyCount> daily = new ArrayList<>();
+        JSONArray dayArr = obj.getJSONArray("daily");
+        if (dayArr != null) {
+            for (int i = 0; i < dayArr.size(); i++) {
+                JSONObject row = dayArr.getJSONObject(i);
+                AiOpsSummaryVO.DailyCount d = new AiOpsSummaryVO.DailyCount();
+                d.setDate(row.getStr("date"));
+                d.setCount(row.getLong("count", 0L));
+                daily.add(d);
+            }
+        }
+        vo.setDaily(daily);
+        return vo;
+    }
 
     static AiKbStatsVO parseStats(String json) {
         JSONObject obj = JSONUtil.parseObj(json);

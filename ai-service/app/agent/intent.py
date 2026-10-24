@@ -215,3 +215,22 @@ def _human_message(content: str) -> BaseMessage:
     from langchain_core.messages import HumanMessage
 
     return HumanMessage(content=content)
+
+
+# ---------- 多诉求检测（智能体覆盖保证的确定性判据，零 LLM 成本） ----------
+# 实测（实验七）：一句多诉求的探针 3 条里 1 条模型只调了一个工具——"取到资料就提前退出"
+# 的优化把第二步规划砍掉了，覆盖与否完全靠模型自觉。这里用连接词/问句切分做确定性计数：
+# 诉求条数 > 已执行工具数时跳过提前退出，让既有的第二轮规划变成"补齐核对轮"。
+# 单诉求消息完全不受影响（不付第二轮 6~15s 的代价）。
+_MULTI_DEMAND_SPLIT = re.compile(r"顺便|另外|以及|同时|还想问|再帮我|[？?；;。！!]")
+_DEMAND_MIN_CHARS = 4
+
+
+def count_demands(question: str) -> int:
+    """按连接词与句读切分，返回诉求条数（≥1）；只是粗计数，供"是否补一轮规划"决策用"""
+    segments = [x.strip() for x in _MULTI_DEMAND_SPLIT.split(question or "") if len(x.strip()) >= _DEMAND_MIN_CHARS]
+    return max(1, len(segments))
+
+
+def looks_multi_demand(question: str) -> bool:
+    return count_demands(question) > 1

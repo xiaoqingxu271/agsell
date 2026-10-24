@@ -26,10 +26,25 @@ CREATE TABLE IF NOT EXISTS kb_hit_log (
 )
 """
 
+# 每轮对话一条（运营统计：对话量/工具分布/拒答率）。与引用日志同库，AI 自有数据不碰业务库。
+_CHAT_TABLE_SQL = """
+CREATE TABLE IF NOT EXISTS chat_log (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts        REAL    NOT NULL,
+    thread_id TEXT    NOT NULL,
+    user_id   INTEGER,
+    intent    TEXT    NOT NULL DEFAULT '',
+    tools     TEXT    NOT NULL DEFAULT '[]',
+    refused   INTEGER NOT NULL DEFAULT 0,
+    has_items INTEGER NOT NULL DEFAULT 0
+)
+"""
+
 
 def _connect(path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(path, timeout=10)
     conn.execute(_TABLE_SQL)
+    conn.execute(_CHAT_TABLE_SQL)
     return conn
 
 
@@ -50,6 +65,77 @@ def log_kb_hits(path: str, thread_id: str, references: list) -> int:
     except Exception:
         logger.warning("知识库引用日志写入失败（忽略）：thread=%s", thread_id, exc_info=True)
         return 0
+
+
+def log_chat_turn(path: str, thread_id: str, user_id: int | None, turn: dict) -> bool:
+    """登记一轮对话（运营统计）。turn: {intent, tools, refused, has_items}；失败只记日志。"""
+    try:
+        import json as _json
+
+        with _connect(path) as conn:
+            conn.execute(
+                "INSERT INTO chat_log(ts, thread_id, user_id, intent, tools, refused, has_items)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    time.time(), thread_id, user_id,
+                    str(turn.get("intent") or ""),
+                    _json.dumps(turn.get("tools") or [], ensure_ascii=False),
+                    1 if turn.get("refused") else 0,
+                    1 if turn.get("has_items") else 0,
+                ),
+            )
+            conn.commit()
+        return True
+    except Exception:
+        logger.warning("对话运营日志写入失败（忽略）：thread=%s", thread_id, exc_info=True)
+        return False
+
+
+def ops_summary(path: str, days: int = 7) -> dict:
+    """近 N 日运营汇总：对话量 / 拒答率 / 工具分布 / 按日趋势；失败或无数据返回零值结构。"""
+    cutoff = time.time() - days * 86400
+    empty = {"days": days, "totalTurns": 0, "refusedTurns": 0, "refusalRate": 0.0,
+             "byTool": {}, "daily": []}
+    try:
+        import json as _json
+        from datetime import date, datetime, timedelta
+
+        with _connect(path) as conn:
+            total = conn.execute(
+                "SELECT COUNT(*) FROM chat_log WHERE ts >= ?", (cutoff,)).fetchone()[0]
+            if not total:
+                return empty
+            refused = conn.execute(
+                "SELECT COUNT(*) FROM chat_log WHERE ts >= ? AND refused = 1", (cutoff,)).fetchone()[0]
+            tool_counter: dict[str, int] = {}
+            for (tools_json,) in conn.execute(
+                    "SELECT tools FROM chat_log WHERE ts >= ?", (cutoff,)).fetchall():
+                for t in _json.loads(tools_json or "[]"):
+                    tool_counter[t] = tool_counter.get(t, 0) + 1
+            by_tool = dict(sorted(tool_counter.items(), key=lambda kv: -kv[1]))
+            # 按自然日趋势（近 days 天，缺数日补零）
+            start_day = (datetime.now() - timedelta(days=days - 1)).date()
+            rows = conn.execute(
+                "SELECT ts FROM chat_log WHERE ts >= ?", (cutoff,)).fetchall()
+            per_day: dict[str, int] = {}
+            for (ts,) in rows:
+                key = date.fromtimestamp(ts).isoformat()
+                per_day[key] = per_day.get(key, 0) + 1
+            daily = []
+            for i in range(days):
+                key = (start_day + timedelta(days=i)).isoformat()
+                daily.append({"date": key, "count": per_day.get(key, 0)})
+        return {
+            "days": days,
+            "totalTurns": int(total),
+            "refusedTurns": int(refused),
+            "refusalRate": round(refused / total, 4) if total else 0.0,
+            "byTool": by_tool,
+            "daily": daily,
+        }
+    except Exception:
+        logger.warning("运营统计聚合失败（返回零值）", exc_info=True)
+        return empty
 
 
 def recent_top(path: str, days: int = 7, limit: int = 10) -> list[dict]:

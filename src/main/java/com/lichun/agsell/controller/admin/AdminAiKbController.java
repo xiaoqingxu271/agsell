@@ -12,6 +12,7 @@ import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.vo.AiFaqCreateVO;
 import com.lichun.agsell.model.vo.AiFaqPageVO;
 import com.lichun.agsell.model.vo.AiKbStatsVO;
+import com.lichun.agsell.model.vo.AiOpsSummaryVO;
 import com.lichun.agsell.utils.ThrowUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,6 +56,12 @@ public class AdminAiKbController {
         stats.setOnSaleProductCount(productMapper.selectCount(
                 new LambdaQueryWrapper<Product>().eq(Product::getStatus, 1)));
         return ResultUtils.success(stats);
+    }
+
+    @Operation(summary = "近 N 日 AI 运营汇总（对话量/拒答率/工具分布/按日趋势）")
+    @GetMapping("/ops")
+    public BaseResponse<AiOpsSummaryVO> ops(@RequestParam(defaultValue = "7") int days) {
+        return ResultUtils.success(aiKbClient.ops(days));
     }
 
     @Operation(summary = "FAQ 列表（分页 + 分类筛选）")

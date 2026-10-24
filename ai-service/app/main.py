@@ -274,6 +274,19 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
         await asyncio.to_thread(
             kb_hit_log.log_kb_hits, settings.KB_HIT_LOG_PATH, thread_id,
             result.get("references") or [])
+        # 运营统计（对话量/工具分布/拒答率）：observations 是唯一取数表示，从它判定
+        obs = result.get("observations") or []
+        await asyncio.to_thread(
+            kb_hit_log.log_chat_turn, settings.KB_HIT_LOG_PATH, thread_id, req.userId,
+            {
+                "intent": result.get("intent") or "",
+                "tools": [o.get("tool") for o in obs if o.get("tool")],
+                "refused": any(
+                    o.get("status") == "refused"
+                    or (o.get("kind") == "kb" and o.get("status") == "empty")
+                    for o in obs),
+                "has_items": bool(result.get("rec_items")),
+            })
         return ChatResponse(
             sessionId=req.sessionId,
             reply=reply,
@@ -325,6 +338,9 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
     intent: str | None = None
     human_flag = False          # 本轮是否触发转人工（human_fallback 节点 / agent 的 human 观察）
     escalation_obs: list[dict] = []  # 转人工观察（取工具入参里的原因，落工单用）
+    turn_intent = ""            # 运营统计：规则前置标签
+    turn_tools: list[str] = []  # 运营统计：本轮用过的工具
+    turn_refused = False        # 运营统计：是否走了拒答出口
     try:
         graph = get_graph()
         async for mode, payload in graph.astream(
@@ -354,6 +370,7 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                         # intent 只带高置信规则前置的标签（smalltalk/human），业务问题留空：
                         # 改造后"要办哪件事"由 agent 的工具选择决定，见下面 agent 事件的 tools
                         intent = out.get("intent")
+                        turn_intent = intent or ""
                         yield _sse("status", {
                             "stage": "intent",
                             "intent": intent,
@@ -367,9 +384,14 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                         yield _sse("status", {"stage": node_name, "tools": tools})
                         # 转人工可能由智能体的 escalate_human 触发：记下观察以便取 reason
                         for o in out.get("observations") or []:
+                            if o.get("tool") and o.get("tool") not in turn_tools:
+                                turn_tools.append(o.get("tool"))
                             if o.get("kind") == "human":
                                 human_flag = True
                                 escalation_obs.append(o)
+                            if o.get("status") == "refused" or (
+                                    o.get("kind") == "kb" and o.get("status") == "empty"):
+                                turn_refused = True
                         # 导购候选已确定：立刻下发结构化商品卡，让卡片与回复文本并行呈现，
                         # 用户不用等 LLM 把话说完才能点进商品
                         if out.get("rec_items"):
@@ -412,6 +434,12 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
         await asyncio.to_thread(
             kb_hit_log.log_kb_hits, settings.KB_HIT_LOG_PATH,
             thread_config["configurable"]["thread_id"], references)
+        # 运营统计同走收尾
+        await asyncio.to_thread(
+            kb_hit_log.log_chat_turn, settings.KB_HIT_LOG_PATH,
+            thread_config["configurable"]["thread_id"], req.userId,
+            {"intent": turn_intent, "tools": turn_tools,
+             "refused": turn_refused, "has_items": bool(items)})
     except Exception as e:
         # 错误帧只发 code：原始异常含模型名/网关/上游 URL，客户端按 code 查白名单文案，
         # 细节只进服务端日志（logger.exception）

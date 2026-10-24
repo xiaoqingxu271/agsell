@@ -159,6 +159,18 @@ def upsert_product_index(body: ProductIndexRequest, _=Depends(_check_admin_key))
         session.close()
 
 
+@router.get("/ops")
+def ops(days: int = Query(default=7, ge=1, le=30), _=Depends(_check_admin_key)):
+    """近 N 日 AI 运营汇总（对话量/拒答率/工具分布/按日趋势）。
+
+    数据源是 chat_log（每轮一条，main.py 落库）；日志库缺失/无数据返回零值结构，
+    前端据此显示空态而不是报错。
+    """
+    from app import kb_hit_log  # 延迟导入避免循环依赖
+
+    return kb_hit_log.ops_summary(settings.KB_HIT_LOG_PATH, days=days)
+
+
 @router.get("/faqs")
 def list_faqs(
     category: str | None = None,

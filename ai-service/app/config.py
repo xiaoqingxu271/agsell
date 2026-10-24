@@ -44,7 +44,8 @@ class Settings(BaseSettings):
     # 其卖点文本与任何购物语境都相似度偏高；平台规则条目在带内实测 10/10 正确，无需加验。
     KB_SCORE_CONFIRM_BAND: float = 0.6
     # 视为"商品域条目"的知识库分类（逗号分隔）：这些条目受确认带加验约束
-    KB_PRODUCT_KNOWLEDGE_CATEGORIES: str = "product_knowledge,category_knowledge"
+# （trace_knowledge 是溯源切块条目，同为具体商品事实，语义分布与商品域一致）
+    KB_PRODUCT_KNOWLEDGE_CATEGORIES: str = "product_knowledge,category_knowledge,trace_knowledge"
 
     # 关键词通道低区分度通用词（命中不加权、也不豁免阈值）：
     # 实验五发现"推荐/什么时候"类通用词曾让"推荐电影"等域外问法穿透闸门

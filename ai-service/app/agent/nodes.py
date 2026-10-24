@@ -26,7 +26,7 @@ from langchain_core.messages import (
 )
 
 from app.agent.executors import build_contextual_query, load_product_context, run_tool
-from app.agent.intent import _extract_order_no, _hard_rule, classify_full
+from app.agent.intent import _extract_order_no, _hard_rule, classify_full, count_demands, looks_multi_demand
 from app.agent.tool_defs import TOOL_SCHEMAS
 from app.config import settings
 from app.prompts import (
@@ -196,9 +196,18 @@ def make_agent_node(llm, ctx, tool_schemas=None):
         obs: list = []
         seen: set = set()
         calls = 0
+        # 多诉求覆盖保证：连接词/句读确定性计数，诉求多于已执行工具数时跳过提前退出，
+        # 让第二步规划变成"补齐核对轮"（实测 3 条探针 1 条漏答的修复，单诉求零代价）
+        demands = count_demands(question) if looks_multi_demand(question) else 1
         for _step in range(settings.AGENT_MAX_STEPS):
             if calls >= settings.AGENT_MAX_TOOL_CALLS:
                 break
+            if _step > 0 and demands > 1:
+                # 补齐轮提示：告诉模型对照逐个诉求核对，缺哪个补哪个
+                messages.append(SystemMessage(content=(
+                    f"【诉求核对】用户这条消息包含约 {demands} 个诉求，目前已取证 {calls} 次。"
+                    "请对照用户消息逐个诉求核对：还缺哪个诉求就补调对应工具；"
+                    "若已全部覆盖，输出空内容结束。")))
             try:
                 resp = planner.invoke(messages)
             except Exception:  # noqa: BLE001 规划失败也要给用户答案：降级到规则选定的单个工具
@@ -241,8 +250,11 @@ def make_agent_node(llm, ctx, tool_schemas=None):
             # （域外拒答、未登录引导——再问一次模型也改变不了），就不要再花一次规划：
             # 实测网关单次规划 6~15 s，白跑一轮等于首 token 延迟翻倍。
             # 只有 empty/error 才留一次改写重试（模型可换检索表述或换品类词）。
+            # 例外：多诉求消息若取证次数 < 诉求条数，跳过提前退出走补齐核对轮——
+            # 实测模型自觉覆盖不可靠（3 条探针 1 条漏答），这里是编排层的硬保证。
             if step_obs and all(o.status in ("ok", "refused", "need_login") for o in step_obs):
-                break
+                if not (demands > 1 and calls < demands):
+                    break
 
         return _collapse_observations(obs, facts=facts, item=item)
 

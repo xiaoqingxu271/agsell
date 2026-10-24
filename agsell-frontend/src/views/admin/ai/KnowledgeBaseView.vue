@@ -19,8 +19,9 @@ import {
   rebuildKbIndex,
   rebuildKbProductIndex,
   updateKbFaq,
+  aiOpsSummary,
 } from '@/api/admin'
-import type { AiFaqRequest, AiFaqVO, AiKbStatsVO } from '@/types'
+import type { AiFaqRequest, AiFaqVO, AiKbStatsVO, AiOpsSummaryVO } from '@/types'
 import PageHeader from '@/components/admin/PageHeader.vue'
 
 /** Long 类字段后端统一序列化成字符串，比较/展示前先归一成数字 */
@@ -66,6 +67,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const stats = ref<AiKbStatsVO | null>(null)
+/** 近 7 日 AI 运营（对话量/拒答率/工具分布）：连不上 ai-service 时与状态卡一样给空态 */
+const ops = ref<AiOpsSummaryVO | null>(null)
 /** AI 服务（Python）连不上时给出明确提示，而不是让表格空着让人猜 */
 const serviceDown = ref(false)
 
@@ -84,6 +87,12 @@ const categoryOptions = computed(() => {
 
 const labelOf = (key: string) => CATEGORY_LABELS[key] ?? key
 
+/** 工具调用条形宽度：以最大值为 100% 基准 */
+function toolBarWidth(count: number): string {
+  const max = Math.max(...Object.values(ops.value?.byTool ?? { a: 1 }))
+  return `${Math.max(6, Math.round((count / max) * 100))}%`
+}
+
 async function fetchStats() {
   try {
     stats.value = await kbStats()
@@ -92,6 +101,11 @@ async function fetchStats() {
     // 常见于本地只起了 Java、没起 ai-service：给一句人话，不在这里刷屏
     stats.value = null
     serviceDown.value = true
+  }
+  try {
+    ops.value = await aiOpsSummary(7)
+  } catch {
+    ops.value = null
   }
 }
 
@@ -352,6 +366,36 @@ onMounted(reload)
       </p>
     </el-card>
 
+    <!-- 近 7 日 AI 运营：对话量/拒答率/工具分布。数据源 chat_log（每轮一条），
+         拒答率是两道闸门（知识库未覆盖 + 导购域外）命中的轮次占比。 -->
+    <el-card v-if="ops && ops.totalTurns > 0" shadow="never" class="kb-ops">
+      <template #header>
+        <div class="admin-card-header">
+          <span class="admin-card-title">近 7 日 AI 运营</span>
+          <el-tag type="info" effect="plain" size="small">对话 {{ ops.totalTurns }} 轮</el-tag>
+        </div>
+      </template>
+      <div class="kb-ops-row">
+        <div class="kb-ops-num">
+          <span class="kb-num">{{ ops.totalTurns }}</span>
+          <span class="kb-lbl">对话轮数</span>
+        </div>
+        <div class="kb-ops-num">
+          <span class="kb-num">{{ (ops.refusalRate * 100).toFixed(1) }}%</span>
+          <span class="kb-lbl">拒答率（{{ ops.refusedTurns }} 轮）</span>
+        </div>
+        <div class="kb-ops-tools">
+          <div v-for="(count, tool) in ops.byTool" :key="tool" class="kb-ops-tool">
+            <span class="kb-ops-tool-name">{{ tool }}</span>
+            <div class="kb-ops-bar-wrap">
+              <div class="kb-ops-bar" :style="{ width: toolBarWidth(count) }"></div>
+            </div>
+            <span class="kb-ops-tool-count">{{ count }}</span>
+          </div>
+        </div>
+      </div>
+    </el-card>
+
     <!-- 近 7 日被 AI 引用 Top：知识闭环的运营侧证据——哪条知识真的被用过。
          为空说明近期没有知识问答命中（正常现象，不告警）。 -->
     <el-card v-if="stats?.recentHitTop?.length" shadow="never" class="kb-hits">
@@ -586,4 +630,61 @@ onMounted(reload)
   text-overflow: ellipsis;
   color: var(--el-text-color-primary);
   font-size: 13px;
+}
+
+.kb-ops-row {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.kb-ops-num {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 110px;
+}
+
+.kb-ops-tools {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kb-ops-tool {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.kb-ops-tool-name {
+  width: 120px;
+  color: var(--el-text-color-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.kb-ops-bar-wrap {
+  flex: 1;
+  height: 10px;
+  background: var(--el-fill-color-light);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.kb-ops-bar {
+  height: 100%;
+  background: var(--el-color-primary);
+  border-radius: 5px;
+}
+
+.kb-ops-tool-count {
+  width: 36px;
+  color: var(--el-text-color-primary);
 }

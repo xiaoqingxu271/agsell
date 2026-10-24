@@ -10,3 +10,10 @@ os.environ.setdefault("JAVA_INTERNAL_KEY", "test-internal-key")
 from app.config import settings as _settings
 
 _settings.RERANK_ENABLED = False
+
+# 引用日志/运营统计的落库路径同样与真实数据隔离：pytest 的流式测试会走完整的
+# /v1/chat/stream 链路（真实写 chat_log），不重定向会把测试轮次写进生产统计。
+import os as _os
+import tempfile as _tempfile
+
+_settings.KB_HIT_LOG_PATH = _os.path.join(_tempfile.gettempdir(), "agsell-test-kb-hits.db")

@@ -7,6 +7,7 @@ import type {
   AiFaqRequest,
   AiKbStatsVO,
   AiTicketPageVO,
+  AiOpsSummaryVO,
   AiTicketHandleRequest,
   IdOrNum,
   AdminLoginRequest,
@@ -502,4 +503,8 @@ export function listAiTickets(params: { status?: number; pageNum?: number; pageS
 
 export function handleAiTicket(id: number, data: AiTicketHandleRequest) {
   return request.post<boolean>(`/admin/ai/ticket/${id}/handle`, data)
+}
+
+export function aiOpsSummary(days = 7) {
+  return request.get<AiOpsSummaryVO>('/admin/ai/kb/ops', { params: { days } })
 }

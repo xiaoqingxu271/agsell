@@ -44,9 +44,9 @@
 
 **评价情感分析**：领域词库 + 否定翻转 + 程度副词 + 评分先验的规则分析器（Python `/v1/sentiment/batch`，确定性输出零 LLM 成本）；管理端触发同步回写 review 表，商品详情接口聚合返回好评率与好评关键词标签。
 
-**RAG 检索与个性化**：知识库三路召回（向量语义 + MySQL ngram 全文 BM25 + 关键词，线性加权融合 + bge-reranker 交叉编码重排，主口径 Hit@1 97.2%；词面通道过校验保拒答语义，单通道故障自动退场）；导购个性化重排的类目偏好由六路信号合并——订单 / 收藏 / 好评 / 加购 / 浏览（时间衰减）/ 搜索词（关键词映射品类），多轮追问的召回串自动携带上文（历史感知改写）。
+**RAG 检索与个性化**：知识库三路召回（向量语义 + MySQL ngram 全文 BM25 + 关键词，线性加权融合 + bge-reranker 交叉编码重排，主口径 Hit@1 97.2%；词面通道过校验保拒答语义，单通道故障自动退场）+ 溯源数据切块入库（生产记录/溯源档案 → trace_knowledge）；导购个性化重排的类目偏好由六路信号合并——订单 / 收藏 / 好评 / 加购 / 浏览（时间衰减）/ 搜索词（关键词映射品类），多轮追问的召回串自动携带上文（历史感知改写）。
 
-**工程化亮点**：乐观锁防超卖（支付/秒杀 Redis 预扣）、订单超时/优惠券过期定时任务、操作日志切面、并发集成测试、docker-compose 一键编排。
+**工程化亮点**：乐观锁防超卖（支付/秒杀 Redis 预扣）、订单超时/优惠券过期定时任务、操作日志切面、并发集成测试、docker-compose 一键编排；AI 侧自带会话 TTL 清理与 /health 记忆后端可观测、多诉求覆盖保证（编排层确定性判据）、运营统计（对话量/拒答率/工具分布）。
 
 ## 快速开始（Docker Compose 一键启动）
 
@@ -130,7 +130,7 @@ uvicorn app.main:app --port 8000 --reload
 ./mvnw test
 
 # AI 服务：图路由 / RAG（含重排）/ 会话记忆 / SSE 流式接口 / 情感分析 / 个性化重排 / 工具编排 / 知识库管理接口 / 转人工工单
-# 2026-10-24 实测：242 passed（Python 3.14.6 + requirements.lock.txt）
+# 2026-10-24 实测：250 passed（Python 3.14.6 + requirements.lock.txt）
 cd ai-service && .venv/Scripts/python -m pytest tests -q
 
 # 管理后台：vitest 11 passed；oxlint + eslint 0 error；vue-tsc 无错；vite build 通过
@@ -165,6 +165,7 @@ export DATABASE_URL="mysql+pymysql://root:<密码>@127.0.0.1:3306/agsell?charset
 .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode ll --workers 1         # 生产路径
 .venv/Scripts/python scripts/eval_rag.py        # RAG 命中率（知识库全覆盖 280 条）
 .venv/Scripts/python scripts/eval_rerank.py     # 重排增益与延迟（实验八）
+.venv/Scripts/python scripts/seed_trace_kb.py   # 溯源数据切块入库（trace_knowledge，幂等）
 .venv/Scripts/python scripts/eval_refusal.py    # 拒答率 + 导购闸门泄漏率
 .venv/Scripts/python scripts/eval_recommend.py  # 导购召回三通道 + 个性化重排回放
 # 流式延迟需先起服务：.venv/Scripts/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000

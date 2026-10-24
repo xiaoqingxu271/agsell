@@ -668,3 +668,13 @@ export interface AiTicketPageVO {
 export interface AiTicketHandleRequest {
   remark?: string
 }
+
+/** 近 N 日 AI 运营汇总（Python chat_log 聚合，Java 透传；无数据为全零结构） */
+export interface AiOpsSummaryVO {
+  days: number
+  totalTurns: number
+  refusedTurns: number
+  refusalRate: number
+  byTool: Record<string, number> | null
+  daily: { date: string; count: number }[]
+}

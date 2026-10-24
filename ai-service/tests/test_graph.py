@@ -545,3 +545,39 @@ def test_plan_prompt_forbids_writing_the_reply():
 
     assert "不要自己写回复" in AGENT_PLAN_SYSTEM_PROMPT
     assert "并行调用多个工具" in AGENT_PLAN_SYSTEM_PROMPT
+
+
+def test_multi_demand_forces_coverage_round():
+    """覆盖硬保证：模型第一步只调了一个工具、诉求有 2 个 → 跳过提前退出走补齐轮，
+    第二步补上第二个诉求的工具（实验七实测"3 条探针 1 条漏答"的编排层修复）。"""
+    llm = ScriptedLLM(steps=[
+        [("kb_search", {"question": "怎么申请退款"})],                        # 漏了推荐诉求
+        [("product_search", {"query": "50元以内的橙子", "keyword": "橙子",
+                             "maxPrice": 50, "inDomain": True})],           # 补齐轮
+    ])
+    api = FakeJavaApi()
+    result = _ask(llm, "怎么申请退款？另外有没有50元以内的橙子", api=api)
+
+    assert llm.plan_calls == 2                      # 覆盖核对轮确实发生了
+    assert _tools(result) == ["kb_search", "product_search"]  # 两个诉求都取到资料
+    # 补齐提示进了第二次规划的消息
+    second_plan = llm.plan_inputs[1]
+    assert any("诉求核对" in m.content for m in second_plan if isinstance(m, SystemMessage))
+
+
+def test_multi_demand_already_covered_stays_single_round():
+    """一步并行取全（工具数 ≥ 诉求数）→ 确定性判据判覆盖，不多花一轮规划"""
+    llm = ScriptedLLM(steps=[[
+        ("kb_search", {"question": "怎么申请退款"}),
+        ("product_search", {"query": "50元以内的橙子", "keyword": "橙子",
+                            "maxPrice": 50, "inDomain": True}),
+    ]])
+    _ask(llm, "怎么申请退款？另外有没有50元以内的橙子", api=FakeJavaApi())
+    assert llm.plan_calls == 1
+
+
+def test_single_demand_keeps_early_exit():
+    """单诉求取到资料照常提前退出：覆盖保证不给普通消息加一轮规划"""
+    llm = ScriptedLLM(steps=[[("kb_search", {"question": "怎么申请退款"})]])
+    _ask(llm, "怎么申请退款", api=FakeJavaApi())
+    assert llm.plan_calls == 1
