@@ -115,6 +115,8 @@ class VectorStore:
                 {
                     "id": int(cid),
                     "question": (meta or {}).get("question", ""),
+                    # category 供检索器的确认带闸门区分商品域/平台规则条目（老索引无此元数据时为空串）
+                    "category": (meta or {}).get("category", ""),
                     "score": round(1.0 - float(dist), 4),  # 余弦距离 → 相似度
                 }
             )

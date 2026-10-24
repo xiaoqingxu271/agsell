@@ -186,3 +186,45 @@ def test_references_friendly_fields_only():
     hits = r.retrieve("怎么退款 客服")
     assert all(set(h.keys()) == {"id", "question", "answer", "score", "keyword_hit", "fulltext_hit"}
                for h in hits)
+
+
+# ---------- 确认带：商品域条目临界语义需词面佐证（2026-10-24 复测的油价泄漏修复）----------
+
+def test_band_product_entry_without_evidence_is_dropped():
+    """「现在油价多少」→ 食用油类目条目 0.596：商品域条目只凭语义进带、无词面佐证 → 拒答"""
+    hits = [
+        {"id": 277, "question": "「食用油」类目都有哪些商品？", "score": 0.596,
+         "category": "category_knowledge"},
+    ]
+    faqs = [{"id": 277, "question": "「食用油」类目都有哪些商品？", "answer": "在售5款", "keywords": "食用油"}]
+    r = Retriever(FakeVectorStore(hits), FakeFaqRepo(faqs), top_k=5,
+                  session_factory=lambda: _BrokenSession())
+    assert r.retrieve("现在油价多少") == []
+
+
+def test_band_platform_entry_without_evidence_survives():
+    """平台规则条目在带内只凭语义即可信（实测 10/10 正确）：「总价是怎么算出来的」0.557 → 保留"""
+    hits = [
+        {"id": 19, "question": "运费怎么计算？", "score": 0.557, "category": "shipping"},
+    ]
+    faqs = [{"id": 19, "question": "运费怎么计算？", "answer": "满 99 包邮", "keywords": "运费,邮费"}]
+    r = Retriever(FakeVectorStore(hits), FakeFaqRepo(faqs), top_k=5,
+                  session_factory=lambda: _BrokenSession())
+    hits_out = r.retrieve("总价是怎么算出来的")
+    assert [h["id"] for h in hits_out] == [19]
+    assert hits_out[0]["keyword_hit"] is False  # 无词面佐证仍放行：平台规则条目不加验
+
+
+def test_band_product_entry_with_keyword_evidence_survives():
+    """商品域条目落带但有关键词佐证 → 放行（模板查询含商品名即此形态）"""
+    hits = [
+        {"id": 113, "question": "「小榨菜籽油 5L」这个商品有什么特点？", "score": 0.528,
+         "category": "product_knowledge"},
+    ]
+    faqs = [{"id": 113, "question": "「小榨菜籽油 5L」这个商品有什么特点？",
+             "answer": "物理压榨 非转基因", "keywords": "菜籽油,食用油"}]
+    r = Retriever(FakeVectorStore(hits), FakeFaqRepo(faqs), top_k=5,
+                  session_factory=lambda: _BrokenSession())
+    hits_out = r.retrieve("小榨菜籽油 5L怎么储存比较好")
+    assert [h["id"] for h in hits_out] == [113]
+    assert hits_out[0]["keyword_hit"] is True

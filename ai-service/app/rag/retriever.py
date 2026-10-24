@@ -2,6 +2,10 @@
 
 反幻觉闸门不变：只有"有词面证据"（关键词/全文通道）或"向量分过阈值"的条目才可能进入结果，
 域外问法整体被拒之门外，交给生成节点的确定性拒答话术。
+确认带加验：向量分落在 [阈值, KB_SCORE_CONFIRM_BAND) 的商品域条目（product_knowledge /
+category_knowledge）必须有词面佐证——2026-10-24 复测实证域内 top-1 最低 0.557 与域外最高
+0.596 区间重叠、单阈值不可分，而唯一泄漏（"现在油价多少"→食用油类目条目 0.596）正是商品域
+条目；平台规则条目带内实测 10/10 正确，不加验。
 
 三路分工（答辩口径）：
 - 向量（bge-small-zh）：语义相似度召回，KB_SCORE_THRESHOLD 闸门，域内 top-1 均值 ~0.71 / 域外 ~0.33；
@@ -58,6 +62,12 @@ class Retriever:
             for x in (getattr(settings, "KB_KEYWORD_STOPWORDS", "") or "").split(",")
             if x.strip()
         }
+        # 商品域条目类目集合：确认带加验只针对它们（见模块 docstring 的实测依据）
+        self._product_categories = {
+            x.strip()
+            for x in (getattr(settings, "KB_PRODUCT_KNOWLEDGE_CATEGORIES", "") or "").split(",")
+            if x.strip()
+        }
 
     def retrieve(self, question: str, top_k: int | None = None) -> list[dict]:
         """返回 [{id, question, answer, score, keyword_hit, fulltext_hit}]，按融合分降序。
@@ -71,13 +81,16 @@ class Retriever:
         lane_members: list[list[dict]] = []  # 每通道一条按相关度降序的列表
         vector_scores: dict[int, float] = {}
 
-        # 1. 向量通道（语义相似，阈值闸门在这里）
+        # 1. 向量通道（语义相似，阈值闸门在这里；确认带裁决在融合段统一做——
+        #    词面佐证要等关键词/全文两通道算完才知道）
         vector_hits: list[dict] = []
+        vector_categories: dict[int, str] = {}
         for hit in self._vs.query(question, top_k=k * 2):
             if self._threshold and self._threshold > 0 and hit["score"] < self._threshold:
                 continue
             vector_hits.append({"id": hit["id"], "question": hit["question"], "score": hit["score"]})
             vector_scores[hit["id"]] = hit["score"]
+            vector_categories[hit["id"]] = hit.get("category", "")
         if vector_hits:
             lane_members.append(vector_hits)
 
@@ -131,6 +144,12 @@ class Retriever:
             if answer is None:
                 continue
             vec = vector_scores.get(pid, 0.0)
+            # 确认带裁决：商品域条目只凭语义进带（[阈值, 0.6)）且无任何词面佐证 → 剔除。
+            # 只凭语义 = 无 keyword/fulltext 命中；vec==0 说明条目来自词面通道，天然有佐证。
+            if (not entry["keyword_hit"] and not entry["fulltext_hit"]
+                    and 0.0 < vec < settings.KB_SCORE_CONFIRM_BAND
+                    and vector_categories.get(pid, "") in self._product_categories):
+                continue
             kw = keyword_counts.get(pid, 0)
             ft = fulltext_scores.get(pid, 0.0) / fulltext_max
             score = vec + min(kw, 3) * 0.5 + _FULLTEXT_WEIGHT * ft
