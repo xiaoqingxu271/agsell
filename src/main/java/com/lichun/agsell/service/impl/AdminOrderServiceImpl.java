@@ -17,6 +17,7 @@ import com.lichun.agsell.model.vo.AdminOrderDetailVO;
 import com.lichun.agsell.model.vo.AdminOrderListItemVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
 import com.lichun.agsell.service.AdminOrderService;
+import com.lichun.agsell.service.UserMessageService;
 import com.lichun.agsell.utils.ThrowUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final SysUserMapper userMapper;
+    private final UserMessageService userMessageService;
 
     @Override
     public Page<AdminOrderListItemVO> listOrders(int pageNum, int pageSize, Integer status,
@@ -197,5 +199,11 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 .set(Order::getLogNo, request.getLogNo())
                 .set(Order::getDeliveryTime, java.time.LocalDateTime.now()));
         ThrowUtils.throwIf(claimed == 0, ErrorCode.ORDER_STATUS_ERROR, "订单状态已变化，请勿重复发货");
+
+        // 站内信：用户在消息中心能看到发货通知（与发货同事务，保证一致）
+        userMessageService.notify(order.getUserId(), "order", "订单已发货",
+                String.format("您的订单 %s 已发货，物流公司 %s，运单号 %s，请留意收货。",
+                        orderNo, request.getLogType(), request.getLogNo()),
+                orderNo);
     }
 }

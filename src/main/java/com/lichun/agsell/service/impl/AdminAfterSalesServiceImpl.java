@@ -23,6 +23,7 @@ import com.lichun.agsell.model.vo.AdminAfterSalesDetailVO;
 import com.lichun.agsell.model.vo.AdminAfterSalesListItemVO;
 import com.lichun.agsell.model.vo.OrderDetailVO;
 import com.lichun.agsell.service.AdminAfterSalesService;
+import com.lichun.agsell.service.UserMessageService;
 import com.lichun.agsell.utils.ThrowUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +77,7 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
     private final SysUserMapper userMapper;
     private final ProductMapper productMapper;
     private final ProductSpecMapper productSpecMapper;
+    private final UserMessageService userMessageService;
 
     @Override
     public Page<AdminAfterSalesListItemVO> list(int pageNum, int pageSize, Integer status,
@@ -298,5 +300,22 @@ public class AdminAfterSalesServiceImpl implements AdminAfterSalesService {
         }
 
         // 售后单状态/处理人/时间/意见已在上面的原子抢占 UPDATE 中一次性写入，不再重复 updateById
+
+        // 站内信：用户在消息中心能看到售后处理结果（与处理同事务，保证一致）
+        if (agreed) {
+            userMessageService.notify(afterSales.getUserId(), "after_sales", "售后已同意退款",
+                    String.format("您的售后申请（订单 %s）已同意退款 ¥%s，退款将原路退回。%s",
+                            afterSales.getOrderNo(), afterSales.getRefundAmount(),
+                            request.getRemark() == null || request.getRemark().isBlank()
+                                    ? "" : "商家留言：" + request.getRemark()),
+                    afterSalesNo);
+        } else {
+            userMessageService.notify(afterSales.getUserId(), "after_sales", "售后申请已拒绝",
+                    String.format("您的售后申请（订单 %s）未能通过：%s",
+                            afterSales.getOrderNo(),
+                            request.getRemark() == null || request.getRemark().isBlank()
+                                    ? "如有疑问请联系客服" : request.getRemark()),
+                    afterSalesNo);
+        }
     }
 }

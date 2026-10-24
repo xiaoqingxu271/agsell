@@ -14,6 +14,7 @@
       </view>
       <view class="hd-ic" @click="onNotifyTap" role="button" aria-label="消息通知">
         <wd-icon name="notification" size="36rpx" custom-class="hd-bell" />
+        <view v-if="unreadCount > 0" class="bell-dot" aria-label="有未读消息"></view>
       </view>
     </view>
 
@@ -149,12 +150,13 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { onPullDownRefresh } from '@dcloudio/uni-app'
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import ProductCard from '../../components/ProductCard/ProductCard.vue'
 import { getBannerList } from '../../api/banner'
 import { getCategoryList, getHotProducts, getRecommendFeed } from '../../api/product'
 import { getSeckillList } from '../../api/seckill'
 import { addToCart, getCartList } from '../../api/cart'
+import { getUnreadCount } from '../../api/message'
 import { isLoggedIn, wxLogin, request } from '../../utils/request'
 
 const banners = ref([])
@@ -162,6 +164,7 @@ const categories = ref([])
 const hotProducts = ref([])
 const seckillActivities = ref([])
 const loading = ref(true)
+const unreadCount = ref(0)
 
 /** 首页城市定位（演示环境无定位接口，固定展示产区城市） */
 const cityName = '南昌'
@@ -184,6 +187,7 @@ onMounted(async () => {
 onPullDownRefresh(async () => {
   await loadAll()
   syncCartBadge()
+  syncMessageBadge()
   uni.stopPullDownRefresh()
 })
 
@@ -195,6 +199,24 @@ async function loadAll() {
 onUnmounted(() => {
   if (countdownTimer) clearInterval(countdownTimer)
 })
+
+/** 消息红点：进首页、下拉刷新、从消息中心返回都会同步；游客/接口失败静默为无红点 */
+onShow(() => {
+  syncMessageBadge()
+})
+
+async function syncMessageBadge() {
+  if (!isLoggedIn()) {
+    unreadCount.value = 0
+    return
+  }
+  try {
+    const res = await getUnreadCount()
+    if (res.code === 0) unreadCount.value = res.data || 0
+  } catch (e) {
+    // 红点是装饰性功能，失败不打扰用户
+  }
+}
 
 const searchPlaceholder = computed(() => {
   const name = hotProducts.value[0]?.name
@@ -308,8 +330,13 @@ function onCityTap() {
   uni.showToast({ title: '演示环境暂不支持切换城市', icon: 'none' })
 }
 
-function onNotifyTap() {
-  uni.showToast({ title: '暂无新消息', icon: 'none' })
+async function onNotifyTap() {
+  // 消息中心：发货/售后处理结果的站内信（未登录先静默登录，与其他入口同一体验）
+  if (!isLoggedIn()) {
+    const success = await wxLogin()
+    if (!success) return
+  }
+  uni.navigateTo({ url: '/pages/mine/message' })
 }
 
 /** 商卡右下角红色加购：与详情页加购走同一接口，规格由后端取默认 */
@@ -395,9 +422,20 @@ function onSeckillItemTap(act) {
 }
 
 .hd-ic {
+  position: relative;
   flex-shrink: 0;
   display: flex;
   align-items: center;
+}
+
+.bell-dot {
+  position: absolute;
+  top: 4rpx;
+  right: 4rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: $uni-color-primary;
 }
 
 :deep(.hd-bell) {

@@ -9,6 +9,7 @@ import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.dto.OrderShipRequest;
 import com.lichun.agsell.model.entity.Order;
+import com.lichun.agsell.service.UserMessageService;
 import com.lichun.agsell.support.MpLambdaCache;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,6 +38,8 @@ class AdminOrderServiceImplTest {
     private OrderItemMapper orderItemMapper;
     @Mock
     private SysUserMapper userMapper;
+    @Mock
+    private UserMessageService userMessageService;
 
     @InjectMocks
     private AdminOrderServiceImpl adminOrderService;
@@ -62,6 +65,7 @@ class AdminOrderServiceImplTest {
         order.setId(1L);
         order.setOrderNo("AGS" + "2096878950334377984");
         order.setStatus(status);
+        order.setUserId(9L);
         return order;
     }
 
@@ -127,6 +131,10 @@ class AdminOrderServiceImplTest {
         // 状态、物流单号、发货时间一次写入；不再有「先查后无条件改」的 updateById
         verify(orderMapper).update(nullable(Order.class), any());
         verify(orderMapper, never()).updateById(any(Order.class));
+
+        // 发货结果写站内信：用户在消息中心能看到（与发货同事务）
+        verify(userMessageService).notify(eq(9L), eq("order"), eq("订单已发货"),
+                contains("SF123456"), eq("AGS123"));
     }
 
     @Test
@@ -143,5 +151,7 @@ class AdminOrderServiceImplTest {
                 () -> adminOrderService.shipOrder("AGS123", request));
         assertEquals(ErrorCode.ORDER_STATUS_ERROR.getCode(), ex.getCode());
         verify(orderMapper, never()).updateById(any(Order.class));
+        // 抢占失败不发货，也不应有站内信
+        verify(userMessageService, never()).notify(any(), any(), any(), any(), any());
     }
 }

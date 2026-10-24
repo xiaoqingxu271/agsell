@@ -19,3 +19,5 @@ mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MY
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/review_sentiment.sql
 # AI 转人工工单：escalate_human 触发后由 Python 回调落库，管理后台「AI 工单」页处理
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/ai_ticket.sql
+# 用户站内消息：发货/售后处理结果写入，小程序「消息中心」页展示（首页铃铛入口）
+mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/user_message.sql

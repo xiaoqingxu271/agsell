@@ -12,6 +12,7 @@ import com.lichun.agsell.mapper.ProductSpecMapper;
 import com.lichun.agsell.mapper.SysUserMapper;
 import com.lichun.agsell.model.dto.AdminAfterSalesHandleRequest;
 import com.lichun.agsell.model.entity.AfterSales;
+import com.lichun.agsell.service.UserMessageService;
 import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.ProductSpec;
@@ -52,6 +53,8 @@ class AdminAfterSalesServiceImplTest {
     private ProductMapper productMapper;
     @Mock
     private ProductSpecMapper productSpecMapper;
+    @Mock
+    private UserMessageService userMessageService;
 
     @InjectMocks
     private AdminAfterSalesServiceImpl adminAfterSalesService;
@@ -147,6 +150,10 @@ class AdminAfterSalesServiceImplTest {
         // 售后单结果由原子抢占的条件 UPDATE 一次写入（状态/处理人/时间/意见），不再二次 updateById
         verify(afterSalesMapper).update(nullable(AfterSales.class), any());
         verify(afterSalesMapper, never()).updateById(any(AfterSales.class));
+
+        // 售后结果写站内信：用户在消息中心能看到同意退款通知
+        verify(userMessageService).notify(eq(6L), eq("after_sales"), eq("售后已同意退款"),
+                contains("¥59.90"), eq("AFS10001"));
     }
 
     @Test
