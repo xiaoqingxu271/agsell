@@ -21,6 +21,9 @@ class ChatResponse(BaseModel):
     suggestions: list[str] = Field(default_factory=list, description="下一轮建议问题")
     # 导购推荐的结构化商品卡（与流式接口的 items 事件同口径），供前端渲染可点击卡片
     items: list[dict] = Field(default_factory=list, description="推荐商品卡；非导购分支为空")
+    # 知识库命中条目（id+问句，最多 4 条）：前端在气泡下渲染"依据"标签。
+    # 引用由服务端结构化下发、不经模型复述，是反幻觉的可核对证据链。
+    references: list[dict] = Field(default_factory=list, description="知识库引用；非知识问答为空")
 
 
 class HealthResponse(BaseModel):

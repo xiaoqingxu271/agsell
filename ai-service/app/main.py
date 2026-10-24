@@ -218,6 +218,7 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
             reply=reply,
             suggestions=suggestions,
             items=result.get("rec_items") or [],
+            references=result.get("references") or [],
         )
     except Exception as e:  # LLM 调用失败等
         logger.exception("AI 服务调用失败")
@@ -259,6 +260,7 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
     collected: list[str] = []
     suggestions: list[str] = []
     items: list[dict] = []
+    references: list[dict] = []
     intent: str | None = None
     human_flag = False          # 本轮是否触发转人工（human_fallback 节点 / agent 的 human 观察）
     escalation_obs: list[dict] = []  # 转人工观察（取工具入参里的原因，落工单用）
@@ -312,6 +314,8 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                         if out.get("rec_items"):
                             items = out["rec_items"]
                             yield _sse("items", {"items": items})
+                        if out.get("references"):
+                            references = out["references"]
                     elif node_name in ("generate", "smalltalk", "human_fallback"):
                         if out.get("suggestions"):
                             suggestions = out["suggestions"]
@@ -328,6 +332,8 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                 yield _sse("token", {"content": text})
             if not items:
                 items = (snapshot.values or {}).get("rec_items") or []
+            if not references:
+                references = (snapshot.values or {}).get("references") or []
 
         yield _sse("done", {
             "sessionId": req.sessionId,
@@ -335,6 +341,8 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
             "suggestions": suggestions,
             # done 也带一份：前端只监听 done 也能拿到卡片（items 事件可能被中途断开漏掉）
             "items": items,
+            # 知识库引用同走 done：前端在气泡下渲染"依据"标签
+            "references": references,
         })
         # 流收尾后再落工单（丢工作线程，不阻塞事件循环）：客户端已拿到完整回复
         _tickets.fire_async(_tickets.ticket_payload_from_state(

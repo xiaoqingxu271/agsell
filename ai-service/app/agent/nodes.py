@@ -25,7 +25,7 @@ from langchain_core.messages import (
     trim_messages,
 )
 
-from app.agent.executors import load_product_context, run_tool
+from app.agent.executors import build_contextual_query, load_product_context, run_tool
 from app.agent.intent import _extract_order_no, _hard_rule, classify_full
 from app.agent.tool_defs import TOOL_SCHEMAS
 from app.config import settings
@@ -155,8 +155,9 @@ def _legacy_plan(state: dict, question: str, ctx, run_tool, llm) -> list:
     name, arg_fn = _INTENT_TO_TOOL[intent]
     args = arg_fn(state, question)
     if name == "product_search":
-        # 偏好随那次分类调用一次产出，这里只是换成执行器认识的参数形态
-        args = {"query": question, "keyword": d.keyword,
+        # 偏好随那次分类调用一次产出，这里只是换成执行器认识的参数形态；
+        # 召回串用历史感知改写（"便宜点的"继承上一轮"水果"），分类仍看最后一条
+        args = {"query": build_contextual_query(state), "keyword": d.keyword,
                 "maxPrice": d.max_price, "inDomain": d.in_domain}
     return [run_tool(ctx, state, name, args)]
 
@@ -249,22 +250,30 @@ def make_agent_node(llm, ctx, tool_schemas=None):
 
 
 def _collapse_observations(obs: list, facts: str = "", item: dict | None = None) -> dict:
-    """工具观察 → 图状态：卡片数据、商品上下文、是否转人工。
+    """工具观察 → 图状态：卡片数据、商品上下文、是否转人工、知识库引用。
 
     observations 是唯一的"本轮取到了什么"表示——不再另存一份 tool_type/tool_result 视图：
     两处表示同一事实必然漂开，而多工具一轮取证本来就没有"单一 tool_type"可言。
     """
     items: list = []
     kinds: list[str] = []
+    references: list[dict] = []
+    seen_ref_ids: set = set()
     for o in obs:
         if o.items:
             items = items + o.items
         if o.kind == "product_qa" and not facts:
             facts = o.payload
+        # 知识库引用去重合并（多工具多轮只留首次出现的条目），整轮上限 4 条
+        for ref in o.references or []:
+            if ref.get("id") not in seen_ref_ids and len(references) < 4:
+                seen_ref_ids.add(ref.get("id"))
+                references.append(ref)
         kinds.append(o.kind or o.tool)
     return {
         "observations": [o.as_dict() for o in obs],
         "rec_items": items,
+        "references": references,
         # 商品上下文：优先用本轮 agent 预取的事实（整轮只回调 Java 一次）
         "product_context": facts or "",
         "product_item": item,

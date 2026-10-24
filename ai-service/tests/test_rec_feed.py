@@ -45,7 +45,7 @@ def stub_repos(monkeypatch):
     )
     monkeypatch.setattr(
         rec_feed.preference_repo,
-        "preference_with_browse",
+        "preference_with_signals",
         lambda s, uid: (state["pref"], state["browse"]),
     )
     monkeypatch.setattr(rec_feed, "SessionLocal", lambda: _NullSessionCtx())

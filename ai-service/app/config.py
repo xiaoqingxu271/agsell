@@ -75,12 +75,18 @@ class Settings(BaseSettings):
     # 有已分析评价、人均 1.7 条），直接用原始好评率会让"1 条差评"和"零评价"都被当成差商品。
     # 取 2 条：单条评价只把分拉离全站均值约 2/3 档，既有区分度又不会被一条评价定生死。
     REC_RATE_PRIOR_COUNT: float = 2.0
-    # 偏好信号合并权重（订单 : 好评 : 浏览）。
-    # 订单是已验证的真实选择，权重最高；浏览是弱意向信号，但带时间衰减，
-    # 因此"刚看过几件腊味"能在一次下拉刷新内改变推荐排序。
+    # 偏好信号合并权重（订单 : 收藏 : 好评 : 加购 : 浏览 : 搜索词）。
+    # 订单是已验证的真实选择，权重最高；收藏是显式强意向（比浏览可信、比下单稠密）；
+    # 加购是临门一脚的意向但可能被比价后放弃；搜索词是当下最"新鲜"的需求表达，
+    # 但关键词到品类的映射是模糊的（LIKE 商品名），权重最低。
     REC_ORDER_WEIGHT: float = 0.5
+    REC_FAVORITE_WEIGHT: float = 0.35
     REC_REVIEW_WEIGHT: float = 0.3
+    REC_CART_WEIGHT: float = 0.3
     REC_BROWSE_WEIGHT: float = 0.2
+    REC_SEARCH_WEIGHT: float = 0.15
+    # 搜索词信号回看窗口（天）：搜索意图易过时，只取近几天的词
+    REC_SEARCH_SIGNAL_DAYS: int = 7
     # 浏览行为回看窗口与指数衰减半衰期（天）：半衰期 3 天=3 天前的浏览只剩一半权重
     REC_BROWSE_DAYS: int = 7
     REC_BROWSE_HALF_LIFE: int = 3

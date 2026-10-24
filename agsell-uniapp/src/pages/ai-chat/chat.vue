@@ -43,6 +43,15 @@
             <text v-if="msg.streaming && msg.content" class="stream-cursor">▍</text>
           </view>
 
+          <!-- 知识依据：服务端按检索命中结构化下发（id+问句），不是模型自己念的。
+               反幻觉的证据链可视化：这条回答"有出处"，点开能对上知识库条目。 -->
+          <view v-if="msg.references && msg.references.length" class="ref-list">
+            <view v-for="r in msg.references" :key="r.id" class="ref-item">
+              <text class="ref-tag">依据</text>
+              <text class="ref-q">{{ r.question }}</text>
+            </view>
+          </view>
+
           <!-- 导购推荐结果：可点击商品卡（图片/价格/产地/口碑），点卡进详情、点＋直接加购。
                没有卡片时用户看完推荐还得自己再去搜一遍，导购链路在 UI 上等于断掉。 -->
           <view v-if="msg.items && msg.items.length" class="rec-list">
@@ -327,6 +336,8 @@ async function onSend() {
         }
         // items 事件若因中途断流没收到，done 里还有一份
         if (!msg.items && d && d.items && d.items.length) msg.items = d.items
+        // 知识依据随 done 下发，下一轮提问前一直挂在气泡下
+        if (d && d.references && d.references.length) msg.references = d.references
         scrollToBottom()
       },
       onError: (e) => {
@@ -623,6 +634,40 @@ async function onSend() {
 .rec-sold {
   font-size: 20rpx;
   color: $uni-text-color-placeholder;
+}
+
+/* 知识依据标签（气泡外，紧贴气泡）：描边条 + 品牌色"依据"前缀 */
+.ref-list {
+  width: 100%;
+  margin-top: 12rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.ref-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  max-width: 100%;
+}
+
+.ref-tag {
+  flex-shrink: 0;
+  font-size: 18rpx;
+  line-height: 26rpx;
+  padding: 0 8rpx;
+  border: 2rpx solid $uni-color-primary-100;
+  border-radius: 6rpx;
+  color: $uni-color-primary;
+}
+
+.ref-q {
+  font-size: 20rpx;
+  color: $uni-text-color-grey;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* 下一轮询问小贴士（气泡外 chips） */

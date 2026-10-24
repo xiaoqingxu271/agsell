@@ -26,4 +26,10 @@ public class AiChatReplyVO {
      * 流式接口走 SSE 的 items 事件下发，本字段是同步接口的同口径出口。
      */
     private List<Object> items;
+
+    /**
+     * 知识库引用（id/问句）：Python 侧按检索命中结构化下发，小程序在气泡下渲染
+     * "依据"标签。引用是拼出来的，不经模型复述——反幻觉要有可核对的证据链。
+     */
+    private List<Object> references;
 }

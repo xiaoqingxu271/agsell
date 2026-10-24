@@ -13,6 +13,8 @@ import json
 import logging
 from dataclasses import dataclass, field, replace
 
+from langchain_core.messages import HumanMessage
+
 from app.config import settings
 from app.prompts import format_context
 from app.tools import java_api
@@ -49,17 +51,51 @@ class Observation:
     payload: str = ""         # 给生成节点看的资料（status!=ok 时一律为空，避免内部细节外泄）
     items: list = field(default_factory=list)   # 前端卡片数据
     args: dict = field(default_factory=dict)    # 模型给本工具的入参（审计与测评要看"它到底问了什么"）
+    # 知识库命中的条目（id+问句）：前端在气泡下方渲染"依据"标签，反幻觉的证据链
+    # 由结构化字段下发而不是让模型自己念——模型复述引用必漂移，拼不出来的话才说不出错
+    references: list = field(default_factory=list)
     # 只回灌给规划器的内部提示（如"该能力未开放"）。故意不进 as_dict：
     # 作答上下文里混进系统指令会让模型照着说，也会污染多轮状态。
     hint: str = ""
 
     def as_dict(self) -> dict:
         return {"tool": self.tool, "kind": self.kind, "status": self.status,
-                "payload": self.payload, "items": self.items, "args": self.args}
+                "payload": self.payload, "items": self.items,
+                "references": self.references, "args": self.args}
 
     @property
     def is_empty(self) -> bool:
         return self.status in ("empty", "refused", "need_login", "error") or not self.payload
+
+
+# ---------- 历史感知的召回查询改写（多轮丢约束的机制化解决）----------
+# 规划器能看到最近 6 轮历史，通常会自己把"便宜点的"补全成完整检索句；
+# 但工具参数缺省时执行器只能拿到最后一条消息作召回串——上一轮的品类与预算就丢了。
+# 这里用零成本规则兜底：最后一条消息短、或带指代/追加之类词面特征时，
+# 拼接上一条用户消息作为召回上下文（分类仍在最后一条上做，只有召回串变长）。
+_ANAPHORA_MARKERS = (
+    "这个", "那个", "它", "这款", "有没有", "再来", "换一个", "换个", "类似的",
+    "别的", "其他", "便宜", "贵", "还有吗", "呢",
+)
+_SHORT_QUERY_CHARS = 12
+
+
+def build_contextual_query(state: dict) -> str:
+    """从会话历史构造召回查询：指代/短追问自动携带上一条用户消息，独立问句原样返回"""
+    msgs = state.get("messages") or []
+    humans = [str(getattr(m, "content", "") or "").strip()
+              for m in msgs if isinstance(m, HumanMessage)]
+    humans = [h for h in humans if h]
+    if not humans:
+        return ""
+    current = humans[-1]
+    if len(humans) == 1:
+        return current
+    needs_context = len(current) <= _SHORT_QUERY_CHARS or any(m in current for m in _ANAPHORA_MARKERS)
+    if not needs_context:
+        return current
+    previous = humans[-2][:60]
+    return f"{previous} {current}"[:100]
 
 
 # ---------- 商详页上下文（"这个"的指代对象）----------
@@ -110,8 +146,12 @@ def _failed(tool: str, kind: str, err: Exception | str, what: str = "") -> Obser
 # ---------- 各工具 ----------
 def exec_kb_search(ctx: ToolContext, state: dict, args: dict) -> Observation:
     """知识库检索。低于阈值/零命中 → status=empty，交给生成节点的确定性拒答；
-    检索器故障 → status=error（细节只进日志，见 _failed）。"""
-    question = (args.get("question") or "").strip() or _last_question(state)
+    检索器故障 → status=error（细节只进日志，见 _failed）。
+
+    命中的条目同时以 references 结构化下发（id+问句，前端渲染"依据"标签）——
+    引用是拼出来的不是模型念出来的，反幻觉才有可核对的证据链。
+    """
+    question = (args.get("question") or "").strip() or build_contextual_query(state)
     if ctx.retriever is None:
         return _failed("kb_search", "kb", "retriever 未装配")
     try:
@@ -120,7 +160,10 @@ def exec_kb_search(ctx: ToolContext, state: dict, args: dict) -> Observation:
         return _failed("kb_search", "kb", e)
     if not hits:
         return Observation("kb_search", kind="kb", status="empty", payload="")
-    return Observation("kb_search", kind="kb", payload=format_context(hits))
+    return Observation(
+        "kb_search", kind="kb", payload=format_context(hits),
+        references=[{"id": h["id"], "question": h["question"]} for h in hits[:3]],
+    )
 
 
 def exec_product_search(ctx: ToolContext, state: dict, args: dict) -> Observation:
@@ -136,7 +179,7 @@ def exec_product_search(ctx: ToolContext, state: dict, args: dict) -> Observatio
     ③ 两条都没成 → 明确域外才拒答（inDomain 缺省时不拒，与改造前一致）；否则热销兜底。
     """
     api = ctx.api
-    question = (args.get("query") or "").strip() or _last_question(state)
+    question = (args.get("query") or "").strip() or build_contextual_query(state)
     keyword = (args.get("keyword") or "").strip() or None
     max_price = args.get("maxPrice")
     max_price = float(max_price) if isinstance(max_price, (int, float)) else None

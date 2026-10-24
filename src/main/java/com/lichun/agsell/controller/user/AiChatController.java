@@ -135,6 +135,11 @@ public class AiChatController {
             if (itemArr != null && !itemArr.isEmpty()) {
                 vo.setItems(new java.util.ArrayList<>(itemArr));
             }
+            // 知识库引用：与商品卡同理，结构化透传给前端画"依据"标签，不经模型复述
+            cn.hutool.json.JSONArray refArr = json.getJSONArray("references");
+            if (refArr != null && !refArr.isEmpty()) {
+                vo.setReferences(new java.util.ArrayList<>(refArr));
+            }
             return ResultUtils.success(vo);
         } catch (BusinessException e) {
             throw e;

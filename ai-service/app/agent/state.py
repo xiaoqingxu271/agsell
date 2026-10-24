@@ -33,6 +33,9 @@ class AgentState(TypedDict):
     # 只给 LLM 文本是不够的：图片/价格/跳转 id 进了 prompt 就丢了，用户看完推荐
     # 还得自己去搜一遍，导购链路在 UI 上等于断掉。
     rec_items: list  # [{id,name,price,mainImage,origin,sales,reviewCount,positiveRate,topKeywords}]
+    # 知识库命中的条目（id+问句，最多 4 条）：SSE done 事件随回复下发，
+    # 前端在气泡下渲染"依据"标签。引用由服务端结构化下发，不经模型复述。
+    references: list  # [{id, question}]
     # 用户当前正在浏览的商品事实与原始商品（整轮只回调 Java 一次）。
     # 目的是让"这个能放多久/适合送礼吗"这类指代问题有依据可答，而不是回一句知识库没覆盖。
     product_context: str

@@ -41,7 +41,7 @@ def rec_feed(req: FeedRequest, x_internal_key: str | None = Header(default=None)
         rate_by_id, rate_prior = review_repo.positive_rates(session)
         sales_max = product_repo.max_sales(session)
         pref_by_cat, browse_by_cat = (
-            preference_repo.preference_with_browse(session, req.userId)
+            preference_repo.preference_with_signals(session, req.userId)
             if req.userId
             else ({}, {})
         )
@@ -104,7 +104,7 @@ def rec_search(req: SearchRequest, x_internal_key: str | None = Header(default=N
         rate_by_id, rate_prior = review_repo.positive_rates(session)
         sales_max = product_repo.max_sales(session)
         pref_by_cat, browse_by_cat = (
-            preference_repo.preference_with_browse(session, req.userId)
+            preference_repo.preference_with_signals(session, req.userId)
             if req.userId
             else ({}, {})
         )
