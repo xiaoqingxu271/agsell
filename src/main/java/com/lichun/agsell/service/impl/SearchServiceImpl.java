@@ -8,8 +8,10 @@ import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.ProductCategoryMapper;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.mapper.ProductSearchMapper;
+import com.lichun.agsell.mapper.UserSearchLogMapper;
 import com.lichun.agsell.model.dto.SearchRequest;
 import com.lichun.agsell.model.entity.Product;
+import com.lichun.agsell.model.entity.UserSearchLog;
 import com.lichun.agsell.model.entity.ProductCategory;
 import com.lichun.agsell.model.vo.ProductListItemVO;
 import com.lichun.agsell.model.vo.ProductSearchVO;
@@ -42,6 +44,7 @@ public class SearchServiceImpl implements SearchService {
     private final ProductCategoryMapper categoryMapper;
     private final HotWordService hotWordService;
     private final AiSearchClient aiSearchClient;
+    private final UserSearchLogMapper userSearchLogMapper;
 
     @Override
     public Page<ProductSearchVO> search(SearchRequest request, Long userId) {
@@ -59,6 +62,19 @@ public class SearchServiceImpl implements SearchService {
             hotWordService.record(keyword);
         } catch (Exception e) {
             log.warn("记录热词失败: {}", keyword, e);
+        }
+
+        // 用户搜索词留存（AI 偏好信号：keyword → 品类映射）。best-effort：
+        // 日志写失败只降级为"丢一条偏好信号"，绝不能让搜索接口报错
+        if (userId != null) {
+            try {
+                UserSearchLog searchLog = new UserSearchLog();
+                searchLog.setUserId(userId);
+                searchLog.setKeyword(keyword);
+                userSearchLogMapper.insert(searchLog);
+            } catch (Exception e) {
+                log.warn("记录用户搜索词失败: userId={}, keyword={}", userId, keyword, e);
+            }
         }
 
         List<Product> products;

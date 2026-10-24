@@ -180,6 +180,11 @@
         <wd-icon name="cart" size="34rpx" custom-class="fn-icon" />
         <text class="fn-label">购物车</text>
       </view>
+      <view class="fn" @click="onFavTap" role="button" :aria-label="isFavored ? '取消收藏' : '收藏商品'">
+        <wd-icon :name="isFavored ? 'heart-filled' : 'heart'" size="34rpx"
+                 :custom-class="isFavored ? 'fn-icon fn-icon-fav' : 'fn-icon'" />
+        <text class="fn-label">{{ isFavored ? '已收藏' : '收藏' }}</text>
+      </view>
       <view class="act-btn act-cart" :class="{ 'act-disabled': loading }" @click="onAddToCart" role="button">加入购物车</view>
       <view class="act-btn act-buy" :class="{ 'act-disabled': loading }" @click="onBuyNow" role="button">立即购买</view>
     </view>
@@ -188,12 +193,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import NavBar from '../../components/NavBar/NavBar.vue'
 import StarRating from '../../components/StarRating/StarRating.vue'
 import { getProductDetail, getHotProducts, reportProductView } from '../../api/product'
 import { getProductReviews } from '../../api/review'
 import { addToCart } from '../../api/cart'
+import { addFavorite, removeFavorite, isFavored as checkFavored } from '../../api/favorite'
 import { wxLogin, isLoggedIn } from '../../utils/request'
 
 const product = ref({})
@@ -209,6 +215,46 @@ const loading = ref(true)
 const refreshing = ref(false)
 const swiperIdx = ref(0)
 const productId = ref('')
+// 收藏状态：收藏是 AI 偏好的一路强意向信号，未登录点击时先静默登录
+const isFavored = ref(false)
+
+/** 从商详返回/登录态变化时同步收藏角标（onLoad 只跑一次，收藏态可能在"我的收藏"里被取消） */
+onShow(() => {
+  syncFavoriteState()
+})
+
+async function syncFavoriteState() {
+  if (!isLoggedIn() || !productId.value) {
+    isFavored.value = false
+    return
+  }
+  try {
+    const res = await checkFavored(productId.value)
+    if (res.code === 0) isFavored.value = !!res.data
+  } catch (e) {
+    // 角标是装饰性的，失败不打扰浏览
+  }
+}
+
+async function onFavTap() {
+  if (!isLoggedIn()) {
+    const success = await wxLogin()
+    if (!success) return
+  }
+  const pid = product.value.id || productId.value
+  if (!pid) return
+  try {
+    const res = isFavored.value ? await removeFavorite(pid) : await addFavorite(pid)
+    if (res.code === 0) {
+      isFavored.value = !isFavored.value
+      uni.showToast({ title: isFavored.value ? '已加入收藏' : '已取消收藏', icon: 'none' })
+    } else {
+      uni.showToast({ title: res.message || '操作失败', icon: 'none' })
+    }
+  } catch (e) {
+    uni.showToast({ title: '网络异常，请稍后再试', icon: 'none' })
+  }
+}
 
 const allImages = computed(() => {
   if (images.value && images.value.length > 0) {
@@ -926,6 +972,10 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   align-items: center;
   justify-content: center;
   gap: 4rpx;
+}
+
+:deep(.fn-icon-fav) {
+  color: $uni-color-primary;
 }
 
 :deep(.fn-icon) {

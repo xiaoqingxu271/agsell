@@ -21,3 +21,7 @@ mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MY
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/ai_ticket.sql
 # 用户站内消息：发货/售后处理结果写入，小程序「消息中心」页展示（首页铃铛入口）
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/user_message.sql
+# 收藏模块：用户端「我的收藏」+ AI 偏好信号（强意向，权重高于浏览）
+mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/favorite.sql
+# 用户搜索词记录：AI 偏好信号（keyword → 品类映射）
+mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/user_search_log.sql

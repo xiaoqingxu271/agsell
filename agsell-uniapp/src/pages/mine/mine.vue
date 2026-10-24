@@ -139,6 +139,14 @@
           <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
         </view>
       </view>
+      <view class="menu-row" @click="goToFavorites" role="button" aria-label="我的收藏">
+        <wd-icon name="heart" size="36rpx" custom-class="menu-ic" />
+        <text class="menu-label">我的收藏</text>
+        <view class="menu-v">
+          <text class="menu-value">{{ assetCounts.favorite }} 件商品</text>
+          <wd-icon name="chevron-right" size="24rpx" custom-class="menu-chev" />
+        </view>
+      </view>
       <view class="menu-row menu-row--last" @click="goToMyReviews" role="button" aria-label="我的评价">
         <wd-icon name="evaluation" size="36rpx" custom-class="menu-ic" />
         <text class="menu-label">我的评价</text>
@@ -183,12 +191,13 @@ import { getOrderList } from '../../api/order'
 import { getMyCoupons } from '../../api/coupon'
 import { getMyReviews } from '../../api/review'
 import { getAfterSalesList } from '../../api/afterSales'
+import { getFavorites } from '../../api/favorite'
 import { wxLogin, isLoggedIn, request } from '../../utils/request'
 import { uploadMiniImage } from '../../utils/upload'
 
 const userInfo = ref(isLoggedIn() ? uni.getStorageSync('userInfo') || null : null)
 const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
-const assetCounts = ref({ coupon: 0, review: 0, address: 0, afterSales: 0 })
+const assetCounts = ref({ coupon: 0, review: 0, address: 0, afterSales: 0, favorite: 0 })
 const isUserLoggedIn = ref(isLoggedIn())
 const servicePhone = ref('')
 const platformName = ref('农产品商城')
@@ -320,6 +329,12 @@ async function loadAssetCounts() {
     console.warn('[Mine] 地址数量加载失败', e)
   }
   try {
+    const res = await getFavorites(1, 1)
+    if (res.code === 0) assetCounts.value.favorite = res.data?.total || 0
+  } catch (e) {
+    console.warn('[Mine] 收藏数量加载失败', e)
+  }
+  try {
     const res = await getAfterSalesList({ pageNum: 1, pageSize: 1 })
     if (res.code === 0) assetCounts.value.afterSales = res.data?.total || 0
   } catch (e) {
@@ -361,6 +376,10 @@ function goToMyCoupons() {
 
 function goToAddress() {
   uni.navigateTo({ url: '/pages/mine/address' })
+}
+
+function goToFavorites() {
+  uni.navigateTo({ url: '/pages/mine/favorite' })
 }
 
 function goToMyReviews() {

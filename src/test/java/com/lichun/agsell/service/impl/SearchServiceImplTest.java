@@ -42,6 +42,8 @@ class SearchServiceImplTest {
     private HotWordService hotWordService;
     @Mock
     private AiSearchClient aiSearchClient;
+    @Mock
+    private com.lichun.agsell.mapper.UserSearchLogMapper userSearchLogMapper;
 
     @InjectMocks
     private SearchServiceImpl searchService;
@@ -383,5 +385,41 @@ class SearchServiceImplTest {
         searchService.search(buildRequest("脐橙"), 7L);
 
         verify(aiSearchClient).semanticProductIds("脐橙", 12, 7L);
+    }
+
+    @Test
+    @DisplayName("登录用户搜索：关键词落 user_search_log（AI 偏好信号）")
+    void loggedInSearchWritesSearchLog() {
+        Product p = mockProduct();
+        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), anyList()))
+                .thenReturn(Collections.singletonList(p));
+        when(productSearchMapper.countByFulltext("脐橙", null, List.of())).thenReturn(1L);
+        when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
+        when(userSearchLogMapper.insert(any(com.lichun.agsell.model.entity.UserSearchLog.class))).thenReturn(1);
+
+        searchService.search(buildRequest("脐橙"), 9L);
+
+        org.mockito.ArgumentCaptor<com.lichun.agsell.model.entity.UserSearchLog> captor =
+                org.mockito.ArgumentCaptor.forClass(com.lichun.agsell.model.entity.UserSearchLog.class);
+        verify(userSearchLogMapper).insert(captor.capture());
+        assertEquals(9L, captor.getValue().getUserId());
+        assertEquals("脐橙", captor.getValue().getKeyword());
+    }
+
+    @Test
+    @DisplayName("搜索词记录失败只降级为丢一条信号，绝不让搜索接口报错")
+    void searchLogFailureDoesNotBreakSearch() {
+        Product p = mockProduct();
+        when(productSearchMapper.searchByFulltext(eq("脐橙"), isNull(), eq(""), eq(0L), eq(12), anyList()))
+                .thenReturn(Collections.singletonList(p));
+        when(productSearchMapper.countByFulltext("脐橙", null, List.of())).thenReturn(1L);
+        when(categoryMapper.selectBatchIds(anyList())).thenReturn(Collections.emptyList());
+        when(userSearchLogMapper.insert(any(com.lichun.agsell.model.entity.UserSearchLog.class)))
+                .thenThrow(new RuntimeException("db down"));
+
+        Page<ProductSearchVO> result = searchService.search(buildRequest("脐橙"), 9L);
+
+        assertEquals(1, result.getTotal());
+        assertEquals(1, result.getRecords().size());
     }
 }
