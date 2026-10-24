@@ -1,11 +1,11 @@
 {
-  "measured_at": "2026-10-24T18:51:49",
-  "git_commit": "0e76bcdb",
+  "measured_at": "2026-10-24T19:20:35",
+  "git_commit": "dbe6bd55",
   "worktree_dirty": false,
   "dirty_files": 0,
-  "faq_count": 280,
+  "faq_count": 292,
   "covered_count": 280,
-  "coverage": 1.0,
+  "coverage": 0.9589,
   "embedding_model": "BAAI/bge-small-zh-v1.5",
   "channels": [
     {
@@ -114,9 +114,9 @@
     {
       "channel": "merged_dual_channel",
       "queries": 404,
-      "hit_at_1": 1.0,
+      "hit_at_1": 0.995,
       "hit_at_3": 1.0,
-      "mrr": 1.0,
+      "mrr": 0.9975,
       "misses": []
     }
   ],
