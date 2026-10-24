@@ -1,9 +1,8 @@
 {
-  "measured_at": "2026-10-24T18:49:43",
-  "git_commit": "77bfc481",
-  "worktree_dirty": true,
-  "dirty_files": 1,
-  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "measured_at": "2026-10-24T18:52:59",
+  "git_commit": "55295bb5",
+  "worktree_dirty": false,
+  "dirty_files": 0,
   "model": "BAAI/bge-reranker-base (Xenova quantized ONNX)",
   "recall_depth": 20,
   "platform_faq": {
@@ -38,8 +37,8 @@
     }
   },
   "rerank_latency_ms": {
-    "p50": 133.2,
-    "p95": 433.4,
-    "max": 483.4
+    "p50": 131.3,
+    "p95": 445.2,
+    "max": 567.1
   }
 }
