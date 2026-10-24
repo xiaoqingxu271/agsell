@@ -18,6 +18,25 @@
       </view>
     </view>
 
+    <!-- 公告条（P2 §5.9.2）：管理端可维护；多条时纵向轮播，单条静止 -->
+    <view v-if="notices.length" class="notice-bar" @click="onNoticeBarTap" role="button" aria-label="查看公告">
+      <wd-icon name="notification" size="26rpx" custom-class="notice-ic" />
+      <swiper
+        v-if="notices.length > 1"
+        class="notice-swiper"
+        vertical
+        autoplay
+        circular
+        interval="4000"
+        :show-indicators="false"
+      >
+        <swiper-item v-for="n in notices" :key="n.id">
+          <text class="notice-text">{{ n.title }}</text>
+        </swiper-item>
+      </swiper>
+      <text v-else class="notice-text">{{ notices[0].title }}</text>
+    </view>
+
     <!-- 分类频道宫格（5 列） -->
     <view v-if="categories.length > 0" class="cats">
       <view
@@ -157,6 +176,7 @@ import { getCategoryList, getHotProducts, getRecommendFeed } from '../../api/pro
 import { getSeckillList } from '../../api/seckill'
 import { addToCart, getCartList } from '../../api/cart'
 import { getUnreadCount } from '../../api/message'
+import { getNoticeList } from '../../api/notice'
 import { isLoggedIn, wxLogin, request } from '../../utils/request'
 
 const banners = ref([])
@@ -165,6 +185,8 @@ const hotProducts = ref([])
 const seckillActivities = ref([])
 const loading = ref(true)
 const unreadCount = ref(0)
+const notices = ref([])
+const noticeVisible_ = ref(false)
 
 /** 首页城市定位（演示环境无定位接口，固定展示产区城市） */
 const cityName = '南昌'
@@ -203,7 +225,30 @@ onUnmounted(() => {
 /** 消息红点：进首页、下拉刷新、从消息中心返回都会同步；游客/接口失败静默为无红点 */
 onShow(() => {
   syncMessageBadge()
+  loadNotices()
 })
+
+/** 首页公告条：白名单接口游客可见；失败静默隐藏整条 */
+async function loadNotices() {
+  try {
+    const res = await getNoticeList()
+    if (res.code === 0) notices.value = res.data || []
+  } catch (e) {
+    notices.value = []
+  }
+}
+
+/** 点公告条查看内容：多条时弹窗列表，单条直接展示 */
+function onNoticeBarTap() {
+  if (!notices.value.length) return
+  const lines = notices.value.map((n) => n.content || n.title).join('\n')
+  uni.showModal({
+    title: '平台公告',
+    content: lines,
+    showCancel: false,
+    confirmText: '知道了'
+  })
+}
 
 async function syncMessageBadge() {
   if (!isLoggedIn()) {
@@ -881,3 +926,34 @@ function onSeckillItemTap(act) {
 
 /* 双列卡片由 ProductCard 按参考稿 .pd 规格渲染，此处不再覆写 */
 </style>
+
+/* 公告条（P2）：白底细条 + 品牌色喇叭，纵向轮播 */
+.notice-bar {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 12rpx 24rpx 0;
+  padding: 12rpx 20rpx;
+  background: #fff;
+  border-radius: 12rpx;
+}
+
+:deep(.notice-ic) {
+  color: $uni-color-primary;
+  flex-shrink: 0;
+}
+
+.notice-swiper {
+  flex: 1;
+  height: 36rpx;
+}
+
+.notice-text {
+  font-size: 24rpx;
+  color: $uni-text-color;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  line-height: 36rpx;
+}

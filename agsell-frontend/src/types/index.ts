@@ -678,3 +678,14 @@ export interface AiOpsSummaryVO {
   byTool: Record<string, number> | null
   daily: { date: string; count: number }[]
 }
+
+/** 首页公告条目（管理端 CRUD + 小程序公告条） */
+export interface SysNoticeVO {
+  id: IdOrNum | undefined
+  title: string
+  content?: string | null
+  sort?: number
+  status?: number
+  createTime?: string | null
+  updateTime?: string | null
+}

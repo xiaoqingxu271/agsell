@@ -8,6 +8,7 @@ import type {
   AiKbStatsVO,
   AiTicketPageVO,
   AiOpsSummaryVO,
+  SysNoticeVO,
   AiTicketHandleRequest,
   IdOrNum,
   AdminLoginRequest,
@@ -523,4 +524,22 @@ export function handleAiTicket(id: number, data: AiTicketHandleRequest) {
 
 export function aiOpsSummary(days = 7) {
   return request.get<AiOpsSummaryVO>('/admin/ai/kb/ops', { params: { days } })
+}
+
+// ─── 公告管理（/admin/announcement/**，内容运营性质） ───
+
+export function listAnnouncements() {
+  return request.get<SysNoticeVO[]>('/admin/announcement/list')
+}
+
+export function createAnnouncement(data: SysNoticeVO) {
+  return request.post<null>('/admin/announcement', data)
+}
+
+export function updateAnnouncement(data: SysNoticeVO) {
+  return request.put<null>('/admin/announcement', data)
+}
+
+export function deleteAnnouncement(id: number) {
+  return request.delete<null>(`/admin/announcement/${id}`)
 }

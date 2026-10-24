@@ -37,6 +37,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final SysUserMapper userMapper;
+    private final com.lichun.agsell.utils.SensitiveWordFilter sensitiveWordFilter;
 
     @Override
     public void createReview(ReviewCreateRequest request) {
@@ -89,7 +90,8 @@ public class ReviewServiceImpl implements ReviewService {
         review.setProductId(targetItem.getProductId());
         review.setUserId(userId);
         review.setRating(request.getRating());
-        review.setContent(request.getContent());
+        // 敏感词过滤（P2 §5.7）：替换而非拒绝，不打断评价动作、脏词不上屏
+        review.setContent(sensitiveWordFilter.filter(request.getContent()));
         review.setIsAnonymous(request.getIsAnonymous() != null ? request.getIsAnonymous() : 0);
         if (request.getImages() != null && !request.getImages().isEmpty()) {
             review.setImages(JSONUtil.toJsonStr(request.getImages()));

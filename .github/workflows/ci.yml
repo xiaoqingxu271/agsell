@@ -85,7 +85,7 @@ jobs:
             < sql/migration/coupon_type_extension.sql
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
             < sql/migration/review_sentiment.sql
-          # AI 转人工工单 / 用户站内消息 / 收藏 / 用户搜索词（第一、二批新增）
+          # AI 转人工工单 / 用户站内消息 / 收藏 / 用户搜索词 / 首页公告（第一、二批 + P2 新增）
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
             < sql/migration/ai_ticket.sql
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
@@ -94,6 +94,8 @@ jobs:
             < sql/migration/favorite.sql
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
             < sql/migration/user_search_log.sql
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
+            < sql/migration/sys_notice.sql
           # ai_faq 的 ngram 全文索引（三路检索的 BM25 通道基础设施）
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
             < sql/migration/ai_faq_fulltext.sql

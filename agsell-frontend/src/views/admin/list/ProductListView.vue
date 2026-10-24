@@ -169,6 +169,19 @@ async function handleDelete(row: ProductListItemVO) {
 
 // ── 新增/编辑弹窗 ──
 const formDialogVisible = ref(false)
+const previewVisible = ref(false)
+
+/** 预览卡里的分类名：从级联选项里反查 */
+function categoryNameOf(categoryId: number | undefined): string {
+  if (!categoryId) return ''
+  for (const parent of categoryOptions.value) {
+    if (parent.value === categoryId) return parent.label
+    for (const child of parent.children ?? []) {
+      if (child.value === categoryId) return `${parent.label}/${child.label}`
+    }
+  }
+  return ''
+}
 const formTitle = ref('新增商品')
 const formRef = ref()
 const formLoading = ref(false)
@@ -682,10 +695,39 @@ onMounted(() => {
         </el-form-item>
       </el-form>
       <template #footer>
+        <el-button @click="previewVisible = true">预览商品卡</el-button>
         <el-button @click="formDialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="formLoading" @click="handleFormSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 商品卡预览（P2）：提交前看一眼小程序端的卡片效果，所见即所得 -->
+    <el-drawer v-model="previewVisible" title="商品卡预览（小程序端效果）" size="380px">
+      <div class="preview-phone">
+        <div class="preview-card">
+          <el-image
+            v-if="form.mainImage"
+            :src="form.mainImage"
+            fit="cover"
+            style="width: 100%; height: 172px; display: block; border-radius: 8px 8px 0 0"
+          />
+          <div v-else class="preview-noimg">暂无主图</div>
+          <div class="preview-body">
+            <div class="preview-title">{{ form.name || '商品名称' }}</div>
+            <div class="preview-sub">{{ form.subtitle || '—' }}</div>
+            <div class="preview-price-row">
+              <span class="preview-price">¥{{ Number(form.price ?? 0).toFixed(2) }}</span>
+              <span v-if="form.originalPrice" class="preview-origin">¥{{ Number(form.originalPrice).toFixed(2) }}</span>
+            </div>
+            <div class="preview-meta">
+              <span>库存 {{ form.stock ?? 0 }}</span>
+              <span v-if="categoryNameOf(form.categoryId)">分类 {{ categoryNameOf(form.categoryId) }}</span>
+            </div>
+          </div>
+        </div>
+        <p class="preview-hint">以上为小程序商品卡实际布局；规格与详情图保存后可见。</p>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -757,4 +799,81 @@ onMounted(() => {
 .admin-editable:hover {
   color: var(--el-color-primary);
   text-decoration: underline dotted;
+}
+
+.preview-phone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-card {
+  width: 300px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.preview-noimg {
+  height: 172px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-placeholder);
+  font-size: 13px;
+}
+
+.preview-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preview-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  line-height: 1.4;
+}
+
+.preview-sub {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.preview-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.preview-price {
+  color: #c0392b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.preview-origin {
+  color: var(--el-text-color-placeholder);
+  font-size: 12px;
+  text-decoration: line-through;
+}
+
+.preview-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+.preview-hint {
+  font-size: 12px;
+  color: var(--el-text-color-placeholder);
 }

@@ -11,6 +11,32 @@ const router = useRouter()
 const adminStore = useAdminStore()
 
 const form = ref<AdminLoginRequest>({ username: '', password: '' })
+// 记住密码（§5.1）：凭据只存本机浏览器，base64 混淆防肩窥——
+// 明确不承担安全职责（拿到机器即拿到凭据），真正的门禁在 JWT 与 Redis 会话
+const REMEMBER_KEY = 'admin_remembered'
+
+function obfuscate(text: string): string {
+  return btoa(unescape(encodeURIComponent(text)))
+}
+
+function deobfuscate(text: string): string {
+  return decodeURIComponent(escape(atob(text)))
+}
+
+const rememberPassword = ref(false)
+
+try {
+  const saved = localStorage.getItem(REMEMBER_KEY)
+  if (saved) {
+    const raw = JSON.parse(deobfuscate(saved)) as { username: string; password: string }
+    form.value.username = raw.username
+    form.value.password = raw.password
+    rememberPassword.value = true
+  }
+} catch {
+  // 混淆数据损坏按未记住处理
+  localStorage.removeItem(REMEMBER_KEY)
+}
 const loading = ref(false)
 
 async function handleLogin() {
@@ -24,6 +50,15 @@ async function handleLogin() {
     const res = await adminLogin(form.value)
     adminStore.setToken(res.token)
     adminStore.setAdminInfo(res)
+
+    if (rememberPassword.value) {
+      localStorage.setItem(REMEMBER_KEY, obfuscate(JSON.stringify({
+        username: form.value.username,
+        password: form.value.password,
+      })))
+    } else {
+      localStorage.removeItem(REMEMBER_KEY)
+    }
 
     const redirect = router.currentRoute.value.query.redirect as string | undefined
     router.push(redirect || '/admin/dashboard')
@@ -148,6 +183,10 @@ async function handleLogin() {
                 <el-icon aria-hidden="true"><Lock /></el-icon>
               </template>
             </el-input>
+          </el-form-item>
+
+          <el-form-item>
+            <el-checkbox v-model="rememberPassword">记住密码</el-checkbox>
           </el-form-item>
 
           <el-form-item>

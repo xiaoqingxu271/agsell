@@ -53,6 +53,8 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             "/api/review/product",
             // 轮播图接口（无需登录）
             "/api/banner/list",
+            // 首页公告（无需登录，游客可见）
+            "/api/notice/list",
             // 溯源查询接口（无需登录）
             "/api/trace",
             // 秒杀活动浏览接口（无需登录；下单 /api/seckill/order 需登录）

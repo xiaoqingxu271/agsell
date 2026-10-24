@@ -74,6 +74,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         meta: { title: '轮播图管理' },
       },
       {
+        path: 'announcements',
+        name: 'AdminAnnouncements',
+        component: () => import('@/views/admin/list/AnnouncementView.vue'),
+        meta: { title: '公告管理' },
+      },
+      {
         path: 'after-sales',
         name: 'AdminAfterSales',
         component: () => import('@/views/admin/list/AfterSalesListView.vue'),

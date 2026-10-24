@@ -25,6 +25,7 @@ import {
   Fold,
   Expand,
   Bell,
+  BellFilled,
   Reading,
   Service,
 } from '@element-plus/icons-vue'
@@ -37,8 +38,8 @@ const initial = computed(() => displayName.value.trim().charAt(0) || '管')
 
 // ── 角色 → 可见模块（对应 系统管理模块开发文档 §3.2 权限矩阵，与后端拦截器口径一致）──
 const roleModules: Record<string, string[]> = {
-  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket', 'system'],
-  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket'],
+  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'announcements', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket', 'system'],
+  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'announcements', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket'],
   OPERATOR: ['dashboard', 'categories', 'products', 'orders'],
 }
 const currentRole = computed(() => adminStore.adminInfo?.role ?? '')
@@ -205,6 +206,10 @@ async function handleLogout() {
           <el-menu-item v-if="canAccess('banners')" index="/admin/banners">
             <el-icon><Picture /></el-icon>
             <span>轮播图管理</span>
+          </el-menu-item>
+          <el-menu-item v-if="canAccess('announcements')" index="/admin/announcements">
+            <el-icon><BellFilled /></el-icon>
+            <span>公告管理</span>
           </el-menu-item>
           <el-menu-item v-if="canAccess('hotWord')" index="/admin/hot-word">
             <el-icon><Search /></el-icon>

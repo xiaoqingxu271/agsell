@@ -185,6 +185,19 @@
                  :custom-class="isFavored ? 'fn-icon fn-icon-fav' : 'fn-icon'" />
         <text class="fn-label">{{ isFavored ? '已收藏' : '收藏' }}</text>
       </view>
+      <!-- 分享（P2）：小程序走原生分享面板（open-type=share），H5 复制链接 -->
+      <!-- #ifdef MP-WEIXIN -->
+      <button class="fn fn-share" open-type="share" aria-label="分享商品">
+        <wd-icon name="share" size="34rpx" custom-class="fn-icon" />
+        <text class="fn-label">分享</text>
+      </button>
+      <!-- #endif -->
+      <!-- #ifdef H5 -->
+      <view class="fn" @click="onShareH5" role="button" aria-label="复制商品链接">
+        <wd-icon name="share" size="34rpx" custom-class="fn-icon" />
+        <text class="fn-label">分享</text>
+      </view>
+      <!-- #endif -->
       <view class="act-btn act-cart" :class="{ 'act-disabled': loading }" @click="onAddToCart" role="button">加入购物车</view>
       <view class="act-btn act-buy" :class="{ 'act-disabled': loading }" @click="onBuyNow" role="button">立即购买</view>
     </view>
@@ -193,7 +206,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { onLoad, onShow } from '@dcloudio/uni-app'
+import { onLoad, onShow, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import NavBar from '../../components/NavBar/NavBar.vue'
 import StarRating from '../../components/StarRating/StarRating.vue'
 import { getProductDetail, getHotProducts, reportProductView } from '../../api/product'
@@ -288,6 +301,39 @@ function onPreviewImage(current) {
     urls,
     current: current || urls[0]
   })
+}
+
+// ── 分享（P2 §4.3.2）：好友卡片 / 朋友圈 / H5 复制链接 ──
+onShareAppMessage(() => ({
+  title: shareTitle.value,
+  path: `/pages/product/product?id=${productId.value}`,
+  imageUrl: product.value.mainImage || ''
+}))
+
+onShareTimeline(() => ({
+  title: shareTitle.value,
+  query: `id=${productId.value}`,
+  imageUrl: product.value.mainImage || ''
+}))
+
+const shareTitle = computed(() => {
+  const name = String(product.value.name || '好物推荐')
+  const sub = String(product.value.subtitle || '').trim()
+  return sub ? `${name}｜${sub}`.slice(0, 40) : name.slice(0, 40)
+})
+
+/** H5 端没有原生分享面板：复制带商品 id 的落地页链接到剪贴板 */
+async function onShareH5() {
+  const link = `${location.origin}${location.pathname}#/pages/product/product?id=${productId.value}`
+  try {
+    await navigator.clipboard.writeText(link)
+    uni.showToast({ title: '链接已复制，去粘贴给好友吧', icon: 'none' })
+  } catch (e) {
+    uni.setClipboardData({
+      data: link,
+      success: () => uni.showToast({ title: '链接已复制', icon: 'none' })
+    })
+  }
 }
 
 onLoad((options) => {
@@ -1017,3 +1063,18 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
   opacity: $uni-opacity-disabled;
 }
 </style>
+
+/* 小程序原生分享按钮：重置 button 默认样式，与 .fn 视觉一致 */
+.fn-share {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  line-height: inherit;
+  font-size: inherit;
+}
+
+.fn-share::after {
+  border: none;
+}

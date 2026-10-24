@@ -43,10 +43,20 @@ class ReviewServiceImplTest {
     @Mock
     private OrderItemMapper orderItemMapper;
     @Mock
+    private com.lichun.agsell.service.SysConfigService sysConfigService;
+    @Mock
     private SysUserMapper userMapper;
 
-    @InjectMocks
     private ReviewServiceImpl reviewService;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUpFilter() {
+        // 敏感词过滤器用真实实现（词库来源之一是 SysConfigService 的 mock：
+        // 默认 getConfigOrDefault 返回 null → Mockito 缺省，过滤退化为内置词库；
+        // 需要验证配置词库的用例里单独 stub）
+        reviewService = new ReviewServiceImpl(reviewMapper, orderMapper, orderItemMapper,
+                userMapper, new com.lichun.agsell.utils.SensitiveWordFilter(sysConfigService));
+    }
 
     @BeforeEach
     void setUp() {
@@ -265,5 +275,30 @@ class ReviewServiceImplTest {
         ReviewCreateRequest under = buildRequest(1L);
         under.setContent("好".repeat(499));
         assertDoesNotThrow(() -> reviewService.createReview(under));
+    }
+
+    // ==================== 敏感词过滤（P2 §5.7） ====================
+
+    @Test
+    @DisplayName("敏感词过滤：内置词库与配置词库都替换为等长星号")
+    void sensitiveWordsReplacedWithStars() {
+        com.lichun.agsell.service.SysConfigService config = org.mockito.Mockito.mock(com.lichun.agsell.service.SysConfigService.class);
+        when(config.getConfigOrDefault(any(), any())).thenReturn("差评师,骗运费");
+        com.lichun.agsell.utils.SensitiveWordFilter filter = new com.lichun.agsell.utils.SensitiveWordFilter(config);
+
+        // 等长星号替换（差评师/骗运费各 3 字）
+        assertEquals("遇到***骗子，还要***", filter.filter("遇到差评师骗子，还要骗运费"));
+    }
+
+    @Test
+    @DisplayName("敏感词过滤：空文本原样返回；单字词（长度<2）不参与过滤")
+    void sensitiveFilterEdgeCases() {
+        com.lichun.agsell.service.SysConfigService config = org.mockito.Mockito.mock(com.lichun.agsell.service.SysConfigService.class);
+        when(config.getConfigOrDefault(any(), any())).thenReturn("差评师");
+        com.lichun.agsell.utils.SensitiveWordFilter filter = new com.lichun.agsell.utils.SensitiveWordFilter(config);
+        assertEquals(null, filter.filter(null));
+        assertEquals("", filter.filter(""));
+        // 内置词库无单字词：正常词句不受影响
+        assertEquals("很好吃，新鲜", filter.filter("很好吃，新鲜"));
     }
 }
