@@ -1,6 +1,6 @@
 {
-  "measured_at": "2026-10-24T18:52:59",
-  "git_commit": "55295bb5",
+  "measured_at": "2026-10-24T19:21:50",
+  "git_commit": "279b099b",
   "worktree_dirty": false,
   "dirty_files": 0,
   "model": "BAAI/bge-reranker-base (Xenova quantized ONNX)",
@@ -37,8 +37,8 @@
     }
   },
   "rerank_latency_ms": {
-    "p50": 131.3,
-    "p95": 445.2,
-    "max": 567.1
+    "p50": 144.2,
+    "p95": 423.7,
+    "max": 448.1
   }
 }
