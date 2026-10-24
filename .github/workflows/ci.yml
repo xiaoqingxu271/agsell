@@ -63,7 +63,7 @@ jobs:
           java-version: "21"
           cache: maven # 自动缓存 ~/.m2 依赖
 
-      # 按 docker/initdb.sh 的顺序初始化表结构
+      # 按 docker/initdb.sh 的顺序初始化表结构（与 initdb.sh 同源：新增模块/迁移必须两边同步加）
       - name: Initialize database schema
         run: |
           for f in \
@@ -75,14 +75,28 @@ jobs:
             seckill_module \
             coupon_module \
             search_module \
+            behavior_module \
             system_module \
-            traceability_module; do
+            traceability_module \
+            ai_module; do
             mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell < "sql/${f}.sql"
           done
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
             < sql/migration/coupon_type_extension.sql
           mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
             < sql/migration/review_sentiment.sql
+          # AI 转人工工单 / 用户站内消息 / 收藏 / 用户搜索词（第一、二批新增）
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
+            < sql/migration/ai_ticket.sql
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
+            < sql/migration/user_message.sql
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
+            < sql/migration/favorite.sql
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
+            < sql/migration/user_search_log.sql
+          # ai_faq 的 ngram 全文索引（三路检索的 BM25 通道基础设施）
+          mysql -h 127.0.0.1 -uroot -proot --default-character-set=utf8mb4 agsell \
+            < sql/migration/ai_faq_fulltext.sql
 
       # application-local.yaml 在 .gitignore 中、不进仓库，
       # 而提交的 application.yaml 全是占位符，因此 CI 现场生成一个 ci profile
