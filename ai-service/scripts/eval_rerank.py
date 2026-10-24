@@ -47,13 +47,24 @@ def main() -> None:
     reranker = get_reranker()
 
     def rank_by_fusion(query: str) -> list[int]:
-        """对照组：生产三路融合序，取前 5（KB_TOP_K 口径）"""
-        hits = retriever.retrieve(query, top_k=RECALL_DEPTH)
+        """对照组：纯融合序（显式关掉重排）——生产默认已开重排，不清场的话
+        对照组会被重排污染（两行同分的教训，见 rerank_eval 首版）"""
+        original = settings.RERANK_ENABLED
+        settings.RERANK_ENABLED = False
+        try:
+            hits = retriever.retrieve(query, top_k=RECALL_DEPTH)
+        finally:
+            settings.RERANK_ENABLED = original
         return [h["id"] for h in hits[:settings.KB_TOP_K]]
 
     def rank_by_rerank(query: str) -> list[int]:
-        """实验组：同一条召回池 → 交叉编码重排 → 前 5"""
-        hits = retriever.retrieve(query, top_k=RECALL_DEPTH)
+        """实验组：同一条召回池 → 交叉编码重排 → 前 5（显式开重排，与对照同池）"""
+        original = settings.RERANK_ENABLED
+        settings.RERANK_ENABLED = True
+        try:
+            hits = retriever.retrieve(query, top_k=RECALL_DEPTH)
+        finally:
+            settings.RERANK_ENABLED = original
         reranked = reranker.rerank(
             query, hits,
             text_of=lambda h: f"{h['question']}\n{h['answer']}",
