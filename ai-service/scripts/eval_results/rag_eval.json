@@ -1,9 +1,8 @@
 {
-  "measured_at": "2026-10-24T18:48:34",
-  "git_commit": "0ed8af1d",
-  "worktree_dirty": true,
-  "dirty_files": 3,
-  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "measured_at": "2026-10-24T18:51:49",
+  "git_commit": "0e76bcdb",
+  "worktree_dirty": false,
+  "dirty_files": 0,
   "faq_count": 280,
   "covered_count": 280,
   "coverage": 1.0,
