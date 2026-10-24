@@ -1,4 +1,4 @@
-"""三路混合召回检索器：向量语义 + MySQL 全文（BM25）+ FAQ 关键词，RRF 融合
+"""三路混合召回检索器：向量语义 + MySQL 全文（BM25）+ FAQ 关键词，线性加权融合
 
 反幻觉闸门不变：只有"有词面证据"（关键词/全文通道）或"向量分过阈值"的条目才可能进入结果，
 域外问法整体被拒之门外，交给生成节点的确定性拒答话术。
@@ -11,7 +11,12 @@
   "推荐一部电影"剥掉"推荐"后余下"一部电影"几乎不可能出现在知识库原文里，
   闸门语义与旧关键词通道一致，域外拒答率不因新通道回退；
 - 关键词（ai_faq.keywords 子串）：旧通道保留，每条命中 +0.5 分，停用词不豁免。
-三路排名用 RRF（Reciprocal Rank Fusion，k=60）融合：不依赖不同通道分数量纲，
+
+融合方式：各通道分数归一线性加权（向量余弦分原样、关键词每命中 +0.5、全文相关度按本查询
+命中集归一到 0~1 后乘 0.3）。实测曾试过 RRF(k=60)：它把"两路排名相同"的条目分数压到
+几乎相等（0.0328 vs 0.0323），向量距离信息丢失，platform_faq 上生产路径 Hit@1 从
+90.3% 退化到 83.3%（正确条目被关键词多命中一条的同分对手挤到第二）——线性加权保住了
+分数差异，这是有存档对比的选型结论，不是随手的实现细节。
 任一通道故障自动退化为两路/一路，检索层永不因单通道故障对用户报错。
 """
 import logging
@@ -24,8 +29,10 @@ from app.rag.vectorstore import VectorStore
 
 logger = logging.getLogger("agsell.ai.retriever")
 
-# RRF 常数（论文常用值 60）：排名越靠前贡献越大，但不会被单通道第一名垄断
-_RRF_K = 60
+# 全文通道权重：BM25 相关度量纲与余弦不可比，先按本查询命中集归一到 0~1 再乘此权重。
+# 0.3 的量级依据：单条关键词命中 +0.5、向量优势通常 0.05~0.2——全文冠军加 0.3 分
+# 足以进入前列，但压不过"向量+关键词双命中"的强证据条目
+_FULLTEXT_WEIGHT = 0.3
 # 全文通道候选条数：BM25 只取最相关的一小撮，词面校验在 Python 侧做
 _FULLTEXT_TOP_K = 10
 
@@ -53,15 +60,16 @@ class Retriever:
         }
 
     def retrieve(self, question: str, top_k: int | None = None) -> list[dict]:
-        """返回 [{id, question, answer, score, keyword_hit, fulltext_hit}]，按 RRF 融合分降序。
+        """返回 [{id, question, answer, score, keyword_hit, fulltext_hit}]，按融合分降序。
 
         向量召回得分 < score_threshold 的条目不进入向量通道（0 或负数 = 关闭阈值）；
         关键词/全文通道的条目有词面证据，始终保留。
         """
         k = top_k or self._top_k
 
-        # ---------- 三通道各自召回，产出 {id: 条目} 与排名 ----------
+        # ---------- 三通道各自召回，产出 {id: 条目} 与分数 ----------
         lane_members: list[list[dict]] = []  # 每通道一条按相关度降序的列表
+        vector_scores: dict[int, float] = {}
 
         # 1. 向量通道（语义相似，阈值闸门在这里）
         vector_hits: list[dict] = []
@@ -69,6 +77,7 @@ class Retriever:
             if self._threshold and self._threshold > 0 and hit["score"] < self._threshold:
                 continue
             vector_hits.append({"id": hit["id"], "question": hit["question"], "score": hit["score"]})
+            vector_scores[hit["id"]] = hit["score"]
         if vector_hits:
             lane_members.append(vector_hits)
 
@@ -98,46 +107,43 @@ class Retriever:
             if fulltext_hits:
                 lane_members.append(fulltext_hits)
 
-        # ---------- RRF 融合：score = Σ 1/(K + rank)，与各通道分数量纲无关 ----------
-        rrf: dict[int, float] = {}
+        # ---------- 线性加权融合：向量原分 + 关键词 0.5/词 + 全文 0.3×归一相关度 ----------
+        fulltext_scores = {h["id"]: h["score"] for h in fulltext_hits}
+        fulltext_max = max(fulltext_scores.values(), default=0.0) or 1.0
+        keyword_counts = {h["id"]: int(h["score"] / 0.5) for h in keyword_hits}
+
         entries: dict[int, dict] = {}
         for lane in lane_members:
-            for rank, item in enumerate(lane):
+            for item in lane:
                 pid = item["id"]
-                rrf[pid] = rrf.get(pid, 0.0) + 1.0 / (_RRF_K + rank + 1)
                 entry = entries.setdefault(pid, {
                     "id": pid,
                     "question": item["question"],
-                    "score": 0.0,
                     "keyword_hit": False,
                     "fulltext_hit": False,
-                    "_best": 0.0,
                 })
                 entry["keyword_hit"] = entry["keyword_hit"] or item.get("keyword_hit", False)
                 entry["fulltext_hit"] = entry["fulltext_hit"] or item.get("fulltext_hit", False)
-                entry["_best"] = max(entry["_best"], item["score"])
 
-        # 回填答案（只保留有答案的条目）
         results = []
         for pid, entry in entries.items():
             answer = answers.get(pid)
             if answer is None:
                 continue
+            vec = vector_scores.get(pid, 0.0)
+            kw = keyword_counts.get(pid, 0)
+            ft = fulltext_scores.get(pid, 0.0) / fulltext_max
+            score = vec + min(kw, 3) * 0.5 + _FULLTEXT_WEIGHT * ft
             results.append({
                 "id": pid,
                 "question": entry["question"],
                 "answer": answer,
-                # 对外 score 即 RRF 融合分（越大越相关）；_best 只作排序 tie-break
-                "score": round(rrf[pid], 4),
+                "score": round(score, 4),
                 "keyword_hit": entry["keyword_hit"],
                 "fulltext_hit": entry["fulltext_hit"],
-                "_best": entry["_best"],
             })
 
-        # 排序：RRF 分 → 有词面证据者优先（同样排名时，命中关键词比纯语义更像"问的就是它"）
-        results.sort(key=lambda x: (-x["score"], not x["keyword_hit"], -x["_best"]))
-        for r in results:
-            r.pop("_best", None)
+        results.sort(key=lambda x: -x["score"])
         return results[:k]
 
     def _fulltext_lane(self, session, question: str) -> list[dict]:

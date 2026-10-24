@@ -1,6 +1,9 @@
 {
-  "measured_at": "2026-10-17T15:06:02",
-  "git_commit": "6a7cf8f",
+  "measured_at": "2026-10-24T17:59:11",
+  "git_commit": "35f73b22",
+  "worktree_dirty": true,
+  "dirty_files": 2,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
   "faq_count": 280,
   "covered_count": 280,
   "coverage": 1.0,
