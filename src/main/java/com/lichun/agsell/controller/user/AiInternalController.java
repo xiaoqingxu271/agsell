@@ -4,13 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.AfterSalesMapper;
+import com.lichun.agsell.mapper.AiTicketMapper;
 import com.lichun.agsell.mapper.OrderItemMapper;
 import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.mapper.ReviewMapper;
 import com.lichun.agsell.model.dto.AiInternalQueryRequest;
 import com.lichun.agsell.model.dto.AiProductSearchRequest;
+import com.lichun.agsell.model.dto.AiTicketCreateRequest;
 import com.lichun.agsell.model.entity.AfterSales;
+import com.lichun.agsell.model.entity.AiTicket;
 import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.OrderItem;
 import com.lichun.agsell.model.entity.Product;
@@ -72,6 +75,7 @@ public class AiInternalController {
     private final AfterSalesMapper afterSalesMapper;
     private final ProductMapper productMapper;
     private final ReviewMapper reviewMapper;
+    private final AiTicketMapper aiTicketMapper;
 
     @Operation(summary = "我的订单列表（最近5条）")
     @PostMapping("/order/list")
@@ -239,6 +243,25 @@ public class AiInternalController {
             return vo;
         }).toList();
         return ResultUtils.success(result);
+    }
+
+    @Operation(summary = "转人工工单落库（AI 触发 escalate_human 后回调，游客同样留痕）")
+    @PostMapping("/ticket")
+    public BaseResponse<Long> createTicket(@RequestBody AiTicketCreateRequest req) {
+        ThrowUtils.throwIf(req == null, ErrorCode.PARAMS_ERROR, "请求体不能为空");
+        ThrowUtils.throwIf(req.getSessionId() == null || req.getSessionId().isBlank(),
+                ErrorCode.PARAMS_ERROR, "sessionId 不能为空");
+        String question = req.getQuestion() == null ? "" : req.getQuestion().trim();
+        ThrowUtils.throwIf(question.isEmpty(), ErrorCode.PARAMS_ERROR, "question 不能为空");
+
+        AiTicket ticket = new AiTicket();
+        ticket.setUserId(req.getUserId());
+        ticket.setSessionId(req.getSessionId().trim());
+        ticket.setQuestion(question);
+        ticket.setReason(req.getReason());
+        ticket.setStatus(0);
+        aiTicketMapper.insert(ticket);
+        return ResultUtils.success(ticket.getId());
     }
 
     private Long requireUserId(AiInternalQueryRequest req) {

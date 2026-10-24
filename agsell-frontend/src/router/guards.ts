@@ -110,6 +110,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         meta: { title: 'AI 知识库' },
       },
       {
+        path: 'ai/tickets',
+        name: 'AdminAiTickets',
+        component: () => import('@/views/admin/ai/AiTicketListView.vue'),
+        meta: { title: 'AI 转人工工单' },
+      },
+      {
         path: 'system/admin',
         name: 'AdminSystemAdmin',
         component: () => import('@/views/admin/list/AdminListView.vue'),

@@ -26,6 +26,7 @@ import {
   Expand,
   Bell,
   Reading,
+  Service,
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -36,8 +37,8 @@ const initial = computed(() => displayName.value.trim().charAt(0) || '管')
 
 // ── 角色 → 可见模块（对应 系统管理模块开发文档 §3.2 权限矩阵，与后端拦截器口径一致）──
 const roleModules: Record<string, string[]> = {
-  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'system'],
-  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb'],
+  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket', 'system'],
+  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket'],
   OPERATOR: ['dashboard', 'categories', 'products', 'orders'],
 }
 const currentRole = computed(() => adminStore.adminInfo?.role ?? '')
@@ -64,7 +65,7 @@ onBeforeUnmount(() => {
 // ── 通知中心（铃铛）──
 const noticeVisible = ref(false)
 const noticeWrapRef = ref<HTMLElement | null>(null)
-const notice = ref({ pendingShipCount: 0, lowStockCount: 0, pendingAfterSalesCount: 0, total: 0 })
+const notice = ref({ pendingShipCount: 0, lowStockCount: 0, pendingAfterSalesCount: 0, pendingTicketCount: 0, total: 0 })
 
 async function loadNotice() {
   try {
@@ -218,6 +219,10 @@ async function handleLogout() {
             <el-icon><Reading /></el-icon>
             <span>AI 知识库</span>
           </el-menu-item>
+          <el-menu-item v-if="canAccess('aiTicket')" index="/admin/ai/tickets">
+            <el-icon><Service /></el-icon>
+            <span>AI 转人工工单</span>
+          </el-menu-item>
         </el-menu-item-group>
 
         <el-menu-item-group v-if="canAccess('system')">
@@ -272,6 +277,10 @@ async function handleLogout() {
               <div class="notice-item" @click="goNotice('/admin/after-sales')">
                 <span>待处理售后</span>
                 <span class="notice-num">{{ notice.pendingAfterSalesCount }} 笔</span>
+              </div>
+              <div class="notice-item" @click="goNotice('/admin/ai/tickets')">
+                <span>待处理工单</span>
+                <span class="notice-num">{{ notice.pendingTicketCount }} 笔</span>
               </div>
             </div>
           </div>

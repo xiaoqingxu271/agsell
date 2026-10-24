@@ -38,6 +38,7 @@ from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
 from app.schemas.chat import ChatRequest, ChatResponse, HealthResponse
 from app.security import check_service_key as _check_service_key
+from app.tools import tickets as _tickets
 
 logger = logging.getLogger("agsell.ai")
 
@@ -207,6 +208,11 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
         # 去除回复首尾空白（Agnes 常带前导换行，避免客户端气泡顶部空白）
         reply = (result["messages"][-1].content or "").strip()
         suggestions = result.get("suggestions") or []
+        # 转人工闭环：本轮触发 escalate_human（规则短路或智能体）→ 回调 Java 落一张工单，
+        # 管理后台才能跟进。尽力而为，失败只记日志，不影响已生成的回复。
+        _tickets.fire_async(_tickets.ticket_payload_from_state(
+            req.message, req.userId, req.sessionId,
+            result.get("observations") or [], bool(result.get("human_fallback"))))
         return ChatResponse(
             sessionId=req.sessionId,
             reply=reply,
@@ -254,6 +260,8 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
     suggestions: list[str] = []
     items: list[dict] = []
     intent: str | None = None
+    human_flag = False          # 本轮是否触发转人工（human_fallback 节点 / agent 的 human 观察）
+    escalation_obs: list[dict] = []  # 转人工观察（取工具入参里的原因，落工单用）
     try:
         graph = get_graph()
         async for mode, payload in graph.astream(
@@ -288,9 +296,17 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                             "intent": intent,
                             "orderNo": out.get("order_no"),
                         })
+                    elif node_name == "human_fallback":
+                        # 规则前置判定的转人工：流里没有观察可带，落工单时用中性原因兜底
+                        human_flag = True
                     elif node_name in _STAGE_EVENTS:
                         tools = [o.get("tool") for o in (out.get("observations") or []) if o.get("tool")]
                         yield _sse("status", {"stage": node_name, "tools": tools})
+                        # 转人工可能由智能体的 escalate_human 触发：记下观察以便取 reason
+                        for o in out.get("observations") or []:
+                            if o.get("kind") == "human":
+                                human_flag = True
+                                escalation_obs.append(o)
                         # 导购候选已确定：立刻下发结构化商品卡，让卡片与回复文本并行呈现，
                         # 用户不用等 LLM 把话说完才能点进商品
                         if out.get("rec_items"):
@@ -320,6 +336,9 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
             # done 也带一份：前端只监听 done 也能拿到卡片（items 事件可能被中途断开漏掉）
             "items": items,
         })
+        # 流收尾后再落工单（丢工作线程，不阻塞事件循环）：客户端已拿到完整回复
+        _tickets.fire_async(_tickets.ticket_payload_from_state(
+            req.message, req.userId, req.sessionId, escalation_obs, human_flag))
     except Exception as e:
         # 错误帧只发 code：原始异常含模型名/网关/上游 URL，客户端按 code 查白名单文案，
         # 细节只进服务端日志（logger.exception）

@@ -2,9 +2,11 @@ package com.lichun.agsell.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lichun.agsell.mapper.AfterSalesMapper;
+import com.lichun.agsell.mapper.AiTicketMapper;
 import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.model.entity.AfterSales;
+import com.lichun.agsell.model.entity.AiTicket;
 import com.lichun.agsell.model.entity.Order;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.enums.OrderStatusEnum;
@@ -26,6 +28,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     private final OrderMapper orderMapper;
     private final ProductMapper productMapper;
     private final AfterSalesMapper afterSalesMapper;
+    private final AiTicketMapper aiTicketMapper;
     private final SysConfigService sysConfigService;
 
     /** 售后待处理状态码（与 AdminAfterSalesServiceImpl 中 STATUS_PENDING 一致） */
@@ -55,7 +58,12 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
                 .eq(AfterSales::getDeleted, 0));
         vo.setPendingAfterSalesCount(pendingAfterSales);
 
-        vo.setTotal(pendingShip + lowStock + pendingAfterSales);
+        // 4. 待处理 AI 转人工工单（与「AI 工单」页同口径，只数待处理）
+        long pendingTicket = aiTicketMapper.selectCount(new LambdaQueryWrapper<AiTicket>()
+                .eq(AiTicket::getStatus, 0));
+        vo.setPendingTicketCount(pendingTicket);
+
+        vo.setTotal(pendingShip + lowStock + pendingAfterSales + pendingTicket);
         return vo;
     }
 

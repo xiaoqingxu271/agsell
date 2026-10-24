@@ -638,3 +638,31 @@ export interface AiKbStatsVO {
   faqSynced: boolean
   productIndexSynced: boolean
 }
+
+/** AI 转人工工单：Python 触发 escalate_human 后经内部接口落库，管理端查看并处理 */
+export interface AdminAiTicketVO {
+  id: IdOrNum
+  userId: IdOrNum | null
+  sessionId: string
+  question: string
+  reason: string | null
+  status: number
+  statusText: string
+  handleRemark: string | null
+  handleBy: IdOrNum | null
+  handleTime: string | null
+  createTime: string | null
+}
+
+/** 工单分页（MyBatis-Plus 口径 records/total） */
+export interface AiTicketPageVO {
+  records: AdminAiTicketVO[]
+  total: IdOrNum
+  size: number
+  current: number
+}
+
+/** 工单处理请求体 */
+export interface AiTicketHandleRequest {
+  remark?: string
+}

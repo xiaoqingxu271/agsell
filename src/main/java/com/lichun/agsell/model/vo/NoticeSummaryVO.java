@@ -19,6 +19,9 @@ public class NoticeSummaryVO {
     @Schema(description = "待处理售后数")
     private long pendingAfterSalesCount;
 
+    @Schema(description = "待处理 AI 转人工工单数")
+    private long pendingTicketCount;
+
     @Schema(description = "待办总数（红点显示）")
     private long total;
 }

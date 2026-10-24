@@ -6,6 +6,8 @@ import type {
   AiFaqPageVO,
   AiFaqRequest,
   AiKbStatsVO,
+  AiTicketPageVO,
+  AiTicketHandleRequest,
   IdOrNum,
   AdminLoginRequest,
   AdminLoginVO,
@@ -431,7 +433,7 @@ export function listSysLogs(params: { pageSize?: number; module?: string; adminN
 
 /** 通知中心：铃铛待办汇总 */
 export function noticeSummary() {
-  return request.get<{ pendingShipCount: number; lowStockCount: number; pendingAfterSalesCount: number; total: number }>('/admin/notice/summary')
+  return request.get<{ pendingShipCount: number; lowStockCount: number; pendingAfterSalesCount: number; pendingTicketCount: number; total: number }>('/admin/notice/summary')
 }
 
 /** 口碑分析同步：拉取未分析评价调用 AI 服务批量分析并回写 */
@@ -490,4 +492,14 @@ export function rebuildKbIndex() {
 /** 商品召回索引全量重建（商品变更后有异步增量通知，这里是兜底修复） */
 export function rebuildKbProductIndex() {
   return request.post<IdOrNum>('/admin/ai/kb/products/index')
+}
+
+// ─── AI 转人工工单（/admin/ai/ticket/**，运营专员由后端拦截器拒绝） ───
+
+export function listAiTickets(params: { status?: number; pageNum?: number; pageSize?: number }) {
+  return request.get<AiTicketPageVO>('/admin/ai/ticket/list', { params })
+}
+
+export function handleAiTicket(id: number, data: AiTicketHandleRequest) {
+  return request.post<boolean>(`/admin/ai/ticket/${id}/handle`, data)
 }

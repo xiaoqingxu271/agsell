@@ -3,12 +3,17 @@ package com.lichun.agsell.controller.user;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.lichun.agsell.common.BaseResponse;
+import com.lichun.agsell.exception.BusinessException;
+import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.mapper.AfterSalesMapper;
+import com.lichun.agsell.mapper.AiTicketMapper;
 import com.lichun.agsell.mapper.OrderItemMapper;
 import com.lichun.agsell.mapper.OrderMapper;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.mapper.ReviewMapper;
 import com.lichun.agsell.model.dto.AiProductSearchRequest;
+import com.lichun.agsell.model.dto.AiTicketCreateRequest;
+import com.lichun.agsell.model.entity.AiTicket;
 import com.lichun.agsell.model.entity.Product;
 import com.lichun.agsell.model.entity.Review;
 import com.lichun.agsell.model.vo.AiProductVO;
@@ -18,6 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -26,6 +32,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -48,6 +56,9 @@ class AiInternalControllerTest {
 
     @Mock
     private ReviewMapper reviewMapper;
+
+    @Mock
+    private AiTicketMapper aiTicketMapper;
 
     @InjectMocks
     private AiInternalController controller;
@@ -119,5 +130,45 @@ class AiInternalControllerTest {
         assertEquals(0, data.get(0).getReviewCount());
         assertNull(data.get(0).getPositiveRate());
         assertNull(data.get(0).getTopKeywords());
+    }
+
+    @Test
+    @DisplayName("转人工工单落库：游客（userId 为空）同样接受，入参 trim 后入库")
+    void createTicketAcceptsGuestAndTrims() {
+        when(aiTicketMapper.insert(any(AiTicket.class))).thenReturn(1);
+
+        AiTicketCreateRequest req = new AiTicketCreateRequest();
+        req.setSessionId("  wx_abc  ");
+        req.setQuestion("  我要投诉配送  ");
+        req.setReason("用户明确要求人工跟进");
+
+        BaseResponse<Long> resp = controller.createTicket(req);
+
+        assertEquals(0, resp.getCode());
+        ArgumentCaptor<AiTicket> captor = ArgumentCaptor.forClass(AiTicket.class);
+        verify(aiTicketMapper).insert(captor.capture());
+        AiTicket saved = captor.getValue();
+        assertEquals("wx_abc", saved.getSessionId());
+        assertEquals("我要投诉配送", saved.getQuestion());
+        assertEquals(0, saved.getStatus());
+        assertEquals(null, saved.getUserId());
+    }
+
+    @Test
+    @DisplayName("空 sessionId / 空 question 在 Java 侧拒绝，不产生空壳工单")
+    void createTicketValidatesRequiredFields() {
+        AiTicketCreateRequest noSession = new AiTicketCreateRequest();
+        noSession.setSessionId(" ");
+        noSession.setQuestion("q");
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(),
+                assertThrows(BusinessException.class, () -> controller.createTicket(noSession)).getCode());
+
+        AiTicketCreateRequest noQuestion = new AiTicketCreateRequest();
+        noQuestion.setSessionId("s");
+        noQuestion.setQuestion("   ");
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(),
+                assertThrows(BusinessException.class, () -> controller.createTicket(noQuestion)).getCode());
+
+        verify(aiTicketMapper, never()).insert(any(AiTicket.class));
     }
 }

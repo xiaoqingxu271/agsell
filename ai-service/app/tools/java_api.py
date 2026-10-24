@@ -8,11 +8,14 @@
 统一响应：{code: 0, data: ..., message: "ok"}，code != 0 视为失败。
 """
 import json
+import logging
 from typing import Any
 
 import httpx
 
 from app.config import settings
+
+logger = logging.getLogger("agsell.ai.java_api")
 
 
 class JavaApiError(Exception):
@@ -66,6 +69,28 @@ def query_after_sales(user_id: int, status: int | None = None) -> list[dict]:
     """查询用户最近售后/退款记录"""
     data = _post("/ai/internal/after-sales/list", {"userId": user_id, "status": status})
     return data or []
+
+
+def create_human_ticket(
+    user_id: int | None, session_id: str, question: str, reason: str
+) -> bool:
+    """转人工工单落库：POST /ai/internal/ticket（Java 侧 ai_ticket 表，管理后台「AI 工单」页处理）。
+
+    只在 escalate_human 真正触发后调用；失败由调用方记日志吞掉——工单丢了不该影响对话回复。
+    """
+    payload: dict = {
+        "sessionId": session_id,
+        "question": (question or "").strip()[:500],
+        "reason": (reason or "").strip()[:255] or None,
+    }
+    if user_id is not None:
+        payload["userId"] = user_id
+    try:
+        _post("/ai/internal/ticket", payload)
+        return True
+    except JavaApiError as e:
+        logger.warning("转人工工单落库失败（忽略）：sessionId=%s, %s", session_id, e)
+        return False
 
 
 def search_products(
