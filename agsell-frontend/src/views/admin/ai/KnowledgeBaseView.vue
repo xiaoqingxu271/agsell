@@ -87,10 +87,25 @@ const categoryOptions = computed(() => {
 
 const labelOf = (key: string) => CATEGORY_LABELS[key] ?? key
 
-/** 工具调用条形宽度：以最大值为 100% 基准 */
+/** 工具调用分布：按调用量降序，和「工具调用次数」合计共用一份展开 */
+// byTool 的值经 Java 代理转发后可能是字符串（实测出现过 "0"+"1" 拼成 "01"），统一转数值
+const toolEntries = computed(() =>
+  Object.entries(ops.value?.byTool ?? {})
+    .map(([tool, n]) => [tool, Number(n)] as const)
+    .sort((a, b) => b[1] - a[1]),
+)
+const toolTotalCalls = computed(() =>
+  toolEntries.value.reduce((sum, [, n]) => sum + n, 0),
+)
+/** 工具条宽度：以最大调用量为基准，最低 6% 保证可见 */
 function toolBarWidth(count: number): string {
-  const max = Math.max(...Object.values(ops.value?.byTool ?? { a: 1 }))
+  const max = Math.max(1, ...toolEntries.value.map(([, n]) => n))
   return `${Math.max(6, Math.round((count / max) * 100))}%`
+}
+/** 每日对话量条高：28px 轨道内按占比伸缩，0 次也给 2px 底线标记当天 */
+function dailyBarHeight(count: number): string {
+  const max = Math.max(1, ...(ops.value?.daily ?? []).map((d) => d.count))
+  return `${Math.max(count > 0 ? 4 : 2, Math.round((count / max) * 28))}px`
 }
 
 async function fetchStats() {
@@ -372,20 +387,48 @@ onMounted(reload)
       <template #header>
         <div class="admin-card-header">
           <span class="admin-card-title">近 7 日 AI 运营</span>
-          <el-tag type="info" effect="plain" size="small">对话 {{ ops.totalTurns }} 轮</el-tag>
+          <span class="kb-ops-window">统计窗口：近 7 天</span>
         </div>
       </template>
-      <div class="kb-ops-row">
-        <div class="kb-ops-num">
+      <div class="kb-ops-metrics">
+        <div class="kb-stat">
           <span class="kb-num">{{ ops.totalTurns }}</span>
           <span class="kb-lbl">对话轮数</span>
         </div>
-        <div class="kb-ops-num">
-          <span class="kb-num">{{ (ops.refusalRate * 100).toFixed(1) }}%</span>
-          <span class="kb-lbl">拒答率（{{ ops.refusedTurns }} 轮）</span>
+        <div class="kb-stat">
+          <span class="kb-num">{{ ops.refusedTurns }}</span>
+          <span class="kb-lbl">拒答轮数</span>
         </div>
+        <div class="kb-stat">
+          <span class="kb-num">{{ (ops.refusalRate * 100).toFixed(1) }}%</span>
+          <span class="kb-lbl">拒答率</span>
+        </div>
+        <div class="kb-stat">
+          <span class="kb-num">{{ toolTotalCalls }}</span>
+          <span class="kb-lbl">工具调用次数</span>
+        </div>
+      </div>
+
+      <div v-if="ops.daily?.length" class="kb-ops-section">
+        <span class="kb-ops-caption">每日对话量</span>
+        <div class="kb-ops-daily">
+          <div v-for="d in ops.daily" :key="d.date" class="kb-ops-day">
+            <div class="kb-ops-day-track">
+              <div
+                class="kb-ops-day-bar"
+                :class="{ zero: d.count === 0 }"
+                :style="{ height: dailyBarHeight(d.count) }"
+              ></div>
+            </div>
+            <span class="kb-ops-day-date">{{ d.date.slice(5) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="toolEntries.length" class="kb-ops-section">
+        <span class="kb-ops-caption">工具调用分布</span>
         <div class="kb-ops-tools">
-          <div v-for="(count, tool) in ops.byTool" :key="tool" class="kb-ops-tool">
+          <div v-for="[tool, count] in toolEntries" :key="tool" class="kb-ops-tool">
             <span class="kb-ops-tool-name">{{ tool }}</span>
             <div class="kb-ops-bar-wrap">
               <div class="kb-ops-bar" :style="{ width: toolBarWidth(count) }"></div>
@@ -607,8 +650,7 @@ onMounted(reload)
   margin-top: 4px;
   width: 100%;
 }
-</style>
-
+/* ── 近 7 日被 AI 引用 Top ── */
 .kb-hit-list {
   display: flex;
   flex-direction: column;
@@ -632,23 +674,69 @@ onMounted(reload)
   font-size: 13px;
 }
 
-.kb-ops-row {
-  display: flex;
-  gap: 28px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+/* ── 近 7 日 AI 运营 ── */
+.kb-ops-window {
+  font-size: 12px;
+  color: #8a9a91;
 }
 
-.kb-ops-num {
+.kb-ops-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px 20px;
+}
+
+.kb-ops-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+
+.kb-ops-caption {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #8a9a91;
+}
+
+.kb-ops-daily {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 110px;
+  gap: 10px;
+}
+
+.kb-ops-day {
+  flex: 1;
+  min-width: 0;
+}
+
+.kb-ops-day-track {
+  height: 28px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.kb-ops-day-bar {
+  width: 100%;
+  max-width: 26px;
+  margin: 0 auto;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--el-color-primary-light-3), var(--el-color-primary));
+}
+
+.kb-ops-day-bar.zero {
+  background: var(--el-fill-color);
+}
+
+.kb-ops-day-date {
+  display: block;
+  margin-top: 6px;
+  text-align: center;
+  font-size: 11px;
+  color: #8a9a91;
+  font-variant-numeric: tabular-nums;
 }
 
 .kb-ops-tools {
-  flex: 1;
-  min-width: 240px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -657,34 +745,38 @@ onMounted(reload)
 .kb-ops-tool {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 12px;
+  gap: 12px;
+  font-size: 12.5px;
 }
 
 .kb-ops-tool-name {
-  width: 120px;
+  width: 132px;
+  flex-shrink: 0;
   color: var(--el-text-color-secondary);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  text-align: right;
 }
 
 .kb-ops-bar-wrap {
   flex: 1;
-  height: 10px;
+  height: 8px;
   background: var(--el-fill-color-light);
-  border-radius: 5px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .kb-ops-bar {
   height: 100%;
-  background: var(--el-color-primary);
-  border-radius: 5px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--el-color-primary-light-3), var(--el-color-primary));
 }
 
 .kb-ops-tool-count {
-  width: 36px;
+  width: 40px;
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
   color: var(--el-text-color-primary);
 }
+</style>
