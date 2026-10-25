@@ -101,8 +101,9 @@ async function handleBatchStatus(status: number) {
   )
   batchLoading.value = true
   try {
+    // id 保持字符串原样：19 位雪花 ID 转 Number 丢精度
     const updated = await batchUpdateProductStatus(
-      selection.value.map((row) => Number(row.id)), status)
+      selection.value.map((row) => row.id), status)
     ElMessage.success(`已${actionText} ${Number(updated)} 个商品`)
     tableRef.value?.clearSelection()
     fetchList()
@@ -118,24 +119,24 @@ const editing = ref<{ id: number; field: 'price' | 'stock' } | null>(null)
 const editValue = ref(0)
 
 function isEditing(row: ProductListItemVO, field: 'price' | 'stock') {
-  return editing.value?.id === Number(row.id) && editing.value?.field === field
+  return String(editing.value?.id) === String(row.id) && editing.value?.field === field
 }
 
 function startEdit(row: ProductListItemVO, field: 'price' | 'stock') {
-  editing.value = { id: Number(row.id), field }
+  editing.value = { id: row.id, field }
   editValue.value = Number(field === 'price' ? row.price : row.stock) || 0
 }
 
 async function saveEdit(row: ProductListItemVO, field: 'price' | 'stock') {
   // 回车与失焦都会触发：保存成功后 editing 置空，第二次调用直接跳过
-  if (!editing.value || editing.value.id !== Number(row.id) || editing.value.field !== field) return
+  if (!editing.value || String(editing.value.id) !== String(row.id) || editing.value.field !== field) return
   const val = editValue.value
   if (val < 0) {
     ElMessage.warning('不能为负数')
     return
   }
   try {
-    await quickEditProduct(Number(row.id), field === 'price' ? { price: val } : { stock: Math.round(val) })
+    await quickEditProduct(row.id, field === 'price' ? { price: val } : { stock: Math.round(val) })
     if (field === 'price') row.price = val
     else row.stock = Math.round(val)
     ElMessage.success('已保存')

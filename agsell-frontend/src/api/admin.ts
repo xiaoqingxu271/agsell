@@ -148,17 +148,18 @@ export function updateProductStatus(id: number, status: number) {
 /** 订单列表（分页+筛选） */
 
 /** 批量上架/下架（列表多选），返回实际更新条数 */
-export function batchUpdateProductStatus(ids: number[], status: number) {
+export function batchUpdateProductStatus(ids: IdOrNum[], status: number) {
+  // ids 保持字符串原样：19 位雪花 ID 转 Number 丢精度，后端 JSON 字符串可反序列化为 Long
   return request.post<number>('/admin/product/batch', { ids, status })
 }
 
 /** 列表内联快速编辑价格/库存（只改传了的字段） */
-export function quickEditProduct(id: number, data: { price?: number; stock?: number }) {
+export function quickEditProduct(id: IdOrNum, data: { price?: number; stock?: number }) {
   return request.put<boolean>(`/admin/product/${id}/quick-edit`, data)
 }
 
 /** 分类排序批量保存（拖拽排序后提交） */
-export function saveCategorySort(items: { id: number; sort: number }[]) {
+export function saveCategorySort(items: { id: IdOrNum; sort: number }[]) {
   return request.put<number>('/admin/category/sort', { items })
 }
 

@@ -11,6 +11,7 @@ import {
 import { uploadFile } from '@/api/upload'
 import Sortable from 'sortablejs'
 import type { SortableEvent } from 'sortablejs'
+import { Rank } from '@element-plus/icons-vue'
 import type { CategoryListItemVO, CategoryCreateRequest } from '@/types'
 import PageHeader from '@/components/admin/PageHeader.vue'
 
@@ -34,7 +35,8 @@ async function onDragEnd(evt: SortableEvent) {
   if (!moved) return
   rows.splice(newIndex, 0, moved)
   const base = (page.value - 1) * pageSize.value
-  const items = rows.map((row, i) => ({ id: Number(row.id), sort: base + rows.length - i }))
+  // id 保持字符串原样：19 位雪花 ID 转 Number 会丢精度（后端按字符串反序列化为 Long）
+  const items = rows.map((row, i) => ({ id: row.id, sort: base + rows.length - i }))
   sortSaving.value = true
   try {
     await saveCategorySort(items)
@@ -239,10 +241,14 @@ onMounted(async () => {
         :border="false"
         style="width: 100%"
       >
-        <el-table-column width="46" align="center">
-          <template #header><span title="拖动调整顺序">⇅</span></template>
+        <el-table-column width="56" align="center">
+          <template #header>
+            <span title="按住左侧把手上下拖动，可调整分类显示顺序">排序</span>
+          </template>
           <template #default>
-            <span class="drag-handle" title="拖动调整顺序">⋮⋮</span>
+            <el-tooltip content="拖动调整顺序" placement="top">
+              <el-icon class="drag-handle"><Rank /></el-icon>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column prop="id" label="ID" width="200" align="center" show-overflow-tooltip />
@@ -390,8 +396,12 @@ onMounted(async () => {
 .drag-handle {
   cursor: grab;
   color: var(--el-text-color-secondary);
-  letter-spacing: -2px;
+  font-size: 18px;
   user-select: none;
+}
+
+.drag-handle:hover {
+  color: var(--el-color-primary);
 }
 
 .drag-handle:active {
