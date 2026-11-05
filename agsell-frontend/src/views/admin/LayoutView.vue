@@ -38,8 +38,8 @@ const initial = computed(() => displayName.value.trim().charAt(0) || '管')
 
 // ── 角色 → 可见模块（对应 系统管理模块开发文档 §3.2 权限矩阵，与后端拦截器口径一致）──
 const roleModules: Record<string, string[]> = {
-  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'announcements', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket', 'aiChatLog', 'system'],
-  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'announcements', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket', 'aiChatLog'],
+  SUPER_ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'announcements', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket', 'aiChatLog', 'aiConfig', 'system'],
+  ADMIN: ['dashboard', 'users', 'categories', 'products', 'orders', 'reviews', 'afterSales', 'banners', 'announcements', 'traceability', 'seckill', 'coupon', 'hotWord', 'aiKb', 'aiTicket', 'aiChatLog', 'aiConfig'],
   OPERATOR: ['dashboard', 'categories', 'products', 'orders'],
 }
 const currentRole = computed(() => adminStore.adminInfo?.role ?? '')
@@ -231,6 +231,10 @@ async function handleLogout() {
           <el-menu-item v-if="canAccess('aiChatLog')" index="/admin/ai/chatlog">
             <el-icon><Document /></el-icon>
             <span>AI 对话审计</span>
+          </el-menu-item>
+          <el-menu-item v-if="canAccess('aiConfig')" index="/admin/ai/config">
+            <el-icon><Tools /></el-icon>
+            <span>AI 运营配置</span>
           </el-menu-item>
         </el-menu-item-group>
 

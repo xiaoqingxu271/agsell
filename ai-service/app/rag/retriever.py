@@ -29,6 +29,7 @@ import logging
 
 from sqlalchemy import text
 
+from app import runtime_config
 from app.config import settings
 from app.db import SessionLocal
 from app.rag.vectorstore import VectorStore
@@ -55,8 +56,10 @@ class Retriever:
         self._vs = vector_store
         self._faq_repo = faq_repo
         self._session_factory = session_factory or SessionLocal
-        self._top_k = top_k or settings.KB_TOP_K
-        self._threshold = settings.KB_SCORE_THRESHOLD if score_threshold is None else score_threshold
+        # 显式传参（单测/实验脚本做对比）优先级最高；否则每次 retrieve 时读运行时配置
+        #（管理端「AI 运营配置」页可调，60s TTL），构造时固化会让调参要重启才生效
+        self._top_k_override = top_k
+        self._threshold_override = score_threshold
         # 低区分度通用词（"推荐/什么时候"等）：命中不加权、也不豁免拒答阈值
         # （量化实验五改进方向落地：修复"推荐一部电影"被关键词通道带进知识库答案）
         self._stopwords = {
@@ -77,9 +80,14 @@ class Retriever:
         向量召回得分 < score_threshold 的条目不进入向量通道（0 或负数 = 关闭阈值）；
         关键词/全文通道的条目有词面证据，始终保留。
         """
-        k = top_k or self._top_k
+        k = top_k or self._top_k_override or runtime_config.effective("ai_kb_top_k")
+        threshold = (
+            self._threshold_override
+            if self._threshold_override is not None
+            else runtime_config.effective("ai_kb_score_threshold")
+        )
         # 重排开启时召回更深（融合分只作重排前的保底序），最终仍只返回 top_k
-        rerank_on = settings.RERANK_ENABLED
+        rerank_on = runtime_config.effective("ai_rerank_enabled")
         k_recall = max(k, settings.RERANK_RECALL_DEPTH) if rerank_on else k
 
         # ---------- 三通道各自召回，产出 {id: 条目} 与分数 ----------
@@ -91,7 +99,7 @@ class Retriever:
         vector_hits: list[dict] = []
         vector_categories: dict[int, str] = {}
         for hit in self._vs.query(question, top_k=k_recall * 2):
-            if self._threshold and self._threshold > 0 and hit["score"] < self._threshold:
+            if threshold and threshold > 0 and hit["score"] < threshold:
                 continue
             vector_hits.append({"id": hit["id"], "question": hit["question"], "score": hit["score"]})
             vector_scores[hit["id"]] = hit["score"]

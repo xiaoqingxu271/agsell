@@ -10,6 +10,7 @@ import com.lichun.agsell.annotation.OperationLog;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.model.dto.AiFaqRequest;
 import com.lichun.agsell.model.entity.Product;
+import com.lichun.agsell.model.vo.AiConfigItemVO;
 import com.lichun.agsell.model.vo.AiDocListVO;
 import com.lichun.agsell.model.vo.AiDocUploadVO;
 import com.lichun.agsell.model.vo.AiFaqCreateVO;
@@ -33,7 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * 管理端-AI 知识库维护（RAG 知识条数、FAQ 增删改查、两个索引的重建）。
@@ -157,6 +160,20 @@ public class AdminAiKbController {
     public BaseResponse<Long> deleteDocument(@RequestParam String name) {
         ThrowUtils.throwIf(name == null || name.isBlank(), ErrorCode.PARAMS_ERROR, "文档名不能为空");
         return ResultUtils.success(aiKbClient.deleteDocument(name));
+    }
+
+    @Operation(summary = "AI 运行参数快照（检索条数/闸门阈值/重排开关/编排上限）")
+    @GetMapping("/config")
+    public BaseResponse<List<AiConfigItemVO>> getConfig() {
+        return ResultUtils.success(aiKbClient.getConfig());
+    }
+
+    @Operation(summary = "批量更新 AI 运行参数（PUT 后立即生效，无需重启）")
+    @OperationLog(module = "AI 知识库", action = "更新 AI 配置", content = "批量更新 AI 运行参数")
+    @PutMapping("/config")
+    public BaseResponse<List<AiConfigItemVO>> updateConfig(@RequestBody Map<String, String> values) {
+        ThrowUtils.throwIf(values == null || values.isEmpty(), ErrorCode.PARAMS_ERROR, "没有要更新的配置项");
+        return ResultUtils.success(aiKbClient.updateConfig(values));
     }
 
     /**

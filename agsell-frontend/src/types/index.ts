@@ -640,6 +640,21 @@ export interface AiDocListVO {
 }
 
 /**
+ * AI 运行参数条目（管理端可调，PUT 后立即生效）。value/default 混合类型按 type 渲染。
+ * overridden=有自定义覆盖记录（覆盖成默认值也算，便于运营清理）。
+ */
+export interface AiConfigItemVO {
+  key: string
+  description: string
+  type: 'bool' | 'int' | 'float' | string
+  value: number | boolean | null
+  default: number | boolean | null
+  overridden: boolean
+  min: number | null
+  max: number | null
+}
+
+/**
  * 知识库与索引状态。三个数分列是刻意的：只看 faqCount 会以为"知识都入库了"，
  * 真正决定 AI 能不能答的是 indexedCount；productIndexedCount 落后于
  * onSaleProductCount 就是"上了新品但 AI 召不到"。

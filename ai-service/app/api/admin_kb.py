@@ -65,6 +65,12 @@ class ProductIndexRequest(BaseModel):
     productIds: list = Field(default_factory=list, min_length=1, max_length=200)
 
 
+class ConfigUpdate(BaseModel):
+    """AI 运行参数批量更新：{key: 字符串值}。只处理白名单键，其余忽略。"""
+
+    values: dict[str, str] = Field(default_factory=dict)
+
+
 def _check_admin_key(x_internal_key: str | None = Header(default=None)) -> None:
     """管理端点鉴权：只认 X-Internal-Key（与其余服务间端点同名），且必须已配置（fail-closed）。
 
@@ -173,6 +179,29 @@ def ops(days: int = Query(default=7, ge=1, le=30), _=Depends(_check_admin_key)):
     from app import kb_hit_log  # 延迟导入避免循环依赖
 
     return kb_hit_log.ops_summary(settings.KB_HIT_LOG_PATH, days=days)
+
+
+@router.get("/config")
+def get_ai_config(_=Depends(_check_admin_key)):
+    """AI 运行参数快照（当前值/默认值/是否被覆盖/边界），供管理端「AI 运营配置」页展示"""
+    from app import runtime_config
+
+    return {"items": runtime_config.snapshot()}
+
+
+@router.put("/config")
+def put_ai_config(body: ConfigUpdate, _=Depends(_check_admin_key)):
+    """更新 AI 运行参数（sys_config 的 ai_* 白名单键，PUT 后立即生效无需重启）。
+
+    值非法（非数值/越界之外解析失败）整批 400；越界值会被夹取到边界并生效。
+    """
+    from app import runtime_config
+
+    try:
+        updated = runtime_config.set_values(body.values or {})
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    return {"updated": updated, "items": runtime_config.snapshot()}
 
 
 @router.get("/faqs")

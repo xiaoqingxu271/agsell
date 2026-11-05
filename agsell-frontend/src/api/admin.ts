@@ -3,6 +3,7 @@ import type {
   AdminInfoVO,
   SentimentStatsVO,
   AiChatLogVO,
+  AiConfigItemVO,
   AiDocListVO,
   AiDocUploadVO,
   AiFaqCreateVO,
@@ -537,6 +538,16 @@ export function listKbDocuments() {
 /** 删除文档（整批下架 + 从索引除名），返回删除块数 */
 export function deleteKbDocument(name: string) {
   return request.delete<IdOrNum>('/admin/ai/kb/document', { params: { name } })
+}
+
+/** AI 运行参数快照（当前值/默认值/是否覆盖/边界） */
+export function getAiConfig() {
+  return request.get<AiConfigItemVO[]>('/admin/ai/kb/config')
+}
+
+/** 批量更新 AI 运行参数（Python 端 PUT 后立即生效），返回更新后的全量快照 */
+export function updateAiConfig(values: Record<string, string>) {
+  return request.put<AiConfigItemVO[]>('/admin/ai/kb/config', values)
 }
 
 // ─── AI 对话审计（/admin/ai/chatlog，只读） ──────────────────────────────────

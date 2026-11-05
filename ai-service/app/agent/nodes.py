@@ -28,6 +28,7 @@ from langchain_core.messages import (
 from app.agent.executors import build_contextual_query, load_product_context, run_tool
 from app.agent.intent import _extract_order_no, _hard_rule, classify_full, count_demands, looks_multi_demand
 from app.agent.tool_defs import TOOL_SCHEMAS
+from app import runtime_config
 from app.config import settings
 from app.prompts import (
     AGENT_PLAN_BROWSING_NOTE,
@@ -186,7 +187,9 @@ def make_agent_node(llm, ctx, tool_schemas=None):
 
         # 历史只给最近几条：规划器的任务是"决定调哪个工具"，不需要整段对话
         history = [m for m in list(state["messages"])[:-1]][-_PLANNER_HISTORY_TURNS:]
-        plan_system = build_agent_plan_prompt(settings.PLATFORM_NAME, settings.AGENT_MAX_STEPS)
+        max_steps = runtime_config.effective("ai_agent_max_steps")
+        max_calls = runtime_config.effective("ai_agent_max_tool_calls")
+        plan_system = build_agent_plan_prompt(settings.PLATFORM_NAME, max_steps)
         if facts:
             # 不告诉它"这个"是什么，模型会因为指代补不出来而干脆不调工具（E2E 实测：反问用户"您指哪款"）
             plan_system = AGENT_PLAN_BROWSING_NOTE.format(facts=facts) + plan_system
@@ -200,8 +203,8 @@ def make_agent_node(llm, ctx, tool_schemas=None):
         # 多诉求覆盖保证：连接词/句读确定性计数，诉求多于已执行工具数时跳过提前退出，
         # 让第二步规划变成"补齐核对轮"（实测 3 条探针 1 条漏答的修复，单诉求零代价）
         demands = count_demands(question) if looks_multi_demand(question) else 1
-        for _step in range(settings.AGENT_MAX_STEPS):
-            if calls >= settings.AGENT_MAX_TOOL_CALLS:
+        for _step in range(max_steps):
+            if calls >= max_calls:
                 break
             if _step > 0 and demands > 1:
                 # 补齐轮提示：告诉模型对照逐个诉求核对，缺哪个补哪个
@@ -221,8 +224,8 @@ def make_agent_node(llm, ctx, tool_schemas=None):
             messages.append(resp)
             step_obs: list = []
             for tc in tool_calls:
-                if calls >= settings.AGENT_MAX_TOOL_CALLS:
-                    logger.warning("单轮工具调用数达上限 %s，截断剩余调用", settings.AGENT_MAX_TOOL_CALLS)
+                if calls >= max_calls:
+                    logger.warning("单轮工具调用数达上限 %s，截断剩余调用", max_calls)
                     break
                 name = tc.get("name") or ""
                 args = tc.get("args") or {}

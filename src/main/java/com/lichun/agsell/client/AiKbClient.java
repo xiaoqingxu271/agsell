@@ -7,6 +7,7 @@ import cn.hutool.json.JSONUtil;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.model.dto.AiFaqRequest;
+import com.lichun.agsell.model.vo.AiConfigItemVO;
 import com.lichun.agsell.model.vo.AiDocListVO;
 import com.lichun.agsell.model.vo.AiDocUploadVO;
 import com.lichun.agsell.model.vo.AiFaqCreateVO;
@@ -131,6 +132,18 @@ public class AiKbClient {
                 .getLong("deleted", 0L);
     }
 
+    /** AI 运行参数快照（当前值/默认值/是否覆盖/边界） */
+    public List<AiConfigItemVO> getConfig() {
+        return parseConfig(get("/v1/admin/kb/config", CRUD_TIMEOUT_MS));
+    }
+
+    /** 批量更新运行参数（Python 侧 PUT 后立即生效），返回更新后的全量快照 */
+    public List<AiConfigItemVO> updateConfig(Map<String, String> values) {
+        JSONObject payload = new JSONObject();
+        values.forEach(payload::set);
+        return parseConfig(put("/v1/admin/kb/config", payload.toString(), CRUD_TIMEOUT_MS));
+    }
+
     /** 商品召回索引全量重建（上一步失灵或历史脏数据时的兜底修复） */
     public long rebuildProductIndex() {
         return JSONUtil.parseObj(post("/v1/admin/kb/products/index", "{}", REBUILD_TIMEOUT_MS))
@@ -217,6 +230,28 @@ public class AiKbClient {
         }
         vo.setItems(items);
         return vo;
+    }
+
+    static List<AiConfigItemVO> parseConfig(String json) {
+        JSONObject obj = JSONUtil.parseObj(json);
+        List<AiConfigItemVO> items = new ArrayList<>();
+        JSONArray arr = obj.getJSONArray("items");
+        if (arr != null) {
+            for (int i = 0; i < arr.size(); i++) {
+                JSONObject row = arr.getJSONObject(i);
+                AiConfigItemVO vo = new AiConfigItemVO();
+                vo.setKey(row.getStr("key"));
+                vo.setDescription(row.getStr("description"));
+                vo.setType(row.getStr("type"));
+                vo.setValue(row.get("value"));
+                vo.setDefaultValue(row.get("default"));
+                vo.setOverridden(row.getBool("overridden", false));
+                vo.setMin(row.get("min"));
+                vo.setMax(row.get("max"));
+                items.add(vo);
+            }
+        }
+        return items;
     }
 
     static AiOpsSummaryVO parseOps(String json) {
