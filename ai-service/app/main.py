@@ -38,6 +38,7 @@ from app.rag.retriever import Retriever
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
 from app import checkpoint_maintenance, kb_hit_log
+from app.reply_sanitizer import MarkdownStripper, sanitize_reply_text
 from app.schemas.chat import ChatRequest, ChatResponse, HealthResponse
 from app.security import check_service_key as _check_service_key
 from app.tools import tickets as _tickets
@@ -262,8 +263,8 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
             # 不加前缀时带上别人的 sessionId 就能接走对方的多轮上下文（含订单号、金额）。
             config={"configurable": {"thread_id": thread_id}},
         )
-        # 去除回复首尾空白（Agnes 常带前导换行，避免客户端气泡顶部空白）
-        reply = (result["messages"][-1].content or "").strip()
+        # 剥 Markdown 标记并去除首尾空白（Agnes 常带前导换行 + 偶发 **加粗**，避免用户看到星号）
+        reply = sanitize_reply_text(result["messages"][-1].content or "")
         suggestions = result.get("suggestions") or []
         # 转人工闭环：本轮触发 escalate_human（规则短路或智能体）→ 回调 Java 落一张工单，
         # 管理后台才能跟进。尽力而为，失败只记日志，不影响已生成的回复。
@@ -341,6 +342,7 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
     turn_intent = ""            # 运营统计：规则前置标签
     turn_tools: list[str] = []  # 运营统计：本轮用过的工具
     turn_refused = False        # 运营统计：是否走了拒答出口
+    stripper = MarkdownStripper()  # token 下发前剥 Markdown 标记（** 常拆在相邻 token 里）
     try:
         graph = get_graph()
         async for mode, payload in graph.astream(
@@ -357,7 +359,7 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                 chunk, meta = payload
                 node = (meta or {}).get("langgraph_node")
                 if node in _STREAMING_NODES:
-                    text = _chunk_text(chunk)
+                    text = stripper.feed(_chunk_text(chunk))
                     if text:
                         collected.append(text)
                         yield _sse("token", {"content": text})
@@ -403,13 +405,19 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                         if out.get("suggestions"):
                             suggestions = out["suggestions"]
 
+        # 行首被缓存等待裁决的最后一个字符（如以"-"结尾）随流收尾吐出
+        tail = stripper.flush()
+        if tail:
+            collected.append(tail)
+            yield _sse("token", {"content": tail})
+
         # 兜底：未流式出任何 token（转人工兜底 / 降级话术 / 工具异常文案），
         # 从最终会话状态取最后一条 AI 消息一次性下发，保证前端气泡不为空
         if not collected:
             snapshot = await graph.aget_state(thread_config)
             messages = (snapshot.values or {}).get("messages") or []
             last = messages[-1] if messages else None
-            text = (last.content or "").strip() if isinstance(last, AIMessage) else ""
+            text = sanitize_reply_text((last.content or "") if isinstance(last, AIMessage) else "")
             if text:
                 collected.append(text)
                 yield _sse("token", {"content": text})

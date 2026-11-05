@@ -40,6 +40,7 @@ from app.prompts import (
     build_rec_refusal_reply,
     build_smalltalk_prompt,
 )
+from app.reply_sanitizer import sanitize_reply_text
 
 logger = logging.getLogger("agsell.ai.nodes")
 
@@ -425,6 +426,9 @@ def _invoke_and_finish(llm, system_prompt: str, state: dict) -> dict:
     messages = _build_messages(system_prompt, state["messages"])
     try:
         response = llm.invoke(messages)
+        if isinstance(response.content, str):
+            # 提示词约束之外的确定性兜底：模型偶发 Markdown 标记（**加粗**）在这里剥掉
+            response.content = sanitize_reply_text(response.content)
     except Exception as e:  # 阶段五：Agnes 限流/超时/断网 → 降级话术，不白屏
         logger.warning("生成节点 LLM 调用失败，降级话术：%s: %s", type(e).__name__, e)
         response = AIMessage(
@@ -445,6 +449,8 @@ def make_smalltalk_node(llm):
         )
         try:
             response = llm.invoke(messages)
+            if isinstance(response.content, str):
+                response.content = sanitize_reply_text(response.content)
         except Exception as e:  # 阶段五：降级话术
             logger.warning("闲聊节点 LLM 调用失败，降级话术：%s: %s", type(e).__name__, e)
             response = AIMessage(
