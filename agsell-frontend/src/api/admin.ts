@@ -2,6 +2,8 @@ import request from '@/utils/request'
 import type {
   AdminInfoVO,
   SentimentStatsVO,
+  AiDocListVO,
+  AiDocUploadVO,
   AiFaqCreateVO,
   AiFaqPageVO,
   AiFaqRequest,
@@ -511,6 +513,29 @@ export function rebuildKbIndex() {
 /** 商品召回索引全量重建（商品变更后有异步增量通知，这里是兜底修复） */
 export function rebuildKbProductIndex() {
   return request.post<IdOrNum>('/admin/ai/kb/products/index')
+}
+
+/**
+ * 上传文档切块入库（txt/md/docx/pdf）。indexed=false 时块已入库但未进索引，
+ * 要提示重建；replaced>0 表示同名旧文档被整批替换。
+ */
+export function uploadKbDocument(file: File, title?: string) {
+  const formData = new FormData()
+  formData.append('file', file)
+  if (title && title.trim()) formData.append('title', title.trim())
+  return request.post<AiDocUploadVO>('/admin/ai/kb/document', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+/** 已入库文档清单（按来源聚合块数） */
+export function listKbDocuments() {
+  return request.get<AiDocListVO>('/admin/ai/kb/document')
+}
+
+/** 删除文档（整批下架 + 从索引除名），返回删除块数 */
+export function deleteKbDocument(name: string) {
+  return request.delete<IdOrNum>('/admin/ai/kb/document', { params: { name } })
 }
 
 // ─── AI 转人工工单（/admin/ai/ticket/**，运营专员由后端拦截器拒绝） ───

@@ -19,6 +19,10 @@ class Faq(Base):
     keywords: Mapped[str] = mapped_column(
         String(255), default="", comment="关键词，逗号分隔，用于关键词召回"
     )
+    source: Mapped[str] = mapped_column(
+        String(100), default="",
+        comment="来源：空=手工/脚本维护，doc:{文档名}=管理端上传文档切块入库",
+    )
     status: Mapped[int] = mapped_column(SmallInteger, default=1, comment="1=启用 0=停用")
     created_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), comment="创建时间"

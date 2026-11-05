@@ -8,6 +8,12 @@ spring:
     name: agsell
   profiles:
     active: ${ACTIVE_PROFILE:local}
+  # 文件上传上限：AI 知识库文档切块入库（10MB 文档 + multipart 表单开销余量）。
+  # Spring 默认单文件 1MB，不放开会把合规大小的政策文档挡在网关层，报错还看不出原因
+  servlet:
+    multipart:
+      max-file-size: 12MB
+      max-request-size: 13MB
   # 数据库配置
   datasource:
     url: jdbc:mysql://${db.host}:${db.port}/agsell?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true

@@ -119,4 +119,32 @@ class AiKbClientTest {
         String withoutData = "{\"faq_count\":280,\"indexed_count\":280,\"product_indexed_count\":202}";
         assertEquals(null, AiKbClient.parseStats(withoutData).getRecentHitTop());
     }
+
+    @Test
+    @DisplayName("文档上传结果解析：chunks/replaced 落数，indexed=false 透传")
+    void parsesDocUpload() {
+        String body = "{\"name\":\"售后政策\",\"chunks\":6,\"replaced\":4,\"indexed\":true,\"model\":\"bge\"}";
+        var vo = AiKbClient.parseDocUpload(body);
+        assertEquals("售后政策", vo.getName());
+        assertEquals(6L, vo.getChunks());
+        assertEquals(4L, vo.getReplaced());
+        assertTrue(vo.isIndexed());
+
+        var fallback = AiKbClient.parseDocUpload("{\"name\":\"x\",\"chunks\":2,\"indexed\":false}");
+        assertFalse(fallback.isIndexed());                        // 索引失败必须一路带到前端
+        assertEquals(0L, fallback.getReplaced());                 // 首次上传无替换，缺字段落 0
+    }
+
+    @Test
+    @DisplayName("文档清单解析：items 缺失给空列表，块数落 0")
+    void parsesDocList() {
+        String body = "{\"items\":[{\"name\":\"A手册\",\"chunks\":3},{\"name\":\"B政策\",\"chunks\":1}]}";
+        var vo = AiKbClient.parseDocList(body);
+        assertEquals(2, vo.getItems().size());
+        assertEquals("A手册", vo.getItems().get(0).getName());
+        assertEquals(3L, vo.getItems().get(0).getChunks());
+
+        assertTrue(AiKbClient.parseDocList("{}").getItems().isEmpty());
+        assertTrue(AiKbClient.parseDocList("{\"items\":[]}").getItems().isEmpty());
+    }
 }

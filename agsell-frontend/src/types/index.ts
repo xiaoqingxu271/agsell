@@ -621,6 +621,24 @@ export interface AiFaqCreateVO {
   indexed: boolean
 }
 
+/** 文档上传入库结果：同名重复上传时 replaced>0（旧块整批替换） */
+export interface AiDocUploadVO {
+  name: string
+  chunks: IdOrNum
+  replaced: IdOrNum
+  indexed: boolean
+}
+
+/** 已入库文档清单条目（按来源聚合，每份文档一条） */
+export interface AiDocItemVO {
+  name: string
+  chunks: IdOrNum
+}
+
+export interface AiDocListVO {
+  items: AiDocItemVO[]
+}
+
 /**
  * 知识库与索引状态。三个数分列是刻意的：只看 faqCount 会以为"知识都入库了"，
  * 真正决定 AI 能不能答的是 indexedCount；productIndexedCount 落后于

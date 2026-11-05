@@ -59,3 +59,11 @@ def delete(session: Session, faq_id: int) -> bool:
 
 def count_enabled(session: Session) -> int:
     return len(session.execute(select(Faq.id).where(Faq.status == 1)).all())
+
+
+def get_many(session: Session, ids: list[int]) -> list[Faq]:
+    """按 id 批量取（文档切块入库后批量构建索引条目用），保持传入顺序"""
+    if not ids:
+        return []
+    rows = {f.id: f for f in session.scalars(select(Faq).where(Faq.id.in_(ids)))}
+    return [rows[i] for i in ids if i in rows]

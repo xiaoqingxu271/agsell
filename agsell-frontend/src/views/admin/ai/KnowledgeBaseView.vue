@@ -11,17 +11,21 @@
  */
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { UploadRequestOptions } from 'element-plus'
 import {
   createKbFaq,
+  deleteKbDocument,
   deleteKbFaq,
   kbStats,
+  listKbDocuments,
   listKbFaqs,
   rebuildKbIndex,
   rebuildKbProductIndex,
   updateKbFaq,
+  uploadKbDocument,
   aiOpsSummary,
 } from '@/api/admin'
-import type { AiFaqRequest, AiFaqVO, AiKbStatsVO, AiOpsSummaryVO } from '@/types'
+import type { AiDocItemVO, AiFaqRequest, AiFaqVO, AiKbStatsVO, AiOpsSummaryVO } from '@/types'
 import PageHeader from '@/components/admin/PageHeader.vue'
 
 /** Long 类字段后端统一序列化成字符串，比较/展示前先归一成数字 */
@@ -300,6 +304,79 @@ async function handleRebuildProduct() {
   }
 }
 
+// ─── 文档知识（上传即入库） ─────────────────────────────────────────
+// 此前知识库只有手写 Q&A 一条路，产品手册/售后政策这类整篇文档没有入口。
+// 上传后 Python 抽文本 → 切块 → 每块一条 ai_faq（category=doc_knowledge）→ 同步向量索引。
+
+const docItems = ref<AiDocItemVO[]>([])
+const docLoading = ref(false)
+const docUploading = ref(false)
+const ACCEPTED_DOC_EXTS = ['.txt', '.md', '.docx', '.pdf']
+const DOC_MAX_MB = 10
+
+async function fetchDocuments() {
+  docLoading.value = true
+  try {
+    const res = await listKbDocuments()
+    docItems.value = res?.items ?? []
+  } catch {
+    // 拦截器已提示；文档区是增值视图，失败不阻塞主列表
+  } finally {
+    docLoading.value = false
+  }
+}
+
+/** 上传即入库：el-upload 的自定义 http-request（不走 action 地址，统一走 axios 实例） */
+async function handleDocUpload(options: UploadRequestOptions) {
+  const file = options.file as File
+  const lower = file.name.toLowerCase()
+  if (!ACCEPTED_DOC_EXTS.some((ext) => lower.endsWith(ext))) {
+    ElMessage.warning('仅支持 txt / md / docx / pdf 格式')
+    return
+  }
+  if (file.size > DOC_MAX_MB * 1024 * 1024) {
+    ElMessage.warning(`文档过大（上限 ${DOC_MAX_MB}MB）`)
+    return
+  }
+  docUploading.value = true
+  try {
+    const res = await uploadKbDocument(file)
+    const chunks = num(res.chunks)
+    const replaced = num(res.replaced)
+    if (!res.indexed) {
+      ElMessage.warning(`文档《${res.name}》已入库 ${chunks} 块，但索引同步失败——请点右上角「重建 FAQ 索引」`)
+    } else {
+      ElMessage.success(
+        replaced > 0
+          ? `文档《${res.name}》已更新：新切 ${chunks} 块，替换旧版 ${replaced} 块`
+          : `文档《${res.name}》已入库 ${chunks} 块并同步索引`,
+      )
+    }
+    fetchDocuments()
+    fetchStats()
+  } catch {
+    // 拦截器已提示（格式不支持/文件损坏等中文原因由后端透传）
+  } finally {
+    docUploading.value = false
+  }
+}
+
+async function handleDeleteDoc(row: AiDocItemVO) {
+  await ElMessageBox.confirm(
+    `删除文档《${row.name}》会整批下架它的 ${num(row.chunks)} 个知识块，并从向量索引除名。确定继续？`,
+    '提示',
+    { type: 'warning' },
+  )
+  try {
+    const n = Number(await deleteKbDocument(row.name))
+    ElMessage.success(`文档《${row.name}》已删除（${n} 块）`)
+    fetchDocuments()
+    fetchStats()
+  } catch {
+    // 拦截器已提示
+  }
+}
+
 const splitKeywords = (raw: string | null) =>
   (raw ?? '')
     .split(/[,，]/)
@@ -308,7 +385,10 @@ const splitKeywords = (raw: string | null) =>
 
 const formatTime = (t: string | null) => (t ? t.replace('T', ' ').slice(0, 19) : '—')
 
-onMounted(reload)
+onMounted(() => {
+  reload()
+  fetchDocuments()
+})
 </script>
 
 <template>
@@ -454,6 +534,42 @@ onMounted(reload)
           <el-tag size="small" effect="plain">{{ row.hits }} 次引用</el-tag>
         </div>
       </div>
+    </el-card>
+
+    <!-- 文档知识（上传即入库）：产品手册/售后政策整篇文档 → 抽文本 → 切块 → 向量索引。
+         与下方手写 Q&A 条目共用同一张 ai_faq 与索引，检索/引用/运营统计自动兼容。 -->
+    <el-card shadow="never" class="kb-docs">
+      <template #header>
+        <div class="admin-card-header">
+          <span class="admin-card-title">文档知识</span>
+          <div class="kb-tools">
+            <el-upload
+              :show-file-list="false"
+              accept=".txt,.md,.docx,.pdf"
+              :http-request="handleDocUpload"
+            >
+              <el-button type="primary" :loading="docUploading">上传文档</el-button>
+            </el-upload>
+          </div>
+        </div>
+      </template>
+      <el-table v-loading="docLoading" :data="docItems" size="default">
+        <el-table-column prop="name" label="文档名" min-width="220" show-overflow-tooltip />
+        <el-table-column label="知识块数" width="120">
+          <template #default="{ row }">{{ num(row.chunks) }}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="100">
+          <template #default="{ row }">
+            <el-button link type="danger" @click="handleDeleteDoc(row as AiDocItemVO)">删除</el-button>
+          </template>
+        </el-table-column>
+        <template #empty>
+          <el-empty description="暂无文档知识——上传 txt / md / docx / pdf，切块后自动入向量索引" :image-size="72" />
+        </template>
+      </el-table>
+      <p class="kb-hint">
+        同名文档重复上传会整批替换旧版本；切块粒度 320 字（政策条文以条款为单位），删除即刻下架。
+      </p>
     </el-card>
 
     <el-card shadow="never" class="kb-list">

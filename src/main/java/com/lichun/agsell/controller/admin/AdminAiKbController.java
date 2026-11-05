@@ -4,11 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lichun.agsell.client.AiKbClient;
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.utils.ResultUtils;
+import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.annotation.OperationLog;
 import com.lichun.agsell.mapper.ProductMapper;
 import com.lichun.agsell.model.dto.AiFaqRequest;
 import com.lichun.agsell.model.entity.Product;
+import com.lichun.agsell.model.vo.AiDocListVO;
+import com.lichun.agsell.model.vo.AiDocUploadVO;
 import com.lichun.agsell.model.vo.AiFaqCreateVO;
 import com.lichun.agsell.model.vo.AiFaqPageVO;
 import com.lichun.agsell.model.vo.AiKbStatsVO;
@@ -27,6 +30,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Locale;
 
 /**
  * 管理端-AI 知识库维护（RAG 知识条数、FAQ 增删改查、两个索引的重建）。
@@ -111,6 +118,45 @@ public class AdminAiKbController {
     @PostMapping("/products/index")
     public BaseResponse<Long> rebuildProductIndex() {
         return ResultUtils.success(aiKbClient.rebuildProductIndex());
+    }
+
+    /** 文档上传体积上限，与 Python 侧 _DOC_MAX_BYTES 对齐 */
+    private static final long DOC_MAX_BYTES = 10L * 1024 * 1024;
+
+    @Operation(summary = "上传文档切块入库（txt/md/docx/pdf，同名文档幂等替换）")
+    @OperationLog(module = "AI 知识库", action = "上传文档", content = "上传文档切块入库")
+    @PostMapping("/document")
+    public BaseResponse<AiDocUploadVO> uploadDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "title", required = false) String title) {
+        ThrowUtils.throwIf(file == null || file.isEmpty(), ErrorCode.PARAMS_ERROR, "文件内容为空");
+        ThrowUtils.throwIf(file.getSize() > DOC_MAX_BYTES, ErrorCode.PARAMS_ERROR, "文档过大（上限 10MB）");
+        String fileName = file.getOriginalFilename();
+        ThrowUtils.throwIf(fileName == null || fileName.isBlank(), ErrorCode.PARAMS_ERROR, "文件名缺失");
+        String lower = fileName.toLowerCase(Locale.ROOT);
+        boolean supported = lower.endsWith(".txt") || lower.endsWith(".md")
+                || lower.endsWith(".docx") || lower.endsWith(".pdf");
+        ThrowUtils.throwIf(!supported, ErrorCode.PARAMS_ERROR, "仅支持 txt / md / docx / pdf 格式");
+        try {
+            return ResultUtils.success(aiKbClient.uploadDocument(fileName, file.getBytes(), title));
+        } catch (IOException e) {
+            log.error("读取上传文档失败: {}", fileName, e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "读取上传文件失败，请重试");
+        }
+    }
+
+    @Operation(summary = "已入库文档清单（按来源聚合块数）")
+    @GetMapping("/document")
+    public BaseResponse<AiDocListVO> listDocuments() {
+        return ResultUtils.success(aiKbClient.listDocuments());
+    }
+
+    @Operation(summary = "删除文档（整批下架 + 从索引除名），返回删除块数")
+    @OperationLog(module = "AI 知识库", action = "删除文档", content = "删除文档知识")
+    @DeleteMapping("/document")
+    public BaseResponse<Long> deleteDocument(@RequestParam String name) {
+        ThrowUtils.throwIf(name == null || name.isBlank(), ErrorCode.PARAMS_ERROR, "文档名不能为空");
+        return ResultUtils.success(aiKbClient.deleteDocument(name));
     }
 
     /**

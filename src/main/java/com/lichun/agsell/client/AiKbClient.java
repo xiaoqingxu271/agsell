@@ -1,11 +1,14 @@
 package com.lichun.agsell.client;
 
+import cn.hutool.core.io.resource.BytesResource;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
 import com.lichun.agsell.model.dto.AiFaqRequest;
+import com.lichun.agsell.model.vo.AiDocListVO;
+import com.lichun.agsell.model.vo.AiDocUploadVO;
 import com.lichun.agsell.model.vo.AiFaqCreateVO;
 import com.lichun.agsell.model.vo.AiFaqPageVO;
 import com.lichun.agsell.model.vo.AiFaqVO;
@@ -100,6 +103,34 @@ public class AiKbClient {
         return JSONUtil.parseObj(post("/v1/admin/kb/index", "{}", REBUILD_TIMEOUT_MS)).getLong("indexed", 0L);
     }
 
+    /**
+     * 上传文档切块入库（txt/md/docx/pdf → 抽文本 → 切块 → ai_faq → 向量索引）。
+     *
+     * 走 multipart 转发而不是 base64 塞 JSON：Python 侧用 FastAPI UploadFile 收流，
+     * 文件体不进 JSON 序列化路径；抽取+切块+批量向量化在服务端是秒级操作，
+     * 超时口径与全量重建一致（REBUILD_TIMEOUT_MS）。
+     */
+    public AiDocUploadVO uploadDocument(String fileName, byte[] data, String title) {
+        cn.hutool.http.HttpRequest request = cn.hutool.http.HttpRequest.post(url("/v1/admin/kb/documents"))
+                .form("file", new BytesResource(data, fileName));
+        if (title != null && !title.isBlank()) {
+            request.form("title", title.trim());
+        }
+        return parseDocUpload(executeMultipart(request, "/v1/admin/kb/documents", REBUILD_TIMEOUT_MS));
+    }
+
+    /** 已入库文档清单（按来源聚合块数） */
+    public AiDocListVO listDocuments() {
+        return parseDocList(get("/v1/admin/kb/documents", CRUD_TIMEOUT_MS));
+    }
+
+    /** 按文档名整批删除（DB 行 + 向量索引），返回删除块数 */
+    public long deleteDocument(String name) {
+        String encoded = java.net.URLEncoder.encode(name, java.nio.charset.StandardCharsets.UTF_8);
+        return JSONUtil.parseObj(delete("/v1/admin/kb/documents?name=" + encoded, CRUD_TIMEOUT_MS))
+                .getLong("deleted", 0L);
+    }
+
     /** 商品召回索引全量重建（上一步失灵或历史脏数据时的兜底修复） */
     public long rebuildProductIndex() {
         return JSONUtil.parseObj(post("/v1/admin/kb/products/index", "{}", REBUILD_TIMEOUT_MS))
@@ -159,6 +190,34 @@ public class AiKbClient {
     }
 
     // ---------- 解析（与 HTTP 分离，便于无服务单测） ----------
+
+    static AiDocUploadVO parseDocUpload(String json) {
+        JSONObject obj = JSONUtil.parseObj(json);
+        AiDocUploadVO vo = new AiDocUploadVO();
+        vo.setName(obj.getStr("name"));
+        vo.setChunks(obj.getLong("chunks", 0L));
+        vo.setReplaced(obj.getLong("replaced", 0L));
+        vo.setIndexed(!Boolean.FALSE.equals(obj.getBool("indexed", true)));
+        return vo;
+    }
+
+    static AiDocListVO parseDocList(String json) {
+        JSONObject obj = JSONUtil.parseObj(json);
+        AiDocListVO vo = new AiDocListVO();
+        List<AiDocListVO.Item> items = new ArrayList<>();
+        JSONArray arr = obj.getJSONArray("items");
+        if (arr != null) {
+            for (int i = 0; i < arr.size(); i++) {
+                JSONObject row = arr.getJSONObject(i);
+                AiDocListVO.Item item = new AiDocListVO.Item();
+                item.setName(row.getStr("name"));
+                item.setChunks(row.getLong("chunks", 0L));
+                items.add(item);
+            }
+        }
+        vo.setItems(items);
+        return vo;
+    }
 
     static AiOpsSummaryVO parseOps(String json) {
         JSONObject obj = JSONUtil.parseObj(json);
@@ -303,6 +362,36 @@ public class AiKbClient {
             throw e;
         } catch (Exception e) {
             log.error("调用 AI 知识库接口失败: path={}", path, e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR,
+                    "无法连接 AI 服务，请确认 ai-service 已启动后重试");
+        }
+    }
+
+    /**
+     * multipart 专用执行：不能带 Content-Type 头（boundary 由 HTTP 库自己生成）。
+     * 400 透传 Python 的 detail——"仅支持 txt/md/docx/pdf"这类校验文案是给管理员
+     * 看的操作指引，吞掉反而让人反复试错；401/503 等仍走固定文案。
+     */
+    private String executeMultipart(cn.hutool.http.HttpRequest request, String path, int timeoutMs) {
+        try (cn.hutool.http.HttpResponse response = request
+                .header("X-Internal-Key", internalKey)
+                .timeout(timeoutMs)
+                .execute()) {
+            if (!isSuccess(response.getStatus())) {
+                log.error("AI 知识库文档上传返回异常: path={}, status={}", path, response.getStatus());
+                if (response.getStatus() == 400) {
+                    String detail = JSONUtil.parseObj(response.body()).getStr("detail", "");
+                    if (!detail.isBlank()) {
+                        throw new BusinessException(ErrorCode.PARAMS_ERROR, detail);
+                    }
+                }
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, friendly(path, response.getStatus()));
+            }
+            return response.body();
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("调用 AI 知识库文档上传失败: path={}", path, e);
             throw new BusinessException(ErrorCode.OPERATION_ERROR,
                     "无法连接 AI 服务，请确认 ai-service 已启动后重试");
         }

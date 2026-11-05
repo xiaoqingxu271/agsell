@@ -1,4 +1,4 @@
-"""知识库管理接口（阶段二；本轮补商品索引增量通道）
+"""知识库管理接口（阶段二；本轮补商品索引增量通道与文档上传入库）
 
 - GET  /v1/admin/kb/stats   知识库状态（FAQ 条数 + FAQ/商品两个索引条数 + 模型与阈值）
 - POST /v1/admin/kb/index   触发 FAQ 全量重建（读 MySQL → bge 向量化 → 写 Chroma）
@@ -8,6 +8,9 @@
 - POST /v1/admin/kb/faqs    新增 FAQ
 - PUT  /v1/admin/kb/faqs/{id} 更新 FAQ
 - DELETE /v1/admin/kb/faqs/{id} 删除 FAQ
+- POST /v1/admin/kb/documents       上传文档（txt/md/docx/pdf → 抽文本 → 切块 → 入库+索引）
+- GET  /v1/admin/kb/documents       已入库文档清单（按来源聚合块数）
+- DELETE /v1/admin/kb/documents?name=  删除文档（整批下架 + 从索引除名）
 
 鉴权：全部端点要求 X-Internal-Key（= JAVA_INTERNAL_KEY），由 Java 管理端代理携带；
 Java 侧再套自己的 JWT 与角色校验，浏览器永远拿不到这个 Key。
@@ -18,12 +21,13 @@ Java 侧再套自己的 JWT 与角色校验，浏览器永远拿不到这个 Key
 """
 import logging
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db import SessionLocal, get_session
+from app.rag import doc_ingest
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
 
@@ -227,6 +231,106 @@ def delete_faq(faq_id: int, session: Session = Depends(get_session), _=Depends(_
     if not faq_repo.delete(session, faq_id):
         raise HTTPException(status_code=404, detail="FAQ 不存在")
     return {"deleted": True, "deindexed": _sync_delete(faq_id)}
+
+
+@router.post("/documents", status_code=201)
+async def upload_document(
+    file: UploadFile = File(...),
+    title: str | None = Form(default=None),
+    session: Session = Depends(get_session),
+    _=Depends(_check_admin_key),
+):
+    """上传文档切块入库：txt/md/docx/pdf → 抽文本 → 切块 → ai_faq(doc_knowledge) → 向量索引。
+
+    同名文档重复上传 = 幂等替换（先删旧块再入新块）。抽取/切块失败返回 400 带
+    中文原因（格式不支持、文件损坏、无有效文本），由 Java 代理透给管理员。
+    索引同步沿用 FAQ 的口径：DB 先落（源），索引失败不回滚、只报 indexed=false，
+    管理页的全量重建按钮随时可修。
+    """
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="文件内容为空")
+    if len(data) > _DOC_MAX_BYTES:
+        raise HTTPException(status_code=400, detail="文档过大（上限 10MB）")
+    raw_name = (file.filename or "").strip()
+    display_title = (title or "").strip() or _doc_title_from_filename(raw_name)
+    source = f"doc:{display_title}"
+    try:
+        text = doc_ingest.extract_text(raw_name, data)
+    except doc_ingest.DocIngestError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    # 替换语义：先取旧块 id（供索引除名）→ 删旧行 → 切块入新行，一个事务提交
+    old_ids = doc_ingest.delete_by_source(session, source)
+    try:
+        ids = doc_ingest.ingest_document(session, display_title, text, source)
+    except doc_ingest.DocIngestError as e:
+        session.rollback()  # 旧块已删未提交，回滚保住原数据
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    session.commit()
+    # 新块 upsert 进索引；被替换的旧块除名。索引失败不回滚 DB（MySQL 才是源）
+    entries = [_faq_entry(f) for f in faq_repo.get_many(session, ids)]
+    indexed_ok = _sync_upsert_entries(entries)
+    if old_ids:
+        try:
+            _get_vectorstore().delete_ids(old_ids)
+        except Exception:
+            logger.exception("文档 %s 旧块索引除名失败，可全量重建修复", source)
+    return {
+        "name": display_title,
+        "chunks": len(ids),
+        "ids": ids,
+        "replaced": len(old_ids),
+        "indexed": indexed_ok,
+        "model": settings.EMBEDDING_MODEL,
+    }
+
+
+@router.get("/documents")
+def list_documents(session: Session = Depends(get_session), _=Depends(_check_admin_key)):
+    """已入库文档清单（按来源聚合块数），供管理页"文档知识"卡片展示"""
+    return {"items": doc_ingest.list_documents(session)}
+
+
+@router.delete("/documents")
+def delete_document(
+    name: str = Query(..., min_length=1, max_length=100),
+    session: Session = Depends(get_session),
+    _=Depends(_check_admin_key),
+):
+    """按文档名整批删除（DB 行 + 向量索引），返回删除块数"""
+    source = f"doc:{name.strip()}"
+    ids = doc_ingest.delete_by_source(session, source)
+    if not ids:
+        raise HTTPException(status_code=404, detail="文档不存在")
+    session.commit()
+    deindexed = True
+    try:
+        _get_vectorstore().delete_ids(ids)
+    except Exception:
+        logger.exception("文档 %s 索引除名失败，可全量重建修复", source)
+        deindexed = False
+    return {"deleted": len(ids), "deindexed": deindexed}
+
+
+_DOC_MAX_BYTES = 10 * 1024 * 1024  # 上传体积上限：足够任何政策/手册，也防 multipart 吃爆内存
+
+
+def _doc_title_from_filename(raw_name: str) -> str:
+    stem = raw_name.rsplit(".", 1)[0] if "." in raw_name else raw_name
+    stem = stem.strip()
+    return stem[:60] or "未命名文档"
+
+
+def _sync_upsert_entries(entries: list[dict]) -> bool:
+    """批量把新入库条目同步进向量索引（DB 已提交，索引失败只报 false 不回滚）"""
+    if not entries:
+        return True
+    try:
+        _get_vectorstore().upsert_many(entries)
+        return True
+    except Exception:
+        logger.exception("文档条目批量索引失败（%s 条），可全量重建修复", len(entries))
+        return False
 
 
 def _get_vectorstore() -> VectorStore:
