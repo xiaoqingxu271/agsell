@@ -30,3 +30,7 @@ mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MY
 # AI 知识库表（此前只由 init_faq.py 建）与其 ngram 全文索引（BM25 召回通道基础设施）
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/ai_module.sql
 mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/ai_faq_fulltext.sql
+# ai_faq 来源列：管理端"上传文档切块入库"按来源整批替换/删除（doc:{文档名}）
+mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/ai_faq_source.sql
+# ai_chat_log 对话审计：Python 每轮旁路落库，管理端「AI 对话审计」页只读
+mysql --default-character-set=utf8mb4 --database="$MYSQL_DATABASE" -uroot -p"$MYSQL_ROOT_PASSWORD" < /sql/migration/ai_chat_log.sql
