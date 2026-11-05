@@ -3,9 +3,12 @@
     <!-- 问题④修复：NavBar emit('back') 是事件，须用 @back 监听；:back 是 prop 绑定，无效 -->
     <NavBar title="AI 客服" show-back @back="onBack">
       <template #right>
-        <view class="nav-online">
-          <text class="nav-online-dot"></text>
-          <text class="nav-online-t">在线</text>
+        <view class="nav-tools">
+          <text class="nav-clear" @click="onClearSession" role="button" aria-label="清空会话">清空</text>
+          <view class="nav-online">
+            <text class="nav-online-dot"></text>
+            <text class="nav-online-t">在线</text>
+          </view>
         </view>
       </template>
     </NavBar>
@@ -16,6 +19,14 @@
       <text class="ctx-label">正在咨询</text>
       <text class="ctx-name">{{ contextProduct.name }}</text>
       <text class="ctx-clear" @click="clearContext" role="button" aria-label="取消咨询该商品">✕</text>
+    </view>
+
+    <!-- 从订单/售后页进线：带着单号聊，物流、退款进度不用手打长单号 -->
+    <view v-if="contextOrderNo" class="ctx-bar">
+      <view class="ctx-badge">单</view>
+      <text class="ctx-label">正在咨询</text>
+      <text class="ctx-name">订单 {{ contextOrderNo }}</text>
+      <text class="ctx-clear" @click="clearOrderContext" role="button" aria-label="取消咨询该订单">✕</text>
     </view>
 
     <!-- 消息列表（首屏即含欢迎消息：作为第一条 AI 消息保存，带客服头像） -->
@@ -151,9 +162,17 @@ const sessionTimeLabel = ref('')
 // 用户问"这个能放多久/适合送人吗"时才有明确指代对象
 const contextProduct = ref(null)
 
+// 订单/售后页进线时携带的订单上下文：出站消息自动附上单号（服务端订单号正则
+// 从消息文本抽取），用户气泡仍显示原话，不用手打长单号
+const contextOrderNo = ref('')
+
 // 会话号按登录身份持久化：服务端多轮记忆以 (userId, sessionId) 为 thread key，
 // 每次进页重随机会让历史 thread 永远命中不到，等于没有会话记忆
 const SESSION_KEY = 'aiChatSession'
+
+// 本地历史持久化：换页/重进不丢聊天记录。分工是——服务端记忆负责"AI 记得"，本地落盘负责"用户看得到"
+const HISTORY_KEY = 'aiChatHistory'
+const HISTORY_MAX = 40 // 本地最多保留最近 40 条，防 storage 无限膨胀
 
 const quickQuestions = [
   '怎么申请退款？',
@@ -176,19 +195,37 @@ const userAvatar = computed(() => {
 onLoad((options) => {
   // 会话 ID：同一登录用户复用上次会话（服务端记忆以 userId+sessionId 为键）
   sessionId.value = resolveSessionId()
-  const now = new Date()
-  const p = (n) => (n < 10 ? '0' + n : '' + n)
-  sessionTimeLabel.value = `今天 ${p(now.getHours())}:${p(now.getMinutes())} · 会话已开始`
-  // 首条欢迎消息：作为正式 AI 消息保存进历史（带客服头像），快捷问题作为下一轮小贴士
-  messages.value.push({
-    role: 'ai',
-    content: '您好，我是 agsell AI 客服助手\n可以问我订单、物流、售后、平台规则等问题～',
-    suggestions: [...quickQuestions]
-  })
+  // 已有本地历史：原样恢复（含商品卡/依据/小贴士），AI 侧也还是同一个记忆 thread
+  if (restoreHistory()) {
+    sessionTimeLabel.value = '已恢复上次会话'
+  } else {
+    const now = new Date()
+    const p = (n) => (n < 10 ? '0' + n : '' + n)
+    sessionTimeLabel.value = `今天 ${p(now.getHours())}:${p(now.getMinutes())} · 会话已开始`
+    // 首条欢迎消息：作为正式 AI 消息保存进历史（带客服头像），快捷问题作为下一轮小贴士
+    messages.value.push(welcomeMessage())
+  }
   // 从商品详情页进来：先立起"正在咨询"条，再给一条该商品的快捷问题
   const pid = String(options?.productId || '')
   if (pid && pid !== 'undefined' && pid !== 'null') loadContextProduct(pid)
+  // 从订单/售后页进来：立起"正在咨询订单"条，首轮快捷问题直指该订单
+  const ono = String(options?.orderNo || '')
+  if (ono && ono !== 'undefined' && ono !== 'null') {
+    contextOrderNo.value = ono
+    const first = messages.value[0]
+    if (first && Array.isArray(first.suggestions)) {
+      first.suggestions = [`订单 ${ono} 到哪了？`, ...first.suggestions]
+    }
+  }
 })
+
+function welcomeMessage() {
+  return {
+    role: 'ai',
+    content: '您好，我是 agsell AI 客服助手\n可以问我订单、物流、售后、平台规则等问题～',
+    suggestions: [...quickQuestions]
+  }
+}
 
 /**
  * 取当前咨询商品（仅需登录外的公开详情接口）。
@@ -215,6 +252,10 @@ async function loadContextProduct(pid) {
 
 function clearContext() {
   contextProduct.value = null
+}
+
+function clearOrderContext() {
+  contextOrderNo.value = ''
 }
 
 /** 卡片点击：进对应商品详情页（与服务端下发的 id 一致，不自己拼链接格式） */
@@ -254,6 +295,10 @@ function currentOwnerKey() {
   return 'u_unknown'
 }
 
+function newSessionId() {
+  return 'wx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+}
+
 function resolveSessionId() {
   const owner = currentOwnerKey()
   try {
@@ -262,13 +307,65 @@ function resolveSessionId() {
   } catch (e) {
     /* ignore */
   }
-  const sid = 'wx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+  const sid = newSessionId()
   try {
     uni.setStorageSync(SESSION_KEY, { owner, sessionId: sid })
   } catch (e) {
     /* ignore */
   }
   return sid
+}
+
+/** 恢复本地历史：仅当 owner 与 sessionId 都对得上（换账号/换会话绝不串别人的记录） */
+function restoreHistory() {
+  try {
+    const saved = uni.getStorageSync(HISTORY_KEY)
+    if (!saved || saved.owner !== currentOwnerKey() || saved.sessionId !== sessionId.value) return false
+    const list = Array.isArray(saved.messages) ? saved.messages : []
+    if (!list.length) return false
+    messages.value = list.map((m) => ({ ...m, streaming: false }))
+    nextTick(scrollToBottom)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+/** 落盘本地历史：storage 异常（满/权限）静默忽略，聊天本身永远可用 */
+function persistHistory() {
+  try {
+    uni.setStorageSync(HISTORY_KEY, {
+      owner: currentOwnerKey(),
+      sessionId: sessionId.value,
+      messages: messages.value.slice(-HISTORY_MAX)
+    })
+  } catch (e) {
+    /* ignore */
+  }
+}
+
+/** 清空会话：本地记录作废 + 换新会话号（服务端旧 thread 不再续），回到欢迎语 */
+function onClearSession() {
+  uni.showModal({
+    title: '清空会话',
+    content: '将开始新会话，当前聊天记录不再显示',
+    success: (res) => {
+      if (!res.confirm) return
+      sessionId.value = newSessionId()
+      try {
+        uni.setStorageSync(SESSION_KEY, { owner: currentOwnerKey(), sessionId: sessionId.value })
+        uni.removeStorageSync(HISTORY_KEY)
+      } catch (e) {
+        /* ignore */
+      }
+      messages.value = [welcomeMessage()]
+      contextProduct.value = null
+      const now = new Date()
+      const p = (n) => (n < 10 ? '0' + n : '' + n)
+      sessionTimeLabel.value = `今天 ${p(now.getHours())}:${p(now.getMinutes())} · 新会话已开始`
+      scrollToBottom()
+    }
+  })
 }
 
 function onBack() {
@@ -304,13 +401,20 @@ async function onSend() {
   draft.value = ''
   pushMessage('user', text)
 
+  // 订单上下文出站附带：用户没手打单号时把单号补进出站文本（气泡仍显示原话），
+  // 服务端靠订单号正则识别"这单"指哪单
+  const outbound =
+    contextOrderNo.value && !text.includes(contextOrderNo.value)
+      ? `${text}（订单号：${contextOrderNo.value}）`
+      : text
+
   sending.value = true
   // 预插入 AI 气泡：首 token 前显示打字动画，token 到达后逐字渲染
   messages.value.push({ role: 'ai', content: '', suggestions: null, items: null, streaming: true })
   const msg = messages.value[messages.value.length - 1]
 
   try {
-    await sendAiChatStream(sessionId.value, text, {
+    await sendAiChatStream(sessionId.value, outbound, {
       onToken: (t) => {
         // Agnes 首包常带前导换行，流式期间就剥掉，避免气泡顶部出现空行
         msg.content = msg.content ? msg.content + t : (t || '').replace(/^\s+/, '')
@@ -336,7 +440,7 @@ async function onSend() {
         }
         // items 事件若因中途断流没收到，done 里还有一份
         if (!msg.items && d && d.items && d.items.length) msg.items = d.items
-        // 知识依据随 done 下发，下一轮提问前一直挂在气泡下
+        // 知识依据随 done 下发，挂在气泡下直到下一轮提问
         if (d && d.references && d.references.length) msg.references = d.references
         scrollToBottom()
       },
@@ -366,6 +470,7 @@ async function onSend() {
     }
   } finally {
     sending.value = false
+    persistHistory()
     scrollToBottom()
   }
 }
@@ -510,6 +615,21 @@ async function onSend() {
   font-size: 26rpx;
   color: $uni-text-color-placeholder;
   padding: 0 8rpx;
+}
+
+/* 订单上下文条里的"单"字徽标（与商品缩略图同位、同尺寸） */
+.ctx-badge {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 8rpx;
+  background: $uni-color-primary-100;
+  color: $uni-color-primary;
+  font-size: 24rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* 导购推荐商品卡 */
@@ -740,6 +860,19 @@ async function onSend() {
 /* 滚动锚点 */
 .anchor {
   height: 1rpx;
+}
+
+/* 导航右侧工具区：清空会话 + 在线状态 */
+.nav-tools {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.nav-clear {
+  font-size: 22rpx;
+  color: $uni-text-color-placeholder;
+  padding: 4rpx 8rpx;
 }
 
 /* 导航右侧在线状态 */

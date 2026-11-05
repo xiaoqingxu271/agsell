@@ -2,6 +2,13 @@
   <view class="as-list-page">
     <NavBar title="我的售后" @back="uni.navigateBack()" />
 
+    <!-- AI 售后助手入口：进度/驳回原因直接问，AI 端已接售后查询工具 -->
+    <view class="ai-entry" @click="onAskAi" role="button" aria-label="AI 客服咨询售后">
+      <wd-icon name="service" size="28rpx" custom-class="ai-entry-ic" />
+      <text class="ai-entry-txt">对售后进度有疑问？问问 AI 客服</text>
+      <text class="ai-entry-arrow">›</text>
+    </view>
+
     <!-- 状态筛选 -->
     <view class="filter-bar">
       <view
@@ -93,6 +100,11 @@ onLoad(() => {
   loadList(true)
 })
 
+/** 问AI：进 AI 客服会话页（售后查询工具按登录用户拉全量申请，无需携带单号） */
+function onAskAi() {
+  uni.navigateTo({ url: '/pages/ai-chat/chat' })
+}
+
 async function switchTab(status) {
   if (activeStatus.value === status) return
   activeStatus.value = status
@@ -152,6 +164,32 @@ function goDetail(afterSalesNo) {
   background: #F4F5F7;
   display: flex;
   flex-direction: column;
+}
+
+/* AI 售后助手入口条：白底细条 + 品牌绿，与公告条同款视觉语言 */
+.ai-entry {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 18rpx 24rpx;
+  background: #FFFFFF;
+  border-bottom: 1rpx solid #E3E5E8;
+}
+
+:deep(.ai-entry-ic) {
+  color: #15803D;
+}
+
+.ai-entry-txt {
+  flex: 1;
+  font-size: 24rpx;
+  color: #15803D;
+}
+
+.ai-entry-arrow {
+  font-size: 32rpx;
+  color: #9AA5AE;
+  line-height: 1;
 }
 
 .filter-bar {

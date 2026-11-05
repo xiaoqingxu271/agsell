@@ -67,6 +67,10 @@
           <text class="order-amount">共{{ order.itemCount }}件　合计：<text class="amount-highlight">¥{{ order.payAmount }}</text></text>
           <view class="order-actions">
             <view
+              class="action-btn btn-ghost btn-ai"
+              @click.stop="onAskAi(order)"
+            >问AI</view>
+            <view
               v-if="order.status === 0"
               class="action-btn btn-ghost btn-danger"
               @click.stop="onCancelOrder(order)"
@@ -274,6 +278,11 @@ function onReview(order) {
   uni.navigateTo({
     url: `/pages/order/detail/detail?orderNo=${order.orderNo}`
   })
+}
+
+/** 问AI：带订单号进 AI 客服，物流/退款/状态直接问，不用手打单号 */
+function onAskAi(order) {
+  uni.navigateTo({ url: `/pages/ai-chat/chat?orderNo=${order.orderNo}` })
 }
 
 function onRepurchase(order) {
@@ -492,6 +501,12 @@ function onRepurchase(order) {
 .btn-danger {
   color: #D93026;
   border-color: #D93026;
+}
+
+/* 问AI：品牌绿描边，与红色系操作按钮区分开 */
+.btn-ai {
+  color: #15803D;
+  border-color: #15803D;
 }
 
 .loading, .no-more, .empty-orders {

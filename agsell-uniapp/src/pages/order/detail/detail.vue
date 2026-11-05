@@ -12,6 +12,10 @@
           <text class="status-text">{{ orderDetail?.statusText }}</text>
           <text class="status-hint">{{ getStatusHint(orderDetail?.status) }}</text>
         </view>
+        <!-- AI 助手入口：带着单号进聊天，物流/退款进度直接问 -->
+        <view class="status-ai" @click="onAskAi" role="button" aria-label="AI 客服咨询该订单">
+          <text class="status-ai-t">问AI</text>
+        </view>
       </view>
 
       <!-- 订单信息 -->
@@ -180,6 +184,12 @@ function getStatusHint(status) {
   return hints[status] || ''
 }
 
+/** 问AI：带订单号进 AI 客服会话页 */
+function onAskAi() {
+  if (!orderDetail.value?.orderNo) return
+  uni.navigateTo({ url: `/pages/ai-chat/chat?orderNo=${orderDetail.value.orderNo}` })
+}
+
 async function onCancel() {
   uni.showModal({
     title: '取消订单',
@@ -284,6 +294,22 @@ async function onViewAfterSales() {
   justify-content: center;
   flex-shrink: 0;
   margin-right: 28rpx;
+}
+
+/* 问AI：状态卡右侧胶囊按钮，白底品牌绿描边 */
+.status-ai {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 10rpx 24rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1rpx solid #15803D;
+}
+
+.status-ai-t {
+  font-size: 24rpx;
+  color: #15803D;
+  font-weight: 600;
 }
 
 .status-check {

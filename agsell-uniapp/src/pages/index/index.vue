@@ -164,6 +164,13 @@
         <text>暂无推荐商品</text>
       </view>
     </view>
+
+    <!-- AI 导购悬浮球（固定右下、不随滚动）：智能导购的一级入口，
+         问答/导购/售后全场景都在聊天页，从首页一键可达 -->
+    <view class="ai-fab" @click="onAiTap" role="button" aria-label="AI 智能导购">
+      <wd-icon name="service" size="38rpx" custom-class="ai-fab-icon" />
+      <text class="ai-fab-txt">AI 导购</text>
+    </view>
   </view>
 </template>
 
@@ -248,6 +255,11 @@ function onNoticeBarTap() {
     showCancel: false,
     confirmText: '知道了'
   })
+}
+
+/** AI 导购悬浮球：进 AI 客服会话页（未登录也放行，发消息时页面内再引导登录） */
+function onAiTap() {
+  uni.navigateTo({ url: '/pages/ai-chat/chat' })
 }
 
 async function syncMessageBadge() {
@@ -925,6 +937,34 @@ function onSeckillItemTap(act) {
 }
 
 /* 双列卡片由 ProductCard 按参考稿 .pd 规格渲染，此处不再覆写 */
+
+/* AI 导购悬浮球：固定右下角，避让 tabBar 与安全区 */
+.ai-fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(150rpx + env(safe-area-inset-bottom));
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 50%;
+  background: $uni-color-primary;
+  box-shadow: 0 8rpx 24rpx rgba(21, 128, 61, 0.35);
+}
+
+:deep(.ai-fab-icon) {
+  color: $uni-text-color-inverse;
+}
+
+.ai-fab-txt {
+  font-size: 20rpx;
+  color: $uni-text-color-inverse;
+  font-weight: 600;
+}
 
 /* 公告条（P2）：白底细条 + 品牌色喇叭，纵向轮播 */
 .notice-bar {
