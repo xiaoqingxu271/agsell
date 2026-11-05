@@ -40,6 +40,8 @@
 
 **管理后台**：数据仪表盘（ECharts，含评价口碑分布饼图与好评关键词）· 商品/规格/分类管理（多选批量上下架、内联快编价格库存、商品卡预览）· 订单发货 · 用户管理（RBAC：超级管理员/运营专员）· 评价管理（回复/口碑分析同步 + 敏感词过滤）· 轮播图运营 · 公告管理 · 优惠券活动 · 秒杀活动 · 售后处理 · 溯源信息维护 · 热词管理 · **AI 知识库维护**（FAQ 增删改查 + 两个向量索引的状态与全量重建，Java 鉴权代理转 Python）· 操作日志（SpEL 中文化）· 系统配置 · 待办提醒（待发货/低库存/待售后/待处理 AI 工单）· **AI 转人工工单**（列表/处理/备注，待处理排前）
 
+**AI 知识运营**：知识库页手工 Q&A 即时同步索引；**文档上传切块入库**（txt/md/docx/pdf → 抽文本 → 320/60 切块 → doc_knowledge 条目，同名幂等替换）；**对话审计**（ai_chat_log 每轮落库，管理端逐轮可查、可按会话号/拒答轮筛选）；**AI 运营配置**（检索条数/闸门阈值/重排开关/编排上限，sys_config 存储、改完立即生效、异常自动回落默认值）。
+
 **AI 客服**：高置信规则前置（命中即短路，省一次大模型往返）→ 工具编排（`bind_tools` 有界循环：步数 2、调用 4、(工具,参数) 去重、空结果反思重试一次）→ 工具执行（FAQ 三路检索 / 商品语义召回+个性化重排 / 订单 / 物流 / 售后 / 转人工，闸门都在执行器里；触发转人工即回调 Java 落工单，管理后台「AI 转人工工单」页跟进）→ 生成回复（知识问答附"依据"引用标签，由服务端按检索命中结构化下发）；多轮会话记忆（SQLite 持久化）、上游不支持 function calling 时自动降级为"分类 + 单工具"、LLM 限流自动重试与降级话术、SSE 流式输出。
 
 **评价情感分析**：领域词库 + 否定翻转 + 程度副词 + 评分先验的规则分析器（Python `/v1/sentiment/batch`，确定性输出零 LLM 成本）；管理端触发同步回写 review 表，商品详情接口聚合返回好评率与好评关键词标签。
@@ -170,6 +172,9 @@ export DATABASE_URL="mysql+pymysql://root:<密码>@127.0.0.1:3306/agsell?charset
 .venv/Scripts/python scripts/eval_recommend.py  # 导购召回三通道 + 个性化重排回放
 # 流式延迟需先起服务：.venv/Scripts/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 .venv/Scripts/python scripts/eval_latency.py --rounds 2
+.venv/Scripts/python scripts/eval_faithfulness.py --limit 20    # 生成忠实度（LLM-as-judge，消耗 Agnes 额度）
+.venv/Scripts/python scripts/eval_chunking.py                   # 切分策略对比（纯本地嵌入，零 LLM 额度）
+.venv/Scripts/python scripts/eval_agent_steps.py --limit 30     # 步数上限消融（消耗 Agnes 额度）
 ```
 
 ## 目录结构
@@ -193,6 +198,7 @@ export DATABASE_URL="mysql+pymysql://root:<密码>@127.0.0.1:3306/agsell?charset
 - [需求规格说明书](doc/需求文档.md) —— 系统边界、角色权限、功能需求、数据模型
 - [MASTER 设计规范](doc/MASTER.md) —— 双端统一视觉体系（品牌绿 #15803D）
 - [AI 智能客服技术设计](doc/AI智能客服模块-技术栈设计.md) 及[阶段五测试报告](doc/AI智能客服模块-阶段五测试报告.md)
+- [论文初稿](doc/论文初稿.md)（写作中，实验数字以 doc/量化实验报告.md 与 eval_results 存档为准）
 - 各模块开发文档（商品/订单/支付/秒杀/优惠券/售后/溯源/搜索/系统管理等）见 `doc/`
 
 > 说明：支付为模拟实现（需求边界明确预留微信/支付宝接口）；物流为状态模拟流转。
