@@ -122,6 +122,12 @@ export const allRoutes: import('vue-router').RouteRecordRaw[] = [
         meta: { title: 'AI 转人工工单' },
       },
       {
+        path: 'ai/chatlog',
+        name: 'AdminAiChatLog',
+        component: () => import('@/views/admin/ai/AiChatLogListView.vue'),
+        meta: { title: 'AI 对话审计' },
+      },
+      {
         path: 'system/admin',
         name: 'AdminSystemAdmin',
         component: () => import('@/views/admin/list/AdminListView.vue'),

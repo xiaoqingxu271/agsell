@@ -18,6 +18,7 @@
 import asyncio
 import json
 import logging
+import time
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
@@ -38,6 +39,7 @@ from app.rag.retriever import Retriever
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
 from app import checkpoint_maintenance, kb_hit_log
+from app import chat_audit
 from app.reply_sanitizer import MarkdownStripper, sanitize_reply_text
 from app.schemas.chat import ChatRequest, ChatResponse, HealthResponse
 from app.security import check_service_key as _check_service_key
@@ -251,6 +253,7 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
     thread_id = _thread_id(req)
     # TTL 维护的活跃登记：同步接口放工作线程，sub-ms 写入，失败不影响对话
     await asyncio.to_thread(_remember_thread, thread_id)
+    t0 = time.monotonic()
     try:
         result = await graph.ainvoke(
             {
@@ -277,17 +280,25 @@ async def chat(req: ChatRequest, x_internal_key: str | None = Header(default=Non
             result.get("references") or [])
         # 运营统计（对话量/工具分布/拒答率）：observations 是唯一取数表示，从它判定
         obs = result.get("observations") or []
+        sync_tools = [o.get("tool") for o in obs if o.get("tool")]
+        sync_refused = any(
+            o.get("status") == "refused"
+            or (o.get("kind") == "kb" and o.get("status") == "empty")
+            for o in obs)
         await asyncio.to_thread(
             kb_hit_log.log_chat_turn, settings.KB_HIT_LOG_PATH, thread_id, req.userId,
             {
                 "intent": result.get("intent") or "",
-                "tools": [o.get("tool") for o in obs if o.get("tool")],
-                "refused": any(
-                    o.get("status") == "refused"
-                    or (o.get("kind") == "kb" and o.get("status") == "empty")
-                    for o in obs),
+                "tools": sync_tools,
+                "refused": sync_refused,
                 "has_items": bool(result.get("rec_items")),
             })
+        # 对话审计（MySQL ai_chat_log，管理端审计页数据源）：旁路落库，失败不影响响应
+        await asyncio.to_thread(
+            chat_audit.record_turn, req.userId, req.sessionId, req.message, reply,
+            result.get("intent") or "", sync_tools, sync_refused,
+            len(result.get("references") or []), result.get("references") or [],
+            int((time.monotonic() - t0) * 1000))
         return ChatResponse(
             sessionId=req.sessionId,
             reply=reply,
@@ -448,6 +459,11 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
             thread_config["configurable"]["thread_id"], req.userId,
             {"intent": turn_intent, "tools": turn_tools,
              "refused": turn_refused, "has_items": bool(items)})
+        # 对话审计（MySQL ai_chat_log）：流已完整下发后才落库，旁路失败不影响本轮
+        await asyncio.to_thread(
+            chat_audit.record_turn, req.userId, req.sessionId, req.message,
+            "".join(collected), turn_intent, turn_tools, turn_refused,
+            len(references), references, None)
     except Exception as e:
         # 错误帧只发 code：原始异常含模型名/网关/上游 URL，客户端按 code 查白名单文案，
         # 细节只进服务端日志（logger.exception）

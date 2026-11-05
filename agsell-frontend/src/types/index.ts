@@ -682,6 +682,24 @@ export interface AiTicketPageVO {
   current: number
 }
 
+/**
+ * AI 对话审计条目（ai_chat_log，每轮一条，Python 旁路落库，管理端只读）
+ */
+export interface AiChatLogVO {
+  id: IdOrNum
+  userId: IdOrNum | null
+  sessionId: string
+  question: string
+  reply: string | null
+  intent: string | null
+  tools: string | null
+  refused: number
+  hits: number
+  refs: string | null
+  durationMs: number | null
+  createTime: string | null
+}
+
 /** 工单处理请求体 */
 export interface AiTicketHandleRequest {
   remark?: string

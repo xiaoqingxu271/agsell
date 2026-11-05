@@ -2,6 +2,7 @@ import request from '@/utils/request'
 import type {
   AdminInfoVO,
   SentimentStatsVO,
+  AiChatLogVO,
   AiDocListVO,
   AiDocUploadVO,
   AiFaqCreateVO,
@@ -536,6 +537,19 @@ export function listKbDocuments() {
 /** 删除文档（整批下架 + 从索引除名），返回删除块数 */
 export function deleteKbDocument(name: string) {
   return request.delete<IdOrNum>('/admin/ai/kb/document', { params: { name } })
+}
+
+// ─── AI 对话审计（/admin/ai/chatlog，只读） ──────────────────────────────────
+
+/** 逐轮对话记录分页（最新在前），可按会话号/用户/拒答轮筛选 */
+export function listAiChatLogs(params: {
+  pageNum?: number
+  pageSize?: number
+  sessionId?: string
+  userId?: number
+  refused?: number
+}) {
+  return request.get<Page<AiChatLogVO>>('/admin/ai/chatlog/list', { params })
 }
 
 // ─── AI 转人工工单（/admin/ai/ticket/**，运营专员由后端拦截器拒绝） ───
