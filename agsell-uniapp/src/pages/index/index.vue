@@ -925,7 +925,6 @@ function onSeckillItemTap(act) {
 }
 
 /* 双列卡片由 ProductCard 按参考稿 .pd 规格渲染，此处不再覆写 */
-</style>
 
 /* 公告条（P2）：白底细条 + 品牌色喇叭，纵向轮播 */
 .notice-bar {
@@ -957,3 +956,4 @@ function onSeckillItemTap(act) {
   display: block;
   line-height: 36rpx;
 }
+</style>

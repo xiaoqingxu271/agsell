@@ -1062,19 +1062,20 @@ const stock = computed(() => selectedSpec.value?.stock ?? product.value.stock ??
 .act-disabled {
   opacity: $uni-opacity-disabled;
 }
-</style>
 
-/* 小程序原生分享按钮：重置 button 默认样式，与 .fn 视觉一致 */
+/* 小程序原生分享按钮：重置 button 默认样式，与 .fn 视觉一致（宽高/字号/行高全对齐，否则灰底大字号） */
 .fn-share {
+  width: 96rpx;
   margin: 0;
   padding: 0;
   background: transparent;
   border: none;
   border-radius: 0;
-  line-height: inherit;
-  font-size: inherit;
+  line-height: 1;
+  font-size: 18rpx;
 }
 
 .fn-share::after {
   border: none;
 }
+</style>

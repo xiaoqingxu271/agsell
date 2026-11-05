@@ -391,7 +391,6 @@ onMounted(async () => {
   font-size: 13px;
   color: #8A9A91;
 }
-</style>
 
 .drag-handle {
   cursor: grab;
@@ -407,3 +406,4 @@ onMounted(async () => {
 .drag-handle:active {
   cursor: grabbing;
 }
+</style>

@@ -786,7 +786,6 @@ onMounted(() => {
   font-size: 20px;
   line-height: 1;
 }
-</style>
 
 .batch-actions {
   display: flex;
@@ -878,3 +877,4 @@ onMounted(() => {
   font-size: 12px;
   color: var(--el-text-color-placeholder);
 }
+</style>

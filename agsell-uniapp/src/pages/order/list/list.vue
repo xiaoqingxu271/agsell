@@ -281,7 +281,7 @@ function onRepurchase(order) {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .order-list-page {
   min-height: 100vh;
   background: #F4F5F7;
@@ -500,7 +500,6 @@ function onRepurchase(order) {
   color: #666A73;
   font-size: 26rpx;
 }
-</style>
 
 /* 订单搜索条（P1）：与 tabs 同底色，输入框圆角胶囊 */
 .search-bar {
@@ -536,3 +535,4 @@ function onRepurchase(order) {
   font-size: 26rpx;
   font-weight: 600;
 }
+</style>
