@@ -15,12 +15,21 @@ def list_enabled(session: Session) -> list[Faq]:
     return list(session.scalars(select(Faq).where(Faq.status == 1).order_by(Faq.id)))
 
 
-def list_all(session: Session, category: str | None = None, page: int = 1, size: int = 20) -> tuple[list[Faq], int]:
+def list_all(
+    session: Session,
+    category: str | None = None,
+    page: int = 1,
+    size: int = 20,
+    exclude_category: str | None = None,
+) -> tuple[list[Faq], int]:
     stmt = select(Faq)
     count_stmt = select(Faq.id)
     if category:
         stmt = stmt.where(Faq.category == category)
         count_stmt = count_stmt.where(Faq.category == category)
+    if exclude_category:
+        stmt = stmt.where(Faq.category != exclude_category)
+        count_stmt = count_stmt.where(Faq.category != exclude_category)
     total = len(session.execute(count_stmt).all())
     items = list(
         session.scalars(

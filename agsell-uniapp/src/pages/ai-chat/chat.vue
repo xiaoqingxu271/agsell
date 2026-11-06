@@ -360,6 +360,7 @@ function onClearSession() {
       }
       messages.value = [welcomeMessage()]
       contextProduct.value = null
+      contextOrderNo.value = ''  // 订单上下文一并作废：清空会话后"正在咨询订单"条与出站附单号都不该延续
       const now = new Date()
       const p = (n) => (n < 10 ? '0' + n : '' + n)
       sessionTimeLabel.value = `今天 ${p(now.getHours())}:${p(now.getMinutes())} · 新会话已开始`
@@ -402,11 +403,11 @@ async function onSend() {
   pushMessage('user', text)
 
   // 订单上下文出站附带：用户没手打单号时把单号补进出站文本（气泡仍显示原话），
-  // 服务端靠订单号正则识别"这单"指哪单
+  // 服务端靠订单号正则识别"这单"指哪单；出站截 2000，防拼接顶破服务端 422 上限
   const outbound =
     contextOrderNo.value && !text.includes(contextOrderNo.value)
-      ? `${text}（订单号：${contextOrderNo.value}）`
-      : text
+      ? `${text}（订单号：${contextOrderNo.value}）`.slice(0, 2000)
+      : text.slice(0, 2000)
 
   sending.value = true
   // 预插入 AI 气泡：首 token 前显示打字动画，token 到达后逐字渲染

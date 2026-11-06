@@ -47,10 +47,11 @@ def _load(force: bool = False) -> dict[str, str]:
         _cache = {k: ("" if v is None else str(v)) for k, v in rows}
         _loaded_at = now
     except Exception:
-        logger.warning("sys_config 读取失败，AI 运行参数回落默认值")
-        _cache = _cache or {}
-        if not _cache:
-            _loaded_at = now  # 失败也记时间，避免每轮对话都打一次库
+        # 失败也记时间：有旧缓存时按 TTL 内继续用旧值，库挂期间不会每轮对话都重试打库
+        logger.warning("sys_config 读取失败，AI 运行参数沿用缓存/默认值")
+        if _cache is None:
+            _cache = {}
+        _loaded_at = now
     return _cache
 
 

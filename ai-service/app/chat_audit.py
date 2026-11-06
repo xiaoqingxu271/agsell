@@ -50,11 +50,13 @@ def record_turn(
                 ref_ids.append(str(r))
         session = SessionLocal()
         try:
+            # 截 16000 字符：TEXT 列上限 65535 字节，utf8mb4 最坏 4 字节/字符（emoji 密集
+            # 的回复可顶满），超限整行插入失败——审计是旁路，丢行比丢字节更伤
             session.add(ChatLog(
                 user_id=user_id,
                 session_id=(session_id or "")[:64],
-                question=(question or "")[:20000],
-                reply=(reply or "")[:20000],
+                question=(question or "")[:16000],
+                reply=(reply or "")[:16000],
                 intent=(intent or "")[:32] or None,
                 tools=",".join(tools or [])[:255] or None,
                 refused=1 if refused else 0,

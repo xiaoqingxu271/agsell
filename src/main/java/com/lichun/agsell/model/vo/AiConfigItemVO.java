@@ -1,5 +1,6 @@
 package com.lichun.agsell.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -21,6 +22,12 @@ public class AiConfigItemVO {
 
     private Object value;
 
+    /**
+     * Python 下发的键名是 "default"（Java 关键字不能做字段名），
+     * 不用 @JsonProperty 重命名的话 Jackson 输出 "defaultValue"，
+     * 前端读 item.default 得 undefined——默认值列空白、"恢复默认"必坏
+     */
+    @JsonProperty("default")
     private Object defaultValue;
 
     private boolean overridden;

@@ -78,3 +78,28 @@ def test_stripper_matches_batch_sanitizer():
     raw = "支付方式有**模拟支付**，另有`微信支付`。\n- 到账时间 1-3 天\n#123 为内部单号"
     assert _feed_all(MarkdownStripper(), [raw[i:i + 5] for i in range(0, len(raw), 5)]) == \
         sanitize_reply_text(raw)
+
+
+def test_stripper_multi_hash_heading_matches_batch():
+    # 回归：## 标题记号曾被单字符缓冲放行（# + # 相遇即吐出），与整段清洗口径不一致。
+    # 现在行首缓冲最多积 6 个 #，后跟空格即剥，与 _MD_HEADING 对齐
+    cases = [
+        ("## 标题内容", "标题内容"),
+        ("### 三级标题", "三级标题"),
+        ("###### 六级", "六级"),
+        ("####### 七个井号", "####### 七个井号"),  # 超过 6 个不构成标题，两路径都保留
+        ("##没有空格", "##没有空格"),              # 无空格不构成标题
+        ("订单#123 备注", "订单#123 备注"),
+        ("-5 元起送", "-5 元起送"),
+    ]
+    for raw, want in cases:
+        got = _feed_all(MarkdownStripper(), [raw[i:i + 2] for i in range(0, len(raw), 2)])
+        assert got == want, f"raw={raw!r} stream={got!r} want={want!r}"
+        assert sanitize_reply_text(raw) == want, f"raw={raw!r} batch={sanitize_reply_text(raw)!r}"
+
+
+def test_stripper_heading_split_across_tokens():
+    # 标题记号拆在相邻 token：'#' 单独一个 token、'# 使用说明' 另一个
+    s = MarkdownStripper()
+    out = s.feed("欢迎\n") + s.feed("#") + s.feed("# 使用说明") + s.flush()
+    assert out == "欢迎\n使用说明"

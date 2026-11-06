@@ -37,14 +37,15 @@ class MarkdownStripper:
     """流式增量清洗：逐字符状态机，feed() 进原始 token、吐干净文本
 
     - `*` / 反引号直接丢弃，不缓存（** 拆成两个 token 也各丢各的）；
-    - 行首的 # 与 - / • 有歧义（"-5 元" "订单#123"），缓存一个字符等下一字符裁决：
-      后跟空格才当列表符剥掉，否则原样吐出；
-    - flush() 在流收尾时调用，吐出仍被缓存的最后一个字符。
+    - 行首的 # / - / • 有歧义（"-5 元" "订单#123"），缓存等下一字符裁决：
+      后跟空格才当标记剥掉，否则原样吐出。# 连续时最多缓存 6 个（## 标题），
+      与整段清洗的 _MD_HEADING（#{1,6} + 空格）口径一致，两路径剥的是同一批标记；
+    - flush() 在流收尾时调用，吐出仍被缓存的字符。
     """
 
     def __init__(self) -> None:
         self._at_line_start = True   # 文本开头等同行首
-        self._pending = ""           # 被缓存等待裁决的行首字符（最多 1 个）
+        self._pending = ""           # 被缓存等待裁决的行首记号（若干个 # 或单个 - / •）
 
     def feed(self, chunk: str) -> str:
         if not chunk:
@@ -54,17 +55,22 @@ class MarkdownStripper:
             if ch in ("*", "`"):
                 continue
             if ch == "\n":
-                # 缓存中的 # / - 没等到内容就换行 = 孤立记号，丢弃
+                # 缓冲中的记号没等到裁决就换行 = 孤立记号，丢弃
                 self._pending = ""
                 self._at_line_start = True
                 out.append(ch)
                 continue
             if self._pending:
-                marker, self._pending = self._pending, ""
+                # 继续积累标题记号：## / ### …（与 _MD_HEADING 的 {1,6} 对齐）
+                if ch == "#" and len(self._pending) < 6 and set(self._pending) == {"#"}:
+                    self._pending += ch
+                    continue
                 self._at_line_start = False
                 if ch in (" ", "\t"):
-                    continue          # "# 文本" / "- 文本"：记号连同其后的空格一起剥
-                out.append(marker)    # "3-5 天" / "订单#123"：原样保留
+                    self._pending = ""  # "# 文本" / "## 文本" / "- 文本"：记号连同空格一起剥
+                    continue
+                out.append(self._pending)  # "订单#123" / "3-5 天" / "##没有空格"：原样保留
+                self._pending = ""
                 out.append(ch)
                 continue
             if self._at_line_start and ch in ("#", "-", "•"):

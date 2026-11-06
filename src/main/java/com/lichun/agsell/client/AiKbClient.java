@@ -128,7 +128,9 @@ public class AiKbClient {
     /** 按文档名整批删除（DB 行 + 向量索引），返回删除块数 */
     public long deleteDocument(String name) {
         String encoded = java.net.URLEncoder.encode(name, java.nio.charset.StandardCharsets.UTF_8);
-        return JSONUtil.parseObj(delete("/v1/admin/kb/documents?name=" + encoded, CRUD_TIMEOUT_MS))
+        return JSONUtil.parseObj(executeWithDetail(
+                cn.hutool.http.HttpRequest.delete(url("/v1/admin/kb/documents?name=" + encoded)),
+                "/v1/admin/kb/documents", CRUD_TIMEOUT_MS))
                 .getLong("deleted", 0L);
     }
 
@@ -139,9 +141,13 @@ public class AiKbClient {
 
     /** 批量更新运行参数（Python 侧 PUT 后立即生效），返回更新后的全量快照 */
     public List<AiConfigItemVO> updateConfig(Map<String, String> values) {
+        // Python 侧契约是 {"values": {key: value}}，平铺发过去会被 pydantic 静默忽略、
+        // 返回 200 + 未变化的旧快照——调参页"保存成功"却什么都没改，比 500 更糟
         JSONObject payload = new JSONObject();
         values.forEach(payload::set);
-        return parseConfig(put("/v1/admin/kb/config", payload.toString(), CRUD_TIMEOUT_MS));
+        JSONObject wrapper = new JSONObject();
+        wrapper.set("values", payload);
+        return parseConfig(put("/v1/admin/kb/config", wrapper.toString(), CRUD_TIMEOUT_MS));
     }
 
     /** 商品召回索引全量重建（上一步失灵或历史脏数据时的兜底修复） */
@@ -415,7 +421,14 @@ public class AiKbClient {
             if (!isSuccess(response.getStatus())) {
                 log.error("AI 知识库文档上传返回异常: path={}, status={}", path, response.getStatus());
                 if (response.getStatus() == 400) {
-                    String detail = JSONUtil.parseObj(response.body()).getStr("detail", "");
+                    // detail 解析单独兜底：400 也可能来自反向代理（HTML 错误页），
+                    // 解析失败被外层 catch 吞掉会误报"无法连接 AI 服务"，方向完全反了
+                    String detail = "";
+                    try {
+                        detail = JSONUtil.parseObj(response.body()).getStr("detail", "");
+                    } catch (Exception ignore) {
+                        // 非 JSON 体，走下方固定文案
+                    }
                     if (!detail.isBlank()) {
                         throw new BusinessException(ErrorCode.PARAMS_ERROR, detail);
                     }
@@ -427,6 +440,39 @@ public class AiKbClient {
             throw e;
         } catch (Exception e) {
             log.error("调用 AI 知识库文档上传失败: path={}", path, e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR,
+                    "无法连接 AI 服务，请确认 ai-service 已启动后重试");
+        }
+    }
+
+    /**
+     * 带业务 detail 透传的 DELETE（文档删除等"资源可能不存在"的调用）：
+     * 通用 execute() 把 404 一律翻译成"AI 服务版本过旧"，但两管理员并发删同一文档时
+     * Python 返回的 404"文档不存在"是正常业务结果，文案会误导运营。
+     */
+    private String executeWithDetail(cn.hutool.http.HttpRequest request, String path, int timeoutMs) {
+        try (cn.hutool.http.HttpResponse response = request
+                .header("X-Internal-Key", internalKey)
+                .timeout(timeoutMs)
+                .execute()) {
+            if (!isSuccess(response.getStatus())) {
+                log.error("AI 知识库接口返回异常: path={}, status={}", path, response.getStatus());
+                String detail = "";
+                try {
+                    detail = JSONUtil.parseObj(response.body()).getStr("detail", "");
+                } catch (Exception ignore) {
+                    // 非 JSON 体
+                }
+                if (!detail.isBlank()) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, detail);
+                }
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, friendly(path, response.getStatus()));
+            }
+            return response.body();
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("调用 AI 知识库接口失败: path={}", path, e);
             throw new BusinessException(ErrorCode.OPERATION_ERROR,
                     "无法连接 AI 服务，请确认 ai-service 已启动后重试");
         }

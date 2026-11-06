@@ -49,14 +49,20 @@ def extract_text(filename: str, data: bytes) -> str:
     raise DocIngestError("仅支持 txt / md / docx / pdf 格式")
 
 
-def ingest_document(session: Session, title: str, text: str, source: str) -> list[int]:
+def chunk_text(text: str) -> list[str]:
+    """文档切块（供端点预检块数与入库复用，单一口径）"""
+    return split_chunks(text, size=_DOC_CHUNK_SIZE, overlap=_DOC_CHUNK_OVERLAP)
+
+
+def ingest_document(session: Session, title: str, text: str, source: str, chunks: list[str] | None = None) -> list[int]:
     """切块并写入 ai_faq（不提交、不同步索引——事务与向量同步由调用方编排）。
 
+    chunks 可传调用方已切好的结果（端点先预检块数再入库，避免重复切块）；
     调用方若要实现"同名文档替换"，先自行 delete_by_source 再调本函数；
     本函数只负责把切块全部写进来并返回 id（flush 取自增 id，供索引 upsert）。
     """
     title = _clean_title(title)
-    chunks = split_chunks(text, size=_DOC_CHUNK_SIZE, overlap=_DOC_CHUNK_OVERLAP)
+    chunks = chunks if chunks is not None else chunk_text(text)
     if not chunks:
         raise DocIngestError("文档没有可用的文本内容")
     ids: list[int] = []

@@ -1,6 +1,8 @@
 package com.lichun.agsell.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -51,5 +53,10 @@ public class AiChatLog implements Serializable {
     /** 本轮总耗时毫秒 */
     private Integer durationMs;
 
+    /**
+     * 写入时间。表列名是 created_at（与 Python ORM 同列），不是项目惯例的 create_time——
+     * 不映射的话 MyBatis-Plus 生成 SELECT ...,create_time 会直接 Unknown column，审计页整页 500
+     */
+    @TableField("created_at")
     private LocalDateTime createTime;
 }

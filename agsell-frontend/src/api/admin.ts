@@ -507,14 +507,14 @@ export function deleteKbFaq(id: number) {
   return request.delete<null>(`/admin/ai/kb/faqs/${id}`)
 }
 
-/** FAQ 向量索引全量重建，返回写入条数 */
+/** FAQ 向量索引全量重建，返回写入条数（几百条本地向量化，放宽超时） */
 export function rebuildKbIndex() {
-  return request.post<IdOrNum>('/admin/ai/kb/index')
+  return request.post<IdOrNum>('/admin/ai/kb/index', undefined, { timeout: 120000 })
 }
 
 /** 商品召回索引全量重建（商品变更后有异步增量通知，这里是兜底修复） */
 export function rebuildKbProductIndex() {
-  return request.post<IdOrNum>('/admin/ai/kb/products/index')
+  return request.post<IdOrNum>('/admin/ai/kb/products/index', undefined, { timeout: 120000 })
 }
 
 /**
@@ -526,7 +526,10 @@ export function uploadKbDocument(file: File, title?: string) {
   formData.append('file', file)
   if (title && title.trim()) formData.append('title', title.trim())
   return request.post<AiDocUploadVO>('/admin/ai/kb/document', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': 'multipart/form-data' },
+    // 抽文本+切块+批量向量化是秒级到几十秒的操作，全局 15s 默认超时必然误杀；
+    // 与 Java 侧等待 Python 的 120s 上限对齐
+    timeout: 120000
   })
 }
 

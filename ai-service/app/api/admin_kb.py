@@ -92,6 +92,7 @@ def _check_admin_key(x_internal_key: str | None = Header(default=None)) -> None:
 @router.get("/stats")
 def stats(session: Session = Depends(get_session), _=Depends(_check_admin_key)):
     from app import kb_hit_log  # 延迟导入避免循环依赖
+    from app import runtime_config  # 延迟导入避免循环依赖
 
     return {
         "faq_count": faq_repo.count_enabled(session),
@@ -99,7 +100,9 @@ def stats(session: Session = Depends(get_session), _=Depends(_check_admin_key)):
         "product_indexed_count": _get_product_store().count(),
         "embedding_model": settings.EMBEDDING_MODEL,
         "vector_db_path": settings.VECTOR_DB_PATH,
-        "top_k": settings.KB_TOP_K,
+        # 显示当前生效值而非代码默认值：运营在「AI 运营配置」改过参数后，
+        # 状态卡展示的才与真实检索行为一致（读失败自动回落 settings 默认）
+        "top_k": runtime_config.effective("ai_kb_top_k"),
         "product_top_k": settings.PRODUCT_TOP_K,
         # 近 7 日被 AI 引用 Top（运营视图：哪条知识真的被用过）；日志库缺失/无数据返回空
         "recent_hit_top": kb_hit_log.recent_top(
@@ -212,7 +215,15 @@ def list_faqs(
     session: Session = Depends(get_session),
     _=Depends(_check_admin_key),
 ):
-    items, total = faq_repo.list_all(session, category=category, page=page, size=size)
+    # 文档切块（doc_knowledge）默认不进手写 Q&A 列表：块动辄几十上百条会把运营的
+    # 维护列表刷屏；它们归本文件上面的「文档知识」卡管（按来源整批替换/删除）。
+    # 显式传 category=doc_knowledge 时仍可单独查看。
+    from app.rag.doc_ingest import DOC_CATEGORY
+
+    exclude_category = None if category == DOC_CATEGORY else DOC_CATEGORY
+    items, total = faq_repo.list_all(
+        session, category=category, page=page, size=size, exclude_category=exclude_category
+    )
     return {
         "total": total,
         "items": [
@@ -288,6 +299,11 @@ async def upload_document(
         text = doc_ingest.extract_text(raw_name, data)
     except doc_ingest.DocIngestError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+    # 块数上限：10MB 纯文本可切出上万块，同步向量化会把请求拖到必超时——
+    # 与其让管理员等到网关断开，不如在这里给明确提示（拆分后分次上传）
+    chunks = doc_ingest.chunk_text(text)
+    if len(chunks) > 2000:
+        raise HTTPException(status_code=400, detail="文档过长（切分后超过 2000 块），请拆分后分次上传")
     # 替换语义：先取旧块 id（供索引除名）→ 删旧行 → 切块入新行，一个事务提交
     old_ids = doc_ingest.delete_by_source(session, source)
     try:
