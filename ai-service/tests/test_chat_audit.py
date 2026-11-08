@@ -3,10 +3,33 @@
 E2E 教训：chat_audit 此前没有测试，漏 import Base 后 NameError 被 except 吞掉，
 审计静默丢行、线上零告警。旁路模块"失败不影响业务"的设计反而掩盖了"永远在失败"——
 本测试用真实引擎直连（DATABASE_URL 指向的库），把整条链路钉死。
+
+运行条件：需要 DATABASE_URL 指向的真实 MySQL（本地开发默认有；CI 的 ai-service
+job 已配 MySQL service）。库不可达时整模块跳过而非报错——真库测试不应在
+没有数据库的环境里制造噪音，但 CI 有库时它们必须真跑。
 """
 import pytest
 
 from app import chat_audit
+
+
+def _db_reachable() -> bool:
+    try:
+        from sqlalchemy import text
+
+        from app.db import engine
+
+        with engine.connect() as conn:
+            conn.execute(text("select 1"))
+        return True
+    except Exception:  # noqa: BLE001 探针失败 = 无库环境，跳过而不是报错
+        return False
+
+
+pytestmark = pytest.mark.skipif(
+    not _db_reachable(),
+    reason="需要 DATABASE_URL 指向的真实 MySQL（当前环境不可达）",
+)
 
 
 def test_record_turn_persists_row_and_is_queryable():

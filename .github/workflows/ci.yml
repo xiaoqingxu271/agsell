@@ -253,7 +253,8 @@ jobs:
 
   # ============================================================
   # AI 服务：Python 3.14 / FastAPI / pytest
-  # 测试全部 stub，不依赖网络与 AGNES_API_KEY
+  # 测试全部 stub，不依赖网络与 AGNES_API_KEY；
+  # MySQL service 供 test_chat_audit 真库测试使用（_ensure_table 自建表，无需灌 schema）
   # ============================================================
   ai-service:
     name: AI Service (Python 3.14)
@@ -261,6 +262,21 @@ jobs:
     defaults:
       run:
         working-directory: ai-service
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: agsell
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/agsell?charset=utf8mb4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
