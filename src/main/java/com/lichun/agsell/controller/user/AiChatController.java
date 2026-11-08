@@ -2,10 +2,13 @@ package com.lichun.agsell.controller.user;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lichun.agsell.common.BaseResponse;
 import com.lichun.agsell.exception.BusinessException;
 import com.lichun.agsell.exception.ErrorCode;
+import com.lichun.agsell.mapper.AiTicketMapper;
 import com.lichun.agsell.model.dto.AiChatRequest;
+import com.lichun.agsell.model.entity.AiTicket;
 import com.lichun.agsell.model.vo.AiChatReplyVO;
 import com.lichun.agsell.utils.ResultUtils;
 import com.lichun.agsell.utils.UserContextResolver;
@@ -30,6 +33,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -69,6 +73,7 @@ public class AiChatController {
     private String internalKey;
 
     private final UserContextResolver userContextResolver;
+    private final AiTicketMapper aiTicketMapper;
 
     @Operation(summary = "AI 客服对话")
     @PostMapping
@@ -184,6 +189,48 @@ public class AiChatController {
         // 虚拟线程：阻塞读 Python SSE 并逐事件转发，不占用平台线程
         Thread.ofVirtual().start(() -> forwardStream(payload, emitter));
         return emitter;
+    }
+
+    /**
+     * 用户主动转人工：与 AI 判定转人工共用 ai_ticket 表与管理后台跟进页，
+     * 用户点按钮即可升级，不依赖模型判定（AI 服务不可用时转人工依然可用）。
+     * 游客同样允许（userId 可空，与 AI 触发路径口径一致）；同会话 15 分钟内
+     * 已有待处理工单时幂等返回原单号，连点/重复提交不刷单。
+     */
+    @Operation(summary = "用户主动转人工（写入转人工工单，管理后台跟进；游客可用）",
+            description = "复用 AI 会话 sessionId 关联上下文；message 为可选的问题描述（取最近一条用户消息）")
+    @PostMapping("/escalate")
+    public BaseResponse<Long> escalate(@RequestBody AiChatRequest request, HttpServletRequest httpRequest) {
+        String sessionId = request.getSessionId();
+        if (sessionId == null || sessionId.isBlank()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "sessionId 不能为空");
+        }
+        String question = request.getMessage() == null ? "" : request.getMessage().trim();
+        if (question.length() > 500) {
+            question = question.substring(0, 500);
+        }
+
+        Long userId = resolveUserId(httpRequest);
+
+        AiTicket existing = aiTicketMapper.selectOne(new LambdaQueryWrapper<AiTicket>()
+                .eq(AiTicket::getSessionId, sessionId)
+                .eq(AiTicket::getStatus, 0)
+                .orderByDesc(AiTicket::getCreateTime)
+                .last("LIMIT 1"));
+        if (existing != null && existing.getCreateTime() != null
+                && existing.getCreateTime().isAfter(LocalDateTime.now().minusMinutes(15))) {
+            return ResultUtils.success(existing.getId());
+        }
+
+        AiTicket ticket = new AiTicket();
+        ticket.setUserId(userId);
+        ticket.setSessionId(sessionId);
+        ticket.setQuestion(question.isEmpty() ? "（用户在会话中主动点击转人工，未附言）" : question);
+        ticket.setReason("用户主动转人工");
+        ticket.setStatus(0);
+        aiTicketMapper.insert(ticket);
+        log.info("[AI] 用户主动转人工, ticketId={}, sessionId={}, userId={}", ticket.getId(), sessionId, userId);
+        return ResultUtils.success(ticket.getId());
     }
 
     /**

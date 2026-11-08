@@ -66,4 +66,14 @@ export function sendAiChatStream(sessionId, message, handlers = {}, productId = 
   })
 }
 
-export default { sendAiChat, sendAiChatStream }
+/**
+ * 用户主动转人工（写入转人工工单，管理后台「AI 转人工工单」页跟进；游客可用）
+ * 同会话 15 分钟内已有待处理工单时服务端幂等返回原单号，连点不重复建单
+ * @param {string} sessionId 会话 ID（用于管理员关联对话上下文）
+ * @param {string} [message] 问题描述（前端取最近一条用户消息）
+ */
+export function escalateHuman(sessionId, message = '') {
+  return request('POST', '/ai/chat/escalate', { sessionId, message }, { timeout: 10000 })
+}
+
+export default { sendAiChat, sendAiChatStream, escalateHuman }

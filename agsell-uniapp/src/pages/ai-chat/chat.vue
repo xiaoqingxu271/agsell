@@ -4,6 +4,7 @@
     <NavBar title="AI 客服" show-back @back="onBack">
       <template #right>
         <view class="nav-tools">
+          <text class="nav-clear" @click="onEscalate" role="button" aria-label="转人工">转人工</text>
           <text class="nav-clear" @click="onClearSession" role="button" aria-label="清空会话">清空</text>
           <view class="nav-online">
             <text class="nav-online-dot"></text>
@@ -146,7 +147,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import NavBar from '../../components/NavBar/NavBar.vue'
-import { sendAiChatStream } from '../../api/ai'
+import { sendAiChatStream, escalateHuman } from '../../api/ai'
 import { getProductDetail } from '../../api/product'
 import { addToCart } from '../../api/cart'
 import { isLoggedIn, wxLogin } from '../../utils/request'
@@ -372,6 +373,36 @@ function onClearSession() {
 function onBack() {
   // 从"我的"页 navigateTo 进入，delta=1 返回上一页
   uni.navigateBack({ delta: 1 })
+}
+
+/**
+ * 用户主动转人工：确认后写入转人工工单（管理后台「AI 转人工工单」页跟进），
+ * 会话内插入一条提示气泡。同会话 15 分钟内已有待处理工单时服务端幂等返回
+ * 原单号，连点不会重复建单；AI 服务不可用时本入口依然可用（不经过 Python）。
+ */
+function onEscalate() {
+  uni.showModal({
+    title: '转人工客服',
+    content: '将把问题转给人工客服在本会话内跟进，AI 客服仍可继续使用。确认转接吗？',
+    success: async (res) => {
+      if (!res.confirm) return
+      // 附最近一条用户消息作为问题描述，管理员处理时不用猜上下文
+      const lastUser = [...messages.value].reverse().find((m) => m.role === 'user')
+      try {
+        const r = await escalateHuman(sessionId.value, lastUser ? lastUser.content : '')
+        if (r && r.code === 0) {
+          pushMessage('ai', '已为你转接人工客服，请留意本会话的回复～ 人工处理前，AI 客服仍可继续为你解答。')
+          persistHistory()
+          uni.showToast({ title: '已转接人工', icon: 'success' })
+        } else {
+          uni.showToast({ title: (r && r.message) || '转接失败，请稍后再试', icon: 'none' })
+        }
+      } catch (e) {
+        console.warn('转人工请求失败', e)
+        uni.showToast({ title: '网络异常，请稍后再试', icon: 'none' })
+      }
+    }
+  })
 }
 
 async function sendQuick(q) {
