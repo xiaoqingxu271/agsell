@@ -9,7 +9,7 @@
 """
 import logging
 
-from app.db import SessionLocal, engine
+from app.db import Base, SessionLocal, engine
 from app.models.chat_log import ChatLog
 
 logger = logging.getLogger("agsell.ai.chat_audit")

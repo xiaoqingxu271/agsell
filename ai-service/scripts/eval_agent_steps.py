@@ -105,6 +105,7 @@ def main():
         obs = out.get("observations") or []
         s = score_case(case, [o["tool"] for o in obs], [o["status"] for o in obs],
                        out.get("rec_items") or [], route)
+        s["route"] = route  # 漏写会让汇总里"agent 行平均调用数"过滤永假（实测 avg 恒 0.0 的根因）
         s["latency_ms"] = ms
         s["n_calls"] = len(obs)
         return s
