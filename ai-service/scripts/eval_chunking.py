@@ -70,19 +70,26 @@ def load_source_rows(session):
 
 
 def build_corpus(records, traces):
-    """原始行 → {chunks: 切块素材列表, queries: [(查询, 期望锚点子串列表)]}
+    """原始行 → {长文档素材列表, queries: [(查询, 期望锚点子串列表)]}
 
     切块素材与查询解耦：素材进各档位现切，查询锚点不随档位变，命中判定才可比。
+
+    素材**按商品聚合成一篇"溯源手册"**（标题 + 全部生产记录 + 溯源信息段）而不是
+    单条记录一条素材：单条记录几十字，任何档位都装进单块，切块参数根本不生效
+    （首轮实测五档全为 1224 块、指标无差异就是这个原因）。长文档才能拉开各档
+    (size, overlap) 的块数与粒度差异——这也正是"上传一份产品手册"的真实形态。
     """
+    from collections import defaultdict
+
     from app.rag.chunker import strip_html
 
-    corpus_docs: list[str] = []
+    docs: dict[str, list[str]] = defaultdict(list)   # 商品名 → 手册段落
     queries: list[dict] = []
 
     for _rid, rec_type, rec_date, content, batch_no, product_name in records:
         type_text = _RECORD_TYPE_TEXT.get(str(rec_type).upper(), str(rec_type))
-        body = f"{product_name}（批次 {batch_no}）{type_text}记录：{rec_date}，{strip_html(content)}"
-        corpus_docs.append(body)
+        docs[product_name].append(
+            f"{product_name}（批次 {batch_no}）{type_text}记录：{rec_date}，{strip_html(content)}")
         anchors = [x for x in (str(rec_date or ""), str(batch_no or "")) if x]
         queries.append({"q": f"{product_name}的{type_text}记录", "anchors": anchors, "kind": "record"})
 
@@ -99,10 +106,11 @@ def build_corpus(records, traces):
         if cert:
             parts.append(f"认证 {cert}")
         body = "｜".join(str(x) for x in parts if x)
-        corpus_docs.append(f"{product_name}溯源档案：{body}")
+        docs[product_name].append(f"{product_name}溯源档案：{body}")
         queries.append({"q": f"{product_name}的溯源档案",
                         "anchors": [str(batch_no or "")] if batch_no else [], "kind": "trace"})
 
+    corpus_docs = [f"{name}的产地溯源手册\n" + "\n".join(segments) for name, segments in docs.items()]
     return corpus_docs, queries
 
 
@@ -125,11 +133,14 @@ def eval_grid(corpus_docs, queries, size, overlap, embedder, tmp_root) -> dict:
     embeddings = [v.tolist() for v in embedder.embed(chunks)]
     col.add(ids=[str(i) for i in range(len(chunks))], documents=chunks, embeddings=embeddings)
 
+    # 查询向量也自己算：query_texts 会触发 chromadb 默认嵌入函数在线下载
+    # all-MiniLM-L6-v2（79MB），离线/受限网络直接超时——与项目 vectorstore.py 同口径
+    q_embeddings = [v.tolist() for v in embedder.embed([item["q"] for item in queries])]
     hit1 = hit3 = 0
     total_ms = 0.0
-    for item in queries:
+    for item, qemb in zip(queries, q_embeddings):
         t0 = time.perf_counter()
-        res = col.query(query_texts=[item["q"]], n_results=min(3, len(chunks)))
+        res = col.query(query_embeddings=[qemb], n_results=min(3, len(chunks)))
         total_ms += (time.perf_counter() - t0) * 1000
         docs = res["documents"][0] if res["documents"] else []
         found = [any(a and a in doc for a in item["anchors"]) for doc in docs]

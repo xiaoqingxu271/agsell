@@ -37,11 +37,22 @@ STEPS_GRID = [1, 2, 3]
 
 
 def inject_steps(steps: int) -> None:
-    """把步数上限写进 runtime_config 进程内缓存（不落库，详见模块 docstring）"""
-    from app import runtime_config
+    """把步数上限钉进 runtime_config.effective（不落库，详见模块 docstring）。
 
-    runtime_config._cache = {"ai_agent_max_steps": str(steps)}
-    runtime_config._loaded_at = time.monotonic()
+    实现注记：不能只写 _cache——effective 内部 _load() 的 TTL 过期会用真实
+    sys_config 内容**覆盖掉注入值**（E2E 实测三档全部退化成默认 2，准确率全等）。
+    monkeypatch effective 对目标键固定返回，其余键透传真实实现（闸门阈值等照常生效）。
+    """
+    from app import runtime_config as rc
+
+    real_effective = rc.effective
+
+    def pinned(key: str):
+        if key == "ai_agent_max_steps":
+            return steps
+        return real_effective(key)
+
+    rc.effective = pinned
 
 
 def main():
@@ -128,6 +139,12 @@ def main():
             "avg_latency_ms": round(sum(lat) / len(lat)) if lat else None,
             "wall_seconds": wall,
             "errors": len(results) - len(scored_rows),
+            # 每题明细必须存档：汇总数字异常时（如 avg=0 但准确率>0）才能事后定位，
+            # 也满足论文"数字与存档同源可核查"的要求
+            "cases": [
+                {k: r.get(k) for k in ("q", "intent", "route", "hit", "tools", "n_calls", "latency_ms")}
+                for r in scored_rows
+            ],
         }
         grid_results.append(row)
         print(f"steps={steps}: 准确率 {row['accuracy']}  平均调用 {row['avg_tool_calls']}  "
