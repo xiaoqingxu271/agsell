@@ -2,112 +2,201 @@
   "mode": "llm",
   "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset_holdout.json",
   "testset_kind": "holdout",
-  "measured_at": "2026-10-17T15:07:40",
-  "git_commit": "6a7cf8f",
+  "measured_at": "2026-11-08T16:01:59",
+  "git_commit": "c88a9482",
+  "worktree_dirty": true,
+  "dirty_files": 7,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
   "valid": true,
-  "sampled": true,
-  "sample_of_total": "45/109",
+  "sampled": false,
+  "sample_of_total": "109/109",
   "sample_seed": 20261017,
-  "llm_calls": 41,
+  "llm_calls": 103,
   "llm_errors": 0,
-  "rate_limited_calls": 8,
-  "total": 45,
-  "accuracy": 0.9333,
+  "rate_limited_calls": 20,
+  "total": 109,
+  "accuracy": 0.9266,
   "per_intent": {
     "after_sales": {
-      "total": 6,
-      "correct": 6,
-      "recall": 1.0
+      "total": 15,
+      "correct": 12,
+      "recall": 0.8
     },
     "faq": {
-      "total": 7,
-      "correct": 7,
-      "recall": 1.0
+      "total": 20,
+      "correct": 19,
+      "recall": 0.95
     },
     "human": {
-      "total": 5,
-      "correct": 5,
+      "total": 14,
+      "correct": 14,
       "recall": 1.0
     },
     "logistics": {
-      "total": 7,
-      "correct": 5,
-      "recall": 0.7143
+      "total": 15,
+      "correct": 13,
+      "recall": 0.8667
     },
     "order": {
-      "total": 5,
-      "correct": 5,
-      "recall": 1.0
+      "total": 15,
+      "correct": 14,
+      "recall": 0.9333
     },
     "recommend": {
-      "total": 6,
-      "correct": 6,
+      "total": 16,
+      "correct": 16,
       "recall": 1.0
     },
     "smalltalk": {
-      "total": 9,
-      "correct": 8,
-      "recall": 0.8889
+      "total": 14,
+      "correct": 13,
+      "recall": 0.9286
     }
   },
   "confusion": [
     {
+      "truth": "faq",
+      "pred": "recommend",
+      "count": 1
+    },
+    {
+      "truth": "order",
+      "pred": "after_sales",
+      "count": 1
+    },
+    {
       "truth": "logistics",
-      "pred": "human",
-      "count": 2
+      "pred": "after_sales",
+      "count": 1
+    },
+    {
+      "truth": "logistics",
+      "pred": "order",
+      "count": 1
+    },
+    {
+      "truth": "after_sales",
+      "pred": "faq",
+      "count": 3
     },
     {
       "truth": "smalltalk",
-      "pred": "human",
+      "pred": "recommend",
       "count": 1
     }
   ],
   "misclassified": [
     {
-      "q": "派送员的电话能给我吗",
-      "truth": "logistics",
-      "pred": "human",
-      "feature": "lexical"
-    },
-    {
-      "q": "能改成周末再送吗",
-      "truth": "logistics",
-      "pred": "human",
+      "q": "平台上有带有机认证的商品吗",
+      "truth": "faq",
+      "pred": "recommend",
       "feature": "semantic"
     },
     {
-      "q": "你是真人还是智能助手",
+      "q": "我申请退款的那笔单子订单号是多少",
+      "truth": "order",
+      "pred": "after_sales",
+      "feature": "lexical"
+    },
+    {
+      "q": "什么时候上门取件",
+      "truth": "logistics",
+      "pred": "after_sales",
+      "feature": "semantic"
+    },
+    {
+      "q": "我下的那单是从哪个城市发出来的",
+      "truth": "logistics",
+      "pred": "order",
+      "feature": "lexical"
+    },
+    {
+      "q": "坏了一个能给我补发吗",
+      "truth": "after_sales",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "东西我已经寄回去了，接下来怎么走",
+      "truth": "after_sales",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "买的水果烂了三成，这个怎么算",
+      "truth": "after_sales",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "随便看看，先熟悉一下这个小程序",
       "truth": "smalltalk",
-      "pred": "human",
+      "pred": "recommend",
       "feature": "semantic"
     }
   ],
   "by_feature": {
     "lexical": {
-      "total": 15,
-      "correct": 14,
-      "accuracy": 0.9333
+      "total": 32,
+      "correct": 30,
+      "accuracy": 0.9375
     },
     "semantic": {
-      "total": 30,
-      "correct": 28,
-      "accuracy": 0.9333
+      "total": 77,
+      "correct": 71,
+      "accuracy": 0.9221
     }
   },
-  "order_no_accuracy": null,
-  "sampling_note": "本次为 109 条全集中的 45 条随机抽样（seed=20261017，可复现）——受免费额度窗口配额限制未跑全集，引用时必须写明是子集",
+  "order_no_accuracy": 1.0,
   "rule_channel_reference": {
-    "accuracy": 0.3556,
+    "accuracy": 0.3853,
+    "per_intent": {
+      "after_sales": {
+        "total": 15,
+        "correct": 6,
+        "recall": 0.4
+      },
+      "faq": {
+        "total": 20,
+        "correct": 14,
+        "recall": 0.7
+      },
+      "human": {
+        "total": 14,
+        "correct": 3,
+        "recall": 0.2143
+      },
+      "logistics": {
+        "total": 15,
+        "correct": 6,
+        "recall": 0.4
+      },
+      "order": {
+        "total": 15,
+        "correct": 4,
+        "recall": 0.2667
+      },
+      "recommend": {
+        "total": 16,
+        "correct": 6,
+        "recall": 0.375
+      },
+      "smalltalk": {
+        "total": 14,
+        "correct": 3,
+        "recall": 0.2143
+      }
+    },
     "by_feature": {
       "lexical": {
-        "total": 15,
-        "correct": 9,
-        "accuracy": 0.6
+        "total": 32,
+        "correct": 23,
+        "accuracy": 0.7188
       },
       "semantic": {
-        "total": 30,
-        "correct": 7,
-        "accuracy": 0.2333
+        "total": 77,
+        "correct": 19,
+        "accuracy": 0.2468
       }
     }
   }

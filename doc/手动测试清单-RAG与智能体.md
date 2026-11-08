@@ -172,7 +172,7 @@
   ```
   （hold-out 109 条计分样本，与调参数据隔离，防数据泄漏口径）
 - [ ] **H2 RAG 命中率**：`scripts/eval_rag.py`（知识库全覆盖 280 条，论文口径 Hit@1 97.2%）
-- [ ] **H3 重排增益**：`scripts/eval_rerank.py`（Hit@1 90.3%→97.2%、P50 219ms）
+- [ ] **H3 重排增益**：`scripts/eval_rerank.py`（Hit@1 90.3%→97.2%、P50 144.2ms）
 - [ ] **H4 拒答率与闸门泄漏率**：`scripts/eval_refusal.py`（域外泄漏率应为 0%）
 - [ ] **H5 导购召回三通道**：`scripts/eval_recommend.py`（LIKE/语义/个性化重排回放）
 - [ ] **H6 智能体探针**：`scripts/eval_agent.py`（indomain_guard / ood / overcall 三组探针，结果在 `scripts/eval_results/`）

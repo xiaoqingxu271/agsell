@@ -6,7 +6,7 @@
 
 | 组成 | 技术栈 | 说明 |
 |---|---|---|
-| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，39 个接口控制器，27 张数据表 |
+| 后端 API | Spring Boot 4.1.1 · Java 21 · MyBatis-Plus · MySQL 8 · Redis · JWT · Knife4j | 单体服务，39 个接口控制器，29 张数据表 |
 | 管理后台 | Vue 3 · Element Plus · Pinia · ECharts · Vite | 商品/订单/用户/营销/AI 知识库与转人工工单/系统 17 个功能页（另含登录页与框架布局页） |
 | 用户端 | uni-app（H5 + 微信小程序双端） | 28 个页面，完整购物与售后流程 |
 | AI 智能客服 | FastAPI · LangGraph · RAG（ChromaDB + bge-small-zh + MySQL 全文 BM25 + bge-reranker 重排）· OpenAI 兼容 LLM | 独立 Python 服务，SSE 流式回复 + 评价情感分析 |
@@ -28,7 +28,7 @@
        ▼              ▼
 ┌────────────┐  ┌────────────┐
 │  MySQL 8   │  │   Redis    │
-│  23 张表    │  │ token/秒杀库存/优惠券 │
+│  29 张表    │  │ token/秒杀库存/优惠券 │
 └────────────┘  └────────────┘
 ```
 
@@ -164,7 +164,7 @@ cd ai-service
 export DATABASE_URL="mysql+pymysql://root:<密码>@127.0.0.1:3306/agsell?charset=utf8mb4"
 .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode keyword    # 纯规则通道
 .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm_only --workers 1   # 纯大模型
-.venv/Scripts/python scripts/eval_intent.py --testset holdout --mode ll --workers 1         # 生产路径
+.venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm --workers 1        # 生产路径
 .venv/Scripts/python scripts/eval_rag.py        # RAG 命中率（知识库全覆盖 280 条）
 .venv/Scripts/python scripts/eval_rerank.py     # 重排增益与延迟（实验八）
 .venv/Scripts/python scripts/seed_trace_kb.py   # 溯源数据切块入库（trace_knowledge，幂等）

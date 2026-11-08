@@ -18,7 +18,7 @@
     .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm_only --workers 1
     .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm --workers 1
     # 免费额度按窗口配额，全集常跑到半程被 429 打断时，可只测固定种子的可复现子集：
-    .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode ll --limit 45 --workers 1
+    .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm --limit 45 --workers 1
 
 输出：控制台 Markdown 报告 + scripts/eval_results/intent_eval_<mode>[_<testset>][_n<条数>].json
 子集结果自动带 _n<条数> 后缀，不会覆盖全集存档；JSON 内 sampled / sample_of_total / sample_seed

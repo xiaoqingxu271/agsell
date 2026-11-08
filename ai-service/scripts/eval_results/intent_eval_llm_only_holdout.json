@@ -1,0 +1,222 @@
+{
+  "mode": "llm_only",
+  "testset": "D:\\Code\\Practical Project\\agsell\\ai-service\\scripts\\eval_data\\intent_testset_holdout.json",
+  "testset_kind": "holdout",
+  "measured_at": "2026-11-08T16:18:23",
+  "git_commit": "c88a9482",
+  "worktree_dirty": true,
+  "dirty_files": 9,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "valid": true,
+  "sampled": false,
+  "sample_of_total": "109/109",
+  "sample_seed": 20261017,
+  "llm_calls": 109,
+  "llm_errors": 0,
+  "rate_limited_calls": 22,
+  "total": 109,
+  "accuracy": 0.9174,
+  "per_intent": {
+    "after_sales": {
+      "total": 15,
+      "correct": 14,
+      "recall": 0.9333
+    },
+    "faq": {
+      "total": 20,
+      "correct": 20,
+      "recall": 1.0
+    },
+    "human": {
+      "total": 14,
+      "correct": 14,
+      "recall": 1.0
+    },
+    "logistics": {
+      "total": 15,
+      "correct": 13,
+      "recall": 0.8667
+    },
+    "order": {
+      "total": 15,
+      "correct": 10,
+      "recall": 0.6667
+    },
+    "recommend": {
+      "total": 16,
+      "correct": 16,
+      "recall": 1.0
+    },
+    "smalltalk": {
+      "total": 14,
+      "correct": 13,
+      "recall": 0.9286
+    }
+  },
+  "confusion": [
+    {
+      "truth": "order",
+      "pred": "faq",
+      "count": 2
+    },
+    {
+      "truth": "order",
+      "pred": "after_sales",
+      "count": 1
+    },
+    {
+      "truth": "order",
+      "pred": "__error__",
+      "count": 1
+    },
+    {
+      "truth": "order",
+      "pred": "human",
+      "count": 1
+    },
+    {
+      "truth": "logistics",
+      "pred": "after_sales",
+      "count": 1
+    },
+    {
+      "truth": "logistics",
+      "pred": "faq",
+      "count": 1
+    },
+    {
+      "truth": "after_sales",
+      "pred": "human",
+      "count": 1
+    },
+    {
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "count": 1
+    }
+  ],
+  "misclassified": [
+    {
+      "q": "我这个月的消费记录在哪里看",
+      "truth": "order",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "我申请退款的那笔单子订单号是多少",
+      "truth": "order",
+      "pred": "after_sales",
+      "feature": "lexical"
+    },
+    {
+      "q": "看看我最近一次成交的时间和金额",
+      "truth": "order",
+      "pred": "__error__",
+      "feature": "semantic"
+    },
+    {
+      "q": "我在你们家总共消费了多少钱",
+      "truth": "order",
+      "pred": "human",
+      "feature": "semantic"
+    },
+    {
+      "q": "能不能把我全部购买记录导出发给我",
+      "truth": "order",
+      "pred": "faq",
+      "feature": "lexical"
+    },
+    {
+      "q": "什么时候上门取件",
+      "truth": "logistics",
+      "pred": "after_sales",
+      "feature": "semantic"
+    },
+    {
+      "q": "从山东到上海一般走几天",
+      "truth": "logistics",
+      "pred": "faq",
+      "feature": "semantic"
+    },
+    {
+      "q": "买的水果烂了三成，这个怎么算",
+      "truth": "after_sales",
+      "pred": "human",
+      "feature": "semantic"
+    },
+    {
+      "q": "你怎么称呼",
+      "truth": "smalltalk",
+      "pred": "__error__",
+      "feature": "semantic"
+    }
+  ],
+  "by_feature": {
+    "lexical": {
+      "total": 32,
+      "correct": 30,
+      "accuracy": 0.9375
+    },
+    "semantic": {
+      "total": 77,
+      "correct": 70,
+      "accuracy": 0.9091
+    }
+  },
+  "order_no_accuracy": 1.0,
+  "rule_channel_reference": {
+    "accuracy": 0.3853,
+    "per_intent": {
+      "after_sales": {
+        "total": 15,
+        "correct": 6,
+        "recall": 0.4
+      },
+      "faq": {
+        "total": 20,
+        "correct": 14,
+        "recall": 0.7
+      },
+      "human": {
+        "total": 14,
+        "correct": 3,
+        "recall": 0.2143
+      },
+      "logistics": {
+        "total": 15,
+        "correct": 6,
+        "recall": 0.4
+      },
+      "order": {
+        "total": 15,
+        "correct": 4,
+        "recall": 0.2667
+      },
+      "recommend": {
+        "total": 16,
+        "correct": 6,
+        "recall": 0.375
+      },
+      "smalltalk": {
+        "total": 14,
+        "correct": 3,
+        "recall": 0.2143
+      }
+    },
+    "by_feature": {
+      "lexical": {
+        "total": 32,
+        "correct": 23,
+        "accuracy": 0.7188
+      },
+      "semantic": {
+        "total": 77,
+        "correct": 19,
+        "accuracy": 0.2468
+      }
+    }
+  },
+  "first_errors": [
+    "JSONDecodeError: Extra data: line 3 column 1 (char 96)"
+  ]
+}
