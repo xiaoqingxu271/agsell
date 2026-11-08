@@ -1,0 +1,74 @@
+{
+  "measured_at": "2026-11-08T14:35:36",
+  "git_commit": "f1dc38c8",
+  "worktree_dirty": true,
+  "dirty_files": 3,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "embedding_model": "BAAI/bge-small-zh-v1.5",
+  "grids": [
+    [
+      120,
+      20
+    ],
+    [
+      180,
+      30
+    ],
+    [
+      240,
+      45
+    ],
+    [
+      320,
+      60
+    ],
+    [
+      480,
+      90
+    ]
+  ],
+  "n_queries": 1224,
+  "n_source_docs": 202,
+  "rows": [
+    {
+      "size": 120,
+      "overlap": 20,
+      "chunks": 838,
+      "hit1": 0.993,
+      "hit3": 1.0,
+      "avg_ms": 1.1
+    },
+    {
+      "size": 180,
+      "overlap": 30,
+      "chunks": 606,
+      "hit1": 0.995,
+      "hit3": 1.0,
+      "avg_ms": 1.3
+    },
+    {
+      "size": 240,
+      "overlap": 45,
+      "chunks": 408,
+      "hit1": 0.997,
+      "hit3": 1.0,
+      "avg_ms": 1.3
+    },
+    {
+      "size": 320,
+      "overlap": 60,
+      "chunks": 406,
+      "hit1": 0.996,
+      "hit3": 1.0,
+      "avg_ms": 1.2
+    },
+    {
+      "size": 480,
+      "overlap": 90,
+      "chunks": 204,
+      "hit1": 1.0,
+      "hit3": 1.0,
+      "avg_ms": 1.8
+    }
+  ]
+}

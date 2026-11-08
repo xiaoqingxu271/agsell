@@ -1,0 +1,995 @@
+{
+  "measured_at": "2026-11-08T15:17:52",
+  "git_commit": "15a7753b",
+  "worktree_dirty": true,
+  "dirty_files": 10,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "limit": 30,
+  "seed": 20261017,
+  "grid": [
+    1,
+    2,
+    3
+  ],
+  "sampling": "从 109 条抽样 30 条（seed=20261017）",
+  "rows": [
+    {
+      "max_steps": 1,
+      "n": 30,
+      "accuracy": 0.967,
+      "avg_tool_calls": 0.81,
+      "avg_latency_ms": 6739,
+      "wall_seconds": 182.0,
+      "errors": 0,
+      "cases": [
+        {
+          "q": "生鲜是全程冷链吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 3588
+        },
+        {
+          "q": "签收之后发现坏了还能申请退款吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1432
+        },
+        {
+          "q": "支付方式里有花呗吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2708
+        },
+        {
+          "q": "我这个月的消费记录在哪里看",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2272
+        },
+        {
+          "q": "帮我看看我买过几箱酸奶",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1292
+        },
+        {
+          "q": "我有几笔交易还没有完成",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1153
+        },
+        {
+          "q": "帮我确认一下那单大闸蟹扣款成功了没",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1120
+        },
+        {
+          "q": "我买的东西走到哪座城市了",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1270
+        },
+        {
+          "q": "派送员的电话能给我吗",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1234
+        },
+        {
+          "q": "签收记录上显示是谁签收的",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1180
+        },
+        {
+          "q": "我提的申请有人处理吗",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 67416
+        },
+        {
+          "q": "说好的三个工作日到账，现在第五天了",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1712
+        },
+        {
+          "q": "我那个仅退款是被驳回了是吗",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1442
+        },
+        {
+          "q": "退款已经发起但我还没收到",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1089
+        },
+        {
+          "q": "帮我撤销之前的退货申请",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1860
+        },
+        {
+          "q": "早啊",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1184
+        },
+        {
+          "q": "有人在么",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1030
+        },
+        {
+          "q": "哈哈，和你聊得挺开心",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1032
+        },
+        {
+          "q": "你怎么称呼",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 66968
+        },
+        {
+          "q": "今天可真热啊",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": false,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1286
+        },
+        {
+          "q": "谢谢啦，帮大忙了",
+          "intent": "smalltalk",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "你会讲笑话不",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 969
+        },
+        {
+          "q": "我要向市场监管部门反映情况",
+          "intent": "human",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "你们涉嫌缺斤短两",
+          "intent": "human",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "escalate_human"
+          ],
+          "n_calls": 1,
+          "latency_ms": 5725
+        },
+        {
+          "q": "把你们负责人的电话给我",
+          "intent": "human",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "给孩子补维生素买什么好",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2978
+        },
+        {
+          "q": "预算八十块，能配一箱什么",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2786
+        },
+        {
+          "q": "过年走亲戚拎点什么体面",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1951
+        },
+        {
+          "q": "想买点下饭的小菜",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2028
+        },
+        {
+          "q": "第一次做饭，买点什么厨房常备",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 3253
+        }
+      ]
+    },
+    {
+      "max_steps": 2,
+      "n": 30,
+      "accuracy": 0.967,
+      "avg_tool_calls": 0.81,
+      "avg_latency_ms": 9401,
+      "wall_seconds": 253.8,
+      "errors": 0,
+      "cases": [
+        {
+          "q": "生鲜是全程冷链吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1686
+        },
+        {
+          "q": "签收之后发现坏了还能申请退款吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 68336
+        },
+        {
+          "q": "支付方式里有花呗吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1082
+        },
+        {
+          "q": "我这个月的消费记录在哪里看",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2085
+        },
+        {
+          "q": "帮我看看我买过几箱酸奶",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1369
+        },
+        {
+          "q": "我有几笔交易还没有完成",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2084
+        },
+        {
+          "q": "帮我确认一下那单大闸蟹扣款成功了没",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1272
+        },
+        {
+          "q": "我买的东西走到哪座城市了",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1563
+        },
+        {
+          "q": "派送员的电话能给我吗",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1606
+        },
+        {
+          "q": "签收记录上显示是谁签收的",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 68682
+        },
+        {
+          "q": "我提的申请有人处理吗",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1826
+        },
+        {
+          "q": "说好的三个工作日到账，现在第五天了",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1539
+        },
+        {
+          "q": "我那个仅退款是被驳回了是吗",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2309
+        },
+        {
+          "q": "退款已经发起但我还没收到",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1108
+        },
+        {
+          "q": "帮我撤销之前的退货申请",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 5555
+        },
+        {
+          "q": "早啊",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 989
+        },
+        {
+          "q": "有人在么",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1064
+        },
+        {
+          "q": "哈哈，和你聊得挺开心",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1113
+        },
+        {
+          "q": "你怎么称呼",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1638
+        },
+        {
+          "q": "今天可真热啊",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": false,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 68883
+        },
+        {
+          "q": "谢谢啦，帮大忙了",
+          "intent": "smalltalk",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "你会讲笑话不",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1741
+        },
+        {
+          "q": "我要向市场监管部门反映情况",
+          "intent": "human",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "你们涉嫌缺斤短两",
+          "intent": "human",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "escalate_human"
+          ],
+          "n_calls": 1,
+          "latency_ms": 5891
+        },
+        {
+          "q": "把你们负责人的电话给我",
+          "intent": "human",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "给孩子补维生素买什么好",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 3196
+        },
+        {
+          "q": "预算八十块，能配一箱什么",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1928
+        },
+        {
+          "q": "过年走亲戚拎点什么体面",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1654
+        },
+        {
+          "q": "想买点下饭的小菜",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1825
+        },
+        {
+          "q": "第一次做饭，买点什么厨房常备",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1804
+        }
+      ]
+    },
+    {
+      "max_steps": 3,
+      "n": 30,
+      "accuracy": 0.9,
+      "avg_tool_calls": 0.93,
+      "avg_latency_ms": 10085,
+      "wall_seconds": 272.3,
+      "errors": 0,
+      "cases": [
+        {
+          "q": "生鲜是全程冷链吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 5805
+        },
+        {
+          "q": "签收之后发现坏了还能申请退款吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 72991
+        },
+        {
+          "q": "支付方式里有花呗吗",
+          "intent": "faq",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 5293
+        },
+        {
+          "q": "我这个月的消费记录在哪里看",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1429
+        },
+        {
+          "q": "帮我看看我买过几箱酸奶",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 5038
+        },
+        {
+          "q": "我有几笔交易还没有完成",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1494
+        },
+        {
+          "q": "帮我确认一下那单大闸蟹扣款成功了没",
+          "intent": "order",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "order_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1415
+        },
+        {
+          "q": "我买的东西走到哪座城市了",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1092
+        },
+        {
+          "q": "派送员的电话能给我吗",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1804
+        },
+        {
+          "q": "签收记录上显示是谁签收的",
+          "intent": "logistics",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "logistics_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2184
+        },
+        {
+          "q": "我提的申请有人处理吗",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1717
+        },
+        {
+          "q": "说好的三个工作日到账，现在第五天了",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query",
+            "kb_search"
+          ],
+          "n_calls": 2,
+          "latency_ms": 68442
+        },
+        {
+          "q": "我那个仅退款是被驳回了是吗",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1894
+        },
+        {
+          "q": "退款已经发起但我还没收到",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 908
+        },
+        {
+          "q": "帮我撤销之前的退货申请",
+          "intent": "after_sales",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "after_sales_query"
+          ],
+          "n_calls": 1,
+          "latency_ms": 5273
+        },
+        {
+          "q": "早啊",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": false,
+          "tools": [
+            "kb_search",
+            "kb_search"
+          ],
+          "n_calls": 2,
+          "latency_ms": 3607
+        },
+        {
+          "q": "有人在么",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1559
+        },
+        {
+          "q": "哈哈，和你聊得挺开心",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1827
+        },
+        {
+          "q": "你怎么称呼",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 2405
+        },
+        {
+          "q": "今天可真热啊",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 66734
+        },
+        {
+          "q": "谢谢啦，帮大忙了",
+          "intent": "smalltalk",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "你会讲笑话不",
+          "intent": "smalltalk",
+          "route": "agent",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 1885
+        },
+        {
+          "q": "我要向市场监管部门反映情况",
+          "intent": "human",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "你们涉嫌缺斤短两",
+          "intent": "human",
+          "route": "agent",
+          "hit": false,
+          "tools": [
+            "after_sales_query",
+            "kb_search"
+          ],
+          "n_calls": 2,
+          "latency_ms": 1430
+        },
+        {
+          "q": "把你们负责人的电话给我",
+          "intent": "human",
+          "route": "rule_shortcut",
+          "hit": true,
+          "tools": [],
+          "n_calls": 0,
+          "latency_ms": 0
+        },
+        {
+          "q": "给孩子补维生素买什么好",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 3353
+        },
+        {
+          "q": "预算八十块，能配一箱什么",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1736
+        },
+        {
+          "q": "过年走亲戚拎点什么体面",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 6180
+        },
+        {
+          "q": "想买点下饭的小菜",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": true,
+          "tools": [
+            "product_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 1868
+        },
+        {
+          "q": "第一次做饭，买点什么厨房常备",
+          "intent": "recommend",
+          "route": "agent",
+          "hit": false,
+          "tools": [
+            "kb_search"
+          ],
+          "n_calls": 1,
+          "latency_ms": 2925
+        }
+      ]
+    }
+  ]
+}
