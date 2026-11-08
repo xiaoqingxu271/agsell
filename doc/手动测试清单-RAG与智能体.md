@@ -168,7 +168,7 @@
   ```
   .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode keyword
   .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm_only --workers 1
-  .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode ll --workers 1
+  .venv/Scripts/python scripts/eval_intent.py --testset holdout --mode llm --workers 1
   ```
   （hold-out 109 条计分样本，与调参数据隔离，防数据泄漏口径）
 - [ ] **H2 RAG 命中率**：`scripts/eval_rag.py`（知识库全覆盖 280 条，论文口径 Hit@1 97.2%）

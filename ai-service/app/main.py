@@ -38,7 +38,7 @@ from app.db import SessionLocal
 from app.rag.retriever import Retriever
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
-from app import checkpoint_maintenance, kb_hit_log
+from app import checkpoint_maintenance, kb_hit_log, semantic_cache
 from app import chat_audit
 from app.reply_sanitizer import MarkdownStripper, sanitize_reply_text
 from app.schemas.chat import ChatRequest, ChatResponse, HealthResponse
@@ -364,6 +364,49 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
     turn_tools: list[str] = []  # 运营统计：本轮用过的工具
     turn_refused = False        # 运营统计：是否走了拒答出口
     stripper = MarkdownStripper()  # token 下发前剥 Markdown 标记（** 常拆在相邻 token 里）
+
+    # ---------- 语义缓存：命中同义问法直接复用上轮 KB 答案，跳过整条链路 ----------
+    cache_embedding = None
+    if settings.SEMANTIC_CACHE_ENABLED:
+        try:
+            cache_embedding = await asyncio.to_thread(
+                semantic_cache.embed_query, get_embedder(), req.message)
+            cache_hit = await asyncio.to_thread(
+                semantic_cache.lookup, settings.SEMANTIC_CACHE_PATH, cache_embedding,
+                settings.SEMANTIC_CACHE_THRESHOLD, settings.SEMANTIC_CACHE_TTL_DAYS)
+        except Exception:  # noqa: BLE001 缓存是优化不是依赖：任何故障按未命中走全链路
+            logger.warning("语义缓存查询异常（按未命中）", exc_info=True)
+            cache_hit = None
+        if cache_hit:
+            answer = cache_hit["answer"]
+            logger.info("语义缓存命中 score=%.3f q=%s", cache_hit["score"], req.message[:40])
+            # 复用答案仍按 SSE 分片下发（微等待）：前端渲染管线与全链路完全一致
+            for i in range(0, len(answer), 8):
+                piece = answer[i:i + 8]
+                collected.append(piece)
+                yield _sse("token", {"content": piece})
+                await asyncio.sleep(0.02)
+            references = cache_hit.get("references") or []
+            yield _sse("done", {
+                "sessionId": req.sessionId,
+                "intent": None,
+                "suggestions": [],
+                "items": [],
+                "references": references,
+                "cache_hit": True,
+            })
+            # 与全链路同口径的旁路落库（intent=cache_hit 供运营看命中率），失败不影响响应
+            _thread = thread_config["configurable"]["thread_id"]
+            await asyncio.to_thread(
+                kb_hit_log.log_kb_hits, settings.KB_HIT_LOG_PATH, _thread, references)
+            await asyncio.to_thread(
+                kb_hit_log.log_chat_turn, settings.KB_HIT_LOG_PATH, _thread, req.userId,
+                {"intent": "cache_hit", "tools": [], "refused": False, "has_items": False})
+            await asyncio.to_thread(
+                chat_audit.record_turn, req.userId, req.sessionId, req.message, answer,
+                "cache_hit", [], False, len(references), references, None)
+            return
+
     try:
         graph = get_graph()
         async for mode, payload in graph.astream(
@@ -440,6 +483,17 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
         if tail:
             collected.append(tail)
             yield _sse("token", {"content": tail})
+
+        # ---------- 语义缓存写入 ----------
+        # 只存"纯知识问答轮"：工具仅 kb_search（无私有数据/导购）、无商品卡、
+        # 未转人工、未拒答，且确实由 LLM 流式生成过（collected 非空——确定性出口
+        # 的降级话术走的是下方快照兜底路径，不进 collected，天然不入缓存）
+        if (cache_embedding is not None and collected and references and not items
+                and not human_flag and not turn_refused
+                and turn_tools and all(t == "kb_search" for t in turn_tools)):
+            await asyncio.to_thread(
+                semantic_cache.store, settings.SEMANTIC_CACHE_PATH, req.message,
+                cache_embedding, "".join(collected), references)
 
         # 兜底：未流式出任何 token（转人工兜底 / 降级话术 / 工具异常文案），
         # 从最终会话状态取最后一条 AI 消息一次性下发，保证前端气泡不为空

@@ -30,8 +30,21 @@ from app.db import SessionLocal, get_session
 from app.rag import doc_ingest
 from app.rag.vectorstore import VectorStore
 from app.repositories import faq_repo
+from app import semantic_cache
 
 logger = logging.getLogger("agsell.ai.kb")
+
+
+def _invalidate_semantic_cache() -> None:
+    """知识库内容发生变化 → 语义缓存整库清空。
+
+    缓存是"派生数据的派生数据"：宁可让高频问题多算一次，也绝不冒答旧答案的
+    风险。覆盖：FAQ 增/改/删、FAQ 全量重建、文档上传（幂等替换）与按源删除。
+    商品索引变更不在此列（商品导购轮本就不入缓存）。
+    """
+    cleared = semantic_cache.clear(settings.SEMANTIC_CACHE_PATH)
+    if cleared > 0:
+        logger.info("知识库已变更，语义缓存清空 %s 条", cleared)
 
 router = APIRouter(prefix="/admin/kb", tags=["知识库管理"])
 
@@ -127,6 +140,7 @@ def rebuild_index(session: Session = Depends(get_session), _=Depends(_check_admi
         for f in faq_repo.list_enabled(session)
     ]
     n = _get_vectorstore().rebuild(entries)
+    _invalidate_semantic_cache()
     return {"indexed": n, "model": settings.EMBEDDING_MODEL}
 
 
@@ -246,6 +260,7 @@ def create_faq(body: FaqCreate, session: Session = Depends(get_session), _=Depen
     f = faq_repo.create(
         session, body.question, body.answer, body.category, body.keywords, body.status
     )
+    _invalidate_semantic_cache()
     return {"id": f.id, "indexed": _sync_upsert(f)}
 
 
@@ -263,6 +278,7 @@ def update_faq(
     )
     if not f:
         raise HTTPException(status_code=404, detail="FAQ 不存在")
+    _invalidate_semantic_cache()
     return {"id": f.id, "indexed": _sync_upsert(f)}
 
 
@@ -270,6 +286,7 @@ def update_faq(
 def delete_faq(faq_id: int, session: Session = Depends(get_session), _=Depends(_check_admin_key)):
     if not faq_repo.delete(session, faq_id):
         raise HTTPException(status_code=404, detail="FAQ 不存在")
+    _invalidate_semantic_cache()
     return {"deleted": True, "deindexed": _sync_delete(faq_id)}
 
 
@@ -320,6 +337,7 @@ async def upload_document(
             _get_vectorstore().delete_ids(old_ids)
         except Exception:
             logger.exception("文档 %s 旧块索引除名失败，可全量重建修复", source)
+    _invalidate_semantic_cache()
     return {
         "name": display_title,
         "chunks": len(ids),
@@ -354,6 +372,7 @@ def delete_document(
     except Exception:
         logger.exception("文档 %s 索引除名失败，可全量重建修复", source)
         deindexed = False
+    _invalidate_semantic_cache()
     return {"deleted": len(ids), "deindexed": deindexed}
 
 

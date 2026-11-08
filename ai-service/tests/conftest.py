@@ -17,3 +17,9 @@ import os as _os
 import tempfile as _tempfile
 
 _settings.KB_HIT_LOG_PATH = _os.path.join(_tempfile.gettempdir(), "agsell-test-kb-hits.db")
+
+# 语义缓存对单测整体禁用：单测不验证 FastEmbed 嵌入（模型加载 ~1s），也不希望
+# 缓存命中让"同问句重放"类测试短路掉图链路；缓存逻辑本身由 test_semantic_cache.py
+# 用受控向量单独验证。
+_settings.SEMANTIC_CACHE_ENABLED = False
+_settings.SEMANTIC_CACHE_PATH = _os.path.join(_tempfile.gettempdir(), "agsell-test-semantic-cache.db")

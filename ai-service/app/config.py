@@ -126,11 +126,25 @@ class Settings(BaseSettings):
 
     # 知识库重排（实验八）：bge-reranker-base 量化 ONNX，本地 CPU 推理。
     # 重排只调整已过闸门条目的先后，不放行新条目；实验八实测 platform_faq
-    # Hit@1 90.3%→97.2%、Hit@3 95.8%→100%，重排延迟 P50 219ms（20 候选），
-    # 对 9.6s 的 FAQ 首 token 路径占比 <3%，故默认打开；失败自动回退融合序。
+    # Hit@1 90.3%→97.2%、Hit@3 95.8%→100%，重排延迟 P50 144.2ms（20 候选，2026-10-24 存档），
+    # 对 9.6s 的 FAQ 首 token 路径占比约 1.5%，故默认打开；失败自动回退融合序。
     RERANK_ENABLED: bool = True
     RERANK_MODEL_PATH: str = "data/reranker"
     RERANK_RECALL_DEPTH: int = 20   # 参与重排的召回候选数（检索器先召回这么多再重排截断）
+
+    # 语义缓存（FAQ 高频问）：查询向量 cosine 相似度命中同义问法时直接复用上一轮
+    # 的 KB 答案，跳过整条 LangGraph 链路（省两次串行 LLM 调用）。
+    # 只缓存"纯知识问答轮"（工具仅 kb_search、无商品卡、未转人工、未拒答），
+    # 私有数据轮与导购轮永不入缓存；知识库任何写操作整库清空（见 admin_kb.py）。
+    SEMANTIC_CACHE_ENABLED: bool = True
+    SEMANTIC_CACHE_PATH: str = "data/semantic_cache.db"
+    # 阈值由 eval_cache.py 阈值-风险曲线实测选点（2026-11-08 存档）：0.85 时对强改写
+    # 有 1.4% "映射到错误条目"（= 答非所问）不可接受，0.88 起误命中归零 → 取 0.88。
+    # 代价是强改写命中率有限（6.9%），但原句重试/轻度改写接近全命中——缓存收益
+    # 主要来自"同一问题被反复原样问出"的真实场景，强改写仍走全链路保正确性。
+    SEMANTIC_CACHE_THRESHOLD: float = 0.88
+    SEMANTIC_CACHE_TTL_DAYS: int = 7
+
     # 会话 TTL（天）：超过 N 天未活跃的会话在启动与每日维护时从 checkpoints.db 清理。
     # 0 = 关闭清理。依据：state.messages 随会话无限增长（发送侧 3000 字符截断只管提示词），
     # 长期运行 checkpoints.db 膨胀（评估清单 §4 第 5 条的工程债）。

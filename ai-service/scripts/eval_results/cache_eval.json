@@ -1,0 +1,597 @@
+{
+  "measured_at": "2026-11-08T16:54:21",
+  "git_commit": "add06aa0",
+  "worktree_dirty": true,
+  "dirty_files": 14,
+  "provenance_warning": "本次测量包含未提交的工作区改动，git_commit 不足以唯一确定代码状态；正式引用前请先提交或注明改动内容（见 doc/项目评估与整改清单.md 的轮次记录）",
+  "experiment": "semantic_cache",
+  "queries": 72,
+  "cache_entries": 292,
+  "prod_threshold": 0.88,
+  "hit_rate_at_prod": 0.0694,
+  "wrong_answer_rate_at_prod": 0.0,
+  "repeat_hit_rate_at_prod": 1.0,
+  "correct_match_score_min": 0.5102,
+  "correct_match_score_p50": 0.784,
+  "threshold_curve": [
+    {
+      "threshold": 0.85,
+      "hit_rate": 0.1667,
+      "wrong_answer_rate": 0.0139
+    },
+    {
+      "threshold": 0.86,
+      "hit_rate": 0.1389,
+      "wrong_answer_rate": 0.0139
+    },
+    {
+      "threshold": 0.87,
+      "hit_rate": 0.125,
+      "wrong_answer_rate": 0.0139
+    },
+    {
+      "threshold": 0.88,
+      "hit_rate": 0.0694,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.89,
+      "hit_rate": 0.0556,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.9,
+      "hit_rate": 0.0278,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.91,
+      "hit_rate": 0.0139,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.92,
+      "hit_rate": 0.0,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.93,
+      "hit_rate": 0.0,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.94,
+      "hit_rate": 0.0,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.95,
+      "hit_rate": 0.0,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.96,
+      "hit_rate": 0.0,
+      "wrong_answer_rate": 0.0
+    },
+    {
+      "threshold": 0.97,
+      "hit_rate": 0.0,
+      "wrong_answer_rate": 0.0
+    }
+  ],
+  "embed_latency_ms": {
+    "p50": 2.0,
+    "p95": 2.4
+  },
+  "lookup_latency_ms": {
+    "p50": 3.1,
+    "p95": 4.3
+  },
+  "detail": [
+    {
+      "fid": 1,
+      "q": "这个平台是干嘛用的",
+      "best_fid": 1,
+      "best_score": 0.784,
+      "correct": true
+    },
+    {
+      "fid": 1,
+      "q": "介绍一下你们平台是做什么的",
+      "best_fid": 1,
+      "best_score": 0.9063,
+      "correct": true
+    },
+    {
+      "fid": 2,
+      "q": "人工客服电话多少",
+      "best_fid": 2,
+      "best_score": 0.7831,
+      "correct": true
+    },
+    {
+      "fid": 2,
+      "q": "怎么找到真人服务",
+      "best_fid": 2,
+      "best_score": 0.6149,
+      "correct": true
+    },
+    {
+      "fid": 3,
+      "q": "客服几点下班",
+      "best_fid": 3,
+      "best_score": 0.7856,
+      "correct": true
+    },
+    {
+      "fid": 3,
+      "q": "什么时间段有人工在线",
+      "best_fid": 3,
+      "best_score": 0.5817,
+      "correct": true
+    },
+    {
+      "fid": 4,
+      "q": "小程序登录方法",
+      "best_fid": 4,
+      "best_score": 0.8439,
+      "correct": true
+    },
+    {
+      "fid": 4,
+      "q": "进不去小程序怎么登陆",
+      "best_fid": 4,
+      "best_score": 0.8257,
+      "correct": true
+    },
+    {
+      "fid": 5,
+      "q": "登录会不会过期",
+      "best_fid": 5,
+      "best_score": 0.7506,
+      "correct": true
+    },
+    {
+      "fid": 5,
+      "q": "多久需要重新登录一次",
+      "best_fid": 5,
+      "best_score": 0.6302,
+      "correct": true
+    },
+    {
+      "fid": 6,
+      "q": "同一个商品有几种规格",
+      "best_fid": 6,
+      "best_score": 0.7926,
+      "correct": true
+    },
+    {
+      "fid": 6,
+      "q": "规格型号在哪个地方选",
+      "best_fid": 6,
+      "best_score": 0.6558,
+      "correct": true
+    },
+    {
+      "fid": 7,
+      "q": "没货了怎么办",
+      "best_fid": 7,
+      "best_score": 0.6379,
+      "correct": true
+    },
+    {
+      "fid": 7,
+      "q": "缺货的商品还能买到吗",
+      "best_fid": 9,
+      "best_score": 0.6871,
+      "correct": false
+    },
+    {
+      "fid": 8,
+      "q": "在哪里能看到商品的产地",
+      "best_fid": 8,
+      "best_score": 0.7341,
+      "correct": true
+    },
+    {
+      "fid": 8,
+      "q": "商品产地信息从哪里查",
+      "best_fid": 8,
+      "best_score": 0.859,
+      "correct": true
+    },
+    {
+      "fid": 9,
+      "q": "不想要了能退吗",
+      "best_fid": 23,
+      "best_score": 0.6618,
+      "correct": false
+    },
+    {
+      "fid": 9,
+      "q": "退换货政策是什么",
+      "best_fid": 9,
+      "best_score": 0.6186,
+      "correct": true
+    },
+    {
+      "fid": 10,
+      "q": "加购物车的操作",
+      "best_fid": 10,
+      "best_score": 0.7784,
+      "correct": true
+    },
+    {
+      "fid": 10,
+      "q": "购物车怎么添加东西",
+      "best_fid": 10,
+      "best_score": 0.8179,
+      "correct": true
+    },
+    {
+      "fid": 11,
+      "q": "提交订单要填哪些信息",
+      "best_fid": 15,
+      "best_score": 0.6774,
+      "correct": false
+    },
+    {
+      "fid": 11,
+      "q": "下单需要准备什么资料",
+      "best_fid": 11,
+      "best_score": 0.7568,
+      "correct": true
+    },
+    {
+      "fid": 12,
+      "q": "付款有没有时限",
+      "best_fid": 12,
+      "best_score": 0.7865,
+      "correct": true
+    },
+    {
+      "fid": 12,
+      "q": "订单多久不付款会自动失效",
+      "best_fid": 12,
+      "best_score": 0.7081,
+      "correct": true
+    },
+    {
+      "fid": 13,
+      "q": "可以用什么付款",
+      "best_fid": 13,
+      "best_score": 0.6759,
+      "correct": true
+    },
+    {
+      "fid": 13,
+      "q": "有哪些付款渠道",
+      "best_fid": 13,
+      "best_score": 0.7113,
+      "correct": true
+    },
+    {
+      "fid": 14,
+      "q": "不想买了怎么取消",
+      "best_fid": 14,
+      "best_score": 0.6999,
+      "correct": true
+    },
+    {
+      "fid": 14,
+      "q": "订单取消的操作方法",
+      "best_fid": 14,
+      "best_score": 0.8495,
+      "correct": true
+    },
+    {
+      "fid": 15,
+      "q": "订单状态分别是什么意思",
+      "best_fid": 15,
+      "best_score": 0.8156,
+      "correct": true
+    },
+    {
+      "fid": 15,
+      "q": "订单有几种状态",
+      "best_fid": 15,
+      "best_score": 0.9148,
+      "correct": true
+    },
+    {
+      "fid": 16,
+      "q": "一般多长时间发货",
+      "best_fid": 16,
+      "best_score": 0.8286,
+      "correct": true
+    },
+    {
+      "fid": 16,
+      "q": "付款后几天内会发货",
+      "best_fid": 16,
+      "best_score": 0.8056,
+      "correct": true
+    },
+    {
+      "fid": 17,
+      "q": "在哪里查订单和物流",
+      "best_fid": 17,
+      "best_score": 0.8777,
+      "correct": true
+    },
+    {
+      "fid": 17,
+      "q": "怎么追踪我的快递",
+      "best_fid": 17,
+      "best_score": 0.6322,
+      "correct": true
+    },
+    {
+      "fid": 18,
+      "q": "收货确认在哪操作",
+      "best_fid": 18,
+      "best_score": 0.8396,
+      "correct": true
+    },
+    {
+      "fid": 18,
+      "q": "收到货之后怎么点确认",
+      "best_fid": 18,
+      "best_score": 0.8495,
+      "correct": true
+    },
+    {
+      "fid": 19,
+      "q": "邮费贵不贵",
+      "best_fid": 19,
+      "best_score": 0.5102,
+      "correct": true
+    },
+    {
+      "fid": 19,
+      "q": "运费的收费标准是什么",
+      "best_fid": 19,
+      "best_score": 0.7803,
+      "correct": true
+    },
+    {
+      "fid": 20,
+      "q": "售后在哪里申请",
+      "best_fid": 20,
+      "best_score": 0.8828,
+      "correct": true
+    },
+    {
+      "fid": 20,
+      "q": "申请售后的流程是什么",
+      "best_fid": 20,
+      "best_score": 0.8484,
+      "correct": true
+    },
+    {
+      "fid": 21,
+      "q": "售后都包含哪几种",
+      "best_fid": 21,
+      "best_score": 0.8487,
+      "correct": true
+    },
+    {
+      "fid": 21,
+      "q": "售后有哪些种类可以选",
+      "best_fid": 21,
+      "best_score": 0.8779,
+      "correct": true
+    },
+    {
+      "fid": 22,
+      "q": "售后要处理多长时间",
+      "best_fid": 22,
+      "best_score": 0.8615,
+      "correct": true
+    },
+    {
+      "fid": 22,
+      "q": "提交售后申请多久有结果",
+      "best_fid": 22,
+      "best_score": 0.8908,
+      "correct": true
+    },
+    {
+      "fid": 23,
+      "q": "水果烂了能赔吗",
+      "best_fid": 23,
+      "best_score": 0.5912,
+      "correct": true
+    },
+    {
+      "fid": 23,
+      "q": "收到的东西有质量问题怎么办",
+      "best_fid": 23,
+      "best_score": 0.6582,
+      "correct": true
+    },
+    {
+      "fid": 24,
+      "q": "售后有什么要求",
+      "best_fid": 24,
+      "best_score": 0.8141,
+      "correct": true
+    },
+    {
+      "fid": 24,
+      "q": "什么情况可以申请售后",
+      "best_fid": 20,
+      "best_score": 0.8746,
+      "correct": false
+    },
+    {
+      "fid": 25,
+      "q": "售后单有哪几种状态",
+      "best_fid": 25,
+      "best_score": 0.8757,
+      "correct": true
+    },
+    {
+      "fid": 25,
+      "q": "售后状态分别是什么含义",
+      "best_fid": 25,
+      "best_score": 0.8096,
+      "correct": true
+    },
+    {
+      "fid": 26,
+      "q": "评价在哪里发",
+      "best_fid": 26,
+      "best_score": 0.5954,
+      "correct": true
+    },
+    {
+      "fid": 26,
+      "q": "买了东西怎么写评价",
+      "best_fid": 26,
+      "best_score": 0.7464,
+      "correct": true
+    },
+    {
+      "fid": 27,
+      "q": "评价写错了能改吗",
+      "best_fid": 27,
+      "best_score": 0.7612,
+      "correct": true
+    },
+    {
+      "fid": 27,
+      "q": "评完之后还能修改吗",
+      "best_fid": 27,
+      "best_score": 0.8741,
+      "correct": true
+    },
+    {
+      "fid": 28,
+      "q": "溯源码怎么扫",
+      "best_fid": 28,
+      "best_score": 0.7869,
+      "correct": true
+    },
+    {
+      "fid": 28,
+      "q": "二维码溯源的使用方法",
+      "best_fid": 28,
+      "best_score": 0.8963,
+      "correct": true
+    },
+    {
+      "fid": 29,
+      "q": "什么商品可以查溯源",
+      "best_fid": 29,
+      "best_score": 0.8327,
+      "correct": true
+    },
+    {
+      "fid": 29,
+      "q": "是不是所有商品都有溯源",
+      "best_fid": 29,
+      "best_score": 0.7415,
+      "correct": true
+    },
+    {
+      "fid": 30,
+      "q": "怎么抢秒杀",
+      "best_fid": 30,
+      "best_score": 0.7712,
+      "correct": true
+    },
+    {
+      "fid": 30,
+      "q": "秒杀的参与方式",
+      "best_fid": 30,
+      "best_score": 0.7912,
+      "correct": true
+    },
+    {
+      "fid": 31,
+      "q": "秒杀价有什么不一样",
+      "best_fid": 31,
+      "best_score": 0.76,
+      "correct": true
+    },
+    {
+      "fid": 31,
+      "q": "秒杀商品有什么特别之处",
+      "best_fid": 31,
+      "best_score": 0.8393,
+      "correct": true
+    },
+    {
+      "fid": 32,
+      "q": "总价是怎么算出来的",
+      "best_fid": 19,
+      "best_score": 0.6164,
+      "correct": false
+    },
+    {
+      "fid": 32,
+      "q": "订单价格包含哪些部分",
+      "best_fid": 15,
+      "best_score": 0.6958,
+      "correct": false
+    },
+    {
+      "fid": 33,
+      "q": "收货地址填错了怎么改",
+      "best_fid": 33,
+      "best_score": 0.853,
+      "correct": true
+    },
+    {
+      "fid": 33,
+      "q": "修改地址在哪里操作",
+      "best_fid": 33,
+      "best_score": 0.7259,
+      "correct": true
+    },
+    {
+      "fid": 34,
+      "q": "怎么找以前买过的订单",
+      "best_fid": 34,
+      "best_score": 0.7625,
+      "correct": true
+    },
+    {
+      "fid": 34,
+      "q": "历史订单在哪里翻",
+      "best_fid": 34,
+      "best_score": 0.7149,
+      "correct": true
+    },
+    {
+      "fid": 35,
+      "q": "小程序首页都能干什么",
+      "best_fid": 4,
+      "best_score": 0.6194,
+      "correct": false
+    },
+    {
+      "fid": 35,
+      "q": "首页上有哪些板块",
+      "best_fid": 35,
+      "best_score": 0.6809,
+      "correct": true
+    },
+    {
+      "fid": 36,
+      "q": "搜东西的方法",
+      "best_fid": 36,
+      "best_score": 0.5869,
+      "correct": true
+    },
+    {
+      "fid": 36,
+      "q": "怎么查找我想要的商品",
+      "best_fid": 36,
+      "best_score": 0.7703,
+      "correct": true
+    }
+  ]
+}
