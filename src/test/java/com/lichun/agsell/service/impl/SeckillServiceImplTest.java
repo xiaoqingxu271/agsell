@@ -437,7 +437,7 @@ class SeckillServiceImplTest {
         SeckillActivity ongoing = ongoingActivity();
         when(seckillActivityMapper.selectList(any())).thenReturn(List.of(ongoing));
         when(seckillRedisService.getRemainingStock(101L)).thenReturn(50);
-        when(productMapper.selectById(1001L)).thenReturn(mockProduct());
+        when(productMapper.selectBatchIds(any())).thenReturn(List.of(mockProduct()));
 
         var list = seckillService.listActivities(1);
         assertEquals(1, list.size());
@@ -464,7 +464,7 @@ class SeckillServiceImplTest {
         ongoing.setSoldCount(42);
         when(seckillActivityMapper.selectList(any())).thenReturn(List.of(ongoing));
         when(seckillRedisService.getRemainingStock(101L)).thenReturn(null);
-        when(productMapper.selectById(1001L)).thenReturn(mockProduct());
+        when(productMapper.selectBatchIds(any())).thenReturn(List.of(mockProduct()));
 
         var list = seckillService.listActivities(1);
 

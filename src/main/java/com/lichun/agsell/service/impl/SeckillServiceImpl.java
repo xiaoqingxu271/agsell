@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 秒杀服务实现
@@ -91,6 +92,7 @@ public class SeckillServiceImpl implements SeckillService {
                 cheapestByProduct.put(pid, act);
             }
         }
+        Map<Long, Product> productMap = batchProductMap(List.copyOf(cheapestByProduct.values()));
         return cheapestByProduct.values().stream()
                 .map(act -> {
                     SeckillListItemVO vo = new SeckillListItemVO();
@@ -109,8 +111,8 @@ public class SeckillServiceImpl implements SeckillService {
                     // 剩余库存（Redis 实时值；无缓存按 DB 的 seckill_stock - sold_count 推导）
                     vo.setRemainingStock(resolveRemainingStock(act));
                     vo.setProgress(calcProgress(act.getSeckillStock(), vo.getRemainingStock()));
-                    // 商品信息
-                    Product product = productMapper.selectById(act.getProductId());
+                    // 商品信息（批量预取，避免循环内逐条查询）
+                    Product product = productMap.get(act.getProductId());
                     if (product != null) {
                         vo.setProductName(product.getName());
                         vo.setProductImage(product.getMainImage());
@@ -144,7 +146,15 @@ public class SeckillServiceImpl implements SeckillService {
                         .eq(SeckillActivity::getStatus, 1)
                         .orderByAsc(SeckillActivity::getStartTime));
 
-        // 组装规格列表
+        // 组装规格列表（规格信息批量预取，避免循环内逐条查询）
+        List<Long> specIds = allActivities.stream()
+                .map(SeckillActivity::getProductSpecId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        Map<Long, ProductSpec> specMap = specIds.isEmpty() ? Map.of()
+                : productSpecMapper.selectBatchIds(specIds).stream()
+                        .collect(Collectors.toMap(ProductSpec::getId, s -> s));
         List<SeckillDetailVO.SeckillSpecVO> specList = allActivities.stream().map(act -> {
             SeckillDetailVO.SeckillSpecVO spec = new SeckillDetailVO.SeckillSpecVO();
             spec.setActivityCode(act.getActivityCode());
@@ -159,7 +169,7 @@ public class SeckillServiceImpl implements SeckillService {
             spec.setUserSeckilled(userId != null && seckillRedisService.hasUserSeckilled(act.getId(), userId));
             // 规格名称与图片
             if (act.getProductSpecId() != null) {
-                ProductSpec sp = productSpecMapper.selectById(act.getProductSpecId());
+                ProductSpec sp = specMap.get(act.getProductSpecId());
                 if (sp != null) {
                     spec.setSpecId(sp.getId());
                     spec.setSpecName(sp.getSpecName());
@@ -381,6 +391,20 @@ public class SeckillServiceImpl implements SeckillService {
         }
     }
 
+    /** 批量取活动关联商品（消 N+1）：一次 IN 查询替代循环内逐条 selectById。 */
+    private Map<Long, Product> batchProductMap(List<SeckillActivity> activities) {
+        List<Long> productIds = activities.stream()
+                .map(SeckillActivity::getProductId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (productIds.isEmpty()) {
+            return Map.of();
+        }
+        return productMapper.selectBatchIds(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+    }
+
     // ==================== 管理端 ====================
 
     @Override
@@ -389,8 +413,22 @@ public class SeckillServiceImpl implements SeckillService {
         if (status != null) {
             wrapper.eq(SeckillActivity::getStatus, status);
         }
+        // 商品名关键字下推 SQL：先解析匹配商品 id 集合再 in 过滤。
+        // 修复：旧实现"先 DB 分页、后内存按商品名过滤"，total 为未过滤数、单页记录缩水，翻页出现空页/丢数据
+        if (keyword != null && !keyword.isBlank()) {
+            List<Long> matchedProductIds = productMapper.selectList(
+                            new LambdaQueryWrapper<Product>().like(Product::getName, keyword))
+                    .stream().map(Product::getId).toList();
+            if (matchedProductIds.isEmpty()) {
+                return new Page<>(pageNum, pageSize, 0);
+            }
+            wrapper.in(SeckillActivity::getProductId, matchedProductIds);
+        }
         wrapper.orderByDesc(SeckillActivity::getCreateTime);
         Page<SeckillActivity> page = seckillActivityMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
+
+        // 商品信息批量预取（消 N+1）
+        Map<Long, Product> productMap = batchProductMap(page.getRecords());
 
         Page<SeckillActivityVO> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         result.setRecords(page.getRecords().stream().map(act -> {
@@ -410,19 +448,14 @@ public class SeckillServiceImpl implements SeckillService {
             int st = calcActivityStatus(act);
             vo.setActivityStatusText(activityStatusText(st));
             vo.setRemainingStock(resolveRemainingStock(act));
-            // 关键字过滤（商品名）
-            Product product = productMapper.selectById(act.getProductId());
+            Product product = productMap.get(act.getProductId());
             if (product != null) {
                 vo.setProductName(product.getName());
                 vo.setProductImage(product.getMainImage());
                 vo.setProductPrice(product.getPrice());
-                if (keyword != null && !keyword.isBlank()
-                        && !product.getName().contains(keyword)) {
-                    return null;
-                }
             }
             return vo;
-        }).filter(Objects::nonNull).toList());
+        }).toList());
         return result;
     }
 
