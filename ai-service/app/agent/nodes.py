@@ -24,6 +24,7 @@ from langchain_core.messages import (
     ToolMessage,
     trim_messages,
 )
+from langgraph.config import get_stream_writer
 
 from app.agent.executors import build_contextual_query, load_product_context, run_tool
 from app.agent.intent import _extract_order_no, _hard_rule, classify_full, count_demands, looks_multi_demand
@@ -200,6 +201,22 @@ def make_agent_node(llm, ctx, tool_schemas=None):
         obs: list = []
         seen: set = set()
         calls = 0
+        # 工具进度事件：custom 流式通道逐次下发（main.py 转成 SSE tool 事件），
+        # 让 6~15s 的取证期不再只有打字点。非流式调用（/v1/chat、评测脚本）里
+        # writer 是 no-op；上下文不可用（直接单测节点等）时退化为空操作——
+        # 进度提示是纯增量体验，任何异常都不允许拖垮取证主链路。
+        try:
+            stream_writer = get_stream_writer()
+        except Exception:  # noqa: BLE001 不在 runnable 上下文（如绕过图直调节点）
+            def stream_writer(_event: dict) -> None:
+                return None
+
+        def emit_tool(phase: str, name: str, status: str | None = None) -> None:
+            try:
+                stream_writer({"type": "tool", "phase": phase, "tool": name, "status": status})
+            except Exception:  # noqa: BLE001 进度提示绝不拖垮主链路
+                logger.debug("工具进度事件下发失败（忽略）", exc_info=True)
+
         # 多诉求覆盖保证：连接词/句读确定性计数，诉求多于已执行工具数时跳过提前退出，
         # 让第二步规划变成"补齐核对轮"（实测 3 条探针 1 条漏答的修复，单诉求零代价）
         demands = count_demands(question) if looks_multi_demand(question) else 1
@@ -241,11 +258,13 @@ def make_agent_node(llm, ctx, tool_schemas=None):
                         ensure_ascii=False), tool_call_id=tc.get("id") or f"{name}_dup", name=name))
                     # 同一步里重复 = 模型已经不会往前走了，继续执行/继续规划只会白烧额度
                     break
+                emit_tool("start", name)
                 o = run_tool(ctx, state, name, args)
                 obs.append(o)
                 step_obs.append(o)
                 calls += 1
                 seen.add(key)
+                emit_tool("done", name, o.status)
                 messages.append(ToolMessage(content=_tool_feedback(o),
                                             tool_call_id=tc.get("id") or f"{name}_{calls}",
                                             name=name))

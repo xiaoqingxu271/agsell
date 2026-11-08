@@ -54,6 +54,8 @@
             <text v-else class="bubble-text" user-select>{{ msg.content }}</text>
             <text v-if="msg.streaming && msg.content" class="stream-cursor">▍</text>
           </view>
+          <!-- 工具进度：agent 取证期逐工具实时下发（"正在查询订单…"），首 token 到达即隐藏 -->
+          <text v-if="msg.streaming && msg.statusText && !msg.content" class="stream-status">{{ msg.statusText }}</text>
 
           <!-- 知识依据：服务端按检索命中结构化下发（id+问句），不是模型自己念的。
                反幻觉的证据链可视化：这条回答"有出处"，点开能对上知识库条目。 -->
@@ -181,6 +183,16 @@ const quickQuestions = [
   '我的订单现在是什么状态？',
   '我申请过退款吗？结果怎么样？'
 ]
+
+// 工具名 → 进度文案标签（与服务端 tool 事件的 tool 字段对应）
+const TOOL_LABELS = {
+  kb_search: '知识库',
+  product_search: '商品库',
+  order_query: '订单',
+  logistics_query: '物流',
+  after_sales_query: '售后',
+  escalate_human: '转人工'
+}
 
 // 问题①：用户头像取自登录 userInfo（wxLogin 时写入 { userId, nickname, avatar, phone }），未登录用默认头像
 const userAvatar = computed(() => {
@@ -442,7 +454,7 @@ async function onSend() {
 
   sending.value = true
   // 预插入 AI 气泡：首 token 前显示打字动画，token 到达后逐字渲染
-  messages.value.push({ role: 'ai', content: '', suggestions: null, items: null, streaming: true })
+  messages.value.push({ role: 'ai', content: '', suggestions: null, items: null, streaming: true, statusText: '' })
   const msg = messages.value[messages.value.length - 1]
 
   try {
@@ -450,6 +462,16 @@ async function onSend() {
       onToken: (t) => {
         // Agnes 首包常带前导换行，流式期间就剥掉，避免气泡顶部出现空行
         msg.content = msg.content ? msg.content + t : (t || '').replace(/^\s+/, '')
+        if (msg.statusText) msg.statusText = ''  // 首 token 到达，取证期进度文案退场
+        scrollToBottom()
+      },
+      onTool: (d) => {
+        // 工具级进度（agent 取证期逐次下发）：打字点旁边实时显示"正在查询订单…"
+        if (!d || !d.tool) return
+        const label = TOOL_LABELS[d.tool] || d.tool
+        msg.statusText = d.phase === 'done'
+          ? `已查询${label}，正在组织回复…`
+          : `正在查询${label}…`
         scrollToBottom()
       },
       onStatus: () => {
@@ -882,6 +904,14 @@ async function onSend() {
 .stream-cursor {
   color: $uni-color-primary;
   animation: cursor-blink 0.8s step-end infinite;
+}
+
+/* 工具进度提示：取证期在气泡下方的小字（首 token 到达即隐藏，见模板 v-if） */
+.stream-status {
+  display: block;
+  margin: 6rpx 0 0 20rpx;
+  font-size: 22rpx;
+  color: #9ca3af;
 }
 
 @keyframes cursor-blink {

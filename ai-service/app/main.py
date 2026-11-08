@@ -322,6 +322,16 @@ _STREAMING_NODES = ("generate", "smalltalk")
 # 具体查了哪几件事由事件里的 tools 数组表示（工具名即 kb_search/product_search/…）
 _STAGE_EVENTS = ("agent",)
 
+# 工具名 → 用户可读标签：tool 事件给前端拼"正在查询订单…"类进度文案（默认前端也有同表）
+_TOOL_LABELS = {
+    "kb_search": "知识库",
+    "product_search": "商品库",
+    "order_query": "订单",
+    "logistics_query": "物流",
+    "after_sales_query": "售后",
+    "escalate_human": "转人工",
+}
+
 
 def _sse(event: str, data: dict) -> str:
     """编码一条 SSE 事件（事件间以空行分隔）"""
@@ -363,9 +373,18 @@ async def _chat_stream_events(req: ChatRequest, thread_config: dict):
                 "productId": req.productId,
             },
             thread_config,
-            stream_mode=["messages", "updates"],
+            stream_mode=["messages", "updates", "custom"],
         ):
-            if mode == "messages":
+            if mode == "custom":
+                # agent 节点内部逐工具进度（nodes.py emit_tool）：取证期实时反馈，
+                # 不再等 agent 节点整体完成才有一条 status
+                if isinstance(payload, dict) and payload.get("type") == "tool":
+                    yield _sse("tool", {
+                        "tool": payload.get("tool"),
+                        "phase": payload.get("phase"),
+                        "status": payload.get("status"),
+                    })
+            elif mode == "messages":
                 # (AIMessageChunk, metadata)：metadata.langgraph_node 为 token 来源节点
                 chunk, meta = payload
                 node = (meta or {}).get("langgraph_node")

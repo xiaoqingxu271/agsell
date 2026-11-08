@@ -28,6 +28,7 @@ const AI_ERROR_TEXT = {
  * @param {Object} handlers  事件回调
  *   - onToken(text)            逐字回复片段
  *   - onStatus({stage,intent}) 业务阶段（faq_retrieve/order_query/logistics_query/after_sales_query）
+ *   - onTool({tool,phase,status}) 工具级进度（agent 取证期逐次下发：开始/结束），用于"正在查询订单…"类提示
  *   - onItems(items)           导购推荐的结构化商品卡（候选一确定就下发，不必等回复说完）
  *   - onDone({suggestions,items}) 正常收尾；items 再带一份兜底（只监听 done 也能渲染卡片）
  *   - onError(err)             上游 error 事件（err.message 为提示文案）
@@ -53,6 +54,8 @@ export function sendAiChatStream(sessionId, message, handlers = {}, productId = 
         handlers.onToken?.(data.content || '')
       } else if (event === 'status') {
         handlers.onStatus?.(data)
+      } else if (event === 'tool') {
+        handlers.onTool?.(data || {})
       } else if (event === 'items') {
         handlers.onItems?.(Array.isArray(data.items) ? data.items : [])
       } else if (event === 'done') {
