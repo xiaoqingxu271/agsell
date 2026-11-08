@@ -136,6 +136,28 @@ class AiKbClientTest {
     }
 
     @Test
+    @DisplayName("config 解析类型归一：int→Long、float→Double、bool→Boolean、null 不变 JSONNull 空对象")
+    void parsesConfigWithTypedValues() {
+        String body = """
+                {"items":[
+                  {"key":"ai_kb_top_k","description":"d","type":"int","value":6,"default":5,"overridden":true,"min":1,"max":20},
+                  {"key":"ai_kb_score_threshold","description":"d","type":"float","value":0.5,"default":0.5,"overridden":false,"min":0.0,"max":1.0},
+                  {"key":"ai_rerank_enabled","description":"d","type":"bool","value":true,"default":true,"overridden":false,"min":null,"max":null}
+                ]}""";
+        var items = AiKbClient.parseConfig(body);
+        var topK = items.get(0);
+        assertEquals(6L, topK.getValue());
+        assertEquals(5L, topK.getDefaultValue());
+        assertTrue(topK.isOverridden());
+        var threshold = items.get(1);
+        assertEquals(0.5, ((Number) threshold.getValue()).doubleValue(), 1e-9);
+        var rerank = items.get(2);
+        assertEquals(Boolean.TRUE, rerank.getValue());
+        assertNull(rerank.getMin());
+        assertNull(rerank.getMax());
+    }
+
+    @Test
     @DisplayName("文档清单解析：items 缺失给空列表，块数落 0")
     void parsesDocList() {
         String body = "{\"items\":[{\"name\":\"A手册\",\"chunks\":3},{\"name\":\"B政策\",\"chunks\":1}]}";

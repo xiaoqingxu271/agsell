@@ -249,15 +249,45 @@ public class AiKbClient {
                 vo.setKey(row.getStr("key"));
                 vo.setDescription(row.getStr("description"));
                 vo.setType(row.getStr("type"));
-                vo.setValue(row.get("value"));
-                vo.setDefaultValue(row.get("default"));
+                vo.setValue(typedValue(row, "value"));
+                vo.setDefaultValue(typedValue(row, "default"));
                 vo.setOverridden(row.getBool("overridden", false));
-                vo.setMin(row.get("min"));
-                vo.setMax(row.get("max"));
+                vo.setMin(typedValue(row, "min"));
+                vo.setMax(typedValue(row, "max"));
                 items.add(vo);
             }
         }
         return items;
+    }
+
+    /**
+     * 按 Python 声明的 type 把混合值归一成强类型（null/JSONNull → null）。
+     * 不归一直接 row.get(Object) 透传的话：hutool 把 0.5 解析成 BigDecimal、
+     * null 解析成 JSONNull，Jackson 再序列化分别输出字符串与空对象 {}——
+     * 前端 el-input-number 拿到字符串直接渲染异常，布尔默认值恒显示 false。
+     */
+    private static Object typedValue(JSONObject row, String field) {
+        Object raw = row.get(field);
+        if (raw == null || raw instanceof cn.hutool.json.JSONNull) {
+            return null;
+        }
+        String type = row.getStr("type", "");
+        String text = String.valueOf(raw);
+        try {
+            switch (type) {
+                case "bool":
+                    return Boolean.parseBoolean(text);
+                case "int":
+                    return Long.valueOf(text);
+                case "float":
+                    return Double.valueOf(text);
+                default:
+                    return text;
+            }
+        } catch (NumberFormatException e) {
+            // 理论不可达（Python 端已归一），兜底原样透传避免整条配置丢失
+            return text;
+        }
     }
 
     static AiOpsSummaryVO parseOps(String json) {

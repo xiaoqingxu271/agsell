@@ -41,14 +41,17 @@ def _load(force: bool = False) -> dict[str, str]:
         return _cache
     try:
         with engine.connect() as conn:
+            # substr 前缀匹配而不是 LIKE 'ai\_%'：反斜杠 escape 在 bash/Python/MySQL
+            # 三层字符串转义里极易失效（E2E 实测静默匹配 0 行），substr 零转义语义精确
             rows = conn.execute(
-                text("select config_key, config_value from sys_config where config_key like 'ai\\_%' escape '\\'")
+                text("select config_key, config_value from sys_config where substr(config_key, 1, 3) = 'ai_'")
             ).all()
         _cache = {k: ("" if v is None else str(v)) for k, v in rows}
         _loaded_at = now
     except Exception:
-        # 失败也记时间：有旧缓存时按 TTL 内继续用旧值，库挂期间不会每轮对话都重试打库
-        logger.warning("sys_config 读取失败，AI 运行参数沿用缓存/默认值")
+        # 失败也记时间：有旧缓存时按 TTL 内继续用旧值，库挂期间不会每轮对话都重试打库。
+        # exc_info 必带——这层是旁路兜底，吞了栈就无从排查（E2E 教训：静默降级查了半小时）
+        logger.warning("sys_config 读取失败，AI 运行参数沿用缓存/默认值", exc_info=True)
         if _cache is None:
             _cache = {}
         _loaded_at = now
